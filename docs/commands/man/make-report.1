@@ -1,15 +1,27 @@
-.TH MAKE:REPORT 1 "2026-08-21" "SPP Framework" "SPP CLI Commands"
+.TH MAKE:REPORT 1 "October 2026" "SPP CLI Manual" "User Commands"
 .SH NAME
-make:report \- Scaffolds a new SPPReport YAML configuration and its corresponding HTMX view partial securely.
+make:report \- Scaffold an enterprise declarative SPPReport YAML configuration and presentation partial
 .SH SYNOPSIS
-\fBphp spp.php make:report\fR [\fINAME\fR]
+.B php spp.php make:report
+.I <name>
+[\fB\-\-app\fR=\fIappname\fR]
 .SH DESCRIPTION
-The \fBmake:report\fR command helps developers rapidly scaffold new Enterprise reports. Rather than writing JSON or YAML manually, this command provisions a standard configuration with safe defaults inside the \fIetc/sppreports/\fR directory. Furthermore, to adhere to the strict framework architectural rules regarding zero inline HTML, it generates a securely escaped view partial in the \fIpartials/reports/\fR directory that uses \fIhtmlspecialchars()\fR and avoids executing PHP directly inside the controller.
+The
+.B make:report
+command scaffolds a complete reporting definition and presentation partial for business intelligence,
+OLAP pivot tables, and tabular data exports.
+Generated reports integrate with \fBViewController::report()\fR, \fBViewController::reportKpi()\fR, \fB@sppreport\fR, \fB@sppreport_kpi\fR, \fB@sppreport_chart\fR, and \fB@sppreport_pivot\fR, featuring real-time client-side search, column sorting, and clipboard export.
 .SH OPTIONS
 .TP
-\fINAME\fR
-(Required) The name of the report you wish to scaffold. It will be sanitized to letters, numbers, hyphens, and underscores.
+.I <name>
+The unique name of the report (e.g., users_kpi, monthly_sales).
+.TP
+\fB\-\-app\fR=\fIappname\fR
+The target application context (e.g., school, default).
 .SH UNDER THE HOOD
-1. Reads the provided \fINAME\fR and sanitizes it.
-2. Creates \fIetc/sppreports/<name>.yml\fR with boilerplate structure.
-3. Creates \fIpartials/reports/<name>.php\fR with a standard HTML grid wrapped safely for HTMX and Turbo Streams.
+.IP \(bu 2
+Creates declarative YAML definition in \fBetc/apps/<appname>/reports/<name>.yml\fR.
+.IP \(bu 2
+Scaffolds external presentation partial at \fBsrc/<appname>/pages/partials/reports/<name>.blade.php\fR.
+.IP \(bu 2
+Emits file metadata to \fB__spp_file_props.yml\fR.

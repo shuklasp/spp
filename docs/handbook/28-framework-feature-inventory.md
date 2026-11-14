@@ -26,6 +26,11 @@ The purpose is not to turn the handbook into a list of every PHP file. Instead, 
 | Events / EventHandler / SPPEvent | Core mandatory | Dedicated event lab |
 | Middleware / Pipeline / MiddlewareKernel | Core mandatory | **First major framework deep-dive** |
 | Routing / request dispatch | Core mandatory | Routing lab |
+| Multi-tenant domain routing (`DomainRouter`) | Core mandatory | Domain routing lab |
+| Single & Multi-Domain modes (`domain:mode`) | Core mandatory | Architecture modes & copy-paste lab |
+| Domain application scoping (`domain:app:scope`) | Core mandatory | Domain security lab |
+| Universal OS & Infra engine (`Infra`) | Core mandatory | Infrastructure & runtime lab |
+| Application uninstaller & backups (`AppUninstaller`) | Core mandatory | Lifecycle & operations lab |
 | API route model binding | Specialized branch | API lab |
 
 ## 28.2 MVC and application structure
@@ -110,9 +115,18 @@ SPP should be explained as a framework capable of supporting MVC-style organizat
 | Entity model | Core mandatory | Entity branch |
 | Entity query | Core mandatory | Query branch |
 | Query builder | Core mandatory | Query branch |
-| SPP XDB facade | Core mandatory for XDB users | Dedicated XDB branch |
-| XML engine | Specialized branch | XDB lab |
-| SQLite engine | Specialized branch | XDB lab |
+| SPP XDB facade | Core mandatory for XDB users | Dedicated XDB branch (`$xdb->xbam()`, `$xdb->rag()`, `$xdb->temporal()`, `$xdb->merkle()`, `$xdb->live()`) |
+| XML engine | Specialized branch | Native XML document database (`XMLEngine`) |
+| SQLite engine | Specialized branch | SQLite-backed relational engine (`SQLiteEngine`) |
+| Zero-Copy Flat Buffer (.xbam) | High-performance storage | 32-byte fixed node records with Dietz Pre/Post interval indexing |
+| Universal Inverted Index | High-performance search | MarkLogic-style unified postings for paths, values, word tokens, and ranges |
+| AI RAG & Tree Chunker | AI & LLM integration | Tree-aware hierarchical chunking, hybrid Vector+BM25, and agent tool calling |
+| Bi-Temporal Time Travel | Enterprise data modeling | SQL:2011 / XTDB dual-timeline (Valid Time vs System Time) with As-Of queries |
+| Cryptographic Merkle Ledger | Audit & compliance | Append-only SHA-256 hash chain, Merkle root, inclusion proofs, and tamper detection |
+| Reactive Live Queries (CDC) | Real-time streaming | Standing query subscriptions generating Hotwire Turbo Streams (<turbo-stream>) and SSE |
+| Advanced SQL Dialect | Query engine | CTEs (`WITH`), $O(N+M)$ Hash Joins, Outer Joins, Correlated `EXISTS`, UPSERT, Savepoints, Window Functions |
+| W3C XQuery 3.1 & XQUF | Native XML standards | FLWOR expression execution and in-place tree mutations |
+| MVCC Snapshot Isolation | Concurrency & transactions | Multi-Version Concurrency Control with Write-Ahead Logging (`_wal.jsonl`) |
 | CRUD | Core mandatory | XDB/data lab |
 | Schema | Core mandatory | Migration lab |
 | Indexing | Specialized branch | XDB performance lab |
@@ -208,9 +222,17 @@ These must remain distinct from ordinary schema migrations.
 
 | Area | Teaching level | Tutorial treatment |
 |---|---|---|
-| Storage abstraction | Core mandatory for file-oriented apps | Storage branch |
-| Disk interface | Core mandatory for storage branch | Storage lab |
-| Local disk | Core mandatory | Storage lab |
+| Sovereign File facade (`\SPP\Core\File`) | Core mandatory | File services lab |
+| Cross-platform atomic writes (`putAtomic`) | Core mandatory | File resilience lab |
+| Storage multi-disk abstraction (`\SPP\Core\Storage`) | Core mandatory | Storage branch |
+| Disk interface (`DiskInterface`) | Core mandatory | Storage architecture lab |
+| Local disk (`LocalDisk`) | Core mandatory | Storage lab |
+| Pure-PHP cloud S3/R2 storage (`S3Disk`) | Specialized/enterprise | Cloud storage lab |
+| In-memory virtual disk (`MemoryDisk`) | Specialized branch | Serverless & testing lab |
+| Fluent directory query builder (`FileFinder`) | Core mandatory | File operations lab |
+| Expiring signed URLs (`temporaryUrl`) | Specialized/security | Secure documents lab |
+| HTTP 206 range streaming (`streamDownload`) | Specialized branch | Media & downloads lab |
+| Multi-tier MIME & magic-byte sniffer | Core mandatory | File verification lab |
 | Linked/synchronized storage | Specialized branch | Deployment/content lab |
 | File transfer | Specialized branch | Content promotion lab |
 
@@ -225,13 +247,19 @@ These must remain distinct from ordinary schema migrations.
 | Long-running services | Specialized branch | Worker/runtime lab |
 | Asynchronous polyglot workers | Specialized branch | Polyglot branch |
 
-## 28.15 Polyglot and external applications
+## 28.15 Polyglot, Multi-Language Hosting & Service Mesh
 
 | Area | Teaching level | Tutorial treatment |
 |---|---|---|
+| Declarative Application Manifest (`ForeignAppRegistry`, `etc/apps.yml`) | Core enterprise | Multi-language catalog & routing lab |
+| Subpath Virtualization Engine (`SubpathVirtualizer`, `SubpathGateway`) | Core enterprise | Route directory & subdomain virtualization lab |
+| Sovereign Cross-Platform Process Supervisor (`AppSupervisor`) | Core enterprise | Daemon lifecycle & port allocation lab |
+| Ambient Sensing Protocol & Zero-Dependency SDKs (Python, Node, PHP, WordPress) | Specialized branch | Microservice SDK & SSO lab |
+| Sovereign Inter-App Service Mesh (`\SPP\Mesh`, `MeshServiceDispatcher`) | Core enterprise | Inter-app RPC & event bus lab |
+| Unified Developer Studio Workbench (`/sppdev#apps`, `/sppdev#mesh`) | Core mandatory | Developer Studio workbench lab |
 | Polyglot proxy | Specialized branch | Polyglot lab |
 | Bridge interface/factory | Specialized branch | Bridge internals |
-| Language bridges | Specialized branch | Language-specific labs |
+| Language bridges (Python, Node, Go, C++, Java, .NET) | Specialized branch | Language-specific labs |
 | External application adapters | Specialized branch | External integration branch |
 | Drupal/legacy integration | Contributed/specialized | External application lab |
 | Protocol/security boundaries | Core enterprise | Integration security lab |
@@ -296,7 +324,36 @@ The repository also contains application/contributed domains such as reporting, 
 
 These should be catalogued, but the handbook should distinguish them from universal kernel features.
 
-## 28.21 Final curriculum rule
+## 28.21 Declarative Manifest OS & Component Governance
+
+| Area | Teaching level | Tutorial treatment |
+|---|---|---|
+| Directory manifests (`__spp_file_props.yml`) | Core mandatory | Manifest OS mastery lab |
+| High-performance SQLite WAL compilation | Specialized/enterprise | Performance & storage lab |
+| Deno-style capability sandboxing | Core mandatory for security | Web security & sandbox lab |
+| Static data flow taint tracking | Specialized branch | Security & static analysis lab |
+| Declarative SSR & Progressive Hydration | Core mandatory for views | Reactive view & partials lab |
+| Multi-database connection routing | Specialized branch | Data routing & replication lab |
+| Continuous AST self-healing (`props:heal`) | Core mandatory | Developer tooling & watcher lab |
+| Software Bill of Materials (SBOM) | Specialized/enterprise | Supply chain & provenance lab |
+| AI attention beacons & semantic vector RAG | Specialized branch | AI & knowledge graph lab |
+
+## 28.22 Sovereign App Store, Publisher Governance, and Host Node Telemetry
+
+| Area | Teaching level | Tutorial treatment |
+|---|---|---|
+| Publisher Self-Service Registration & Bcrypt Hashing | Core mandatory | Identity & Store lab |
+| User Status Lifecycle & Administrative Suspension | Core mandatory for security | Moderation & governance lab |
+| Central Content Moderation Queue (`/admin/moderation`) | Core enterprise | Operations & governance lab |
+| Granular Project Visibility (`public`, `personal`, `group`, `team`) | Core mandatory | Project architecture lab |
+| Self-Service Project Wizard & Auto-Scaffolding | Core mandatory | Developer DX & store lab |
+| Package-to-Project Auto-Linking (`pkg:install` badge) | Core mandatory | Distribution & showcase lab |
+| Public Publisher Vanity Profiles (`/store/publisher`) | Specialized branch | Community & publisher lab |
+| Semantic Versioning Release Wizard & Deprecation | Specialized branch | Package lifecycle lab |
+| Bare-Metal Node Telemetry Console (`/admin/server`) | Core enterprise | Sovereign Linux operations lab |
+| Zero-cPanel Sovereign Hosting Architecture (AlmaLinux 9) | Core enterprise | Deployment topology lab |
+
+## 28.23 Final curriculum rule
 
 A subsystem belongs in the **core tutorial** when a normal SPP developer needs it to understand the framework.
 

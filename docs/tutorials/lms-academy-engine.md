@@ -528,3 +528,144 @@ Educational tools must be inclusive and accessible to learners relying on screen
   - **1 Minute Remaining**: *"Warning: 1 minute remaining in quiz!"*
   - **30 Seconds Remaining**: *"Urgent: 30 seconds remaining before automatic submission!"*
 
+---
+
+## 13. Google Classroom Feature Parity: Stream, Classwork & Roster
+
+The SPPDocs LMS engine delivers 100% native feature parity with Google Classroom, functioning entirely self-contained without requiring third-party cloud accounts:
+
+### 1. The Class Stream (`lms/classroom`)
+- **Announcements Feed**: Instructors can publish announcements, pinned posts, and updates directly to the course timeline.
+- **Threaded Student Discussions**: Learners can participate in discussion threads under any announcement.
+- **Card-Based UI**: Styled with modern typography, subtle borders, and brand accents matching the SPPDocs theme.
+
+### 2. Topic-Organized Classwork (`lms/classroom/classwork`)
+- **Topic Modules**: Instructors can organize curriculum units, quizzes, and assignments into distinct thematic topics (e.g., *"Week 1: Core Fundamentals"*, *"Project 2: Database Schema"*).
+- **Consolidated Progression**: Lessons, quizzes, and assignments appear under their designated topics with clear visual type indicators.
+
+### 3. Student Roster & Invite Codes (`lms/classroom/roster`)
+- **6-Character Alphanumeric Invite Codes**: Each course generates a shareable alphanumeric invite code (e.g., `MATH42`). Students navigate to `/lms/classroom/join`, type the code, and are instantly enrolled.
+- **Bulk CSV Enrollment**: Instructors can upload a CSV file (`username,role`) to batch-enroll entire classrooms in a single operation.
+- **Course Cloning**: Instructors can clone existing courses for new cohorts with one click. The clone preserves lessons, assignments, rubrics, and settings while clearing student-specific records.
+
+---
+
+## 14. Coursework Assignments & Turn-In Workflow
+
+Assignments provide structured homework and project evaluation capabilities:
+
+### Assignment Lifecycle States:
+$$\text{Draft} \longrightarrow \text{Submitted} \longrightarrow \text{Graded} \longrightarrow \text{Returned}$$
+
+1. **Authoring (`lms/assignments/save`)**:
+   - Instructors specify title, markdown instructions, max points, due dates, and allowed file formats.
+   - **Configurable File Limits**: Configurable file upload limits (default: 10MB per file).
+   - **Late Policies**: Instructors choose automated late penalties: `none`, `10percent`, `25percent`, `50percent`, or `reject`.
+2. **Student Turn-In (`lms/assignments/submit`)**:
+   - Learners upload attachments and optional text notes.
+   - Late submissions automatically compute penalty multipliers against the deadline.
+3. **Unsubmit Support (`lms/assignments/unsubmit`)**:
+   - Students can retract their submission to revise deliverables as long as grading has not commenced.
+
+---
+
+## 15. Rubric-Based Assessment & Grading
+
+Instructors can attach structured evaluation rubrics to coursework:
+
+```json
+{
+  "title": "Code Review Rubric",
+  "criteria": [
+    {
+      "name": "Architecture & Cleanliness",
+      "description": "Adherence to separation of concerns and naming conventions",
+      "levels": [
+        {"label": "Exemplary", "points": 25},
+        {"label": "Proficient", "points": 20},
+        {"label": "Developing", "points": 15},
+        {"label": "Novice", "points": 5}
+      ]
+    }
+  ]
+}
+```
+
+- **Interactive Grading Grid**: Instructors evaluate criteria by selecting specific performance tiers, automatically tabulating total scores.
+- **Student Transparency**: Learners can inspect the rubric before submission and view criterion-level scores alongside written instructor feedback.
+
+---
+
+## 16. Enterprise Dashboards
+
+Dedicated dashboards tailored for student progress and instructor class management:
+
+### Student Learning Hub (`lms/student-dashboard`)
+- **Active Courses**: In-progress units, percentage completion bars, and one-click "Resume" buttons.
+- **XP Progression Bar**: Live experience points, skill levels, and remaining XP needed for the next rank.
+- **Earned Badges**: Visual showcase of unlocked achievements and milestones.
+- **Quick Links**: Direct navigation to certificates, leaderboard, learning tracks, and study calendars.
+
+### Instructor Command Center (`lms/instructor-dashboard`)
+- **Key Metrics**: Total active enrollments, course count, and classwide average completion rate.
+- **Course Operations Table**: Direct links to Stream, Classwork, Roster, and Submissions management.
+
+---
+
+## 17. Cryptographic Course Certificates & Verification
+
+SPPDocs includes zero-dependency cryptographic certificate generation:
+
+- **Cryptographic SHA-256 Digest**: Each certificate embeds an HMAC-SHA-256 verification hash derived from the certificate code, student username, course identifier, and platform secret.
+- **Pure-PHP Vector QR Codes**: Rendered via `QrCodeGenerator::svg()` without external GD, Imagick, or CDN libraries.
+- **Printable Template (`lms/certificate/view`)**: Elegant double-border design formatted for standard letter/A4 printing (`@media print` CSS included).
+- **Public Verification Endpoint (`lms/certificate/verify`)**: Anyone scanning the QR code or visiting the verification URL can validate credential authenticity in real time.
+
+---
+
+## 18. Gamification: Experience Points, Levels & Badges
+
+To drive learner engagement and retention, the LMS incorporates a comprehensive gamification engine:
+
+### XP Rewards & Progression:
+- **Lesson Completion**: +10 XP
+- **Discussion Contribution**: +5 XP
+- **Course Review**: +10 XP
+- **Assignment Turn-In**: +15 XP
+- **Best Answer Endorsement**: +20 XP
+- **Quiz Pass**: +20 XP (Perfect Score: +50 XP)
+- **Graduation**: +100 XP
+
+### Level Tiers:
+| Level | Title | Min XP | Max XP |
+| :--- | :--- | :--- | :--- |
+| **1** | Novice | 0 | 99 |
+| **2** | Learner | 100 | 299 |
+| **3** | Scholar | 300 | 599 |
+| **4** | Expert | 600 | 999 |
+| **5** | Master | 1,000 | 999,999 |
+
+### Unlocked Achievements:
+- 🏆 **Perfect Score**: 100% on first quiz attempt.
+- 🎓 **Graduate**: Complete an entire course.
+- 🔥 **Dedicated Learner**: Learn 7 days in a row.
+- 🤝 **Helpful Peer**: 5 discussion replies marked as best answer.
+- 📚 **Scholar**: Graduate from 5 distinct courses.
+
+---
+
+## 19. Learning Paths & Sequential Progression
+
+Organize multiple standalone courses into unified career and skill roadmaps (`lms/paths`):
+
+- **Sequential Nodes**: Visual connected roadmap indicating completed, active, and locked courses.
+- **Prerequisite Enforcement**: Prevent students from accessing advanced modules until all foundational courses are completed.
+
+---
+
+## 20. Community Discussions & Ratings
+
+- **Course Q&A (`lms/discussions`)**: Threaded discussion boards with markdown rendering, instructor pinned threads, and "Mark as Best Answer" endorsements.
+- **5-Star Course Ratings (`lms/reviews`)**: Learners who complete at least 50% of course units can rate courses from 1 to 5 stars with written reviews, displayed with interactive star distribution histograms.
+- **In-App Notification Queue (`NotificationService`)**: Instant alerts for graded assignments, discussion replies, certificate unlocks, and level-up milestones.
+

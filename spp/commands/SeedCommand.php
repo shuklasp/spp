@@ -45,7 +45,17 @@ class SeedCommand extends Command
                 echo "Running seeder: {$className}\n";
                 $seeder = new $fullClass();
                 if (method_exists($seeder, 'run')) {
-                    $seeder->run($db);
+                    $ref = new \ReflectionMethod($seeder, 'run');
+                    if ($ref->getNumberOfParameters() > 0) {
+                        $seeder->run($db);
+                    } else {
+                        $seeder->run();
+                    }
+                }
+                if ($seeder instanceof \SPPMod\SPPDB\SPPSeeder) {
+                    foreach ($seeder->getLogs() as $log) {
+                        echo "  [LOG] {$log}\n";
+                    }
                 }
             }
         }

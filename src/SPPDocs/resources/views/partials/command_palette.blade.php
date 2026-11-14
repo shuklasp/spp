@@ -25,87 +25,36 @@
         <div id="sppdocs-cmd-instant-results"></div>
 
         <div id="sppdocs-cmd-list" class="sppdocs-cmd-list">
-            <div class="sppdocs-cmd-section">Navigation & Quick Actions (Project: {{ $effectiveProjectId }})</div>
+            @php
+                $paletteUser = $_SESSION['sppdocs_user'] ?? null;
+                $paletteItems = \App\SPPDocs\Services\MenuRegistry::getCommandPaletteItems($project ?? [], $effectiveProjectId, $paletteUser);
+                $activePaletteGroup = null;
+            @endphp
 
-            <a href="{{ \SPP\App::url('issues/board') }}{{ $projParam }}" class="sppdocs-cmd-item" data-keyword="board kanban tasks sprint" hx-boost="false">
-                <div class="sppdocs-cmd-item-left">
-                    <span>📋</span>
-                    <span>Go to Kanban Board</span>
-                </div>
-                <kbd class="sppdocs-cmd-kbd">B</kbd>
-            </a>
-
-            <a href="{{ \SPP\App::url('issues') }}{{ $projParam }}" class="sppdocs-cmd-item" data-keyword="issues list tracker bugs" hx-boost="false">
-                <div class="sppdocs-cmd-item-left">
-                    <span>📝</span>
-                    <span>View All Issues</span>
-                </div>
-                <kbd class="sppdocs-cmd-kbd">L</kbd>
-            </a>
-
-            <a href="{{ \SPP\App::url('issues') }}{{ $projParam }}&new=1" class="sppdocs-cmd-item" data-keyword="create new issue bug task" hx-boost="false">
-                <div class="sppdocs-cmd-item-left">
-                    <span>➕</span>
-                    <span>Create New Issue</span>
-                </div>
-                <kbd class="sppdocs-cmd-kbd">C</kbd>
-            </a>
-
-            <a href="{{ \SPP\App::url('milestones') }}{{ $projParam }}" class="sppdocs-cmd-item" data-keyword="milestones sprints roadmap" hx-boost="false">
-                <div class="sppdocs-cmd-item-left">
-                    <span>🏁</span>
-                    <span>View Milestones & Sprints</span>
-                </div>
-                <kbd class="sppdocs-cmd-kbd">M</kbd>
-            </a>
-
-            <a href="{{ \SPP\App::url('lms') }}{{ $projParam }}" class="sppdocs-cmd-item" data-keyword="academy lms courses learn certifications masterclass" hx-boost="false">
-                <div class="sppdocs-cmd-item-left">
-                    <span>🎓</span>
-                    <span>Academy &amp; Learning Courses</span>
-                </div>
-                <kbd class="sppdocs-cmd-kbd">K</kbd>
-            </a>
-
-            <a href="{{ \SPP\App::url('lms/dashboard') }}{{ $projParam }}" class="sppdocs-cmd-item" data-keyword="my learning dashboard progress certificates lms" hx-boost="false">
-                <div class="sppdocs-cmd-item-left">
-                    <span>🎯</span>
-                    <span>My Learning &amp; Certificates</span>
-                </div>
-                <kbd class="sppdocs-cmd-kbd">Y</kbd>
-            </a>
-
-            <a href="{{ \SPP\App::url('admin/lms') }}?project={{ urlencode($effectiveProjectId) }}" class="sppdocs-cmd-item" data-keyword="course studio lms authoring teacher admin" hx-boost="false">
-                <div class="sppdocs-cmd-item-left">
-                    <span>🛠️</span>
-                    <span>LMS Course Studio</span>
-                </div>
-                <kbd class="sppdocs-cmd-kbd">S</kbd>
-            </a>
-
-            <a href="{{ \SPP\App::url('project/' . urlencode($effectiveProjectId)) }}" class="sppdocs-cmd-item" data-keyword="docs documentation wiki" hx-boost="false">
-                <div class="sppdocs-cmd-item-left">
-                    <span>📖</span>
-                    <span>Live Documentation</span>
-                </div>
-                <kbd class="sppdocs-cmd-kbd">D</kbd>
-            </a>
-
-            <a href="{{ \SPP\App::url('admin/project/' . urlencode($effectiveProjectId)) }}" class="sppdocs-cmd-item" data-keyword="admin settings project manage config" hx-boost="false">
-                <div class="sppdocs-cmd-item-left">
-                    <span>⚙️</span>
-                    <span>Project Administration</span>
-                </div>
-                <kbd class="sppdocs-cmd-kbd">A</kbd>
-            </a>
-
-            <a href="{{ \SPP\App::url('/') }}" class="sppdocs-cmd-item" data-keyword="portal projects home hub" hx-boost="false">
-                <div class="sppdocs-cmd-item-left">
-                    <span>🚀</span>
-                    <span>Projects Portal Home</span>
-                </div>
-                <kbd class="sppdocs-cmd-kbd">P</kbd>
-            </a>
+            @foreach($paletteItems as $cmdItem)
+                @php
+                    $itemGroup = $cmdItem['group'] ?? 'Actions';
+                @endphp
+                @if($itemGroup !== $activePaletteGroup)
+                    @php $activePaletteGroup = $itemGroup; @endphp
+                    <div class="sppdocs-cmd-section">{{ $activePaletteGroup }}</div>
+                @endif
+                <a href="{{ $cmdItem['url'] }}" 
+                   class="sppdocs-cmd-item" 
+                   data-keyword="{{ $cmdItem['keywords'] ?? '' }}" 
+                   @if(!empty($cmdItem['shortcut'])) data-shortcut="{{ strtolower($cmdItem['shortcut']) }}" @endif
+                   hx-boost="false">
+                    <div class="sppdocs-cmd-item-left">
+                        <span>{{ $cmdItem['icon'] ?? '⚡' }}</span>
+                        <span>{{ $cmdItem['title'] }}</span>
+                    </div>
+                    @if(!empty($cmdItem['badge']))
+                        <span class="sppdocs-cmd-badge" style="font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; background: var(--vp-c-bg-mute, #f1f5f9); color: var(--vp-c-text-2, #64748b); border: 1px solid var(--vp-c-divider, #e2e8f0);">{{ $cmdItem['badge'] }}</span>
+                    @elseif(!empty($cmdItem['shortcut']))
+                        <kbd class="sppdocs-cmd-kbd">{{ $cmdItem['shortcut'] }}</kbd>
+                    @endif
+                </a>
+            @endforeach
         </div>
 
         <div id="sppdocs-cmd-ai-container" style="display: none;"></div>
@@ -254,7 +203,7 @@
         }
         clearTimeout(instantDebounceTimer);
         instantDebounceTimer = setTimeout(() => {
-            fetch(getBaseUrl() + '/api/search/instant?project=' + encodeURIComponent(proj) + '&q=' + encodeURIComponent(q))
+            fetch(getBaseUrl() + '/api/search/instant?project=' + encodeURIComponent(proj) + '&query=' + encodeURIComponent(q))
                 .then(r => r.text())
                 .then(html => {
                     if (currentMode === 'nav') {
@@ -277,7 +226,7 @@
             aiContainer.innerHTML = loadingTpl.innerHTML;
         }
         
-        fetch(getBaseUrl() + '/api/search/ask?project=' + encodeURIComponent(proj) + '&q=' + encodeURIComponent(q))
+        fetch(getBaseUrl() + '/api/search/ask?project=' + encodeURIComponent(proj) + '&query=' + encodeURIComponent(q))
             .then(r => r.text())
             .then(html => {
                 const curAi = getAiContainer();
@@ -298,6 +247,21 @@
             const text = (item.textContent + ' ' + (item.dataset.keyword || '')).toLowerCase();
             item.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
         });
+
+        const sections = list.querySelectorAll('.sppdocs-cmd-section');
+        sections.forEach(sec => {
+            let hasVisible = false;
+            let sib = sec.nextElementSibling;
+            while (sib && !sib.classList.contains('sppdocs-cmd-section')) {
+                if (sib.classList.contains('sppdocs-cmd-item') && sib.style.display !== 'none') {
+                    hasVisible = true;
+                    break;
+                }
+                sib = sib.nextElementSibling;
+            }
+            sec.style.display = (!q || hasVisible) ? 'block' : 'none';
+        });
+
         selectedIndex = 0;
         updateHighlight();
 

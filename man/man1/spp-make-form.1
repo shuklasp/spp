@@ -1,20 +1,27 @@
-.TH SPP-make-form 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-MAKE-FORM 1 "October 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-make-form \- Create a new SPP form definition
+spp-make-form \- Scaffold zero-code declarative YAML form definition or fluent PHP form class
 .SH SYNOPSIS
 .B php spp.php make:form
-[OPTIONS]
+.I <name>
+[\fB\-\-app\fR=\fIappname\fR]
+[\fB\-\-yaml\fR]
+[\fB\-\-php\fR]
 .SH DESCRIPTION
-Create a new SPP form definition
-.PP
-Usage: php spp.php make:form <name> [--app=appname]
-.br
-
-.PP
+Create a new SPP form definition. By default or with \fB\-\-yaml\fR, provisions a zero-code declarative YAML form in \fBetc/apps/<appname>/forms/<name>.yml\fR.
+With \fB\-\-php\fR, provisions a programmatic PHP builder class.
 .SH OPTIONS
-No explicit options statically detected.
+.TP
+.I <name>
+Form identifier name.
+.TP
+\fB\-\-app\fR=\fIappname\fR
+Application context name.
+.TP
+\fB\-\-yaml\fR
+Generate zero-code declarative YAML form definition (default).
+.TP
+\fB\-\-php\fR
+Generate programmatic PHP builder class.
 .SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Instantiates key components: SPP.
-.br
+Resolves target directory in app context, scaffolds form schema/class with validations, and updates \fB__spp_file_props.yml\fR.

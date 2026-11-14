@@ -27,6 +27,154 @@ class SPPBladeEngine extends BladeOne
         $this->viewStack = $backupViewStack;
         return $output;
     }
+
+    public function compileString($value): string
+    {
+        $value = $this->compileComponentTags($value);
+        return parent::compileString($value);
+    }
+
+    /**
+     * Compile declarative React/Vue-style component tags:
+     * - <live:counter count="5" :user="$user" />
+     * - <livewire:counter :count="$count" />
+     * - <spp:table :data="$items" />
+     */
+    protected function compileComponentTags(string $value): string
+    {
+        // 1. <live:... /> and <livewire:... />
+        $pattern = '/<(live|livewire):([a-zA-Z0-9_\-\.:]+)\s*([^>]*?)\s*(?:\/>|>(.*?)<\/\1:\2>)/s';
+        $value = preg_replace_callback($pattern, function ($matches) {
+            $component = $matches[2];
+            $rawAttrs = $matches[3] ?? '';
+            $slotContent = isset($matches[4]) ? trim($matches[4]) : null;
+
+            $props = $this->parseTagAttributes($rawAttrs);
+
+            if ($slotContent !== null && $slotContent !== '') {
+                $slots = [];
+                // Check for <slot:header>...</slot:header>, <x-slot:header>...</x-slot:header>,
+                // <template #header>...</template>, or <template v-slot:header>...</template>
+                $namedSlotPattern = '/<(?:(?:x-)?slot:([a-zA-Z0-9_\-]+)|template\s+#([a-zA-Z0-9_\-]+)|template\s+v-slot:([a-zA-Z0-9_\-]+))>(.*?)<\/(?:(?:x-)?slot:[a-zA-Z0-9_\-]+|template)>/s';
+
+                $defaultContent = preg_replace_callback($namedSlotPattern, function ($slotMatch) use (&$slots) {
+                    $slotName = !empty($slotMatch[1]) ? $slotMatch[1] : (!empty($slotMatch[2]) ? $slotMatch[2] : $slotMatch[3]);
+                    $slots[$slotName] = trim($slotMatch[4]);
+                    return '';
+                }, $slotContent);
+
+                $defaultContent = trim($defaultContent);
+                if ($defaultContent !== '') {
+                    $slots['default'] = $defaultContent;
+                    $props['slot'] = var_export($defaultContent, true);
+                }
+
+                if (!empty($slots)) {
+                    $slotsPhp = '[';
+                    foreach ($slots as $sName => $sVal) {
+                        $slotsPhp .= var_export($sName, true) . ' => ' . var_export($sVal, true) . ', ';
+                        if (!isset($props[$sName]) && $sName !== 'default') {
+                            $props[$sName] = var_export($sVal, true);
+                        }
+                    }
+                    $slotsPhp .= ']';
+                    $props['slots'] = $slotsPhp;
+                }
+            }
+
+            $propsPhp = '[';
+            foreach ($props as $k => $v) {
+                $propsPhp .= var_export($k, true) . ' => ' . $v . ', ';
+            }
+            $propsPhp .= ']';
+
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::live('{$component}', {$propsPhp}); ?>";
+        }, $value);
+
+        // 2. <spp:widget-name ... /> -> @sppwidget('widget-name', [...])
+        $widgetPattern = '/<spp:([a-zA-Z0-9_\-]+)\s*([^>]*?)\s*(?:\/>|>(.*?)<\/spp:\1>)/s';
+        $value = preg_replace_callback($widgetPattern, function ($matches) {
+            $widget = $matches[1];
+            $rawAttrs = $matches[2] ?? '';
+            $slotContent = isset($matches[3]) ? trim($matches[3]) : null;
+            $props = $this->parseTagAttributes($rawAttrs);
+
+            if ($slotContent !== null && $slotContent !== '') {
+                $slots = [];
+                $namedSlotPattern = '/<(?:(?:x-)?slot:([a-zA-Z0-9_\-]+)|template\s+#([a-zA-Z0-9_\-]+)|template\s+v-slot:([a-zA-Z0-9_\-]+))>(.*?)<\/(?:(?:x-)?slot:[a-zA-Z0-9_\-]+|template)>/s';
+
+                $defaultContent = preg_replace_callback($namedSlotPattern, function ($slotMatch) use (&$slots) {
+                    $slotName = !empty($slotMatch[1]) ? $slotMatch[1] : (!empty($slotMatch[2]) ? $slotMatch[2] : $slotMatch[3]);
+                    $slots[$slotName] = trim($slotMatch[4]);
+                    return '';
+                }, $slotContent);
+
+                $defaultContent = trim($defaultContent);
+                if ($defaultContent !== '') {
+                    $slots['default'] = $defaultContent;
+                    $props['slot'] = var_export($defaultContent, true);
+                }
+
+                if (!empty($slots)) {
+                    $slotsPhp = '[';
+                    foreach ($slots as $sName => $sVal) {
+                        $slotsPhp .= var_export($sName, true) . ' => ' . var_export($sVal, true) . ', ';
+                        if (!isset($props[$sName]) && $sName !== 'default') {
+                            $props[$sName] = var_export($sVal, true);
+                        }
+                    }
+                    $slotsPhp .= ']';
+                    $props['slots'] = $slotsPhp;
+                }
+            }
+
+            $propsPhp = '[';
+            foreach ($props as $k => $v) {
+                $propsPhp .= var_export($k, true) . ' => ' . $v . ', ';
+            }
+            $propsPhp .= ']';
+
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('{$widget}', {$propsPhp}); ?>";
+        }, $value);
+
+        return $value;
+    }
+
+    /**
+     * Parse HTML tag attributes supporting Vue/React dynamic bindings (:prop="expr").
+     *
+     * @param string $attributeString
+     * @return array<string, string> Map of prop name to PHP expression string
+     */
+    protected function parseTagAttributes(string $attributeString): array
+    {
+        $props = [];
+        $pattern = '/(?:\:([a-zA-Z0-9_\-]+)=(?:"([^"]*)"|\'([^\']*)\'))|([a-zA-Z0-9_\-]+)=(?:"([^"]*)"|\'([^\']*)\')|([a-zA-Z0-9_\-]+)/';
+
+        if (preg_match_all($pattern, $attributeString, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                // Dynamic binding: :prop="expr" or :prop='expr'
+                if (!empty($match[1])) {
+                    $propName = $match[1];
+                    $expr = !empty($match[2]) ? $match[2] : ($match[3] ?? '');
+                    $props[$propName] = '(' . $expr . ')';
+                }
+                // Static literal: prop="value" or prop='value'
+                elseif (!empty($match[4])) {
+                    $propName = $match[4];
+                    $val = isset($match[5]) && $match[5] !== '' ? $match[5] : ($match[6] ?? '');
+                    $props[$propName] = var_export($val, true);
+                }
+                // Boolean flag: disabled, required
+                elseif (!empty($match[7])) {
+                    $propName = $match[7];
+                    $props[$propName] = 'true';
+                }
+            }
+        }
+
+        return $props;
+    }
 }
 
 /**
@@ -38,21 +186,31 @@ class SPPBlade extends \SPP\SPPObject
     protected ?BladeOne $engine = null;
     protected string $viewsPath;
     protected string $cachePath;
+    protected string $appName;
 
-    public function __construct()
+    public function __construct(?string $appName = null)
     {
-        $app = \SPP\App::getApp();
-        $appName = $app->getName();
+        if ($appName) {
+            try {
+                $app = new \SPP\App($appName);
+            } catch (\Throwable $e) {
+                $app = \SPP\App::getApp();
+            }
+        } else {
+            $app = \SPP\App::getApp();
+        }
+
+        $this->appName = $app ? $app->getName() : ($appName ?: 'default');
 
         // Resolve paths relative to app source or base directory
-        $srcDir = $app->getAppSrcDir();
+        $srcDir = $app ? $app->getAppSrcDir() : (SPP_APP_DIR . '/src/' . $this->appName);
         if (is_dir($srcDir . '/resources/views')) {
             $this->viewsPath = $srcDir . '/resources/views';
         } else {
-            $this->viewsPath = SPP_APP_DIR . '/resources/' . $appName . '/views';
+            $this->viewsPath = SPP_APP_DIR . '/resources/' . $this->appName . '/views';
         }
 
-        $this->cachePath = SPP_APP_DIR . '/var/cache/' . $appName . '/blade';
+        $this->cachePath = SPP_APP_DIR . '/var/cache/' . $this->appName . '/blade';
 
         $this->ensureDirectories();
 
@@ -100,6 +258,41 @@ class SPPBlade extends \SPP\SPPObject
                 return "";
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppelement($expression); ?>";
         });
+
+        // @sppform_render('contact', ['entity' => $user])
+        $this->engine->directive('sppform_render', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppform_render($expression); ?>";
+        });
+
+        // @sppreport('sales_summary', ['filters' => ['status' => 'active']])
+        $this->engine->directive('sppreport', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppreport($expression); ?>";
+        });
+
+        // @sppreport_chart('sales_summary', ['type' => 'bar', 'height' => 300])
+        $this->engine->directive('sppreport_chart', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppreport_chart($expression); ?>";
+        });
+
+        // @sppreport_pivot('sales_summary')
+        $this->engine->directive('sppreport_pivot', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppreport_pivot($expression); ?>";
+        });
+
+        // @sppreport_kpi('sales_summary', ['metric' => 'amount', 'label' => 'Total Revenue'])
+        $this->engine->directive('sppreport_kpi', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppreport_kpi($expression); ?>";
+        });
         // @sppauth and @auth
         $authDirective = function () {
             return "<?php if (\SPPMod\SPPAuth\SPPAuth::authSessionExists()): ?>";
@@ -135,15 +328,26 @@ class SPPBlade extends \SPP\SPPObject
             return '<?php echo \'<input type="hidden" name="_method" value="\' . htmlspecialchars(' . $expression . ', ENT_QUOTES) . \'">\'; ?>';
         });
 
-        // @error
-        $this->engine->directive('error', function ($expression) {
-            return "<?php if (isset(\$errors) && \$errors->has($expression)): \$message = \$errors->first($expression); ?>";
-        });
+        // @error and @spperror
+        $errorDirective = function ($expression) {
+            return "<?php if (\\SPPMod\\Drishyam\\TemplateMacros::hasError(\$errors ?? null, $expression)): \$message = \\SPPMod\\Drishyam\\TemplateMacros::getFirstError(\$errors ?? null, $expression); ?>";
+        };
+        $this->engine->directive('error', $errorDirective);
+        $this->engine->directive('spperror', $errorDirective);
 
-        // @enderror
-        $this->engine->directive('enderror', function () {
+        // @enderror and @endspperror
+        $endErrorDirective = function () {
             return "<?php endif; ?>";
-        });
+        };
+        $this->engine->directive('enderror', $endErrorDirective);
+        $this->engine->directive('endspperror', $endErrorDirective);
+
+        // @old and @sppold
+        $oldDirective = function ($expression) {
+            return "<?php echo htmlspecialchars((string)\\SPPMod\\Drishyam\\TemplateMacros::old($expression), ENT_QUOTES, 'UTF-8'); ?>";
+        };
+        $this->engine->directive('old', $oldDirective);
+        $this->engine->directive('sppold', $oldDirective);
 
         // @class
         $this->engine->directive('class', function ($expression) {
@@ -227,6 +431,156 @@ class SPPBlade extends \SPP\SPPObject
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppux($expression); ?>";
         });
 
+        // @live('ComponentName', ['prop' => 'value'])
+        $this->engine->directive('live', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::live($expression); ?>";
+        });
+
+        // @livewire('ComponentName', ['prop' => 'value'])
+        $this->engine->directive('livewire', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::livewire($expression); ?>";
+        });
+
+        // @clientRules('field', $rules) and @rules('field', $rules)
+        $this->engine->directive('clientRules', function ($expression) {
+            return "<?php echo \\SPPMod\\SPPView\\Validation\\CustomRuleRegistry::toHtmlAttributes($expression); ?>";
+        });
+        $this->engine->directive('rules', function ($expression) {
+            return "<?php echo \\SPPMod\\SPPView\\Validation\\CustomRuleRegistry::toHtmlAttributes($expression); ?>";
+        });
+
+        // @sppform_bind('form_id') and @sppform_rules('form_id')
+        $this->engine->directive('sppform_bind', function ($expression) {
+            return "<?php echo \\SPPMod\\SPPView\\Validation\\CustomRuleRegistry::renderFormSchemaScript($expression); ?>";
+        });
+        $this->engine->directive('sppform_rules', function ($expression) {
+            return "<?php echo \\SPPMod\\SPPView\\Validation\\CustomRuleRegistry::renderFormSchemaScript($expression); ?>";
+        });
+
+        // @sppwidget('name', ['prop' => 'value'])
+        $this->engine->directive('sppwidget', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget($expression); ?>";
+        });
+
+        // Widget Shorthands
+        $this->engine->directive('spptable', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('table', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppfilter', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('filter-builder', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppfileupload', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('file-upload', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('spptimeline', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('timeline', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppcode', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('code-block', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppmetricgrid', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('metric-grid', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppbadge', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('badge', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppempty', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('empty-state', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppdiff', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('diff', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('spptransfer', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('transfer', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppwizard', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('wizard', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppbreadcrumb', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('breadcrumb', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppdropdown', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('dropdown', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppdaterange', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('daterange', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('spptabs', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('tabs', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('spptree', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('tree', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppkanban', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('kanban', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppaccordion', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('accordion', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppcard', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('card', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('spplist', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('list', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppdescriptionlist', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('description-list', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppavatar', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('avatar', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppkbd', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('kbd', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('spprating', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('rating', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppslider', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('slider', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppcolorpicker', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('color-picker', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppswitch', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('switch', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppmarkdowneditor', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('markdown-editor', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppsignature', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('signature', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('spppagination', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('pagination', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppstepper', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('stepper', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppmodal', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('modal', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppdrawer', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('drawer', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppalert', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('alert', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppprogress', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('progress', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppskeleton', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('skeleton', " . ($expression ?: '[]') . "); ?>";
+        });
+        $this->engine->directive('sppqrcode', function ($expression) {
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppwidget('qrcode', " . ($expression ?: '[]') . "); ?>";
+        });
+
         // @spppartial('view_name', ['prop' => 'value'])
         $this->engine->directive('spppartial', function ($expression) {
             if (empty($expression))
@@ -234,11 +588,49 @@ class SPPBlade extends \SPP\SPPObject
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::spppartial($expression); ?>";
         });
 
+        // @polyglot('service_name', ['prop' => 'value'], $fallback)
+        $this->engine->directive('polyglot', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::polyglot($expression); ?>";
+        });
+
+        // @polyglotpartial('python', 'service.py', 'func', ['data'])
+        $this->engine->directive('polyglotpartial', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::polyglotpartial($expression); ?>";
+        });
+
+        // @polyglot_eval('formula', 'expr', ['context'])
+        $this->engine->directive('polyglot_eval', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::polyglot_eval($expression); ?>";
+        });
+
+        // @sppcommandpalette
+        $this->engine->directive('sppcommandpalette', function ($expression) {
+            $expr = empty($expression) ? '[]' : $expression;
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppcommandpalette($expr); ?>";
+        });
+
+        // @spppwa
+        $this->engine->directive('spppwa', function ($expression) {
+            $expr = empty($expression) ? '[]' : $expression;
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::spppwa($expr); ?>";
+        });
+
         // @region('region_name', ['context_key' => $val])
         $this->engine->directive('region', function ($expression) {
             if (empty($expression))
                 return "";
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::region($expression); ?>";
+        });
+
+        // @route('students.show', ['id' => 1])
+        $this->engine->directive('route', function ($expression) {
+            return "<?php echo route($expression); ?>";
         });
 
         // @url('path/to/route')
@@ -355,28 +747,92 @@ class SPPBlade extends \SPP\SPPObject
         });
     }
 
+    protected static array $instances = [];
     protected static ?self $instance = null;
+    protected static array $renderingAppStack = [];
 
     /**
-     * Get singleton instance.
+     * Get the app name of the currently rendering Blade template, if any.
      */
-    public static function getInstance(): self
+    public static function getCurrentRenderingApp(): ?string
     {
-        if (self::$instance === null) {
-            self::$instance = new self();
+        return !empty(self::$renderingAppStack) ? end(self::$renderingAppStack) : null;
+    }
+
+    /**
+     * Get singleton or app-specific instance.
+     */
+    public static function getInstance(?string $appName = null): self
+    {
+        $context = $appName ?: (class_exists('\\SPP\\Scheduler') ? \SPP\Scheduler::getContext() : null);
+        if (!$context && class_exists('\\SPP\\App')) {
+            try {
+                $context = \SPP\App::getApp()->getName();
+            } catch (\Throwable $e) {
+                $context = 'default';
+            }
         }
-        return self::$instance;
+        $context = $context ?: 'default';
+
+        if (!isset(self::$instances[$context])) {
+            self::$instances[$context] = new self($context);
+        }
+        self::$instance = self::$instances[$context];
+        return self::$instances[$context];
+    }
+
+    public static function reset(): void
+    {
+        self::$instances = [];
+        self::$instance = null;
+        self::$renderingAppStack = [];
     }
 
     /**
      * Static wrapper for rendering.
      */
-    public static function render(string $view, array $data = []): string
+    public static function render(string $view, array $data = [], ?string $appName = null): string
     {
-        return self::getInstance()->renderInstance($view, $data);
+        return self::getInstance($appName)->renderInstance($view, $data);
+    }
+
+    /**
+     * Render an in-memory Blade template string with variables.
+     * Enables React/Vue-style Single-File LiveComponents in pure PHP.
+     *
+     * @param string $template Raw Blade template string
+     * @param array $data Data to extract into the template scope
+     * @param string|null $appName Optional target app name
+     * @return string Rendered HTML
+     */
+    public static function renderString(string $template, array $data = [], ?string $appName = null): string
+    {
+        $engine = self::getInstance($appName)->getEngine();
+        if ($engine) {
+            // BladeOne::runString does not reset captured sections unlike run(),
+            // which causes section leakage and stale template content across successive string evaluations.
+            try {
+                $ref = new \ReflectionProperty($engine, 'sections');
+                $ref->setValue($engine, []);
+            } catch (\Throwable $t) {
+                // Ignore if not accessible
+            }
+            return $engine->runString($template, $data);
+        }
+        return $template;
     }
 
     public function renderInstance(string $view, array $data = []): string
+    {
+        self::$renderingAppStack[] = $this->appName;
+        try {
+            return $this->doRenderInstance($view, $data);
+        } finally {
+            array_pop(self::$renderingAppStack);
+        }
+    }
+
+    protected function doRenderInstance(string $view, array $data = []): string
     {
         @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] SPPBlade: Starting render for '$view'\n", FILE_APPEND);
         error_log("SPPBlade: Starting render for '$view'");
@@ -445,13 +901,38 @@ class SPPBlade extends \SPP\SPPObject
             }
         }
 
-        // Ensure default paths for relative views
-        $this->engine->setPath($this->viewsPath, $this->cachePath);
-        @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] SPPBlade: Rendering relative view '$view' with paths: " . json_encode($this->viewsPath) . "\n", FILE_APPEND);
+        // Build candidate search paths dynamically for relative views
+        $searchPaths = [$this->viewsPath];
+
+        // Also include the current active context views if different
+        $currentContext = class_exists('\\SPP\\Scheduler') ? \SPP\Scheduler::getContext() : null;
+        if ($currentContext && $currentContext !== $this->appName) {
+            $contextViews = SPP_APP_DIR . '/src/' . $currentContext . '/resources/views';
+            if (is_dir($contextViews) && !in_array($contextViews, $searchPaths)) {
+                $searchPaths[] = $contextViews;
+            }
+        }
+
+        // Framework and ecosystem fallbacks (e.g. SPPDocs views or global resources/views)
+        $sppDocsViews = SPP_APP_DIR . '/src/SPPDocs/resources/views';
+        if (is_dir($sppDocsViews) && !in_array($sppDocsViews, $searchPaths)) {
+            $searchPaths[] = $sppDocsViews;
+        }
+
+        $globalViews = SPP_APP_DIR . '/resources/views';
+        if (is_dir($globalViews) && !in_array($globalViews, $searchPaths)) {
+            $searchPaths[] = $globalViews;
+        }
+
+        $this->engine->setPath($searchPaths, $this->cachePath);
+        @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] SPPBlade: Rendering relative view '$view' with paths: " . json_encode($searchPaths) . "\n", FILE_APPEND);
 
         // Support full paths by stripping base view path if present (Legacy/Fallback)
-        if (strpos($view, $this->viewsPath) === 0) {
-            $view = substr($view, strlen($this->viewsPath));
+        foreach ($searchPaths as $basePath) {
+            if (strpos($view, $basePath) === 0) {
+                $view = substr($view, strlen($basePath));
+                break;
+            }
         }
 
         // Normalize view identifier: strip extensions and convert directory slashes to dots for BladeOne
@@ -496,6 +977,22 @@ class SPPBlade extends \SPP\SPPObject
     public function getEngine(): BladeOne
     {
         return $this->engine;
+    }
+
+    /**
+     * Compile a Blade template string to PHP code.
+     */
+    public function compileString(string $value): string
+    {
+        return $this->engine->compileString($value);
+    }
+
+    /**
+     * Render a raw Blade template string with data.
+     */
+    public function renderRaw(string $template, array $data = []): string
+    {
+        return $this->engine->runString($template, $data);
     }
 
     /**

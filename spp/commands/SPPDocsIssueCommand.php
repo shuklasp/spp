@@ -12,7 +12,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 class SPPDocsIssueCommand extends Command
 {
-    protected string $name = 'issue';
+    protected string $name = 'sppdocs:issue';
+    protected array $aliases = ['issue'];
     protected string $description = 'Manage SPPDocs issues directly from the command line (create, list, view, close)';
 
     public function isCLIOnly(): bool
@@ -33,15 +34,33 @@ class SPPDocsIssueCommand extends Command
         }
 
         $projectId = $params['project'] ?? 'demo-app';
-        $appDir = dirname(__DIR__, 2);
-        $projectYml = $appDir . '/docs/' . $projectId . '/project.yml';
-        if (!file_exists($projectYml)) {
-            echo "❌ Error: Project '{$projectId}' not found at {$projectYml}\n";
-            return;
+        $appDir = defined('APP_BASE_DIR') ? APP_BASE_DIR : dirname(__DIR__, 2);
+        $sppdocsYml = $appDir . '/src/SPPDocs/etc/sppdocs.yml';
+        $projectYml = null;
+        if (file_exists($sppdocsYml)) {
+            $sppdocsCfg = Yaml::parseFile($sppdocsYml);
+            if (isset($sppdocsCfg['projects'][$projectId])) {
+                $rawPath = $sppdocsCfg['projects'][$projectId];
+                $projectYml = (str_starts_with($rawPath, '/') || str_contains($rawPath, ':'))
+                    ? $rawPath
+                    : $appDir . '/' . ltrim($rawPath, '/');
+            }
+        }
+        if (!$projectYml || !file_exists($projectYml)) {
+            $fallbackYml = $appDir . '/docs/' . $projectId . '/project.yml';
+            if (file_exists($fallbackYml)) {
+                $projectYml = $fallbackYml;
+            } else {
+                echo "❌ Error: Project '{$projectId}' configuration not found.\n";
+                return;
+            }
         }
 
         $project = Yaml::parseFile($projectYml) ?: [];
-        $issuesDir = $appDir . '/docs/' . $projectId . '/issues';
+        $issuesDir = dirname($projectYml) . '/issues';
+        if (!is_dir($issuesDir)) {
+            @mkdir($issuesDir, 0777, true);
+        }
         $storage = StorageFactory::create($project, $issuesDir);
 
         switch ($action) {

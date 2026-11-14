@@ -33,6 +33,15 @@ class FeedbackController extends \SPPMod\SPPView\ViewController
         $rating = strtolower(trim($input['rating'] ?? ''));
         $comment = trim($input['comment'] ?? '');
 
+        if (!empty($projectId)) {
+            $resolved = $this->findProjectId($projectId);
+            if ($resolved) {
+                $projectId = $resolved;
+            }
+        } else {
+            $projectId = $this->resolveActiveProjectId() ?: 'demo-app';
+        }
+
         if (empty($projectId) || !in_array($rating, ['yes', 'no'], true)) {
             Response::json([
                 'success' => false,
@@ -41,10 +50,8 @@ class FeedbackController extends \SPPMod\SPPView\ViewController
             return;
         }
 
-        $dataDir = dirname(SPP_BASE_DIR) . '/docs/' . $projectId . '/data';
-        if (!is_dir($dataDir)) {
-            @mkdir($dataDir, 0777, true);
-        }
+        $project = $this->config['projects'][$projectId] ?? [];
+        $dataDir = \App\SPPDocs\Services\DataStorageResolver::getFeedbackDir($projectId, $project);
 
         $file = $dataDir . '/feedback.json';
         $feedbackList = file_exists($file) ? (json_decode(file_get_contents($file), true) ?: []) : [];

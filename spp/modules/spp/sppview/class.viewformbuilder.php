@@ -83,6 +83,9 @@ class ViewFormBuilder extends \SPP\SPPObject
     public static function fromString(string $yamlContent): ViewForm
     {
         $config = Yaml::parse($yamlContent) ?? [];
+        if (!is_array($config)) {
+            $config = [];
+        }
         return self::fromArray($config, 'live_preview');
     }
 
@@ -99,6 +102,14 @@ class ViewFormBuilder extends \SPP\SPPObject
             $fConfig['action'] ?? '',
             $fConfig['id'] ?? null
         );
+
+        // Auto-discover app/global validators
+        \SPPMod\SPPView\Validation\CustomRuleRegistry::autoDiscover();
+
+        // Load form-specific local validators if defined in YAML
+        if (isset($config['validators']) && is_array($config['validators'])) {
+            \SPPMod\SPPView\Validation\CustomRuleRegistry::loadFromArray(['validators' => $config['validators']]);
+        }
 
         // Metadata assignment
         if (isset($config['entity'])) {
@@ -228,16 +239,74 @@ class ViewFormBuilder extends \SPP\SPPObject
             }
         }
 
+        // Top-level honeypot defense (if not already added in elements)
+        if (!empty($config['honeypot'])) {
+            $hpName = is_string($config['honeypot']) ? $config['honeypot'] : 'website_hp_field';
+            if (!$form->getChild($hpName)) {
+                $hpElem = new SPPViewForm_Honeypot($hpName);
+                $form->addElement($hpElem);
+                $form->registerElement($hpElem);
+            }
+        }
+
+        // Top-level workflow actions bar (if not already added in elements)
+        if (!empty($config['workflow_actions']) || !empty($config['workflow'])) {
+            if (!$form->getChild('_workflow_actions')) {
+                $wfDef = is_array($config['workflow_actions'] ?? null) ? $config['workflow_actions'] : (is_array($config['workflow'] ?? null) ? $config['workflow'] : []);
+                $transitions = $wfDef['transitions'] ?? ($config['workflow_actions'] === true ? ['submit' => 'Submit', 'approve' => 'Approve'] : []);
+                $currentState = $wfDef['current_state'] ?? ($config['workflow_actions'] === true ? 'draft' : '');
+                $wfActions = new SPPViewForm_WorkflowActions(
+                    '_workflow_actions',
+                    $transitions,
+                    $currentState,
+                    $wfDef['show_comment'] ?? false
+                );
+                $form->addElement($wfActions);
+                $form->registerElement($wfActions);
+            }
+        }
+
+        // Auto-attach Honeypot validator if any honeypot element exists in form
+        foreach ($form->get('element') ?: [] as $elName => $elObj) {
+            if ($elObj instanceof SPPViewForm_Honeypot) {
+                if (class_exists('\\SPPMod\\SPPView\\SPPHoneypotValidator')) {
+                    $form->addValidator(new \SPPMod\SPPView\SPPHoneypotValidator($elObj, 'honeypoterror', 'Spam submission detected.'));
+                }
+            }
+        }
+
+        // Form-level validators
+        foreach ($config['validators'] ?? [] as $vDef) {
+            if (is_array($vDef)) {
+                $vType = strtolower($vDef['type'] ?? '');
+                $vMsg = $vDef['message'] ?? 'Validation failed.';
+                if ($vType === 'workflow_guard' || $vType === 'guard') {
+                    $entityClass = $vDef['entity'] ?? ($config['entity'] ?? '');
+                    $state = $vDef['state'] ?? '';
+                    if (class_exists('\\SPPMod\\SPPView\\SPPWorkflowGuardValidator')) {
+                        $form->addValidator(new \SPPMod\SPPView\SPPWorkflowGuardValidator(null, $entityClass, $state, 'workflow_error', $vMsg));
+                    }
+                } elseif ($vType === 'honeypot') {
+                    $hpField = $vDef['field'] ?? 'website_hp_field';
+                    $hpElem = $form->getChild($hpField);
+                    if ($hpElem && class_exists('\\SPPMod\\SPPView\\SPPHoneypotValidator')) {
+                        $form->addValidator(new \SPPMod\SPPView\SPPHoneypotValidator($hpElem, 'honeypoterror', $vMsg));
+                    }
+                }
+            }
+        }
+
         return $form;
     }
 
     /**
-     * Helper to populate metadata from field config
+     * Helper to populate metadata and validations from field config
      */
     private static function populateElementMetadata($elem, $field, $form)
     {
-        // Attach validations
-        foreach ($field['validations'] ?? [] as $v) {
+        // Normalize all validations (rules string, array of rules, or inline attributes)
+        $validations = self::normalizeFieldValidations($field);
+        foreach ($validations as $v) {
             self::attachValidationToElement($form, $elem, $v);
         }
 
@@ -253,19 +322,30 @@ class ViewFormBuilder extends \SPP\SPPObject
                 $elem->setHelpText((string) $field['help']);
             }
 
-            foreach (['placeholder', 'value', 'readonly', 'disabled', 'rows', 'cols', 'min', 'max', 'step', 'col'] as $attr) {
+            foreach (['placeholder', 'value', 'readonly', 'disabled', 'rows', 'cols', 'min', 'max', 'step', 'style'] as $attr) {
                 if (isset($field[$attr])) {
                     $elem->setAttribute($attr, $field[$attr]);
                 }
             }
 
+            if (isset($field['class'])) {
+                $elem->addClass($field['class']);
+            }
+
+            if (isset($field['col'])) {
+                $col = (int)$field['col'];
+                $elem->setAttribute('data-col', (string)$col);
+                $elem->addClass("col-md-{$col}");
+            }
+
             if (isset($field['depends_on'])) {
                 $deps = is_array($field['depends_on']) ? json_encode($field['depends_on']) : $field['depends_on'];
                 $elem->setAttribute('data-depends-on', $deps);
+                ViewPage::addJsIncludeFile('res/js/sppdependencies.js');
             }
 
             if (isset($field['computed'])) {
-                $elem->setAttribute('data-computed', $field['computed']);
+                $elem->setAttribute('data-computed', (string)$field['computed']);
                 ViewPage::addJsIncludeFile('res/js/sppcomputed.js');
             }
 
@@ -292,6 +372,223 @@ class ViewFormBuilder extends \SPP\SPPObject
                 $elem->setAttribute('data-voice', 'true');
                 ViewPage::addJsIncludeFile('res/js/sppintelligence.js');
             }
+        }
+    }
+
+    /**
+     * Normalizes field validation declarations from multiple flexible YAML formats:
+     * - Shorthand pipe string: "required|email|min:5|unique:users,email"
+     * - Shorthand string array: ['required', 'email', 'min:5']
+     * - Key-value pair array: [['min' => 5], ['max' => 100]]
+     * - Full object array: [['type' => 'required', 'message' => 'Error']]
+     * - Inline field attributes: required: true, min: 5, max: 100, unique: "users,email"
+     */
+    public static function normalizeFieldValidations(array $field): array
+    {
+        $validations = [];
+
+        // 1. Process explicit rules / validations / validate keys
+        $rawSources = [];
+        foreach (['validations', 'rules', 'validate'] as $key) {
+            if (isset($field[$key])) {
+                $rawSources[] = $field[$key];
+            }
+        }
+
+        foreach ($rawSources as $raw) {
+            if (is_string($raw)) {
+                $parts = explode('|', $raw);
+                foreach ($parts as $p) {
+                    $p = trim($p);
+                    if ($p !== '') {
+                        $validations[] = self::parseRuleString($p);
+                    }
+                }
+            } elseif (is_array($raw)) {
+                foreach ($raw as $item) {
+                    if (is_string($item)) {
+                        $validations[] = self::parseRuleString($item);
+                    } elseif (is_array($item)) {
+                        if (isset($item['type'])) {
+                            $validations[] = $item;
+                        } else {
+                            foreach ($item as $rType => $rVal) {
+                                $validations[] = self::parseRuleKeyValue((string)$rType, $rVal);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Process inline shorthand field attributes
+        if (!empty($field['required'])) {
+            $validations[] = ['type' => 'required', 'message' => $field['required_message'] ?? 'This field is required.'];
+        }
+        if (isset($field['min']) && is_numeric($field['min'])) {
+            $validations[] = ['type' => 'min', 'value' => (int)$field['min']];
+        }
+        if (isset($field['minlength']) && is_numeric($field['minlength'])) {
+            $validations[] = ['type' => 'min', 'value' => (int)$field['minlength']];
+        }
+        if (isset($field['max']) && is_numeric($field['max']) && ($field['type'] ?? '') !== 'rating') {
+            $validations[] = ['type' => 'max', 'value' => (int)$field['max']];
+        }
+        if (isset($field['maxlength']) && is_numeric($field['maxlength'])) {
+            $validations[] = ['type' => 'max', 'value' => (int)$field['maxlength']];
+        }
+        if (!empty($field['unique'])) {
+            $val = $field['unique'];
+            if (is_string($val) && str_contains($val, ',')) {
+                [$tbl, $col] = explode(',', $val, 2);
+                $validations[] = ['type' => 'unique', 'table' => trim($tbl), 'column' => trim($col)];
+            } else {
+                $validations[] = ['type' => 'unique', 'table' => (string)$val];
+            }
+        }
+        if (!empty($field['match'])) {
+            $validations[] = ['type' => 'match', 'target' => (string)$field['match']];
+        }
+        if (!empty($field['pattern'])) {
+            $validations[] = ['type' => 'regex', 'pattern' => (string)$field['pattern']];
+        }
+        if (!empty($field['regex'])) {
+            $validations[] = ['type' => 'regex', 'pattern' => (string)$field['regex']];
+        }
+        if (isset($field['range'])) {
+            $r = $field['range'];
+            if (is_array($r) && count($r) >= 2) {
+                $validations[] = ['type' => 'range', 'min' => $r[0], 'max' => $r[1]];
+            } elseif (is_string($r)) {
+                $parts = str_contains($r, '..') ? explode('..', $r, 2) : explode(',', $r, 2);
+                $validations[] = ['type' => 'range', 'min' => (int)$parts[0], 'max' => (int)($parts[1] ?? 100)];
+            }
+        }
+        if (!empty($field['filesize'])) {
+            $validations[] = ['type' => 'filesize', 'max' => (int)$field['filesize']];
+        }
+        if (!empty($field['extension'])) {
+            $validations[] = ['type' => 'extension', 'allowed' => (array)$field['extension']];
+        }
+        if (!empty($field['passwordstrength'])) {
+            $validations[] = ['type' => 'passwordstrength', 'min' => (int)$field['passwordstrength']];
+        }
+
+        // Specific format booleans
+        foreach (['email', 'numeric', 'url', 'json', 'creditcard', 'aadhaar', 'pan', 'gstin', 'ifsc', 'pincode', 'indmobile', 'iban', 'ip', 'mac', 'isbn'] as $fmt) {
+            if (!empty($field[$fmt]) && $field[$fmt] === true) {
+                $validations[] = ['type' => $fmt];
+            }
+        }
+
+        // Auto-detect registered custom rules declared directly on field (e.g. pan: true, or custom_rule: true / custom_rule: { params: [...] })
+        foreach ($field as $fKey => $fVal) {
+            $kLower = strtolower((string)$fKey);
+            if (in_array($kLower, ['type', 'name', 'id', 'label', 'rules', 'validations', 'validate', 'options', 'value', 'default', 'placeholder', 'class', 'style', 'inputtype'], true)) {
+                continue;
+            }
+            if ($fVal === true && \SPPMod\SPPView\Validation\CustomRuleRegistry::has($kLower)) {
+                $validations[] = ['type' => $kLower];
+            } elseif (is_array($fVal) && \SPPMod\SPPView\Validation\CustomRuleRegistry::has($kLower)) {
+                $validations[] = array_merge(['type' => $kLower], $fVal);
+            }
+        }
+
+        // Auto-detect type-based validations
+        $fieldType = strtolower($field['type'] ?? '');
+        if ($fieldType === 'email') {
+            $validations[] = ['type' => 'email'];
+        } elseif ($fieldType === 'number') {
+            $validations[] = ['type' => 'numeric'];
+        } elseif ($fieldType === 'url') {
+            $validations[] = ['type' => 'url'];
+        }
+
+        // Deduplicate validations by type
+        $unique = [];
+        $seen = [];
+        foreach ($validations as $v) {
+            $t = strtolower($v['type'] ?? '');
+            if (!$t) continue;
+            $key = $t . (isset($v['value']) ? ':' . $v['value'] : '') . (isset($v['target']) ? ':' . $v['target'] : '');
+            if (!isset($seen[$key])) {
+                $seen[$key] = true;
+                $unique[] = $v;
+            }
+        }
+
+        return $unique;
+    }
+
+    private static function parseRuleString(string $rule): array
+    {
+        if (str_contains($rule, ':')) {
+            [$name, $param] = explode(':', $rule, 2);
+            return self::parseRuleKeyValue(trim($name), trim($param));
+        }
+        return ['type' => trim($rule)];
+    }
+
+    private static function parseRuleKeyValue(string $type, $val): array
+    {
+        $type = strtolower($type);
+        switch ($type) {
+            case 'min':
+            case 'minlength':
+                return ['type' => 'min', 'value' => (int)$val];
+            case 'max':
+            case 'maxlength':
+                return ['type' => 'max', 'value' => (int)$val];
+            case 'unique':
+                if (is_string($val) && str_contains($val, ',')) {
+                    [$tbl, $col] = explode(',', $val, 2);
+                    return ['type' => 'unique', 'table' => trim($tbl), 'column' => trim($col)];
+                }
+                return ['type' => 'unique', 'table' => (string)$val];
+            case 'match':
+            case 'same':
+            case 'confirmed':
+                return ['type' => 'match', 'target' => (string)$val];
+            case 'regex':
+            case 'pattern':
+                return ['type' => 'regex', 'pattern' => (string)$val];
+            case 'range':
+            case 'between':
+                if (is_string($val)) {
+                    $parts = str_contains($val, '..') ? explode('..', $val, 2) : explode(',', $val, 2);
+                    return ['type' => 'range', 'min' => (int)($parts[0] ?? 0), 'max' => (int)($parts[1] ?? 100)];
+                } elseif (is_array($val)) {
+                    return ['type' => 'range', 'min' => (int)($val[0] ?? 0), 'max' => (int)($val[1] ?? 100)];
+                }
+                return ['type' => 'range'];
+            case 'in':
+                $opts = is_array($val) ? $val : array_map('trim', explode(',', (string)$val));
+                return ['type' => 'in', 'options' => $opts];
+            case 'extension':
+            case 'ext':
+            case 'mimes':
+                $allowed = is_array($val) ? $val : array_map('trim', explode(',', (string)$val));
+                return ['type' => 'extension', 'allowed' => $allowed];
+            case 'filesize':
+            case 'maxsize':
+                return ['type' => 'filesize', 'max' => (int)$val];
+            case 'dateafter':
+            case 'after':
+                return ['type' => 'dateafter', 'target' => (string)$val];
+            case 'passwordstrength':
+                return ['type' => 'passwordstrength', 'min' => (int)$val];
+            case 'requiredif':
+                $parts = explode(',', (string)$val, 2);
+                return ['type' => 'requiredif', 'target' => trim($parts[0] ?? ''), 'value' => trim($parts[1] ?? '')];
+            case 'gt':
+                return ['type' => 'gt', 'target' => (string)$val];
+            case 'workflow_guard':
+            case 'workflowguard':
+            case 'guard':
+                $parts = explode(',', (string)$val, 2);
+                return ['type' => 'workflow_guard', 'entity' => trim($parts[0] ?? ''), 'state' => trim($parts[1] ?? '')];
+            default:
+                return ['type' => $type, 'value' => $val];
         }
     }
 
@@ -329,6 +626,15 @@ class ViewFormBuilder extends \SPP\SPPObject
             if (!file_exists($fullPath)) {
                 // Then try relative to SPP_APP_DIR (app-centric)
                 $fullPath = SPP_APP_DIR . '/' . ltrim($yamlPath, '/');
+            }
+        }
+
+        if (!file_exists($fullPath)) {
+            if (class_exists('\\SPPMod\\SPPView\\Forms')) {
+                $found = Forms::findFormFile($yamlPath);
+                if ($found && file_exists($found)) {
+                    $fullPath = $found;
+                }
             }
         }
 
@@ -424,8 +730,26 @@ class ViewFormBuilder extends \SPP\SPPObject
                 $elem = new SPPViewForm_Input_Number($name);
                 break;
 
+            case 'hidden':
+                $elem = new SPPViewForm_Input_Hidden($name);
+                break;
+
+            case 'submit':
+                $elem = new SPPViewForm_Input_Submit($name);
+                break;
+
+            case 'button':
+                $elem = new SPPViewForm_Input_Button($name);
+                break;
+
             case 'tel':
+            case 'phone':
                 $elem = new SPPViewForm_Input_Tel($name);
+                break;
+
+            case 'url':
+                $elem = new SPPViewForm_Input_Text($name);
+                $elem->setAttribute('type', 'url');
                 break;
 
             case 'range':
@@ -532,16 +856,35 @@ class ViewFormBuilder extends \SPP\SPPObject
                 $elem = new SPPViewForm_Portability($name);
                 break;
 
+            case 'honeypot':
+            case 'antispam':
+                $elem = new SPPViewForm_Honeypot($name);
+                break;
+
+            case 'workflow_actions':
+            case 'workflow_bar':
+            case 'workflow':
+                $elem = new SPPViewForm_WorkflowActions(
+                    $name,
+                    $field['transitions'] ?? [],
+                    $field['current_state'] ?? '',
+                    $field['show_comment'] ?? false
+                );
+                break;
+
             case 'repeater':
                 $elem = new SPPViewForm_Repeater($name);
                 $templateFields = [];
-                foreach ($field['fields'] ?? [] as $fName => $fDef) {
-                    if (is_string($fName)) {
-                        $fDef['name'] = $fName;
+                $rawFields = $field['fields'] ?? $field['schema'] ?? [];
+                foreach ($rawFields as $fName => $fDef) {
+                    if (is_string($fName) && is_array($fDef)) {
+                        $fDef['name'] = $fDef['name'] ?? $fName;
                     }
-                    $child = self::buildElement($fDef);
-                    if ($child) {
-                        $templateFields[] = $child;
+                    if (is_array($fDef)) {
+                        $child = self::buildElement($fDef);
+                        if ($child) {
+                            $templateFields[] = $child;
+                        }
                     }
                 }
                 $elem->setTemplate($templateFields);
@@ -566,6 +909,8 @@ class ViewFormBuilder extends \SPP\SPPObject
                 break;
 
             case 'editor':
+            case 'wysiwyg':
+            case 'rich_text':
                 $elem = new SPPViewForm_Editor($name);
                 break;
 
@@ -772,6 +1117,21 @@ class ViewFormBuilder extends \SPP\SPPObject
             return;
         }
 
+        $type = strtolower((string)$type);
+        if ($type === 'number' || $type === 'integer' || $type === 'int') $type = 'numeric';
+        if ($type === 'minlength') $type = 'min';
+        if ($type === 'maxlength') $type = 'max';
+        if ($type === 'between') $type = 'range';
+        if ($type === 'same' || $type === 'confirmed') $type = 'match';
+        if ($type === 'mobile') $type = 'indmobile';
+        if ($type === 'mimes' || $type === 'ext') $type = 'extension';
+        if ($type === 'maxsize') $type = 'filesize';
+        if ($type === 'after') $type = 'dateafter';
+        if ($type === 'password_strength') $type = 'passwordstrength';
+        if ($type === 'required_if') $type = 'requiredif';
+        if ($type === 'greater_than') $type = 'gt';
+        if ($type === 'ipv4' || $type === 'ipv6') $type = 'ip';
+
         $msg = $vConfig['message'] ?? 'Validation failed';
         $errHolder = $vConfig['errorholder'] ?? ($elem->getAttribute('id') . '_error');
         $event = $vConfig['event'] ?? 'onblur';
@@ -904,6 +1264,62 @@ class ViewFormBuilder extends \SPP\SPPObject
                 $url = $vConfig['url'] ?? '';
                 $validator = new SPP_Validator_RemoteValidator($elem, $url, $errHolder, $msg);
                 break;
+            case 'honeypot':
+            case 'antispam':
+                $validator = new SPP_Validator_HoneypotValidator($elem, $errHolder, $msg);
+                break;
+            case 'workflow_guard':
+            case 'workflowguard':
+            case 'guard':
+                $entity = $vConfig['entity'] ?? $vConfig['entity_type'] ?? '';
+                $state = $vConfig['state'] ?? $vConfig['required_state'] ?? '';
+                $validator = new SPP_Validator_WorkflowGuardValidator($elem, $entity, $state, $errHolder, $msg);
+                break;
+        }
+
+        // Custom Rule Registry fallback for YAML-registered rules
+        if ($validator === null && \SPPMod\SPPView\Validation\CustomRuleRegistry::has($type)) {
+            $params = [];
+            if (isset($vConfig['value'])) {
+                $params = is_array($vConfig['value']) ? $vConfig['value'] : [$vConfig['value']];
+            } elseif (isset($vConfig['params'])) {
+                $params = (array)$vConfig['params'];
+            } elseif (isset($vConfig['options'])) {
+                $params = (array)$vConfig['options'];
+            }
+
+            $rule = \SPPMod\SPPView\Validation\CustomRuleRegistry::resolve($type, $params);
+            if ($rule) {
+                $fieldName = $elem->getAttribute('name') ?: $elem->getAttribute('id') ?: 'field';
+                $customMsg = $vConfig['message'] ?? null;
+
+                $validator = new \SPPMod\SPPView\Validation\ViewValidatorRuleAdapter(
+                    $rule,
+                    $fieldName,
+                    $elem,
+                    $errHolder,
+                    $customMsg
+                );
+
+                if (!isset($vConfig['message'])) {
+                    $msg = $validator->getMsg();
+                }
+
+                // Auto-apply client HTML5 / SPP-UX attributes to the tag
+                $clientConstraints = $rule->clientRule($fieldName);
+                if (!empty($clientConstraints)) {
+                    foreach ($clientConstraints as $cName => $cVal) {
+                        if ($cVal === true) {
+                            $elem->setAttribute($cName, $cName);
+                        } elseif ($cVal !== false && $cVal !== null) {
+                            $elem->setAttribute($cName, (string)$cVal);
+                        }
+                    }
+                }
+                if ($customMsg) {
+                    $elem->setAttribute('data-msg', $customMsg);
+                }
+            }
         }
 
         if ($validator) {
@@ -941,40 +1357,12 @@ class ViewFormBuilder extends \SPP\SPPObject
      */
     public static function validate(string $yamlPath, array $data): array
     {
-        $fullPath = (str_starts_with($yamlPath, '/') || str_contains($yamlPath, ':'))
-            ? $yamlPath
-            : SPP_APP_DIR . '/' . ltrim($yamlPath, '/');
-
-        $config = Yaml::parseFile($fullPath);
-        $errors = [];
-        $isValid = true;
-
-        foreach ($config['fields'] ?? [] as $field) {
-            $name = $field['name'];
-            $val = $data[$name] ?? null;
-
-            foreach ($field['validations'] ?? [] as $vCfg) {
-                // We use a temporary element to satisfy validator constructor
-                $tempElem = new ViewTag('input', $name);
-                $validator = null;
-
-                switch ($vCfg['type']) {
-                    case 'required':
-                        $validator = new SPP_Validator_RequiredValidator($tempElem);
-                        break;
-                    case 'numeric':
-                        $validator = new SPP_Validator_NumericValidator($tempElem);
-                        break;
-                }
-
-                if ($validator && !$validator->validate($val)) {
-                    $errors[$name] = $vCfg['message'] ?? 'Invalid value';
-                    $isValid = false;
-                    break; // stop on first error for this field
-                }
-            }
-        }
-
-        return ['valid' => $isValid, 'errors' => $errors];
+        $form = self::fromYaml($yamlPath);
+        $form->bind($data);
+        $isValid = $form->isValid();
+        return [
+            'valid' => $isValid,
+            'errors' => $form->getErrors()
+        ];
     }
 }

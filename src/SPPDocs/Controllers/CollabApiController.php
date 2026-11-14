@@ -73,7 +73,7 @@ class CollabApiController extends \SPPMod\SPPView\ViewController
     }
 
     #[Route('/api/collab/stream', method: 'GET')]
-    public function stream()
+    public function sseStream()
     {
         $projectId = $_GET['project'] ?? $_GET['project_id'] ?? '';
         $pageSlug = $_GET['page'] ?? $_GET['page_slug'] ?? '';

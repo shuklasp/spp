@@ -13,7 +13,7 @@ class ApiErrorSubscriber
         ];
     }
 
-    public function onException(Event $event): void
+    public function onException($event): void
     {
         // Only handle errors if the request is destined for the API
         // This prevents the API module from hijacking global UI errors
@@ -21,7 +21,7 @@ class ApiErrorSubscriber
             return;
         }
 
-        $payload = $event->getPayload();
+        $payload = method_exists($event, 'getPayload') ? $event->getPayload() : (is_array($event) ? $event : []);
         $exception = $payload['exception'] ?? null;
 
         $message = $exception ? $exception->getMessage() : 'An unexpected error occurred.';
@@ -35,7 +35,9 @@ class ApiErrorSubscriber
         \SPPMod\SPPAPI\SPPAjax::respond('error', ['message' => $message], $code);
 
         // Stop event propagation since we've handled the error and sent the response
-        $event->stopPropagation();
+        if (is_object($event) && method_exists($event, 'stopPropagation')) {
+            $event->stopPropagation();
+        }
     }
 
     private static function isApiRequest(): bool

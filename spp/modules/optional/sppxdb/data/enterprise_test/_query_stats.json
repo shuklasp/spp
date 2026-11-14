@@ -1,4 +1,6 @@
 {
     "SELECT * FROM large_table.? LIMIT ?": 1,
-    "SELECT * FROM secure_data LIMIT ?": 2
+    "SELECT * FROM secure_data LIMIT ?": 2,
+    "CREATE TABLE secure_data (id int, secret varchar)": 4,
+    "SELECT COUNT(*) as total FROM large_table": 2
 }

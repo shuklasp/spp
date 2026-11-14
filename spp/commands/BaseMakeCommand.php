@@ -44,9 +44,9 @@ abstract class BaseMakeCommand extends Command
     }
 
     /**
-     * Build the file from a stub.
+     * Build the file from a stub and automatically register its properties in __spp_file_props.yml.
      */
-    protected function buildFromStub(string $stubName, string $targetPath, array $replacements): bool
+    protected function buildFromStub(string $stubName, string $targetPath, array $replacements, array|string $props = []): bool
     {
         $stubPath = __DIR__ . "/stubs/{$stubName}.stub";
         if (!file_exists($stubPath)) {
@@ -70,7 +70,69 @@ abstract class BaseMakeCommand extends Command
         }
 
         file_put_contents($targetPath, $content);
+
+        // Automatically create or update directory manifest (__spp_file_props.yml)
+        $this->recordFileProps($targetPath, $props);
+
         return true;
+    }
+
+    /**
+     * Records or updates a file's metadata in the parent directory's __spp_file_props.yml manifest.
+     */
+    protected function recordFileProps(string $targetPath, array|string $props = []): bool
+    {
+        if (!class_exists('\SPPMod\SPPStorage\FilePropsManager')) {
+            require_once defined('SPP_APP_DIR') ? SPP_APP_DIR . '/spp/modules/spp/sppstorage/src/FilePropsManager.php' : dirname(__DIR__, 2) . '/modules/spp/sppstorage/src/FilePropsManager.php';
+        }
+
+        $dir = dirname($targetPath);
+        $manifestPath = $dir . DIRECTORY_SEPARATOR . \SPPMod\SPPStorage\FilePropsManager::MANIFEST_FILENAME;
+        if (!file_exists($manifestPath)) {
+            \SPPMod\SPPStorage\FilePropsManager::saveDirectoryProps($dir, [
+                'description' => 'Directory: ' . basename($dir),
+                'usage' => '',
+                'attributes' => ['tags' => [strtolower(basename($dir))]]
+            ]);
+        }
+
+        if (empty($props)) {
+            $name = basename($targetPath);
+            $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+            $props = [
+                'description' => "Scaffolded component: {$name}",
+                'usage' => "Generated via SPP CLI scaffolding",
+                'stability' => 'stable',
+                'author' => 'SPP Scaffolder',
+                'review_date' => date('Y-m-d'),
+                'attributes' => ['tags' => ['scaffold', $ext]]
+            ];
+        }
+
+        $res = \SPPMod\SPPStorage\FilePropsManager::saveFileProps($targetPath, $props);
+        return $res['success'] ?? false;
+    }
+
+    /**
+     * Records or updates a directory's metadata in its __spp_file_props.yml manifest.
+     */
+    protected function recordDirectoryProps(string $dirPath, array $props = []): bool
+    {
+        if (!class_exists('\SPPMod\SPPStorage\FilePropsManager')) {
+            require_once defined('SPP_APP_DIR') ? SPP_APP_DIR . '/spp/modules/spp/sppstorage/src/FilePropsManager.php' : dirname(__DIR__, 2) . '/modules/spp/sppstorage/src/FilePropsManager.php';
+        }
+
+        if (empty($props)) {
+            $name = basename($dirPath);
+            $props = [
+                'description' => "Directory: {$name}",
+                'usage' => '',
+                'attributes' => ['tags' => [strtolower($name)]]
+            ];
+        }
+
+        $res = \SPPMod\SPPStorage\FilePropsManager::saveDirectoryProps($dirPath, $props);
+        return $res['success'] ?? false;
     }
 
     /**

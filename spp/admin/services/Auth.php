@@ -44,6 +44,9 @@ function live_Auth_Login($la, $params)
         \SPP\SPPSession::setSessionVar('__sppauth_user__', $username);
         \SPP\SPPSession::setSessionVar('__username__', $username);
         \SPP\SPPSession::setSessionVar('__role_id__', 1);
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+        \SPP\SPPSession::setSessionVar('__sppauth_fingerprint__', hash('sha256', $ip . $ua));
         $la->setData(['user' => $username])->notify("Login successful.", "success");
     } else {
         $la->setStatus('error')->notify("Invalid username or password.");
@@ -177,7 +180,7 @@ function live_Auth_Profile($la, $params)
         }
 
         if (!$username) {
-            return $la->setStatus('error')->notify("Profile not found.", "error");
+            return $la->setStatus('error')->setData(['authenticated' => false]);
         }
 
         $user = new \SPPMod\SPPAuth\SPPUser($username);
@@ -252,3 +255,5 @@ function live_Auth_RevokeApiKey($la, $params)
         $la->setStatus('error')->notify("Failed to revoke API key: " . $e->getMessage());
     }
 }
+
+

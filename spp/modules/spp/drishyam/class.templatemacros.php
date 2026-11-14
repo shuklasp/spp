@@ -155,15 +155,19 @@ class TemplateMacros
 
     public static function spppartial(string $view, array $data = []): string
     {
-        $app = \SPP\Scheduler::getContext();
+        $app = class_exists('\\SPPMod\\Drishyam\\SPPBlade') ? \SPPMod\Drishyam\SPPBlade::getCurrentRenderingApp() : null;
+        if (!$app) {
+            $app = class_exists('\\SPP\\Scheduler') ? \SPP\Scheduler::getContext() : null;
+        }
+        $app = $app ?: 'default';
         $file = \SPPMod\SPPView\ViewLocator::locate($view, $app);
         
         if (!isset($data['base_url'])) {
             $data['base_url'] = \SPP\App::getBaseUrl($app);
         }
 
-        if (class_exists('\\SPPMod\\Drishyam\\SPPBlade') && str_ends_with($view, '.blade.php')) {
-            return \SPPMod\Drishyam\SPPBlade::render($file ?: $view, $data);
+        if (class_exists('\\SPPMod\\Drishyam\\SPPBlade') && (($file && str_ends_with($file, '.blade.php')) || str_ends_with($view, '.blade.php'))) {
+            return \SPPMod\Drishyam\SPPBlade::render($file ?: $view, $data, $app);
         }
 
         if ($file && file_exists($file)) {
@@ -205,7 +209,7 @@ class TemplateMacros
         return $output;
     }
 
-    public static function polyglot(string $name, array $data = [], bool $useCache = true, int $ttl = 3600): string
+    public static function polyglot(string $name, array $data = [], bool $useCache = true, int $ttl = 3600, $fallback = null): string
     {
         $app = \SPP\App::getApp();
         $appName = $app->getName();
@@ -231,31 +235,63 @@ class TemplateMacros
             SPP_APP_DIR . '/resources/default/services',
         ];
 
-        $extensions = [
-            'py' => ['lang' => 'python', 'func' => 'render_partial'],
-            'js' => ['lang' => 'node', 'func' => 'renderPartial'],
-            'go' => ['lang' => 'go', 'func' => 'RenderPartial'],
-            'java' => ['lang' => 'java', 'func' => 'renderPartial'],
-            'cs' => ['lang' => 'dotnet', 'func' => 'RenderPartial'],
-            'pl' => ['lang' => 'perl', 'func' => 'render_partial'],
-        ];
-
         $foundPath = null;
         $lang = null;
         $func = null;
 
+        // Dynamic auto-discovery via LanguageRegistry
         foreach ($possibleDirs as $dir) {
-            foreach ($extensions as $ext => $info) {
-                if (file_exists($dir . '/' . $name . '.' . $ext)) {
-                    $foundPath = $dir . '/' . $name . '.' . $ext;
-                    $lang = $info['lang'];
-                    $func = $info['func'];
-                    break 2;
+            if (!is_dir($dir)) continue;
+            $files = glob($dir . '/' . $name . '.*');
+            if ($files) {
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        $info = class_exists('\\SPP\\Core\\Polyglot\\LanguageRegistry') 
+                            ? \SPP\Core\Polyglot\LanguageRegistry::resolveByPath($file) 
+                            : null;
+                        if ($info) {
+                            $foundPath = $file;
+                            $lang = $info['lang'];
+                            $func = $info['func'];
+                            break 2;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fallback to legacy extensions if LanguageRegistry did not find a match
+        if (!$foundPath) {
+            $extensions = [
+                'py' => ['lang' => 'python', 'func' => 'render_partial'],
+                'js' => ['lang' => 'node', 'func' => 'renderPartial'],
+                'go' => ['lang' => 'go', 'func' => 'RenderPartial'],
+                'java' => ['lang' => 'java', 'func' => 'renderPartial'],
+                'cs' => ['lang' => 'dotnet', 'func' => 'RenderPartial'],
+                'pl' => ['lang' => 'perl', 'func' => 'render_partial'],
+            ];
+
+            foreach ($possibleDirs as $dir) {
+                foreach ($extensions as $ext => $info) {
+                    if (file_exists($dir . '/' . $name . '.' . $ext)) {
+                        $foundPath = $dir . '/' . $name . '.' . $ext;
+                        $lang = $info['lang'];
+                        $func = $info['func'];
+                        break 2;
+                    }
                 }
             }
         }
 
         if (!$foundPath) {
+            if ($fallback !== null) {
+                if (is_callable($fallback)) return (string)call_user_func($fallback, $data);
+                if (is_string($fallback) && (str_ends_with($fallback, '.blade.php') || str_ends_with($fallback, '.php') || str_ends_with($fallback, '.html'))) {
+                    return self::spppartial($fallback, $data);
+                }
+                return (string)$fallback;
+            }
+
             $alertHtml = "<div class=\"spp-partial-container error polyglot-alert\">";
             $alertHtml .= "<div class=\"partial-header\"><h4>Polyglot Magic Auto-Discovery Error</h4></div>";
             $alertHtml .= "<div class=\"partial-body\"><p>External polyglot partial service <strong>" . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "</strong> was not found.</p>";
@@ -268,12 +304,20 @@ class TemplateMacros
         $modulePath = $foundPath;
 
         if (!class_exists('\\SPP\\PolyglotBridge')) {
+            if ($fallback !== null) return is_callable($fallback) ? (string)call_user_func($fallback, $data) : (string)$fallback;
             return "<div class=\"spp-partial-container error\"><div class=\"partial-header\"><h4>Polyglot Partial Error</h4></div><div class=\"partial-body\"><pre>PolyglotBridge class not found.</pre></div></div>";
         }
 
         // Auto-enable daemon mode for sub-millisecond execution
         $res = \SPP\PolyglotBridge::call($lang, $modulePath, $func, $data, true);
         if (!$res['success']) {
+            if ($fallback !== null) {
+                if (is_callable($fallback)) return (string)call_user_func($fallback, $data);
+                if (is_string($fallback) && (str_ends_with($fallback, '.blade.php') || str_ends_with($fallback, '.php') || str_ends_with($fallback, '.html'))) {
+                    return self::spppartial($fallback, $data);
+                }
+                return (string)$fallback;
+            }
             $error = htmlspecialchars($res['error'] ?? 'Unknown Polyglot Execution Error', ENT_QUOTES, 'UTF-8');
             return "<div class=\"spp-partial-container error\"><div class=\"partial-header\"><h4>Polyglot Magic Error ({$lang})</h4></div><div class=\"partial-body\"><pre>{$error}</pre></div></div>";
         }
@@ -285,6 +329,21 @@ class TemplateMacros
         }
 
         return $output;
+    }
+
+    /**
+     * Evaluates an ad-hoc polyglot expression (e.g. Formula DSL, Python, Node) directly in templates.
+     */
+    public static function polyglot_eval(string $lang, string $expression, array $context = []): string
+    {
+        try {
+            $result = \SPP\Polyglot::eval($lang, $expression, $context);
+            return is_array($result) || is_object($result)
+                ? json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+                : (string)$result;
+        } catch (\Throwable $e) {
+            return "<!-- [Polyglot Eval Error ({$lang})]: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . " -->";
+        }
     }
 
     public static function spptransform(string $transformerClass, $value)

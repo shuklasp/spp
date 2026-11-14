@@ -8,6 +8,8 @@
 (function(SPPUX) {
     if (!SPPUX) return;
 
+    const BaseComponent = SPPUX.BaseComponent || (typeof window !== 'undefined' ? window.BaseComponent : class {});
+
     SPPUX.Bridge = {
         _loaded: new Set(),
 

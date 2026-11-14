@@ -1,26 +1,32 @@
-.TH SPP-make-polyglot-partial 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-MAKE:POLYGLOT-PARTIAL 1 "October 2026" "SPP Framework" "SPP User Commands"
 .SH NAME
-make:polyglot-partial
-.PP
- \- Scaffold a new external polyglot partial service file (Python/Node/Go)
-.SH DESCRIPTION
-Scaffold a new external polyglot partial service file (Python/Node/Go)
-.PP
+spp\-make:polyglot-partial \- Scaffolds a new external polyglot view partial service file for any registered language
 .SH SYNOPSIS
-php spp.php make:polyglot-partial [OPTIONS]
+.B spp make:polyglot-partial
+\fIFilename.ext\fR [\fB\-\-lang=\fR\fIlanguage\fR] [\fB\-\-app=\fR\fIAppName\fR]
+.SH DESCRIPTION
+.B spp make:polyglot-partial
+generates standalone external service partials that execute through SPP's Universal Polyglot 2.0 bridge subsystem. Partials can be written in any language registered in \fILanguageRegistry\fR, including Python, Node.js, Go, Rust, Zig, Ruby, Elixir, Lua, Java, C#, or custom in-process DSLs.
 .PP
-.SH EXTENDED USAGE
-Usage: php spp.php make:polyglot-partial <ModuleName.py|.js|.go> [--lang=python|node|go] [--app=AppName]
-.PP
-.PP
+Generated partials conform to SPP's zero-inline-HTML standard and can be seamlessly consumed by ViewControllers via \fBrenderPolyglotPartial()\fR or embedded within Blade templates using \fB@polyglot()\fR directives.
 .SH OPTIONS
-No static options detected for this command.
-.PP
+.TP
+.B Filename.ext
+Name of the partial file to create with appropriate extension (e.g., \fIchart.py\fR, \fIwidget.go\fR, \fIrule.calc\fR).
+.TP
+.BR \-\-lang =\fIlanguage\fR
+Explicit language identifier (e.g. \fIpython\fR, \fInode\fR, \fIgo\fR, \fIrust\fR, \fIformula\fR). Inferred from extension if omitted.
+.TP
+.BR \-\-app =\fIAppName\fR
+Application context where the partial should be created. If specified, targets \fIsrc/<AppName>/services/polyglot/\fR; otherwise defaults to \fIservices/polyglot/\fR.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
-.br
-\(bu Instantiates internal components: external.
-.br
-.PP
-.PP
+.IP \(bu 2
+Resolves driver configuration via \fISPP\\Core\\Polyglot\\LanguageRegistry\fR.
+.IP \(bu 2
+Ensures target service directories exist.
+.IP \(bu 2
+Generates idiomatic input decoding and output formatting stubs in the requested language.
+.SH SEE ALSO
+.BR spp-polyglot-status (1),
+.BR spp-polyglot-list (1),
+.BR spp-make-polyglot-language (1)

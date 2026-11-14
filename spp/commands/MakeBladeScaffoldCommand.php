@@ -87,6 +87,26 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
         file_put_contents($formPath, Yaml::dump($formYaml, 8, 2));
         echo "DONE\n";
 
+        // Create Entity Report YAML
+        echo "Creating Entity Report YAML... ";
+        $reportsDir = SPP_APP_DIR . "/etc/apps/{$appName}/reports";
+        if (!is_dir($reportsDir)) mkdir($reportsDir, 0777, true);
+        $reportPath = "{$reportsDir}/" . strtolower($entityName) . ".yml";
+        $reportYaml = [
+            'table' => strtolower($entityName) . 's',
+            'columns' => [
+                ['field' => 'id', 'aggregate' => '', 'alias' => 'ID'],
+                ['field' => 'name', 'aggregate' => '', 'alias' => 'Name'],
+                ['field' => 'status', 'aggregate' => '', 'alias' => 'Status']
+            ],
+            'joins' => [],
+            'filters' => ['logic' => 'AND', 'conditions' => []],
+            'order_by' => ['field' => 'id', 'direction' => 'DESC'],
+            'limit' => 100
+        ];
+        file_put_contents($reportPath, Yaml::dump($reportYaml, 8, 2));
+        echo "DONE\n";
+
         // 3. Create Blade Views
         echo "Creating Blade Views... ";
         $viewsDir = SPP_APP_DIR . "/resources/{$appName}/views/" . strtolower($entityName);
@@ -130,25 +150,12 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
 @extends('layouts.app')
 @section('content')
     <div class='card'>
-        <h1>{{ $item->id ? 'Edit' : 'Create' }} {{ $entityName }}</h1>
+        <h1>{{ \$item->id ? 'Edit' : 'Create' }} {$entityName}</h1>
         
-        @sppform('" . strtolower($entityName) . "')
-        @sppbind($item)
-        @sppform_start('" . strtolower($entityName) . "_form')
-            <div>
-                <label>Name</label>
-                @sppelement('name')
-            </div>
-            <div>
-                <label>Description</label>
-                @sppelement('description')
-            </div>
-            <div>
-                @sppelement('submit')
-            </div>
-        @sppform_end
+        {{-- High-Performance Modern SPPForm Rendering --}}
+        @sppform_render('" . strtolower($entityName) . "', ['entity' => \$item])
         
-        <a href='?'>Back to List</a>
+        <p style='margin-top: 1rem;'><a href='?'>Back to List</a></p>
     </div>
 @endsection
 ";
@@ -275,6 +282,14 @@ PHP;
 WORKFLOW;
         file_put_contents($workflowDir . "/" . strtolower($entityName) . ".yml", trim($workflowContent));
         echo "DONE\n";
+
+        if (!class_exists('\SPPMod\SPPStorage\FilePropsManager')) {
+            require_once defined('SPP_APP_DIR') ? SPP_APP_DIR . '/spp/modules/spp/sppstorage/src/FilePropsManager.php' : dirname(__DIR__, 2) . '/modules/spp/sppstorage/src/FilePropsManager.php';
+        }
+        \SPPMod\SPPStorage\FilePropsManager::syncDirectory($viewsDir, true);
+        \SPPMod\SPPStorage\FilePropsManager::syncDirectory($partialDir, true);
+        \SPPMod\SPPStorage\FilePropsManager::syncDirectory($formDir, true);
+        \SPPMod\SPPStorage\FilePropsManager::syncDirectory($workflowDir, true);
 
         echo "\nSuccess: Full Blade Scaffold (with workflows) for {$entityName} created!\n";
         echo "1. Run 'php spp.php db:sync' to create the table.\n";

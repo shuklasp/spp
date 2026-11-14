@@ -213,4 +213,21 @@ class OpenApiController extends \SPPMod\SPPView\ViewController
             'headers_raw' => trim($responseHeadersRaw),
         ]);
     }
+
+    #[Route('/openapi/mock', method: 'GET')]
+    #[Route('/openapi/mock', method: 'POST')]
+    public function mockResponse()
+    {
+        $input = json_decode(file_get_contents('php://input'), true) ?: $_REQUEST;
+        $status = (int)($input['status'] ?? 200);
+        $data = $input['data'] ?? [
+            'status' => 'mock_success',
+            'message' => 'Simulated OpenAPI Mock Response',
+            'timestamp' => time(),
+            'path' => $input['path'] ?? ($_SERVER['REQUEST_URI'] ?? '/openapi/mock'),
+            'method' => $_SERVER['REQUEST_METHOD'] ?? 'GET',
+        ];
+
+        Response::json($data, $status);
+    }
 }

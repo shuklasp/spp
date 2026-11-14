@@ -17,7 +17,7 @@
 
 // ─── Core Module Imports ──────────────────────────────────────────
 
-import { Signal, Computed, effect, batch, createStore, SPPStore } from './core/reactive.js';
+import { Signal, Computed, effect, batch, createStore, SPPStore, useState, useComputed, useEffect } from './core/reactive.js';
 import { enqueue, flush, forceFlush, startBatch, endBatch } from './core/scheduler.js';
 import { TrustedHTML, html, Fragment, consumePendingHandlers, _pendingHandlers, render, repeat, until, portal, ref, bind, action } from './core/template.js';
 import { TemplateResult } from './core/parts.js';
@@ -28,8 +28,8 @@ import { bootSPPLive } from './spplive.js';
 
 // ─── Re-exports for ES Module consumers ───────────────────────────
 
-export { TrustedHTML, html, Fragment, TemplateResult, Signal, Computed, SPPStore, repeat, until, portal, ref, bind, action };
-export { effect, batch, createStore };
+export { TrustedHTML, html, Fragment, TemplateResult, Signal, Computed, SPPStore, repeat, until, portal, ref, bind, action, render };
+export { effect, batch, createStore, useState, useComputed, useEffect };
 export { defineElement, bootSPPLive };
 
 // ─── Debug Mode ───────────────────────────────────────────────────
@@ -60,16 +60,73 @@ function defineElement(tagName, ComponentClass, observedAttributes = []) {
         constructor() {
             super();
             this._componentInstance = null;
+            this._initialProps = {};
+        }
+
+        get props() {
+            return this._componentInstance ? this._componentInstance.props : this._initialProps;
+        }
+
+        set props(val) {
+            this._initialProps = typeof val === 'object' && val !== null ? val : {};
+            if (this._componentInstance) {
+                Object.assign(this._componentInstance.props, this._initialProps);
+                this._componentInstance._queueUpdate();
+            }
+        }
+
+        get componentInstance() {
+            return this._componentInstance;
+        }
+
+        _parseAttributes() {
+            const props = { ...this._initialProps };
+            for (const attr of this.attributes) {
+                let val = attr.value;
+                if (val === '' && attr.specified) {
+                    val = true;
+                } else if (val === 'true') {
+                    val = true;
+                } else if (val === 'false') {
+                    val = false;
+                } else if (typeof val === 'string' && ((val.startsWith('{') && val.endsWith('}')) || (val.startsWith('[') && val.endsWith(']')))) {
+                    try { val = JSON.parse(val); } catch (e) {}
+                }
+
+                if (attr.name === 'data-spp-props' || attr.name === 'data-props' || attr.name === 'props') {
+                    if (typeof val === 'object' && val !== null) {
+                        Object.assign(props, val);
+                    }
+                } else if (attr.name.startsWith('data-')) {
+                    const camel = attr.name.slice(5).replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+                    props[camel] = val;
+                    props[attr.name] = val;
+                } else {
+                    props[attr.name] = val;
+                }
+            }
+
+            const text = this.textContent ? this.textContent.trim() : '';
+            if (text && !props.code && !props.label && !props.content) {
+                if (tagName === 'spp-code-block') props.code = text;
+                else if (tagName === 'spp-badge') props.label = text;
+            }
+
+            return props;
         }
         
         connectedCallback() {
             if (!this._componentInstance) {
-                const props = {};
-                for (const attr of this.attributes) {
-                    props[attr.name] = attr.value;
-                }
+                const props = this._parseAttributes();
                 
                 this._componentInstance = new ComponentClass(window.app || window.admin, this, props);
+                if (typeof this._componentInstance.onInit === 'function') {
+                    this._componentInstance.onInit();
+                }
+                this._componentInstance.update();
+                if (typeof this._componentInstance.onMount === 'function') {
+                    this._componentInstance.onMount();
+                }
             }
         }
         
@@ -82,7 +139,18 @@ function defineElement(tagName, ComponentClass, observedAttributes = []) {
         
         attributeChangedCallback(name, oldValue, newValue) {
             if (this._componentInstance && oldValue !== newValue) {
-                this._componentInstance.props[name] = newValue;
+                let val = newValue;
+                if (typeof val === 'string' && ((val.startsWith('{') && val.endsWith('}')) || (val.startsWith('[') && val.endsWith(']')))) {
+                    try { val = JSON.parse(val); } catch (e) {}
+                }
+                this._componentInstance.props[name] = val;
+                if (name.startsWith('data-')) {
+                    const camel = name.slice(5).replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+                    this._componentInstance.props[camel] = val;
+                }
+                if (typeof this._componentInstance.onAttributeChanged === 'function') {
+                    this._componentInstance.onAttributeChanged(name, oldValue, newValue);
+                }
                 this._componentInstance._queueUpdate();
             }
         }
@@ -146,27 +214,34 @@ export class BaseComponent {
     }
 
     get selectedApp() {
-        return this.root?.get?.()?.selectedApp || 'default';
+        return this.root?.get?.()?.selectedApp || this.app?.selectedApp || window.admin?.selectedApp || window.app?.selectedApp || localStorage.getItem('spp_admin_selected_app') || 'default';
     }
 
     _initHelpers() {
         // ── API Helper (Proxy-based, backward compatible) ──
-        const apiHandler = async (actionOrData, data = {}, options = { lock: true }) => {
-            if (options.lock) SPPUX.Busy.start();
+        const apiHandler = async (actionOrData, data = {}, options = { lock: false }) => {
+            const shouldLock = Boolean(options && options.lock === true);
+            if (shouldLock) SPPUX.Busy.start();
             try {
                 if (actionOrData instanceof FormData) {
+                    if (this.admin && typeof this.admin.apiPost === 'function') {
+                        return await this.admin.apiPost(actionOrData, {}, { ...options, lock: false });
+                    }
                     return await SPPUX.apiPost(actionOrData);
                 }
                 if (data instanceof FormData) {
                     if (!data.has('action')) data.append('action', actionOrData);
+                    if (this.admin && typeof this.admin.apiPost === 'function') {
+                        return await this.admin.apiPost(data, {}, { ...options, lock: false });
+                    }
                     return await SPPUX.apiPost(data);
                 }
                 if (this.admin && typeof this.admin.api === 'function') {
-                    return await this.admin.api(actionOrData, data);
+                    return await this.admin.api(actionOrData, data, { ...options, lock: false });
                 }
                 return await SPPUX.api(actionOrData, data);
             } finally {
-                if (options.lock) SPPUX.Busy.stop();
+                if (shouldLock) SPPUX.Busy.stop();
             }
         };
 
@@ -174,18 +249,19 @@ export class BaseComponent {
             get: (target, prop) => {
                 if (typeof prop !== 'string' || prop in target) return target[prop];
                 const action = prop.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-                return (data = {}, options = { lock: true }) => target(action, data, options);
+                return (data = {}, options = { lock: false }) => target(action, data, options);
             }
         });
 
         this.apiPost = apiHandler;
 
-        this.service = async (service, params = {}, options = { lock: true }) => {
-            if (options.lock) SPPUX.Busy.start();
+        this.service = async (service, params = {}, options = { lock: false }) => {
+            const shouldLock = Boolean(options && options.lock === true);
+            if (shouldLock) SPPUX.Busy.start();
             try {
                 return await SPPUX.api('call_service', { service, ...params });
             } finally {
-                if (options.lock) SPPUX.Busy.stop();
+                if (shouldLock) SPPUX.Busy.stop();
             }
         };
 
@@ -204,10 +280,20 @@ export class BaseComponent {
     }
 
     _hydrate() {
-        this.container.querySelectorAll('[data-spp-evt]').forEach(el => {
-            const id = el.getAttribute('data-spp-evt');
-            if (window.__spp_handlers && window.__spp_handlers[id]) {
-                this._handlers.set(id, window.__spp_handlers[id]);
+        if (!this.container) return;
+        const selectors = '[data-spp-evt], [data-spp-evt-click], [data-spp-evt-input], [data-spp-evt-change], [data-spp-evt-submit], [data-spp-evt-keydown], [data-spp-evt-keyup], [data-spp-evt-blur], [data-spp-evt-focus], [data-spp-evt-mousedown], [data-spp-evt-mouseup]';
+        const elements = [
+            ...(this.container.matches && this.container.matches(selectors) ? [this.container] : []),
+            ...this.container.querySelectorAll(selectors)
+        ];
+        elements.forEach(el => {
+            for (const attr of el.attributes) {
+                if (attr.name.startsWith('data-spp-evt')) {
+                    const id = attr.value;
+                    if (window.__spp_handlers && window.__spp_handlers[id]) {
+                        this._handlers.set(id, window.__spp_handlers[id]);
+                    }
+                }
             }
         });
     }
@@ -300,7 +386,7 @@ export class BaseComponent {
      * @private
      */
     _doUpdate() {
-        if (this.isDisposed) return;
+        if (this.isDisposed || !this.container) return;
         if (this._isRendering) return;
 
         // ── New lifecycle: shouldUpdate ──
@@ -328,7 +414,10 @@ export class BaseComponent {
             Signal.activeSubscriber = subscriber;
             let template;
             try {
-                template = this.render();
+                template = typeof this.render === 'function' ? this.render() : '';
+                if ((!template || template === '' || template === Fragment) && typeof this.template === 'function') {
+                    template = this.template();
+                }
             } catch (renderError) {
                 console.error(`[SPPUX] Render Error in ${this.constructor.name}:`, renderError);
 
@@ -358,6 +447,11 @@ export class BaseComponent {
                     const rawHtml = this.interpolateTemplate(tplNode.innerHTML, { state: this.state, props: this.props });
                     template = new TrustedHTML(rawHtml);
                 }
+            }
+
+            // Auto-wrap raw HTML strings in TrustedHTML
+            if (typeof template === 'string') {
+                template = new TrustedHTML(template);
             }
 
             if (!template || (template.content === undefined && !(template.strings && template.values)) || (template.content === '' && !template.__isTrusted)) {
@@ -422,7 +516,16 @@ export class BaseComponent {
                 console.error(`[SPPUX] afterUpdate Error in ${this.constructor.name}:`, afterUpdateError);
             }
 
-            this._hasMounted = true;
+            if (!this._hasMounted) {
+                this._hasMounted = true;
+                if (typeof this.onMount === 'function') {
+                    try {
+                        this.onMount();
+                    } catch (mountError) {
+                        console.error(`[SPPUX] onMount Error in ${this.constructor.name}:`, mountError);
+                    }
+                }
+            }
         } finally {
             this._isRendering = false;
             Signal.activeSubscriber = null;
@@ -441,12 +544,16 @@ export class BaseComponent {
      */
     _syncEventDelegation(root) {
         if (!root) return;
-        const selectors = '[data-spp-type]';
-        root.querySelectorAll(selectors).forEach(el => {
+        const selectors = '[data-spp-type], [data-spp-evt], [data-spp-evt-click], [data-spp-evt-input], [data-spp-evt-change], [data-spp-evt-submit], [data-spp-evt-keydown], [data-spp-evt-keyup], [data-spp-evt-blur], [data-spp-evt-focus], [data-spp-evt-mousedown], [data-spp-evt-mouseup]';
+        const elements = [
+            ...(root.matches && root.matches(selectors) ? [root] : []),
+            ...root.querySelectorAll(selectors)
+        ];
+        elements.forEach(el => {
             for (const attr of el.attributes) {
                 if (attr.name.startsWith('data-spp-evt-') || attr.name === 'data-spp-evt') {
                     const id = attr.value;
-                    const handler = this._handlers.get(id);
+                    const handler = this._handlers.get(id) || (window.__spp_handlers && window.__spp_handlers[id]);
                     if (handler) {
                         const eventType = attr.name === 'data-spp-evt'
                             ? (el.getAttribute('data-spp-type') || 'click')
@@ -611,6 +718,43 @@ export class BaseComponent {
         if (window.SPPUX && SPPUX.Modal) SPPUX.Modal.close();
     }
 
+    escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    escapeAttr(str) {
+        return this.escapeHtml(str);
+    }
+
+    openSubEditor(title, content, data = {}, onSave = null) {
+        if (typeof SPPUX !== 'undefined' && typeof SPPUX.openSubEditor === 'function') {
+            return SPPUX.openSubEditor(title, content, data, onSave);
+        }
+        if (this.app && typeof this.app.openSubEditor === 'function') {
+            return this.app.openSubEditor(title, content, data, onSave);
+        }
+        if (this.admin && typeof this.admin.openSubEditor === 'function') {
+            return this.admin.openSubEditor(title, content, data, onSave);
+        }
+        if (typeof window !== 'undefined' && window.admin && typeof window.admin.openSubEditor === 'function') {
+            return window.admin.openSubEditor(title, content, data, onSave);
+        }
+        console.warn('SPPUX.openSubEditor not available');
+    }
+
+    updateSubEditor(content) {
+        if (typeof SPPUX !== 'undefined' && typeof SPPUX.updateSubEditor === 'function') {
+            return SPPUX.updateSubEditor(content);
+        }
+        console.warn('SPPUX.updateSubEditor not available');
+    }
+
     async confirmDelete(type, id) {
         const confirmed = await this.confirm(`Are you sure you want to delete this ${type}?`);
         if (confirmed) {
@@ -728,7 +872,14 @@ export class BaseComponent {
     }
 
     dispose() {
+        if (this.isDisposed) return;
         this.isDisposed = true;
+
+        if (this._autoDisposeObserver) {
+            try { this._autoDisposeObserver.disconnect(); } catch (e) {}
+            this._autoDisposeObserver = null;
+        }
+
         this._subscriptions.forEach(unsubscribe => {
             try { unsubscribe(); } catch (e) { /* swallow */ }
         });
@@ -738,22 +889,29 @@ export class BaseComponent {
             });
         }
 
-        // Unregister from global component set and dispose children to prevent memory leaks
+        // Unregister from global component set immediately to prevent re-entrant loops
         if (window.SPPUX && SPPUX._components) {
-            // Traverse active components to find and dispose children residing inside this container
+            SPPUX._components.delete(this);
+
+            // Traverse active components to find and dispose children strictly nested inside this container
             if (this.container) {
-                for (const child of SPPUX._components) {
-                    if (child !== this && child.container && this.container.contains(child.container)) {
+                const candidates = Array.from(SPPUX._components);
+                for (const child of candidates) {
+                    if (child !== this && !child.isDisposed && child.container && child.container !== this.container && this.container.contains(child.container)) {
                         child.dispose();
                     }
                 }
             }
-            SPPUX._components.delete(this);
         }
 
         // Clean up event handlers from WeakMap system
         if (this.container) {
-            this.container.querySelectorAll('[data-spp-type]').forEach(el => {
+            const selectors = '[data-spp-type], [data-spp-evt], [data-spp-evt-click], [data-spp-evt-input], [data-spp-evt-change], [data-spp-evt-submit], [data-spp-evt-keydown], [data-spp-evt-keyup], [data-spp-evt-blur], [data-spp-evt-focus], [data-spp-evt-mousedown], [data-spp-evt-mouseup]';
+            const elements = [
+                ...(this.container.matches && this.container.matches(selectors) ? [this.container] : []),
+                ...this.container.querySelectorAll(selectors)
+            ];
+            elements.forEach(el => {
                 removeAllHandlers(el);
             });
         }
@@ -866,6 +1024,13 @@ export const SPPUX = {
     SPPStore,
     BaseComponent,
     SPPForm,
+    render,
+    repeat,
+    until,
+    portal,
+    ref,
+    bind,
+    action,
 
     // Reactivity
     Signal,
@@ -880,6 +1045,11 @@ export const SPPUX = {
     get debug() { return _debug; },
     set debug(v) { _debug = !!v; },
 
+    // Action Invocation Helper
+    callAction: async (action, data = {}) => {
+        return await SPPUX.api(action, data);
+    },
+
     // API
     api: async (actionOrData, data = {}) => {
         if (actionOrData instanceof FormData) {
@@ -893,8 +1063,11 @@ export const SPPUX = {
         const ts = Date.now();
 
         if (!data.appname && !data.context) {
-            const rootState = window.spp_root_store?.get?.();
-            if (rootState?.selectedApp) data.appname = rootState.selectedApp;
+            const rootApp = window.spp_root_store?.get?.()?.selectedApp || window.admin?.selectedApp || window.app?.selectedApp || localStorage.getItem('spp_admin_selected_app');
+            if (rootApp) {
+                data.appname = rootApp;
+                data.context = rootApp;
+            }
         }
 
         const csrf = data.csrf_token || window.SPP_CSRF_TOKEN;
@@ -925,8 +1098,11 @@ export const SPPUX = {
         }
 
         if (!formData.has('appname') && !formData.has('context')) {
-            const rootState = window.spp_root_store?.get?.();
-            if (rootState?.selectedApp) formData.append('appname', rootState.selectedApp);
+            const rootApp = window.spp_root_store?.get?.()?.selectedApp || window.admin?.selectedApp || window.app?.selectedApp || localStorage.getItem('spp_admin_selected_app');
+            if (rootApp) {
+                formData.append('appname', rootApp);
+                formData.append('context', rootApp);
+            }
         }
 
         if (!formData.has('csrf_token') && window.SPP_CSRF_TOKEN) {
@@ -1038,19 +1214,10 @@ export const SPPUX = {
             });
         } else {
             const temp = document.createElement('div');
-            temp.innerHTML = newHtml;
+            temp.innerHTML = typeof newHtml === 'string' ? newHtml.trim() : '';
             const newNode = temp.firstElementChild;
             if (!newNode) return;
-            patchAttributes(el, newNode);
-            if (newNode.children.length === 0 && el.children.length === 0) {
-                if (el.textContent !== newNode.textContent) {
-                    el.textContent = newNode.textContent;
-                }
-            } else {
-                if (el.innerHTML !== newNode.innerHTML) {
-                    el.innerHTML = newNode.innerHTML;
-                }
-            }
+            reconcileDOM(el, newNode);
         }
     },
 
@@ -1225,25 +1392,8 @@ export const SPPUX = {
         return html`<span id="${id}">${loadingTpl}</span>`;
     },
 
-    defineElement: (tagName, ComponentClass) => {
-        if (customElements.get(tagName)) return;
-        class SPPUXElement extends HTMLElement {
-            connectedCallback() {
-                if (this._comp) return;
-                const props = {};
-                for (let attr of this.attributes) props[attr.name] = attr.value;
-                this._comp = new ComponentClass(null, this, props);
-                this._comp.update();
-            }
-            disconnectedCallback() {
-                if (this._comp && this._comp.dispose) {
-                    this._comp.dispose();
-                    this._comp = null;
-                }
-            }
-        }
-        customElements.define(tagName, SPPUXElement);
-    },
+    defineElement: defineElement,
+    BaseComponent: BaseComponent,
 
     // Error Boundary factory
     ErrorBoundary: ErrorBoundaryMixin
@@ -1258,6 +1408,21 @@ window.SPPStore = SPPStore;
 window.BaseComponent = BaseComponent;
 window.SPPForm = SPPForm;
 window.SPPUX = SPPUX;
+window.render = render;
+window.SPPUX.render = render;
+window.portal = portal;
+window.until = until;
+window.repeat = repeat;
+window.ref = ref;
+window.bind = bind;
+window.action = action;
+window.defineElement = defineElement;
+window.useState = useState;
+window.useComputed = useComputed;
+window.useEffect = useEffect;
+window.SPPUX.useState = useState;
+window.SPPUX.useComputed = useComputed;
+window.SPPUX.useEffect = useEffect;
 
 // Backward compat: maintain window.__spp_handlers for legacy templates
 window.__spp_handlers = window.__spp_handlers || {};

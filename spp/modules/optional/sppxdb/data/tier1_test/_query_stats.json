@@ -1,7 +1,7 @@
 {
-    "CREATE TABLE accounts (id int, balance float)": 1,
-    "CREATE TABLE ledger (id int, tx_type varchar, amount float)": 1,
-    "SELECT COUNT(*) as total FROM accounts": 1,
-    "SELECT * FROM _audit ORDER BY timestamp DESC LIMIT ?": 2,
-    "SELECT * FROM _audit ORDER BY timestamp ASC": 1
+    "CREATE TABLE accounts (id int, balance float)": 9,
+    "CREATE TABLE ledger (id int, tx_type varchar, amount float)": 9,
+    "SELECT COUNT(*) as total FROM accounts": 9,
+    "SELECT * FROM _audit ORDER BY timestamp DESC LIMIT ?": 18,
+    "SELECT * FROM _audit ORDER BY timestamp ASC": 9
 }

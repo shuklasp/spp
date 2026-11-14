@@ -45,6 +45,11 @@ class AppSetBaseCommand extends Command
         $settings['base_app'] = $appName;
         file_put_contents($gsPath, Yaml::dump($settings, 10, 2));
 
+        $cacheFile = SPP_APP_DIR . "/var/cache/system/config.php";
+        if (file_exists($cacheFile)) {
+            @unlink($cacheFile);
+        }
+
         echo "Success: '{$appName}' is now the primary/base application.\n";
     }
 }

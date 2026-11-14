@@ -1,7 +1,14 @@
-.TH "sys:seed" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH SYS:SEED 1 "SPP CLI" "Version 1.0" "SPP Manual"
 .SH NAME
-sys:seed \- Run all database seeders for an application
+sys:seed \- Executes all database seeders for a specified application.
 .SH SYNOPSIS
 .B php spp.php sys:seed
+.I [app_name]
 .SH DESCRIPTION
-Run all database seeders for an application
+Discovers and executes all database seeders residing in src/{app}/seeders/. Supports both modern SPPSeeder classes (with entity synthesis and log output) and legacy seeders via parameter reflection.
+.SH OPTIONS
+.TP
+.B [app_name]
+(Optional) The target application name under src/ (defaults to 'default').
+.SH UNDER THE HOOD
+Scans filesystem at src/{app}/seeders/, loads seeder classes, establishes database context, runs seeder routines, and outputs summary logs.

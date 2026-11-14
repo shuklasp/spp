@@ -47,9 +47,8 @@ class SPP_XDB_Migrator
             }
         }
 
-        // We use the facade to actually execute creating the schema on SQLite
-        // But SQLiteEngine handles schema automatically on insert, wait... SQLiteEngine needs createTable?
-        // Actually SQLiteEngine's autoInitialize() creates the table if it doesn't exist, using TEXT for all columns dynamically during first insert.
+        // Ensure table exists on SQLite
+        $sqliteEngine->createTable($tableName, $schema);
         
         $sqliteEngine->beginTransaction();
         $count = 0;

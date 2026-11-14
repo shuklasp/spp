@@ -72,6 +72,15 @@ export default class ApiKeysView extends BaseComponent {
         });
     }
 
+    onEscape(e) {
+        if (this.state && this.state.showGenerateModal) {
+            if (e && e.preventDefault) e.preventDefault();
+            this.closeGenerateModal();
+            return true;
+        }
+        return false;
+    }
+
     async submitGenerateKey() {
         const name = this.state.newKeyName.trim();
         const scopesRaw = this.state.newKeyScopes.trim();
@@ -363,7 +372,7 @@ export default class ApiKeysView extends BaseComponent {
                         <h3 style="margin: 0; font-size: 1.2rem;">
                             ${generateStep === 'form' ? '🔑 Generate New API Key' : '✅ Key Generated Successfully'}
                         </h3>
-                        <button class="btn ghost-btn btn-sm" style="font-size: 1.2rem; padding: 4px 8px;" @click=${() => this.closeGenerateModal()}>✕</button>
+                        <button class="btn ghost-btn btn-sm" style="font-size: 1.2rem; padding: 4px 8px;" @click=${() => this.closeGenerateModal()} title="Close (Esc)">✕</button>
                     </div>
 
                     <!-- Modal Body -->
@@ -382,6 +391,16 @@ export default class ApiKeysView extends BaseComponent {
         const { newKeyName, newKeyScopes, generating } = this.state;
 
         return html`
+            <div style="background: rgba(56, 139, 253, 0.08); border: 1px solid rgba(56, 139, 253, 0.25); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                    <span style="font-size: 1rem;">ℹ️</span>
+                    <strong style="color: var(--text-bright); font-size: 0.85rem;">API Key Authentication & Scope Security</strong>
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-dim); line-height: 1.5;">
+                    API Keys authenticate machine-to-machine integrations, microservices, mobile clients, and automated CI/CD jobs via HTTP Bearer tokens (<code>Authorization: Bearer spp_key_...</code>). Use least-privilege scopes to constrain access.
+                </div>
+            </div>
+
             <div class="input-group" style="margin-bottom: 1.25rem;">
                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Key Name</label>
                 <input type="text" class="spp-element" placeholder="e.g. CI/CD Pipeline, Mobile App, Partner Integration"
@@ -415,11 +434,16 @@ export default class ApiKeysView extends BaseComponent {
                 `)}
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
-                <button class="btn ghost-btn" @click=${() => this.closeGenerateModal()}>Cancel</button>
-                <button class="btn primary-btn" ?disabled=${generating} @click=${() => this.submitGenerateKey()}>
-                    ${generating ? html`<span class="sppux-spinner" style="width:16px;height:16px;margin-right:8px;"></span> Generating...` : '🔑 Generate Key'}
-                </button>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                <div style="font-size: 0.75rem; color: var(--text-dim);">
+                    💡 Press <kbd style="background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); border-radius: 3px; padding: 2px 5px; font-family: monospace;">Esc</kbd> to cancel
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button class="btn ghost-btn" @click=${() => this.closeGenerateModal()} title="Cancel (Esc)">Cancel (Esc)</button>
+                    <button class="btn primary-btn" ?disabled=${generating} @click=${() => this.submitGenerateKey()}>
+                        ${generating ? html`<span class="sppux-spinner" style="width:16px;height:16px;margin-right:8px;"></span> Generating...` : '🔑 Generate Key'}
+                    </button>
+                </div>
             </div>
         `;
     }
@@ -448,11 +472,16 @@ export default class ApiKeysView extends BaseComponent {
             </div>
 
             <!-- Actions -->
-            <div style="display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
-                <button class="btn ghost-btn" @click=${() => this.closeGenerateModal()}>Close</button>
-                <button class="btn primary-btn" @click=${() => this.copyKeyToClipboard()}>
-                    📋 Copy to Clipboard
-                </button>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                <div style="font-size: 0.75rem; color: var(--text-dim);">
+                    💡 Press <kbd style="background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); border-radius: 3px; padding: 2px 5px; font-family: monospace;">Esc</kbd> to close
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button class="btn ghost-btn" @click=${() => this.closeGenerateModal()} title="Close (Esc)">Close (Esc)</button>
+                    <button class="btn primary-btn" @click=${() => this.copyKeyToClipboard()}>
+                        📋 Copy to Clipboard
+                    </button>
+                </div>
             </div>
         `;
     }

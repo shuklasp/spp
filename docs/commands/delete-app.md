@@ -4,20 +4,21 @@
 
 ### Synopsis
 ```bash
-php spp.php delete:app [OPTIONS]
+php spp.php delete:app <AppName> [OPTIONS]
 ```
 
 ### Extended Usage
 ```text
-Usage: php spp.php delete:app <AppName> [--force] [--keep-db] [--dry-run]
-
+Usage: php spp.php delete:app <AppName> [--config-only] [--backup] [--force] [--keep-db] [--dry-run]
 ```
 
 ### Options
-- `--help` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
-- `--force` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
-- `--keep-db` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
-- `--dry-run` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
+- `--config-only` : Only remove configuration, caches, and domain bindings; strictly preserve source code in `src/`.
+- `--backup` : Create a full zip backup archive in `var/backups/apps/` before deleting.
+- `--force` : Skip confirmation prompt.
+- `--keep-db` : Preserve database tables (only remove files and config).
+- `--dry-run` : Show what would be deleted without actually deleting anything.
+- `--help` : Show command help and usage instructions.
 
 ### Under the Hood
 Based on static analysis of the command's source code:

@@ -79,7 +79,14 @@ if (!function_exists('spp_admin_audit_log')) {
                 'diagnostics_health',
                 'get_system_info',
                 'load_view',
-                'get_global_settings'
+                'get_global_settings',
+                'storage_list_files',
+                'storage_tree',
+                'storage_disk_usage',
+                'storage_read_file',
+                'list_apps',
+                'get_admin_permissions',
+                'list_modules'
             ];
             if (in_array($action, $skipActions)) {
                 return;

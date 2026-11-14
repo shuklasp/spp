@@ -88,18 +88,45 @@ class XDBAdapter implements DBAdapter
     }
     public function beginTransaction(): bool
     {
-        return true;
+        return (bool)$this->xdb->beginTransaction();
     }
     public function commit(): bool
     {
-        return true;
+        return (bool)$this->xdb->commit();
     }
     public function rollBack(): bool
     {
-        return true;
+        return (bool)$this->xdb->rollback();
     }
     public function inTransaction(): bool
     {
-        return false;
+        return method_exists($this->xdb, 'inTransaction') ? $this->xdb->inTransaction() : false;
+    }
+    public function createSavepoint(string $name): void {}
+    public function releaseSavepoint(string $name): void {}
+    public function rollbackToSavepoint(string $name): void {}
+    public function getTransactionLevel(): int
+    {
+        return 0;
+    }
+
+    public function getXDB(): SPP_XDB
+    {
+        return $this->xdb;
+    }
+
+    public function xquery(string $xquery, array $vars = []): array
+    {
+        return $this->xdb->queryXQuery($xquery, $vars);
+    }
+
+    public function xquf(string $xquf): bool
+    {
+        return (bool)$this->xdb->updateXQUF($xquf);
+    }
+
+    public function xpath(string $xpath): array
+    {
+        return $this->xdb->queryX($xpath);
     }
 }

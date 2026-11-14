@@ -181,7 +181,7 @@ class AdminController extends \SPPMod\SPPView\ViewController
         }
         usort($images, function($a, $b) { return $b['time'] - $a['time']; });
 
-        return $this->renderPartial('partials/media_grid.blade.php', [
+        return $this->renderPartial('partials/media_grid', [
             'images' => $images,
             'project_id' => $projectId
         ]);
@@ -309,7 +309,7 @@ class AdminController extends \SPPMod\SPPView\ViewController
         }
         usort($images, function($a, $b) { return $b['time'] - $a['time']; });
 
-        $gridHtml = $this->renderPartial('partials/media_grid.blade.php', [
+        $gridHtml = $this->renderPartial('partials/media_grid', [
             'images' => $images,
             'project_id' => $projectId
         ]);
@@ -1149,8 +1149,8 @@ class AdminController extends \SPPMod\SPPView\ViewController
         $this->buildSearchIndex($projectId, $project);
         
         // Rebuild CMS OPcache Index
-        if (class_exists('\SPPDocs\classes\SPPCMS')) {
-            \SPPDocs\classes\SPPCMS::buildIndex($project, $projectId);
+        if (class_exists('\App\SPPDocs\Classes\SPPCMS')) {
+            \App\SPPDocs\Classes\SPPCMS::buildIndex($project, $projectId);
         }
         
         echo json_encode([
@@ -1344,7 +1344,12 @@ class AdminController extends \SPPMod\SPPView\ViewController
     #[Route('/admin/project/create', method: 'POST')]
     public function createProject()
     {
-        $this->requireAuth();
+        $this->ensureSession();
+        $user = $this->getProjectUser();
+        if (!$user) {
+            $this->requireAuth();
+        }
+        $creator = $user['username'] ?? 'admin';
         
         $id = strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '', $_POST['project_id'] ?? ''));
         $title = strip_tags($_POST['title'] ?? $_POST['project_title'] ?? '');
@@ -1353,33 +1358,52 @@ class AdminController extends \SPPMod\SPPView\ViewController
             exit("Project ID and Title are required.");
         }
         
+        $this->loadProjectConfig();
         if (isset($this->config['projects'][$id])) {
             exit("Project ID already exists.");
         }
         
-        $docsPath = dirname(SPP_BASE_DIR) . '/docs/' . $id;
-        if (!is_dir($docsPath)) {
-            mkdir($docsPath . '/pages', 0777, true);
+        $type = in_array(strtolower($_POST['type'] ?? ''), ['app', 'module', 'docs', 'presentation'], true) ? strtolower($_POST['type']) : 'docs';
+        $visibility = in_array(strtolower($_POST['visibility'] ?? ''), ['public', 'personal', 'group', 'closed_group', 'team'], true) ? strtolower($_POST['visibility']) : 'public';
+        $demoUrl = trim($_POST['demo_url'] ?? '');
+        $repoUrl = trim($_POST['repo_url'] ?? '');
+        $packageName = trim($_POST['package_name'] ?? '');
+
+        // Store project in gitignored dynamic directory to isolate from public GitHub repo
+        $dataDir = __DIR__ . '/../data/projects/' . $id;
+        if (!is_dir($dataDir)) {
+            @mkdir($dataDir . '/pages', 0777, true);
         }
         
         // Default index page
         $indexContent = "---\ntitle: Welcome to $title\n---\n\n# $title\n\nThis project was just created. Edit this page to get started!";
-        file_put_contents($docsPath . '/pages/index.md', $indexContent);
+        @file_put_contents($dataDir . '/pages/index.md', $indexContent);
         
         // Create project config
         $projectConfig = [
             'title' => $title,
-            'description' => 'Documentation for ' . $title,
+            'description' => strip_tags($_POST['description'] ?? ('Project ' . $title)),
+            'type' => $type,
+            'visibility' => $visibility,
+            'creator' => $creator,
+            'status' => 'active',
+            'is_archived' => false,
+            'demo_url' => $demoUrl,
+            'repo_url' => $repoUrl,
+            'package_name' => $packageName,
             'default_version' => 'v1',
-            'versions' => ['v1' => 'docs/' . $id . '/pages'],
-            'pages_dir' => 'docs/' . $id . '/pages',
-            'blog_dir' => 'docs/' . $id . '/blog',
+            'versions' => ['v1' => 'src/SPPDocs/data/projects/' . $id . '/pages'],
+            'pages_dir' => 'src/SPPDocs/data/projects/' . $id . '/pages',
+            'blog_dir' => 'src/SPPDocs/data/projects/' . $id . '/blog',
             'logo' => '',
-            'motto' => 'Documentation for ' . $title,
+            'motto' => strip_tags($_POST['motto'] ?? ''),
             'links' => [
-                'website' => '',
-                'source' => '',
+                'website' => $demoUrl,
+                'source' => $repoUrl,
                 'forum' => ''
+            ],
+            'members' => [
+                $creator => 'admin'
             ],
             'releases' => [],
             'sidebar' => [
@@ -1393,18 +1417,418 @@ class AdminController extends \SPPMod\SPPView\ViewController
             ]
         ];
         
-        $projectYamlFile = $docsPath . '/project.yml';
+        $projectYamlFile = $dataDir . '/project.yml';
         file_put_contents($projectYamlFile, Yaml::dump($projectConfig, 4, 2));
         
-        // Update main sppdocs.yml
+        // Also register in main sppdocs.yml if writable
         $mainConfigPath = __DIR__ . '/../etc/sppdocs.yml';
         if (file_exists($mainConfigPath)) {
             $mainConfig = Yaml::parseFile($mainConfigPath);
-            $mainConfig['projects'][$id] = 'docs/' . $id . '/project.yml';
-            file_put_contents($mainConfigPath, Yaml::dump($mainConfig, 4, 2));
+            $mainConfig['projects'][$id] = 'src/SPPDocs/data/projects/' . $id . '/project.yml';
+            @file_put_contents($mainConfigPath, Yaml::dump($mainConfig, 4, 2));
         }
         
         header("Location: " . \SPP\App::getBaseUrl() . "/admin/project/" . $id);
+        exit;
+    }
+
+    #[Route('/admin/project/archive', method: 'POST')]
+    public function toggleArchive()
+    {
+        $this->ensureSession();
+        $projectId = $_POST['project_id'] ?? '';
+        $this->loadProjectConfig();
+        
+        if (!$projectId || !isset($this->config['projects'][$projectId])) {
+            http_response_code(404);
+            exit('Project not found');
+        }
+        $this->requireProjectAdmin($projectId);
+        
+        $projectConfigPath = $this->config['projects'][$projectId]['_config_path'] ?? '';
+        if (!$projectConfigPath || !file_exists($projectConfigPath)) {
+            exit('Project config not found');
+        }
+        
+        $yamlData = Yaml::parseFile($projectConfigPath) ?: [];
+        $isArchived = !empty($yamlData['is_archived']) || ($yamlData['status'] ?? '') === 'archived';
+        $newArchived = !$isArchived;
+        $yamlData['is_archived'] = $newArchived;
+        $yamlData['status'] = $newArchived ? 'archived' : 'active';
+        
+        unset($yamlData['_config_path']);
+        file_put_contents($projectConfigPath, Yaml::dump($yamlData, 4, 2));
+        
+        $_SESSION['adm_flash_success'] = $newArchived 
+            ? "Project '{$projectId}' has been archived." 
+            : "Project '{$projectId}' has been unarchived and restored to active.";
+
+        if (isset($_SERVER['HTTP_HX_REQUEST'])) {
+            header("HX-Refresh: true");
+        } else {
+            header("Location: " . \SPP\App::getBaseUrl() . "/admin/project/" . $projectId);
+        }
+        exit;
+    }
+
+    #[Route('/admin/moderate/project', method: 'POST')]
+    public function moderateProject()
+    {
+        $this->requireAuth();
+        $this->requireGlobalAdmin();
+        $user = $this->getProjectUser();
+        $adminName = $user['username'] ?? 'admin';
+
+        $projectId = trim($_POST['project_id'] ?? '');
+        $action = trim($_POST['action'] ?? '');
+        $reason = trim($_POST['reason'] ?? '');
+
+        $this->loadProjectConfig();
+        if (!$projectId || !isset($this->config['projects'][$projectId])) {
+            http_response_code(404);
+            exit('Project not found');
+        }
+
+        $projectConfigPath = $this->config['projects'][$projectId]['_config_path'] ?? '';
+        if (!$projectConfigPath || !file_exists($projectConfigPath)) {
+            exit('Project config not found');
+        }
+
+        $yamlData = Yaml::parseFile($projectConfigPath) ?: [];
+
+        switch ($action) {
+            case 'suspend':
+                $yamlData['status'] = 'suspended';
+                $yamlData['moderation'] = [
+                    'is_suspended' => true,
+                    'suspension_reason' => $reason ?: 'Suspended by SatyaLab moderation',
+                    'moderated_by' => $adminName,
+                    'moderated_at' => time()
+                ];
+                $msg = "Project '{$projectId}' has been suspended.";
+                break;
+            case 'unsuspend':
+                $yamlData['status'] = 'active';
+                if (isset($yamlData['moderation']['is_suspended'])) {
+                    unset($yamlData['moderation']['is_suspended'], $yamlData['moderation']['suspension_reason']);
+                }
+                $msg = "Project '{$projectId}' suspension has been lifted.";
+                break;
+            case 'feature':
+                $yamlData['is_featured'] = true;
+                $yamlData['moderation']['is_featured'] = true;
+                $yamlData['moderation']['featured_at'] = time();
+                $msg = "Project '{$projectId}' is now featured on SatyaLab.";
+                break;
+            case 'unfeature':
+                $yamlData['is_featured'] = false;
+                $yamlData['moderation']['is_featured'] = false;
+                $msg = "Project '{$projectId}' is no longer featured.";
+                break;
+            case 'archive':
+                $yamlData['is_archived'] = true;
+                $yamlData['status'] = 'archived';
+                $msg = "Project '{$projectId}' has been archived.";
+                break;
+            case 'unarchive':
+                $yamlData['is_archived'] = false;
+                $yamlData['status'] = 'active';
+                $msg = "Project '{$projectId}' restored to active.";
+                break;
+            case 'set_visibility':
+                $vis = strtolower($_POST['visibility'] ?? 'public');
+                if (in_array($vis, ['public', 'personal', 'group', 'closed_group', 'team'], true)) {
+                    $yamlData['visibility'] = $vis;
+                    $msg = "Project '{$projectId}' visibility updated to '{$vis}'.";
+                }
+                break;
+            default:
+                $msg = "Unknown moderation action.";
+        }
+
+        unset($yamlData['_config_path']);
+        file_put_contents($projectConfigPath, Yaml::dump($yamlData, 4, 2));
+
+        $_SESSION['adm_flash_success'] = $msg;
+        if (isset($_SERVER['HTTP_HX_REQUEST'])) {
+            header("HX-Refresh: true");
+        } else {
+            $redirect = $_POST['redirect'] ?? (\SPP\App::getBaseUrl() . "/admin/project/" . $projectId);
+            header("Location: " . $redirect);
+        }
+        exit;
+    }
+
+    #[Route('/admin/users/moderate', method: 'POST')]
+    public function moderateUser()
+    {
+        $this->requireAuth();
+        $this->requireGlobalAdmin();
+
+        $username = trim($_POST['username'] ?? '');
+        $action = trim($_POST['action'] ?? '');
+        $value = trim($_POST['value'] ?? '');
+        $reason = trim($_POST['reason'] ?? '');
+
+        if (!$username) {
+            exit('Username is required.');
+        }
+
+        switch ($action) {
+            case 'set_status':
+                $res = \App\SPPDocs\Services\UserService::setUserStatus($username, $value, $reason);
+                break;
+            case 'set_role':
+                $res = \App\SPPDocs\Services\UserService::setUserRole($username, $value);
+                break;
+            case 'reset_password':
+                $res = \App\SPPDocs\Services\UserService::resetPassword($username, $value);
+                break;
+            default:
+                $res = ['success' => false, 'message' => "Unknown user moderation action '{$action}'."];
+        }
+
+        if (!empty($res['success'])) {
+            $_SESSION['adm_flash_success'] = $res['message'];
+        } else {
+            $_SESSION['adm_flash_error'] = $res['message'] ?? 'User moderation failed.';
+        }
+
+        if (isset($_SERVER['HTTP_HX_REQUEST'])) {
+            header("HX-Refresh: true");
+        } else {
+            header("Location: " . \SPP\App::getBaseUrl() . "/admin/users");
+        }
+        exit;
+    }
+
+    #[Route('/admin/moderation', method: 'GET')]
+    public function moderationQueue()
+    {
+        $this->requireAuth();
+        $this->requireGlobalAdmin();
+        $this->loadProjectConfig();
+
+        $allProjects = PermissionManager::getAllProjectList();
+        $enrichedProjects = [];
+        $stats = [
+            'total_projects' => count($allProjects),
+            'active_projects' => 0,
+            'suspended_projects' => 0,
+            'archived_projects' => 0,
+            'featured_projects' => 0,
+            'total_users' => 0,
+            'active_users' => 0,
+            'suspended_users' => 0,
+            'total_packages' => 0,
+        ];
+
+        foreach ($allProjects as $pId => $pInfo) {
+            $cfg = PermissionManager::loadProjectConfig($pId) ?: [];
+            $status = strtolower($cfg['status'] ?? 'active');
+            $isArchived = !empty($cfg['is_archived']) || $status === 'archived';
+            $isSuspended = $status === 'suspended' || !empty($cfg['moderation']['is_suspended']);
+            $isFeatured = !empty($cfg['is_featured']);
+
+            if ($isSuspended) {
+                $stats['suspended_projects']++;
+            } elseif ($isArchived) {
+                $stats['archived_projects']++;
+            } else {
+                $stats['active_projects']++;
+            }
+            if ($isFeatured) {
+                $stats['featured_projects']++;
+            }
+
+            $enrichedProjects[$pId] = array_merge($pInfo, [
+                'title' => $cfg['title'] ?? $pInfo['title'] ?? $pId,
+                'type' => $cfg['type'] ?? 'docs',
+                'visibility' => $cfg['visibility'] ?? 'public',
+                'creator' => $cfg['creator'] ?? 'admin',
+                'status' => $status,
+                'is_archived' => $isArchived,
+                'is_suspended' => $isSuspended,
+                'is_featured' => $isFeatured,
+                'package_name' => $cfg['package_name'] ?? '',
+                'demo_url' => $cfg['demo_url'] ?? '',
+                'moderation' => $cfg['moderation'] ?? [],
+            ]);
+        }
+
+        // Users
+        $users = UserService::getAllUsers();
+        $stats['total_users'] = count($users);
+        foreach ($users as $u) {
+            $st = strtolower($u['status'] ?? 'active');
+            if ($st === 'suspended' || $st === 'banned') {
+                $stats['suspended_users']++;
+            } else {
+                $stats['active_users']++;
+            }
+        }
+
+        // Packages
+        $rootDir = defined('SPP_APP_DIR') ? SPP_APP_DIR : (defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : getcwd());
+        $catalogFile = $rootDir . '/var/packages/packages.json';
+        $packages = [];
+        if (file_exists($catalogFile)) {
+            $cat = json_decode((string)file_get_contents($catalogFile), true) ?: [];
+            $packages = $cat['packages'] ?? [];
+            $stats['total_packages'] = count($packages);
+        }
+
+        $flashSuccess = $_SESSION['adm_flash_success'] ?? null;
+        $flashError = $_SESSION['adm_flash_error'] ?? null;
+        unset($_SESSION['adm_flash_success'], $_SESSION['adm_flash_error']);
+
+        return $this->render('admin.moderation', [
+            'projects' => $enrichedProjects,
+            'users' => $users,
+            'packages' => $packages,
+            'stats' => $stats,
+            'active_tab' => 'moderation',
+            'csrf_token' => $_SESSION['sppdocs_csrf'] ?? '',
+            'flash_success' => $flashSuccess,
+            'flash_error' => $flashError,
+        ]);
+    }
+
+    #[Route('/admin/server', method: 'GET')]
+    public function serverHealth()
+    {
+        $this->requireAuth();
+        $this->requireGlobalAdmin();
+        $this->loadProjectConfig();
+
+        // 1. Host & Hardware
+        $osName = class_exists('\\SPP\\Core\\Infra') ? \SPP\Core\Infra::distroName() : php_uname('s') . ' ' . php_uname('r');
+        $hostname = gethostname() ?: php_uname('n');
+        
+        $cpuLoad = function_exists('sys_getloadavg') ? (sys_getloadavg() ?: [0, 0, 0]) : [0, 0, 0];
+        
+        // Memory parsing
+        $memTotal = 0;
+        $memFree = 0;
+        $memUsed = 0;
+        if (file_exists('/proc/meminfo')) {
+            $meminfo = @file_get_contents('/proc/meminfo') ?: '';
+            if (preg_match('/MemTotal:\s+(\d+)\s+kB/i', $meminfo, $m)) $memTotal = (int)$m[1] * 1024;
+            if (preg_match('/MemAvailable:\s+(\d+)\s+kB/i', $meminfo, $m)) {
+                $memFree = (int)$m[1] * 1024;
+            } elseif (preg_match('/MemFree:\s+(\d+)\s+kB/i', $meminfo, $m)) {
+                $memFree = (int)$m[1] * 1024;
+            }
+            $memUsed = max(0, $memTotal - $memFree);
+        } else {
+            // Non-Linux memory estimate
+            $memUsed = memory_get_usage(true);
+            $memTotal = max($memUsed * 4, 1024 * 1024 * 512); // fallback display
+            $memFree = $memTotal - $memUsed;
+        }
+
+        // Disk metrics
+        $rootPath = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : getcwd();
+        $diskTotal = @disk_total_space($rootPath) ?: 0;
+        $diskFree = @disk_free_space($rootPath) ?: 0;
+        $diskUsed = max(0, $diskTotal - $diskFree);
+        $diskPercent = $diskTotal > 0 ? round(($diskUsed / $diskTotal) * 100, 1) : 0;
+
+        // Uptime
+        $uptimeFormatted = 'N/A';
+        if (file_exists('/proc/uptime')) {
+            $upSeconds = (int)floatval(explode(' ', (string)@file_get_contents('/proc/uptime'))[0] ?? 0);
+            $days = floor($upSeconds / 86400);
+            $hours = floor(($upSeconds % 86400) / 3600);
+            $mins = floor(($upSeconds % 3600) / 60);
+            $uptimeFormatted = "{$days}d {$hours}h {$mins}m";
+        }
+
+        // 2. Web Server & PHP Runtime
+        $webServer = class_exists('\\SPP\\Core\\Infra') ? \SPP\Core\Infra::webServer() : 'Nginx/Apache';
+        $sapi = class_exists('\\SPP\\Core\\Infra') ? \SPP\Core\Infra::sapi() : PHP_SAPI;
+        $opcacheStatus = function_exists('opcache_get_status') ? @opcache_get_status(false) : null;
+
+        // 3. Security & Services
+        $selinux = 'Not Active';
+        if (file_exists('/sys/fs/selinux/enforce') || file_exists('/etc/selinux/config')) {
+            $selinux = 'Enforcing (Hardened)';
+        }
+        $firewall = 'Active (Protected)';
+        if (file_exists('/etc/firewalld') || file_exists('/etc/ufw')) {
+            $firewall = 'Active (Firewalld / UFW)';
+        }
+
+        $flashSuccess = $_SESSION['adm_flash_success'] ?? null;
+        $flashError = $_SESSION['adm_flash_error'] ?? null;
+        unset($_SESSION['adm_flash_success'], $_SESSION['adm_flash_error']);
+
+        return $this->render('admin.server', [
+            'active_tab' => 'server',
+            'csrf_token' => $_SESSION['sppdocs_csrf'] ?? '',
+            'flash_success' => $flashSuccess,
+            'flash_error' => $flashError,
+            'host' => [
+                'os' => $osName,
+                'hostname' => $hostname,
+                'uptime' => $uptimeFormatted,
+                'cpu_load' => $cpuLoad,
+                'memory' => [
+                    'total' => $memTotal,
+                    'used' => $memUsed,
+                    'free' => $memFree,
+                    'percent' => $memTotal > 0 ? round(($memUsed / $memTotal) * 100, 1) : 0
+                ],
+                'disk' => [
+                    'total' => $diskTotal,
+                    'used' => $diskUsed,
+                    'free' => $diskFree,
+                    'percent' => $diskPercent
+                ]
+            ],
+            'runtime' => [
+                'web_server' => ucfirst($webServer),
+                'php_version' => PHP_VERSION,
+                'sapi' => $sapi,
+                'memory_limit' => ini_get('memory_limit'),
+                'max_execution_time' => ini_get('max_execution_time') . 's',
+                'upload_max_filesize' => ini_get('upload_max_filesize'),
+                'post_max_size' => ini_get('post_max_size'),
+                'opcache_enabled' => !empty($opcacheStatus['opcache_enabled']),
+                'opcache_hit_rate' => isset($opcacheStatus['opcache_statistics']['opcache_hit_rate']) ? round($opcacheStatus['opcache_statistics']['opcache_hit_rate'], 1) . '%' : 'N/A'
+            ],
+            'security' => [
+                'selinux' => $selinux,
+                'firewall' => $firewall,
+                'https_active' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443),
+            ]
+        ]);
+    }
+
+    #[Route('/admin/server/cache-clear', method: 'POST')]
+    public function serverClearCache()
+    {
+        $this->requireAuth();
+        $this->requireGlobalAdmin();
+
+        $cacheDir = dirname(SPP_BASE_DIR) . '/var/cache';
+        $cleared = 0;
+        if (is_dir($cacheDir)) {
+            $files = glob($cacheDir . '/*');
+            foreach ($files as $f) {
+                if (is_file($f)) {
+                    @unlink($f);
+                    $cleared++;
+                }
+            }
+        }
+
+        if (function_exists('opcache_reset')) {
+            @opcache_reset();
+        }
+
+        $_SESSION['adm_flash_success'] = "Framework cache purged successfully ({$cleared} files removed, OPcache invalidated).";
+        header("Location: " . \SPP\App::getBaseUrl() . "/admin/server");
         exit;
     }
 
@@ -1433,6 +1857,20 @@ class AdminController extends \SPPMod\SPPView\ViewController
         if (isset($settings['motto'])) $yamlData['motto'] = trim(strip_tags($settings['motto']));
         if (isset($settings['description'])) $yamlData['description'] = trim(strip_tags($settings['description']));
         if (isset($settings['default_version'])) $yamlData['default_version'] = trim(strip_tags($settings['default_version']));
+        if (isset($settings['type']) && in_array(strtolower($settings['type']), ['docs', 'app', 'module', 'presentation'], true)) {
+            $yamlData['type'] = strtolower($settings['type']);
+        }
+        if (isset($settings['visibility']) && in_array(strtolower($settings['visibility']), ['public', 'personal', 'group', 'closed_group', 'team'], true)) {
+            $yamlData['visibility'] = strtolower($settings['visibility']);
+        }
+        if (isset($settings['demo_url'])) $yamlData['demo_url'] = trim($settings['demo_url']);
+        if (isset($settings['repo_url'])) $yamlData['repo_url'] = trim($settings['repo_url']);
+        if (isset($settings['package_name'])) $yamlData['package_name'] = trim($settings['package_name']);
+        if (isset($settings['is_archived'])) {
+            $isArch = !empty($settings['is_archived']);
+            $yamlData['is_archived'] = $isArch;
+            $yamlData['status'] = $isArch ? 'archived' : 'active';
+        }
         if (isset($settings['forums_guest_posting'])) {
             $yamlData['forums_guest_posting'] = !empty($settings['forums_guest_posting']);
         }
@@ -1948,7 +2386,7 @@ class AdminController extends \SPPMod\SPPView\ViewController
         $this->requireProjectAdmin($projectId);
         $project = $this->config['projects'][$projectId];
 
-        $dataDir = dirname(SPP_BASE_DIR) . '/docs/' . $projectId . '/data';
+        $dataDir = \App\SPPDocs\Services\DataStorageResolver::getFeedbackDir($projectId, $project);
         $feedbackFile = $dataDir . '/feedback.json';
         $feedback = file_exists($feedbackFile) ? (json_decode(file_get_contents($feedbackFile), true) ?: []) : [];
 

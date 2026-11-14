@@ -1,9 +1,0 @@
-
-form:
-  name: test_compat_form
-  method: post
-elements:
-  title:
-    type: text
-    label: Article Title
-    required: true

@@ -3,15 +3,53 @@
  * IAM Management Service Group for SPP Admin
  */
 
+require_once __DIR__ . '/DatabaseAdminService.php';
+
 function live_IAM_ListUsers($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $users = $db->execute_query('SELECT id, username, email, status FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('users'));
+    $appname = $params['appname'] ?? $params['context'] ?? null;
+    $connInfo = \SPP\Admin\Services\DatabaseAdminService::getConnection(null, $appname);
+    $pdo = $connInfo['pdo'] ?? null;
+    $label = $connInfo['dbname'] ?? 'Default Database';
+    
+    $users = [];
+    if ($pdo) {
+        $tableCandidates = [\SPPMod\SPPDB\SPPDB::sppTable('users'), 'users', 'spp_users'];
+        foreach ($tableCandidates as $tbl) {
+            try {
+                $stmt = $pdo->query("SELECT id, username, email, status FROM {$tbl}");
+                $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                $label .= " ({$tbl})";
+                break;
+            } catch (\Throwable $t) {
+                // Try next candidate
+            }
+        }
+        if (empty($users)) {
+            foreach ($tableCandidates as $tbl) {
+                try {
+                    $stmt = $pdo->query("SELECT id, username, email, enabled FROM {$tbl}");
+                    $raw = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                    foreach ($raw as $r) {
+                        $users[] = [
+                            'id' => $r['id'],
+                            'username' => $r['username'],
+                            'email' => $r['email'] ?? '',
+                            'status' => ($r['enabled'] === 'Y' || $r['enabled'] === 1) ? 'active' : ($r['enabled'] ?: 'active')
+                        ];
+                    }
+                    $label .= " ({$tbl})";
+                    break;
+                } catch (\Throwable $t) {}
+            }
+        }
+    }
+    
     $la->setData([
         'sources' => [
             [
-                'label' => $db->getConnectionSummary(),
-                'type' => 'database',
+                'label' => $label,
+                'type' => $connInfo['driver'] ?? 'database',
                 'items' => $users
             ]
         ]
@@ -20,13 +58,39 @@ function live_IAM_ListUsers($la, $params)
 
 function live_IAM_ListRoles($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $roles = $db->execute_query('SELECT id, role_name, description FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('roles'));
+    $appname = $params['appname'] ?? $params['context'] ?? null;
+    $connInfo = \SPP\Admin\Services\DatabaseAdminService::getConnection(null, $appname);
+    $pdo = $connInfo['pdo'] ?? null;
+    $label = $connInfo['dbname'] ?? 'Default Database';
+    
+    $roles = [];
+    if ($pdo) {
+        $tableCandidates = [\SPPMod\SPPDB\SPPDB::sppTable('roles'), 'roles', 'spp_roles'];
+        foreach ($tableCandidates as $tbl) {
+            try {
+                $stmt = $pdo->query("SELECT id, role_name, description FROM {$tbl}");
+                $roles = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                $label .= " ({$tbl})";
+                break;
+            } catch (\Throwable $t) {}
+        }
+        if (empty($roles)) {
+            foreach ($tableCandidates as $tbl) {
+                try {
+                    $stmt = $pdo->query("SELECT id, name as role_name, description FROM {$tbl}");
+                    $roles = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                    $label .= " ({$tbl})";
+                    break;
+                } catch (\Throwable $t) {}
+            }
+        }
+    }
+    
     $la->setData([
         'sources' => [
             [
-                'label' => $db->getConnectionSummary(),
-                'type' => 'database',
+                'label' => $label,
+                'type' => $connInfo['driver'] ?? 'database',
                 'items' => $roles
             ]
         ]
@@ -35,13 +99,29 @@ function live_IAM_ListRoles($la, $params)
 
 function live_IAM_ListRights($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $rights = $db->execute_query('SELECT id, name, description FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('rights'));
+    $appname = $params['appname'] ?? $params['context'] ?? null;
+    $connInfo = \SPP\Admin\Services\DatabaseAdminService::getConnection(null, $appname);
+    $pdo = $connInfo['pdo'] ?? null;
+    $label = $connInfo['dbname'] ?? 'Default Database';
+    
+    $rights = [];
+    if ($pdo) {
+        $tableCandidates = [\SPPMod\SPPDB\SPPDB::sppTable('rights'), 'rights', 'spp_rights', 'permissions'];
+        foreach ($tableCandidates as $tbl) {
+            try {
+                $stmt = $pdo->query("SELECT id, name, description FROM {$tbl}");
+                $rights = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                $label .= " ({$tbl})";
+                break;
+            } catch (\Throwable $t) {}
+        }
+    }
+    
     $la->setData([
         'sources' => [
             [
-                'label' => $db->getConnectionSummary(),
-                'type' => 'database',
+                'label' => $label,
+                'type' => $connInfo['driver'] ?? 'database',
                 'items' => $rights
             ]
         ]
@@ -50,15 +130,33 @@ function live_IAM_ListRights($la, $params)
 
 function live_IAM_ListRBAC($la, $params)
 {
-    $path = SPP_BASE_DIR . '/etc/rbac.yml';
-    if (!file_exists($path)) {
+    $appname = $params['appname'] ?? $params['context'] ?? null;
+    $root = defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : getcwd();
+    $candidates = [];
+    if ($appname && $appname !== 'default') {
+        $candidates[] = $root . "/etc/apps/{$appname}/rbac.yml";
+        $candidates[] = $root . "/src/{$appname}/etc/rbac.yml";
+    }
+    $candidates[] = (defined('SPP_BASE_DIR') ? SPP_BASE_DIR : $root) . '/etc/rbac.yml';
+    $candidates[] = $root . '/etc/rbac.yml';
+
+    $foundPath = null;
+    foreach ($candidates as $cand) {
+        if (file_exists($cand)) {
+            $foundPath = $cand;
+            break;
+        }
+    }
+
+    if (!$foundPath || !file_exists($foundPath)) {
         return $la->setData(['sources' => []]);
     }
-    $config = \Symfony\Component\Yaml\Yaml::parseFile($path);
+    $config = \Symfony\Component\Yaml\Yaml::parseFile($foundPath);
+    $relPath = str_replace([$root . '/', $root . '\\'], '', $foundPath);
     $la->setData([
         'sources' => [
             [
-                'label' => 'etc/rbac.yml',
+                'label' => $relPath,
                 'type' => 'yaml',
                 'items' => $config['roles'] ?? []
             ]

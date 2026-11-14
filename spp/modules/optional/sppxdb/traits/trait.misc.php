@@ -2,6 +2,10 @@
 
 namespace SPPMod\SPPXDB;
 
+use Exception;
+use DOMDocument;
+use DOMXPath;
+
 trait XDB_Misc
 {
     /**
@@ -263,14 +267,18 @@ trait XDB_Misc
      * @param string $term
      * @return array
      */
-    public function search($term)
+    public function search($term, $columns = null)
     {
+        if ($columns !== null && is_string($columns) && !is_array($columns)) {
+            // Invoked like search('table', 'term')
+            $this->connect($term);
+            $term = $columns;
+        }
         if (!$this->xpath) {
             return [];
         }
-        $term = strtolower($term);
-        // Using XPath to find rows where any content matches (case-insensitive)
-        $xpath = "//row[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '$term')]";
+        $termLower = strtolower((string)$term);
+        $xpath = "//row[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '$termLower')]";
         return $this->queryX($xpath);
     }
 
@@ -459,14 +467,28 @@ trait XDB_Misc
 
             // 3. Check SINGLE UNIQUE / PRIMARY
             if ($props['unique'] || $props['primary']) {
-                $id = $data['id'] ?? null;
-                $xpath = "//row[" . $name . " = '" . addslashes($value) . "'";
-                if ($id) {
-                    $xpath .= " and @id != '$id'";
+                if ($isInsert) {
+                    $xpath = ($name === 'id') 
+                        ? "//row[@id = '" . addslashes((string)$value) . "' or id = '" . addslashes((string)$value) . "']"
+                        : "//row[" . $name . " = '" . addslashes((string)$value) . "']";
+                } else {
+                    $id = $data['id'] ?? null;
+                    if ($name === 'id') {
+                        $xpath = "//row[(@id = '" . addslashes((string)$value) . "' or id = '" . addslashes((string)$value) . "')";
+                        if ($id !== null) {
+                            $xpath .= " and @id != '" . addslashes((string)$id) . "'";
+                        }
+                        $xpath .= "]";
+                    } else {
+                        $xpath = "//row[" . $name . " = '" . addslashes((string)$value) . "'";
+                        if ($id !== null) {
+                            $xpath .= " and @id != '" . addslashes((string)$id) . "'";
+                        }
+                        $xpath .= "]";
+                    }
                 }
-                $xpath .= "]";
 
-                $existing = $this->xpath->query($xpath);
+                $existing = $this->xpath ? $this->xpath->query($xpath) : null;
                 if ($existing && $existing->length > 0) {
                     throw new Exception("Validation Error: Column '$name' value '$value' must be unique.");
                 }
@@ -509,12 +531,13 @@ trait XDB_Misc
                 }
 
                 if ($validConstraint) {
-                    $xpath = "//row[" . implode(' and ', $predicateParts) . "]";
-                    if ($id) {
-                        $xpath = "//row[" . implode(' and ', $predicateParts) . " and @id != '$id']";
+                    $predicate = implode(' and ', $predicateParts);
+                    if (!$isInsert && $id !== null) {
+                        $predicate .= " and @id != '" . addslashes((string)$id) . "'";
                     }
+                    $xpath = "//row[" . $predicate . "]";
 
-                    $existing = $this->xpath->query($xpath);
+                    $existing = $this->xpath ? $this->xpath->query($xpath) : null;
                     if ($existing && $existing->length > 0) {
                         $colList = implode(', ', $con['columns']);
                         throw new Exception("Validation Error: Composite key ($colList) must be unique.");
@@ -610,16 +633,55 @@ trait XDB_Misc
     }
 
     /**
-     * Recursively evaluates a SQL-like expression (functions, literals, fields)
-     * against a specific row data array.
+     * Evaluates a SQL expression (literal, column, function, binary arithmetic, or CASE statement).
      *
      * @param string $expr
      * @param array $row
+     * @param array $params Optional parameter bindings
      * @return mixed
      */
-    protected function evaluateExpression($expr, $row)
+    protected function evaluateExpression($expr, $row, array $params = [])
     {
         $expr = trim($expr);
+
+        // 0. Parameter resolution (? or :name)
+        if ($expr === '?' && !empty($params)) {
+            return array_shift($params);
+        }
+        if (str_starts_with($expr, ':') && array_key_exists($expr, $params)) {
+            return $params[$expr];
+        }
+        if (!empty($params) && strpos($expr, '?') !== false) {
+            $pIdx = 0;
+            $expr = preg_replace_callback('/\?/', function () use ($params, &$pIdx) {
+                if (array_key_exists($pIdx, $params)) {
+                    $val = $params[$pIdx++];
+                    return is_numeric($val) ? $val : "'" . addslashes((string)$val) . "'";
+                }
+                return '?';
+            }, $expr);
+        }
+
+        // 0b. Correlated & Uncorrelated EXISTS / NOT EXISTS subqueries
+        if (stripos($expr, 'EXISTS') !== false && preg_match_all('/(NOT\s+)?EXISTS\s*\(\s*(SELECT.*?)\s*\)/is', $expr, $existsMatches, PREG_SET_ORDER)) {
+            foreach ($existsMatches as $em) {
+                $isNot = !empty($em[1]);
+                $innerSql = trim($em[2]);
+                // Correlate with current $row values (replace table.col, alias.col, or col)
+                foreach ($row as $col => $val) {
+                    if ($val !== null && (is_string($val) || is_numeric($val))) {
+                        $escapedVal = is_numeric($val) ? $val : "'" . addslashes((string)$val) . "'";
+                        $bareCol = strpos($col, '.') !== false ? substr($col, strpos($col, '.') + 1) : $col;
+                        $innerSql = preg_replace('/\b[a-zA-Z0-9_]+\.' . preg_quote($bareCol, '/') . '\b/', $escapedVal, $innerSql);
+                        $innerSql = preg_replace('/\b' . preg_quote($bareCol, '/') . '\b/', $escapedVal, $innerSql);
+                    }
+                }
+                $innerResults = $this->querySQL($innerSql, $params);
+                $hasRows = is_array($innerResults) && count($innerResults) > 0;
+                $boolVal = $isNot ? !$hasRows : $hasRows;
+                $expr = str_replace($em[0], $boolVal ? '1' : '0', $expr);
+            }
+        }
 
         // 1. Check if it's a literal string
         if (preg_match('/^[\'"](.*)[\'"]$/', $expr, $m)) {
@@ -647,7 +709,25 @@ trait XDB_Misc
             return date('H:i:s');
         }
 
-        // 5. Check for function calls e.g. FUNC(args)
+        // 5. CASE WHEN ... THEN ... [ELSE ...] END support
+        if (preg_match('/^CASE\s+(.+?)\s+END$/is', $expr, $caseMatch)) {
+            return $this->evaluateCaseStatement(trim($caseMatch[1]), $row, $params);
+        }
+
+        // 6. Direct column match in $row
+        if (array_key_exists($expr, $row)) {
+            return $row[$expr];
+        }
+
+        // Check stripped alias/prefix e.g. "e.name" -> "name" or vice-versa
+        if (strpos($expr, '.') !== false) {
+            $colName = substr($expr, strpos($expr, '.') + 1);
+            if (array_key_exists($colName, $row)) {
+                return $row[$colName];
+            }
+        }
+
+        // 7. Check for function calls e.g. FUNC(args)
         if (preg_match('/^([a-zA-Z0-9_]+)\s*\((.*)\)$/is', $expr, $m)) {
             $func = strtoupper($m[1]);
             $argsStr = trim($m[2]);
@@ -678,13 +758,13 @@ trait XDB_Misc
                         }
                     }
                     if ($char === ',' && $depth === 0 && !$inQuote) {
-                        $args[] = $this->evaluateExpression($current, $row);
+                        $args[] = $this->evaluateExpression($current, $row, $params);
                         $current = '';
                     } else {
                         $current .= $char;
                     }
                 }
-                $args[] = $this->evaluateExpression($current, $row);
+                $args[] = $this->evaluateExpression($current, $row, $params);
             }
 
             switch ($func) {
@@ -713,7 +793,7 @@ trait XDB_Misc
                     $len = isset($args[2]) ? (int)$args[2] : null;
                     return $len !== null ? substr($str, $start, $len) : substr($str, $start);
 
-                    // Logic & Control Flow
+                // Logic & Control Flow
                 case 'COALESCE':
                 case 'IFNULL':
                     foreach ($args as $arg) {
@@ -725,7 +805,7 @@ trait XDB_Misc
                 case 'IF':
                     return ($args[0] ?? false) ? ($args[1] ?? null) : ($args[2] ?? null);
 
-                    // Math / Numeric Functions
+                // Math / Numeric Functions
                 case 'ABS':
                     return abs((float)($args[0] ?? 0));
                 case 'ROUND':
@@ -743,7 +823,7 @@ trait XDB_Misc
                 case 'RAND':
                     return mt_rand() / mt_getrandmax();
 
-                    // Date Extraction Functions
+                // Date Extraction Functions
                 case 'YEAR':
                     $time = strtotime((string)($args[0] ?? ''));
                     return $time !== false ? (int)date('Y', $time) : null;
@@ -753,29 +833,164 @@ trait XDB_Misc
                 case 'DAY':
                     $time = strtotime((string)($args[0] ?? ''));
                     return $time !== false ? (int)date('d', $time) : null;
+
+                // SQL/JSON Functions (ISO/IEC 9075-14)
+                case 'JSON_EXTRACT':
+                case 'JSON_VALUE':
+                    $rawJson = $args[0] ?? null;
+                    $jsonPath = (string)($args[1] ?? '$');
+                    if ($rawJson === null || $rawJson === '') {
+                        return null;
+                    }
+                    $data = is_array($rawJson) ? $rawJson : json_decode((string)$rawJson, true);
+                    if ($data === null && !is_array($rawJson)) {
+                        return null;
+                    }
+                    $val = $this->extractJsonPath($data, $jsonPath);
+                    if ($func === 'JSON_VALUE' && is_string($val)) {
+                        return trim($val, '"\'');
+                    }
+                    return is_array($val) ? json_encode($val) : $val;
+
+                case 'JSON_UNQUOTE':
+                    return trim((string)($args[0] ?? ''), '"\'');
+
+                // SQL/XML Functions
+                case 'XMLELEMENT':
+                    $elemName = (string)($args[0] ?? 'element');
+                    $elemVal = (string)($args[1] ?? '');
+                    return "<{$elemName}>{$elemVal}</{$elemName}>";
+
+                case 'XMLQUERY':
+                    $xpathStr = (string)($args[0] ?? '');
+                    $xmlContent = $args[1] ?? null;
+                    if ($xmlContent && is_string($xmlContent)) {
+                        $dom = new \DOMDocument();
+                        if (@$dom->loadXML($xmlContent)) {
+                            $xp = new \DOMXPath($dom);
+                            $nodes = @$xp->query($xpathStr);
+                            if ($nodes && $nodes->length > 0) {
+                                return $nodes->item(0)->textContent;
+                            }
+                        }
+                    }
+                    return null;
             }
         }
 
-        // 6. Check for comparisons (e.g. A >= B) but only when not inside quotes
+        // 8. Check for comparisons (e.g. A >= B) but only when not inside quotes
         if (preg_match('/^(.*?)\s*(>=|<=|!=|<>|>|<|=)\s*(.*)$/', $expr, $compMatch)) {
-            $left = $this->evaluateExpression($compMatch[1], $row);
+            $left = $this->evaluateExpression($compMatch[1], $row, $params);
             $op = $compMatch[2];
-            $right = $this->evaluateExpression($compMatch[3], $row);
+            $right = $this->evaluateExpression($compMatch[3], $row, $params);
 
             switch ($op) {
                 case '=':   return $left == $right;
                 case '!=':
                 case '<>':  return $left != $right;
-                case '>':   return $left > $right;
-                case '<':   return $left < $right;
-                case '>=':  return $left >= $right;
-                case '<=':  return $left <= $right;
+                case '>':   return (float)$left > (float)$right;
+                case '<':   return (float)$left < (float)$right;
+                case '>=':  return (float)$left >= (float)$right;
+                case '<=':  return (float)$left <= (float)$right;
             }
         }
 
-        // 7. Fallback: Treat as a column name
+        // 9. Binary Arithmetic Expressions (+, -, *, /, %)
+        if (preg_match('/^(.*?)\s*([\+\-])\s*([^\+\-]+)$/', $expr, $artMatch)) {
+            $left = $this->evaluateExpression($artMatch[1], $row, $params);
+            $op = $artMatch[2];
+            $right = $this->evaluateExpression($artMatch[3], $row, $params);
+            if ($left !== null && $right !== null && is_numeric($left) && is_numeric($right)) {
+                return $op === '+' ? ((float)$left + (float)$right) : ((float)$left - (float)$right);
+            }
+        }
+
+        if (preg_match('/^(.*?)\s*([\*\/%])\s*([^\*\/%]+)$/', $expr, $artMatch)) {
+            $left = $this->evaluateExpression($artMatch[1], $row, $params);
+            $op = $artMatch[2];
+            $right = $this->evaluateExpression($artMatch[3], $row, $params);
+            if ($left !== null && $right !== null && is_numeric($left) && is_numeric($right)) {
+                if ($op === '*') return (float)$left * (float)$right;
+                if ($op === '/') return (float)$right != 0 ? ((float)$left / (float)$right) : null;
+                if ($op === '%') return (int)$right != 0 ? ((int)$left % (int)$right) : null;
+            }
+        }
+
+        // 10. Fallback: Treat as a column name
         return $row[$expr] ?? null;
     }
+
+    /**
+     * Evaluates a CASE WHEN ... THEN ... [ELSE ...] END block.
+     */
+    protected function evaluateCaseStatement(string $body, array $row, array $params = [])
+    {
+        $elseVal = null;
+        if (preg_match('/\s+ELSE\s+(.+)$/is', $body, $elseMatch)) {
+            $elseVal = trim($elseMatch[1]);
+            $body = substr($body, 0, -strlen($elseMatch[0]));
+        }
+
+        $baseExpr = null;
+        if (!preg_match('/^WHEN\s+/i', $body)) {
+            if (preg_match('/^(.*?)\s+WHEN\s+/is', $body, $baseMatch)) {
+                $baseExpr = trim($baseMatch[1]);
+                $body = substr($body, strlen($baseExpr));
+            }
+        }
+
+        preg_match_all('/WHEN\s+(.+?)\s+THEN\s+(.+?)(?=\s+WHEN|\s*$)/is', $body, $whenMatches, PREG_SET_ORDER);
+
+        $baseVal = $baseExpr !== null ? $this->evaluateExpression($baseExpr, $row, $params) : null;
+
+        foreach ($whenMatches as $wm) {
+            $cond = trim($wm[1]);
+            $res = trim($wm[2]);
+
+            if ($baseExpr !== null) {
+                $targetVal = $this->evaluateExpression($cond, $row, $params);
+                if ($baseVal == $targetVal) {
+                    return $this->evaluateExpression($res, $row, $params);
+                }
+            } else {
+                if ((bool)$this->evaluateExpression($cond, $row, $params)) {
+                    return $this->evaluateExpression($res, $row, $params);
+                }
+            }
+        }
+
+        return $elseVal !== null ? $this->evaluateExpression($elseVal, $row, $params) : null;
+    }
+
+    /**
+     * Extracts a value from nested JSON using a JSONPath expression (e.g., '$.user.address.city' or '$.items[0]').
+     */
+    protected function extractJsonPath($data, string $path)
+    {
+        $cleanPath = ltrim($path, '$.');
+        if ($cleanPath === '' || $cleanPath === '$') {
+            return $data;
+        }
+
+        $tokens = preg_split('/(?:\.|\[|\])+/', $cleanPath, -1, PREG_SPLIT_NO_EMPTY);
+        $curr = $data;
+        foreach ($tokens as $token) {
+            if (is_array($curr) && array_key_exists($token, $curr)) {
+                $curr = $curr[$token];
+            } else {
+                return null;
+            }
+        }
+        return $curr;
+    }
+    /**
+     * Computes a deterministic HMAC blind index for encrypted field lookups.
+     */
+    public function getBlindIndex($value): string
+    {
+        return hash_hmac('sha256', (string)$value, $this->encryptionKey);
+    }
+
 
     public function getNumRows()
     {

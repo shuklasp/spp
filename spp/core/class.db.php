@@ -26,6 +26,14 @@ class DB
     }
 
     /**
+     * Get the registered database provider instance (alias for getInstance).
+     */
+    public static function getProvider()
+    {
+        return self::getInstance();
+    }
+
+    /**
      * Get properly prefixed table name.
      */
     public static function sppTable(string $tname): string
@@ -37,13 +45,32 @@ class DB
         return $prefix . $tname;
     }
 
+    private static int $queryCount = 0;
+
+    public static function getQueryCount(): int
+    {
+        return self::$queryCount;
+    }
+
+    public static function resetQueryCount(): void
+    {
+        self::$queryCount = 0;
+    }
+
+    public static function incrementQueryCount(int $amount = 1): void
+    {
+        self::$queryCount += $amount;
+    }
+
     public static function query(string $query, array $values = [])
     {
+        self::$queryCount++;
         return self::getInstance()->execute_query($query, $values);
     }
 
     public static function execute(string $sql, array $values = []): bool
     {
+        self::$queryCount++;
         try {
             self::getInstance()->execute_query($sql, $values);
             return true;

@@ -18,11 +18,65 @@ class TargetConnection
         $this->sslPass = $sslPass;
     }
 
+    public function getTargetUrl(): string
+    {
+        return $this->targetUrl;
+    }
+
+    public static function getConfigFile(): string
+    {
+        $appDir = defined('SPP_APP_DIR') ? SPP_APP_DIR : dirname(SPP_BASE_DIR);
+        $baseDir = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 4);
+
+        $candidates = [
+            $appDir . '/.sppdeploy.local.yml',
+            $baseDir . '/.sppdeploy.local.yml',
+            $appDir . '/.sppdeploy.yml',
+            $baseDir . '/.sppdeploy.yml',
+            $baseDir . '/spp/.sppdeploy.yml',
+            dirname($appDir) . '/.sppdeploy.yml'
+        ];
+
+        // Also discover preserved domain-scoped deploy configs in domains/*/etc/.sppdeploy.yml
+        $domainConfigs = glob($baseDir . '/domains/*/etc/.sppdeploy.yml') ?: [];
+        $domainConfigsRoot = glob($baseDir . '/domains/*/.sppdeploy.yml') ?: [];
+        $candidates = array_merge($candidates, $domainConfigs, $domainConfigsRoot);
+
+        foreach ($candidates as $cand) {
+            if (file_exists($cand)) {
+                return $cand;
+            }
+        }
+
+        return $appDir . '/.sppdeploy.yml';
+    }
+
+    public static function parseYamlFile(string $file): array
+    {
+        if (!file_exists($file)) {
+            return [];
+        }
+        $content = @file_get_contents($file);
+        if ($content === false || trim($content) === '') {
+            return [];
+        }
+        if (class_exists('\\Symfony\\Component\\Yaml\\Yaml')) {
+            try {
+                return (array)\Symfony\Component\Yaml\Yaml::parse($content);
+            } catch (\Throwable $e) {}
+        }
+        if (function_exists('yaml_parse')) {
+            $res = @yaml_parse($content);
+            if (is_array($res)) return $res;
+        }
+        return [];
+    }
+
     public static function getDefaultEnvironment(): string
     {
-        $confFile = SPP_BASE_DIR . '/.sppdeploy.yml';
+        $confFile = self::getConfigFile();
         if (file_exists($confFile)) {
-            $conf = @yaml_parse_file($confFile);
+            $conf = self::parseYamlFile($confFile);
             if (isset($conf['default_environment']) && is_string($conf['default_environment']) && $conf['default_environment'] !== '') {
                 return $conf['default_environment'];
             }
@@ -43,52 +97,74 @@ class TargetConnection
         $sslPass = null;
 
         if (!str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
-            $confFile = SPP_BASE_DIR . '/.sppdeploy.yml';
-            if (file_exists($confFile)) {
-                $conf = @yaml_parse_file($confFile);
-                if (isset($conf['environments'][$url])) {
-                    $env = $conf['environments'][$url];
-                    if (isset($env['url']))
-                        $url = $env['url'];
-                    if (isset($env['token']))
-                        $resolvedToken = $env['token'];
-                    if (isset($env['ssl_cert']))
-                        $sslCert = $env['ssl_cert'];
-                    if (isset($env['ssl_key']))
-                        $sslKey = $env['ssl_key'];
-                    if (isset($env['ssl_passphrase']))
-                        $sslPass = $env['ssl_passphrase'];
+            $confFile = self::getConfigFile();
+            $candidatesToSearch = array_unique(array_merge([$confFile], glob(dirname(__DIR__, 4) . '/domains/*/etc/.sppdeploy.yml') ?: []));
+            foreach ($candidatesToSearch as $candidateFile) {
+                if (file_exists($candidateFile)) {
+                    $conf = self::parseYamlFile($candidateFile);
+                    if (isset($conf['environments'][$url])) {
+                        $env = $conf['environments'][$url];
+                        if (is_array($env)) {
+                            if (isset($env['url']))
+                                $url = $env['url'];
+                            if (isset($env['token']))
+                                $resolvedToken = $env['token'];
+                            if (isset($env['ssl_cert']))
+                                $sslCert = $env['ssl_cert'];
+                            if (isset($env['ssl_key']))
+                                $sslKey = $env['ssl_key'];
+                            if (isset($env['ssl_passphrase']))
+                                $sslPass = $env['ssl_passphrase'];
+                        } elseif (is_string($env)) {
+                            $url = $env;
+                        }
+                        break;
+                    }
                 }
             }
         }
 
         if ($resolvedToken === 'default_cli_key') {
-            $configured = \SPPMod\SPPDeploy\SPPDeploy::configuredToken();
+            $configured = class_exists(\SPPMod\SPPDeploy\SPPDeploy::class) ? \SPPMod\SPPDeploy\SPPDeploy::configuredToken() : '';
             if ($configured !== '')
                 $resolvedToken = $configured;
+        }
+
+        if (!preg_match('#^https?://#i', $url)) {
+            throw new \InvalidArgumentException("Target server '{$targetOrAlias}' is not configured with a valid HTTP/HTTPS URL in .sppdeploy.yml. Please configure a valid server URL (e.g. http://localhost/school1 or https://remote-server.com).");
         }
 
         return new self($url, $resolvedToken, $sslCert, $sslKey, $sslPass);
     }
 
-    public function getDiff(array $hashes): array
+    public function getDiff(array $hashes, ?array $scope = null, ?array $exclude = null, ?array $excludeTables = null, int $timeout = 60): array
     {
-        return $this->request('/diff', 'POST', ['hashes' => $hashes]);
+        $payload = ['hashes' => $hashes];
+        if (!empty($scope)) {
+            $payload['scope'] = $scope;
+        }
+        if (!empty($exclude)) {
+            $payload['exclude'] = $exclude;
+        }
+        if (!empty($excludeTables)) {
+            $payload['exclude_tables'] = $excludeTables;
+        }
+        return $this->request('/diff', 'POST', $payload, $timeout);
     }
 
-    public function getHealth(): array
+    public function getHealth(int $timeout = 10): array
     {
-        return $this->request('/health', 'GET');
+        return $this->request('/health', 'GET', [], $timeout);
     }
 
-    public function getEnvKeys(): array
+    public function getEnvKeys(int $timeout = 15): array
     {
-        return $this->request('/env-keys', 'GET');
+        return $this->request('/env-keys', 'GET', [], $timeout);
     }
 
-    public function deploy(array $payload): array
+    public function deploy(array $payload, int $timeout = 300): array
     {
-        return $this->request('/_sppdeploy/deploy', 'POST', $payload);
+        return $this->request('/_sppdeploy/deploy', 'POST', $payload, $timeout);
     }
 
     public function uploadChunk(string $sessionId, string $chunkData, int $index, bool $isLast, array $payloadData = []): array
@@ -102,7 +178,7 @@ class TargetConnection
         if ($isLast) {
             $data['payload_data'] = $payloadData;
         }
-        return $this->request('/chunk', 'POST', $data);
+        return $this->request('/chunk', 'POST', $data, $isLast ? 300 : 60);
     }
 
     public function triggerRollback(string $id): array
@@ -158,10 +234,24 @@ class TargetConnection
         return $this->request('/_sppdeploy/run', 'POST', ['command' => $command]);
     }
 
-    private function request(string $endpoint, string $method = 'GET', array $data = []): array
+    public function getTelemetry(string $appName = 'default'): array
+    {
+        return $this->request('/_sppdeploy/telemetry?app=' . urlencode($appName), 'GET');
+    }
+
+    public function getChunkStatus(string $sessionId): array
+    {
+        return $this->request('/_sppdeploy/chunk/status', 'POST', ['session_id' => $sessionId]);
+    }
+
+    private function request(string $endpoint, string $method = 'GET', array $data = [], int $timeout = 60): array
     {
         // Rewrite the internal _sppdeploy pseudo-paths to query parameters for the target kernel
         $url = $this->targetUrl;
+        $path = parse_url($url, PHP_URL_PATH);
+        if ($path && !str_ends_with($path, '/') && !preg_match('/\.[a-zA-Z0-9]+$/', $path)) {
+            $url .= '/';
+        }
         $separator = (strpos($url, '?') === false) ? '?' : '&';
         $url .= $separator . '_sppdeploy=1&path=' . urlencode($endpoint);
 
@@ -178,8 +268,12 @@ class TargetConnection
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        if (defined('CURLOPT_POSTREDIR')) {
+            curl_setopt($ch, CURLOPT_POSTREDIR, 3); // 3 = CURL_REDIR_POST_ALL
+        }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 
         if ($this->sslCert) {
             curl_setopt($ch, CURLOPT_SSLCERT, $this->sslCert);
@@ -205,7 +299,16 @@ class TargetConnection
 
         $decoded = json_decode($response, true);
         if (!$decoded) {
-            throw new \Exception('Invalid JSON response from target: ' . $response);
+            // Strip any PHP warnings/notices printed before the JSON object
+            $jsonStart = strpos($response, '{');
+            $jsonEnd = strrpos($response, '}');
+            if ($jsonStart !== false && $jsonEnd !== false && $jsonEnd > $jsonStart) {
+                $cleanJson = substr($response, $jsonStart, ($jsonEnd - $jsonStart) + 1);
+                $decoded = json_decode($cleanJson, true);
+            }
+            if (!$decoded) {
+                throw new \Exception('Invalid JSON response from target: ' . $response);
+            }
         }
 
         return $decoded;

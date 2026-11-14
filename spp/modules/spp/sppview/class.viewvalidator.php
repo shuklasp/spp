@@ -47,7 +47,7 @@ class ViewValidator extends \SPP\SPPObject
     protected array $attachedto = [];
 
     /** @var bool If true, suppresses side-effects like triggerUserError and ViewPage::addClass */
-    protected bool $silent = false;
+    public bool $silent = false;
 
     /** @var ValidationResult|null Holds results of the last validation run */
     protected ?ValidationResult $lastResult = null;
@@ -180,6 +180,11 @@ class ViewValidator extends \SPP\SPPObject
 
         if (!empty($rules)) {
             foreach ($rules as $field => $fieldRules) {
+                if (is_string($fieldRules)) {
+                    $fieldRules = array_filter(array_map('trim', explode('|', $fieldRules)));
+                } elseif (!is_array($fieldRules)) {
+                    $fieldRules = [$fieldRules];
+                }
                 $value = $data[$field] ?? null;
                 foreach ($fieldRules as $rule) {
                     $v = $this->resolveValidator($rule);
@@ -195,9 +200,12 @@ class ViewValidator extends \SPP\SPPObject
         }
 
         foreach ($this->getAttachedIds() as $id) {
-            $value = $data[$id] ?? null;
+            $elem = $this->attachedto[$id]['element'] ?? null;
+            $name = $elem ? ($elem->getAttribute('name') ?: $id) : $id;
+            $cleanName = rtrim($name, '[]');
+            $value = $data[$cleanName] ?? ($data[$id] ?? null);
             if (!$this->validate($value)) {
-                $this->lastResult->addError($id, $this->msg);
+                $this->lastResult->addError($cleanName ?: $id, $this->msg);
             }
         }
         return $this->lastResult;
@@ -208,6 +216,10 @@ class ViewValidator extends \SPP\SPPObject
      */
     private function resolveValidator($rule): ?ViewValidator
     {
+        if ($rule instanceof \SPPMod\SPPView\Validation\RuleInterface) {
+            return new \SPPMod\SPPView\Validation\ViewValidatorRuleAdapter($rule);
+        }
+
         $params = [];
         $name = '';
 
@@ -220,6 +232,14 @@ class ViewValidator extends \SPP\SPPObject
             $paramStr = $parts[1] ?? null;
             if ($paramStr) {
                 $params['value'] = $paramStr;
+            }
+        }
+
+        // Check CustomRuleRegistry
+        if (class_exists('\\SPPMod\\SPPView\\Validation\\CustomRuleRegistry') && \SPPMod\SPPView\Validation\CustomRuleRegistry::has($name)) {
+            $customRule = \SPPMod\SPPView\Validation\CustomRuleRegistry::resolve($rule);
+            if ($customRule) {
+                return new \SPPMod\SPPView\Validation\ViewValidatorRuleAdapter($customRule, $name);
             }
         }
 
@@ -253,6 +273,7 @@ class ViewValidator extends \SPP\SPPObject
             'mac'      => '\SPPMod\SPPView\SPP_Validator_MacAddressValidator',
             'isbn'     => '\SPPMod\SPPView\SPP_Validator_IsbnValidator',
             'remote'   => '\SPPMod\SPPView\SPP_Validator_RemoteValidator',
+            'exists'   => '\SPPMod\SPPView\SPP_Validator_ExistsValidator',
         ];
 
         if (isset($map[$name]) && class_exists($map[$name])) {
@@ -294,6 +315,19 @@ class ViewValidator extends \SPP\SPPObject
                     }
                     if ($name === 'requiredif' || $name === 'gt') {
                         $instance->targetField = $p;
+                    }
+                    if ($name === 'unique') {
+                        $uParts = explode(',', $p);
+                        $instance->table = trim($uParts[0] ?? '');
+                        $instance->column = trim($uParts[1] ?? '');
+                        if (isset($uParts[2])) {
+                            $instance->excludeId = trim($uParts[2]);
+                        }
+                    }
+                    if ($name === 'exists') {
+                        $eParts = explode(',', $p);
+                        $instance->table = trim($eParts[0] ?? '');
+                        $instance->column = trim($eParts[1] ?? '');
                     }
                 }
             }

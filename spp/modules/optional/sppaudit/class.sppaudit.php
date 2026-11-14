@@ -62,7 +62,7 @@ class SPPAudit extends \SPP\SPPObject
         } catch (\Throwable $e) {
             // Enterprise rule: Don't let an audit failure crash the main transaction
             // But link it to the system error log
-            echo "AUDIT ERROR: " . $e->getMessage() . "\n";
+            error_log("AUDIT ERROR: " . $e->getMessage());
         }
     }
 

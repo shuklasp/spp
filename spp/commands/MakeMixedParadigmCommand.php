@@ -203,10 +203,54 @@ WORKFLOW;
         $workflowPath = $workflowDir . "/" . strtolower($className) . ".yml";
 
         file_put_contents($sppViewPath, $sppViewContent);
+        $this->recordFileProps($sppViewPath, [
+            'description' => "SPPView Controller for {$className}",
+            'usage' => "Dispatched via /{$app}/" . strtolower($className),
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['sppview', strtolower($className)]]
+        ]);
+
         file_put_contents($bladePath, $bladeContent);
+        $this->recordFileProps($bladePath, [
+            'description' => "Blade template for {$className}",
+            'usage' => "Rendered by {$className} controller",
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['blade', 'view', strtolower($className)], 'engine' => 'blade']
+        ]);
+
         file_put_contents($uxJsPath, $uxJsContent);
+        $this->recordFileProps($uxJsPath, [
+            'description' => "SPP-UX Component for {$className}",
+            'usage' => "Reactive client-side component",
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['sppux', 'js', strtolower($className)]]
+        ]);
+
         file_put_contents($partialPath, $partialContent);
+        $this->recordFileProps($partialPath, [
+            'description' => "External view partial template for {$className}",
+            'usage' => "Rendered via @spppartial without inline HTML literals",
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['partial', strtolower($className)], 'engine' => 'html']
+        ]);
+
         file_put_contents($workflowPath, trim($workflowContent));
+        $this->recordFileProps($workflowPath, [
+            'description' => "Workflow lifecycle definition for {$className}",
+            'usage' => "Orchestrates state transitions for {$className}",
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['workflow', 'saga', strtolower($className)]]
+        ]);
 
         echo "Success: Mixed Paradigm '{$className}' created.\n";
         echo " - SPPView:  {$sppViewPath}\n";

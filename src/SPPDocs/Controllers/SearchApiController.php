@@ -31,7 +31,7 @@ class SearchApiController extends \SPPMod\SPPView\ViewController
                 Response::json(['results' => []]);
                 return;
             }
-            return $this->renderPartial('partials/instant_search_results.blade.php', [
+            return $this->renderPartial('partials/instant_search_results', [
                 'results' => [],
                 'project_id' => $projectId,
                 'query' => $query
@@ -49,7 +49,7 @@ class SearchApiController extends \SPPMod\SPPView\ViewController
             return;
         }
 
-        return $this->renderPartial('partials/instant_search_results.blade.php', [
+        return $this->renderPartial('partials/instant_search_results', [
             'results' => $results,
             'project_id' => $projectId,
             'query' => $query
@@ -76,7 +76,7 @@ class SearchApiController extends \SPPMod\SPPView\ViewController
                 Response::json($emptyRes);
                 return;
             }
-            return $this->renderPartial('partials/ai_ask_result.blade.php', [
+            return $this->renderPartial('partials/ai_ask_result', [
                 'response' => $emptyRes,
                 'project_id' => $projectId
             ]);
@@ -89,7 +89,7 @@ class SearchApiController extends \SPPMod\SPPView\ViewController
             return;
         }
 
-        return $this->renderPartial('partials/ai_ask_result.blade.php', [
+        return $this->renderPartial('partials/ai_ask_result', [
             'response' => $response,
             'project_id' => $projectId
         ]);
@@ -107,10 +107,7 @@ class SearchApiController extends \SPPMod\SPPView\ViewController
     private function recordUnmetQuery(string $projectId, string $query): void
     {
         try {
-            $dataDir = dirname(SPP_BASE_DIR) . '/docs/' . $projectId . '/data';
-            if (!is_dir($dataDir)) {
-                @mkdir($dataDir, 0777, true);
-            }
+            $dataDir = \App\SPPDocs\Services\DataStorageResolver::getFeedbackDir($projectId);
             $file = $dataDir . '/unmet_queries.json';
             $queries = file_exists($file) ? (json_decode(file_get_contents($file), true) ?: []) : [];
 

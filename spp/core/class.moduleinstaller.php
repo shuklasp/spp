@@ -65,7 +65,7 @@ class ModuleInstaller
             return self::upgrade($moduleName);
         }
 
-        $provider = $module->ServiceProvider ?? null;
+        $provider = self::resolveServiceProvider($module);
         
         if ($provider && method_exists($provider, 'preInstall')) {
             if ($provider->preInstall() === false) {
@@ -73,7 +73,7 @@ class ModuleInstaller
             }
         }
 
-        self::executeDbYml($module);
+        self::executeDatabaseSync($module);
         
         if ($provider && method_exists($provider, 'install')) {
             $provider->install();
@@ -100,6 +100,20 @@ class ModuleInstaller
         }
 
         return true;
+    }
+
+    /**
+     * Executes both standalone db.yml definitions and manifest installation deltas.
+     */
+    public static function executeDatabaseSync(Module $module): void
+    {
+        // 1. Standalone db.yml schema
+        self::executeDbYml($module);
+
+        // 2. Backward-compatible manifest installation block
+        if (!empty($module->Installation) && method_exists($module, 'runInstallation')) {
+            $module->runInstallation();
+        }
     }
 
     public static function executeDbYml(Module $module): void
@@ -197,12 +211,12 @@ class ModuleInstaller
         $newVersion = $module->Version ?? '1.0';
 
         if ($currentVersion === $newVersion) {
-            // Re-run executeDbYml silently to ensure schema sync
-            self::executeDbYml($module);
+            // Re-run executeDatabaseSync silently to ensure schema sync
+            self::executeDatabaseSync($module);
             return true;
         }
 
-        $provider = $module->ServiceProvider ?? null;
+        $provider = self::resolveServiceProvider($module);
 
         if ($provider && method_exists($provider, 'preUpgrade')) {
             if ($provider->preUpgrade($currentVersion, $newVersion) === false) {
@@ -210,7 +224,7 @@ class ModuleInstaller
             }
         }
 
-        self::executeDbYml($module);
+        self::executeDatabaseSync($module);
 
         if ($provider && method_exists($provider, 'update')) {
             $provider->update($currentVersion, $newVersion);
@@ -233,13 +247,28 @@ class ModuleInstaller
         return true;
     }
 
+    /**
+     * Resolves and instantiates the ServiceProvider for a module if declared.
+     */
+    public static function resolveServiceProvider(Module $module): ?object
+    {
+        $providerClass = $module->ServiceProvider ?? null;
+        if (is_object($providerClass)) {
+            return $providerClass;
+        }
+        if (is_string($providerClass) && class_exists($providerClass)) {
+            return new $providerClass();
+        }
+        return null;
+    }
+
     public static function uninstall(string $moduleName): bool
     {
         Module::loadAllModules();
         $module = Module::getModule($moduleName);
         if (!$module) return false;
 
-        $provider = $module->ServiceProvider ?? null;
+        $provider = self::resolveServiceProvider($module);
         
         if ($provider && method_exists($provider, 'preUninstall')) {
             if ($provider->preUninstall() === false) {
@@ -288,10 +317,15 @@ class ModuleInstaller
 
         foreach ($modules as $modName => $modPath) {
             $module = Module::getModule($modName);
-            if ($module && !empty($module->Dependencies)) {
-                foreach ((array)$module->Dependencies as $dep) {
-                    if (isset($modules[$dep])) {
-                        $graph[$dep][] = $modName;
+            if ($module) {
+                $depNames = method_exists($module, 'getDependencyNames') 
+                    ? $module->getDependencyNames() 
+                    : (array)($module->Dependencies ?? []);
+                foreach ($depNames as $dep) {
+                    $depClean = trim(explode('(', (string)$dep)[0]);
+                    $depClean = trim(explode(' ', $depClean)[0]);
+                    if (isset($modules[$depClean])) {
+                        $graph[$depClean][] = $modName;
                         $inDegree[$modName]++;
                     }
                 }
@@ -335,9 +369,16 @@ class ModuleInstaller
         return $results;
     }
 
-    public static function setModuleStatus(string $moduleName, string $status): bool
+    public static function setModuleStatus(string $moduleName, string $status, ?string $context = null): bool
     {
-        $context = \SPP\Scheduler::getContext() ?: 'default';
+        $moduleName = preg_replace('/[^a-zA-Z0-9_\-]/', '', $moduleName);
+        $status = in_array($status, ['active', 'inactive']) ? $status : 'inactive';
+
+        if ($status === 'inactive' && class_exists('\\SPP\\Module') && \SPP\Module::isCompulsory($moduleName)) {
+            throw new \SPP\SPPException("Module '{$moduleName}' is compulsory and cannot be disabled.");
+        }
+
+        $context = $context ?: (\SPP\Scheduler::getContext() ?: 'default');
         $manifests = [
             APP_ETC_DIR . SPP_DS . $context . SPP_DS . 'modsconf' . SPP_DS . 'modules.yml',
             SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $context . SPP_DS . 'modules.yml',
@@ -373,7 +414,14 @@ class ModuleInstaller
             file_put_contents($userConf, Yaml::dump($data, 6, 4));
         }
 
-        $compiler = new ModuleCompiler();
+        if ($status === 'active' && class_exists('\\SPP\\Core\\ModuleConfigManager')) {
+            try {
+                \SPP\Core\ModuleConfigManager::ensureConfigForApp($moduleName, $context);
+            } catch (\Throwable $e) {
+            }
+        }
+
+        $compiler = new ModuleCompiler($context);
         try {
             $compiler->compile();
             return true;

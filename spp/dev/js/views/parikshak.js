@@ -1,342 +1,287 @@
 /**
- * TestingView Component
+ * SPP Developer Studio — Parikshak Test Studio
  * 
- * Provides an interface for Automated Evolutionary Testing.
+ * Primary Native Testing Engine for the SPP Framework.
+ * Orchestrates SPPTestRunner suites, RefreshDatabase isolations,
+ * assertion verification, and autonomous evolutionary chaos testing.
  */
-export default class ParikshakView extends BaseComponent {
+
+export default class ParikshakComponent extends (window.BaseComponent || class {}) {
+    constructor(admin, container, props) {
+        super(admin, container, props);
+        this.admin = admin;
+    }
+
     async onInit() {
         this.state = {
-            loading: false,
             running: false,
-            results: null,
-            appname: this.selectedApp || 'default',
-            testEndpoint: '/school1/api/v1/',
-            testPayload: '{\n  "action": "ping"\n}',
-            testResponse: ''
+            activeTab: 'runner', // 'runner', 'chaos'
+            entityFilter: '',
+            withCoverage: false,
+            lastRun: null,
+            expandedTest: null,
+            // Chaos/Evolutionary state
+            chaosRunning: false,
+            chaosLog: '',
+            dreamInput: ''
         };
+    }
+
+    switchTab(tab) {
+        this.setState({ activeTab: tab });
     }
 
     async runTests() {
         if (this.state.running) return;
 
-        this.setState({ running: true, results: null });
+        const { entityFilter, withCoverage } = this.state;
+        this.setState({ running: true });
+
         try {
-            const res = await this.apiPost('run_auto_tests', {
-                appname: this.state.appname
+            const res = await this.admin.api('parikshak_run', {
+                app: this.admin.selectedApp,
+                entity: entityFilter.trim() || null,
+                coverage: withCoverage ? 1 : 0
             });
-            
-            if (res.success) {
-                this.setState({ results: res.data });
-                this.notify(`Evolutionary tests completed for ${this.state.appname}.`, 'success');
-            } else {
-                this.notify(res.message, 'error');
-            }
-        } catch (e) {
-            this.notify('Network error during automated testing.', 'error');
-        } finally {
-            this.setState({ running: false });
-        }
-    }
 
-    async runMonkeyBot() {
-        this.notify('🐒 Monkey Bot Launched: Stress-testing UI...', 'info');
-        // Simulate random clicks and form inputs
-        const buttons = document.querySelectorAll('.btn, a');
-        const randomBtn = buttons[Math.floor(Math.random() * buttons.length)];
-        if (randomBtn) {
-            randomBtn.style.outline = '3px solid var(--accent-color)';
-            setTimeout(() => randomBtn.click(), 500);
-        }
-    }
+            const data = res.data || res;
 
-    async generateBlueprint(entityClass) {
-        const res = await this.apiCall('generate_blueprint', { entity_class: entityClass });
-        if (res.success) {
-            console.log("Blueprint for " + entityClass, res.data);
-            this.notify('Blueprint generated! check console for code.', 'success');
-        }
-    }
+            this.setState({
+                running: false,
+                lastRun: data
+            });
 
-    async bulkEliteUpgrade() {
-        this.notify('🚀 Initiating system-wide Elite Upgrade...', 'info');
-        const res = await this.apiCall('bulk_elite_upgrade');
-        if (res.success) {
-            this.notify(`Success! ${res.data.upgraded}/${res.data.total} entities upgraded. Run "System Update" to sync DB.`, 'success');
-        } else {
-            this.notify('Upgrade failed: ' + res.message, 'danger');
-        }
-    }
-
-    async dreamEntity() {
-        const input = document.getElementById('dreamer-input');
-        const shorthand = input.value;
-        if (!shorthand) return;
-        
-        this.notify('Dreaming your entity into existence...', 'info');
-        const res = await this.apiCall('dream_entity', { shorthand: shorthand });
-        if (res.success) {
-            this.notify('Entity created! Run "System Update" then "Sync" to see it.', 'success');
-            input.value = '';
-        } else {
-            this.notify('Dream failed: ' + res.message, 'danger');
-        }
-    }
-
-    async applyFix(entityClass, fix) {
-        this.notify('Applying autonomous repair...', 'info');
-        const res = await this.apiCall('apply_fix', {
-            entity_class: entityClass,
-            fix: fix
-        });
-        
-        if (res.success) {
-            this.notify('Manifest updated! Please run "System Update" to sync database.', 'success');
-        } else {
-            this.notify('Repair failed: ' + res.message, 'danger');
-        }
-    }
-
-    async sendTestRequest() {
-        const url = this.state.testEndpoint;
-        const payloadStr = this.state.testPayload;
-        let payload = null;
-
-        if (payloadStr.trim()) {
-            try {
-                payload = JSON.parse(payloadStr);
-            } catch (e) {
-                this.setState({ testResponse: 'Error: Invalid JSON Payload\n' + e.message });
-                return;
-            }
-        }
-
-        this.setState({ testResponse: 'Sending request...' });
-        try {
-            const options = {
-                method: payload ? 'POST' : 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+            if (res.success && data.summary) {
+                const passed = data.summary.passed || 0;
+                const total = data.summary.total || 0;
+                const failed = data.summary.failed || 0;
+                if (failed === 0) {
+                    this.admin.notify(`All ${passed}/${total} Parikshak tests passed in ${data.duration_ms || 0} ms!`, 'success');
+                } else {
+                    this.admin.notify(`${failed} test(s) failed out of ${total}.`, 'error');
                 }
-            };
-            if (payload) options.body = JSON.stringify(payload);
-
-            const startTime = performance.now();
-            const res = await fetch(url, options);
-            const endTime = performance.now();
-            const timeMs = Math.round(endTime - startTime);
-
-            let data;
-            try {
-                data = await res.json();
-            } catch (e) {
-                data = await res.text();
+            } else {
+                this.admin.notify(res.message || res.error || 'Test run encountered an error', 'error');
             }
-
-            const responseStr = `Status: ${res.status} ${res.statusText} (${timeMs}ms)\n\n` + 
-                (typeof data === 'object' ? JSON.stringify(data, null, 2) : data);
-                
-            this.setState({ testResponse: responseStr });
-        } catch (e) {
-            this.setState({ testResponse: 'Network Error:\n' + e.message });
+        } catch (err) {
+            console.error(err);
+            this.setState({
+                running: false,
+                lastRun: {
+                    success: false,
+                    error: err.message || 'Network error running Parikshak.'
+                }
+            });
+            this.admin.notify('Failed to run Parikshak tests.', 'error');
         }
+    }
+
+    async runChaosScan() {
+        this.setState({ chaosRunning: true, chaosLog: '🧬 Launching Parikshak Evolutionary Chaos Scan...\n' });
+        try {
+            const res = await this.admin.api('run_parikshak_scan', { appname: this.admin.selectedApp });
+            this.setState({
+                chaosRunning: false,
+                chaosLog: (this.state.chaosLog + '\n' + (res.data?.content || res.message || 'Scan complete.')).trim()
+            });
+            this.admin.notify('Evolutionary scan finished.', 'success');
+        } catch (e) {
+            this.setState({
+                chaosRunning: false,
+                chaosLog: this.state.chaosLog + '\nScan error: ' + e.message
+            });
+            this.admin.notify('Chaos scan failed', 'error');
+        }
+    }
+
+    toggleTestExpand(idx) {
+        this.setState({
+            expandedTest: this.state.expandedTest === idx ? null : idx
+        });
     }
 
     render() {
-        const { running, results, appname } = this.state;
+        const { running, activeTab, entityFilter, withCoverage, lastRun, expandedTest, chaosRunning, chaosLog, dreamInput } = this.state;
+        const summary = lastRun?.summary || { total: 0, passed: 0, failed: 0, duration_ms: 0 };
+        const tests = lastRun?.tests || [];
 
         return html`
-            <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-                <div>
-                    <h2 style="margin:0;">🧬 Parikshak</h2>
-                    <p style="opacity:0.6; margin-top:5px;">Zero-code Automated Evolutionary Testing for [${appname}]</p>
+            <div class="parikshak-suite" style="display: flex; flex-direction: column; gap: 1.5rem; height: 100%;">
+                <!-- Hero Header -->
+                <div class="suite-hero">
+                    <div>
+                        <h2>Parikshak Test Studio</h2>
+                        <p>Primary Native Testing Engine of the SPP Framework. Execute unit and integration tests with automated in-memory DB isolation (<code>RefreshDatabase</code>) and evolutionary mutation analysis.</p>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                        <span class="suite-pill-blue">Context: ${this.admin.selectedApp || 'default'}</span>
+                        <span class="suite-pill-purple">Parikshak Engine v2.5</span>
+                    </div>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn ghost-btn" onclick="location.hash='#trace'">🛰️ View Trace Log</button>
-                    <button class="btn accent-btn" @click="${() => this.runTests()}" ?disabled="${running}">
-                        ${running ? html`<span class="spinner"></span> Running Analysis...` : '⚡ Run System Scan'}
+
+                <!-- Stats Cards -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div class="suite-stat-card">
+                        <div class="stat-label">Total Tests</div>
+                        <div class="stat-val" style="color: #38bdf8;">${summary.total}</div>
+                        <div class="stat-sub">Executed assertions</div>
+                    </div>
+                    <div class="suite-stat-card">
+                        <div class="stat-label">Passed</div>
+                        <div class="stat-val" style="color: #34d399;">${summary.passed}</div>
+                        <div class="stat-sub">100% assertions green</div>
+                    </div>
+                    <div class="suite-stat-card">
+                        <div class="stat-label">Failed</div>
+                        <div class="stat-val" style="color: ${summary.failed > 0 ? '#f87171' : 'var(--text-dim)'};">${summary.failed}</div>
+                        <div class="stat-sub">${summary.failed > 0 ? 'Requires attention' : 'Zero regressions'}</div>
+                    </div>
+                    <div class="suite-stat-card">
+                        <div class="stat-label">Duration</div>
+                        <div class="stat-val" style="color: #fbbf24;">${summary.duration_ms || lastRun?.duration_ms || 0} ms</div>
+                        <div class="stat-sub">High-speed runner</div>
+                    </div>
+                </div>
+
+                <!-- Sub-Navigation Tabs -->
+                <div class="suite-tabs">
+                    <button class="suite-tab-btn ${activeTab === 'runner' ? 'active' : ''}" @click=${() => this.switchTab('runner')}>
+                        🧪 Parikshak Test Runner
+                    </button>
+                    <button class="suite-tab-btn ${activeTab === 'chaos' ? 'active' : ''}" @click=${() => this.switchTab('chaos')}>
+                        🧬 Evolutionary & Chaos Testing
                     </button>
                 </div>
-            </div>
 
-            ${running ? html`
-                <div class="glass-panel" style="text-align:center; padding:4rem 2rem;">
-                    <div class="scanning-animation">
-                        <div class="scan-ring"></div>
-                        <div class="scan-core">🔍</div>
-                    </div>
-                    <h3 style="margin-top:2rem;">Analyzing System Metadata...</h3>
-                    <p style="opacity:0.7;">Fuzzing entity invariants and verifying persistence cycles.</p>
-                </div>
-            ` : ''}
+                <!-- Tab 1: Parikshak Test Runner -->
+                ${activeTab === 'runner' ? html`
+                    <!-- Toolbar Controls -->
+                    <div class="suite-toolbar" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                        <div style="display: flex; gap: 1rem; align-items: center; flex: 1; min-width: 320px;">
+                            <input type="text"
+                                   class="suite-input"
+                                   style="flex: 1; max-width: 320px; font-size: 0.85rem;"
+                                   placeholder="Filter by entity or test class (e.g. User)..."
+                                   .value=${entityFilter}
+                                   @input=${(e) => this.setState({ entityFilter: e.target.value })}>
 
-            ${!running && !results ? html`
-                <div class="empty-state glass-panel">
-                    <div style="font-size:4rem; margin-bottom:1rem;">🧬</div>
-                    <h3>Engine Ready</h3>
-                    <p>Trigger a full system scan to auto-generate and execute tests for all entities in the current context.</p>
-                    <div style="margin-top:2rem; display:flex; gap:10px; justify-content:center;">
-                        <span class="tag info-tag">Shadow DB: Enabled</span>
-                        <span class="tag success-tag">Isolation: spptest__</span>
-                    </div>
-                </div>
-
-                <div class="glass-panel" style="margin-top: 2rem; padding: 1.5rem; display: flex; gap: 2rem;">
-                    <div style="flex: 1;">
-                        <h3>Interactive API Runner</h3>
-                        <p style="opacity:0.7; font-size: 0.9rem; margin-bottom: 1rem;">Test Auto-APIs and Polyglot Services directly</p>
-                        
-                        <div class="input-group">
-                            <label>Endpoint / Route</label>
-                            <input type="text" value="${this.state.testEndpoint}" @change=${e => this.state.testEndpoint = e.target.value} class="form-control" placeholder="/api/v1/user">
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--text-dim); cursor: pointer;">
+                                <input type="checkbox"
+                                       ?checked=${withCoverage}
+                                       @change=${(e) => this.setState({ withCoverage: e.target.checked })}>
+                                Code Coverage
+                            </label>
                         </div>
-                        
-                        <div class="input-group">
-                            <label>JSON Payload (Leave empty for GET)</label>
-                            <textarea class="form-control" style="font-family: monospace; height: 120px;" @change=${e => this.state.testPayload = e.target.value}>${this.state.testPayload}</textarea>
-                        </div>
-                        
-                        <button class="btn accent-btn" @click=${() => this.sendTestRequest()}>🚀 Send Request</button>
+
+                        <button class="btn primary-btn shine-effect"
+                                @click=${() => this.runTests()}
+                                ?disabled=${running}>
+                            ${running ? html`<span class="sppux-spinner" style="width:14px;height:14px;display:inline-block;margin-right:6px;"></span> Running Parikshak...` : html`🚀 Run Parikshak Tests`}
+                        </button>
                     </div>
-                    
-                    <div style="flex: 1; display: flex; flex-direction: column;">
-                        <h3>Response Console</h3>
-                        <pre style="flex-grow: 1; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 1rem; color: #0f0; border: 1px solid rgba(255,255,255,0.1); overflow-y: auto; white-space: pre-wrap; font-size: 0.9rem; margin-top: 1rem;">${this.state.testResponse || 'Awaiting request...'}</pre>
-                    </div>
-                </div>
-            ` : ''}
 
-            ${results ? this.renderResults(results) : ''}
-
-            <style>
-                .scanning-animation {
-                    position: relative;
-                    width: 100px;
-                    height: 100px;
-                    margin: 0 auto;
-                }
-                .scan-ring {
-                    width: 100%;
-                    height: 100%;
-                    border: 4px solid var(--accent-color);
-                    border-radius: 50%;
-                    border-top-color: transparent;
-                    animation: spin 1s linear infinite;
-                }
-                .scan-core {
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    font-size: 2rem;
-                }
-                @keyframes spin { to { transform: rotate(360deg); } }
-
-                .entity-card {
-                    transition: transform 0.2s;
-                    cursor: pointer;
-                }
-                .entity-card:hover {
-                    transform: translateY(-5px);
-                    background: rgba(255,255,255,0.05);
-                }
-            </style>
-        `;
-    }
-
-    renderResults(results) {
-        const { summary, entities } = results;
-        const healthScore = Math.round((summary.passed / summary.total) * 100) || 0;
-        const scoreColor = healthScore >= 90 ? 'var(--success)' : healthScore >= 60 ? 'var(--warning)' : 'var(--danger)';
-
-        return html`
-            <div class="dashboard-grid">
-                <div class="info-card" style="grid-column: span 3; background: var(--glass-bg-accent);">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <h3 style="margin:0;">System Health Score</h3>
-                            <p style="opacity:0.6; margin:5px 0 0 0;">Based on ${summary.total} entities analyzed</p>
-                        </div>
-                        <div style="font-size:3rem; font-weight:bold; color:${scoreColor}; text-shadow: 0 0 20px ${scoreColor}44;">
-                            ${healthScore}%
-                        </div>
-                    </div>
-                    <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
-                        <div style="display:flex; gap:5px;">
-                            <input id="dreamer-input" type="text" placeholder="EntityName(attr:type, ...)" class="form-control btn-xs" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; flex-grow:1; padding: 4px 8px; border-radius: 4px;">
-                            <button class="btn btn-xs accent" @click="${() => this.dreamEntity()}">✨ Dream</button>
-                        </div>
-                        <div style="display:flex; gap:5px;">
-                            <button class="btn btn-xs success" style="flex-grow:1;" @click="${() => this.runMonkeyBot()}">🐒 Monkey Bot</button>
-                            <button class="btn btn-xs secondary" style="flex-grow:1;" @click="${() => this.apiCall('run_oracle').then(r => this.notify(r.data.insight, 'info'))}">🔮 The Oracle</button>
-                            <button class="btn btn-xs accent" style="flex-grow:1;" @click="${() => this.bulkEliteUpgrade()}">🚀 Elite Upgrade</button>
-                        </div>
-                    </div>
-                    <div class="progress-bar-wrap" style="height:10px; background:rgba(255,255,255,0.1); border-radius:5px; margin-top:20px; overflow:hidden;">
-                        <div class="progress-bar" style="height:100%; width:${healthScore}%; background:${scoreColor}; transition: width 1s ease-out;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <h3 style="margin-top:2.5rem; margin-bottom:1.5rem;">Entity Status Reports</h3>
-            <div class="entity-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:20px;">
-                ${entities.map(e => html`
-                    <div class="entity-card glass-panel ${e.status === 'passed' ? 'border-success' : 'border-danger'}" style="padding:20px;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div>
-                                <h4 style="margin:0;">${e.name} ${e.duration_ms ? html`<small style="font-size:0.6rem; opacity:0.4; margin-left:10px;">⏱️ ${e.duration_ms}ms</small>` : ''}</h4>
-                                <code style="font-size:0.7rem; opacity:0.5;">${e.class}</code>
-                                ${e.coverage ? html`
-                                    <div style="margin-top:5px; display:flex; align-items:center; gap:8px;">
-                                        <div style="width:50px; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden;">
-                                            <div style="height:100%; width:${e.coverage.coverage_pct}%; background:var(--accent-color);"></div>
-                                        </div>
-                                        <span style="font-size:0.65rem; opacity:0.6;">${e.coverage.coverage_pct}% Coverage</span>
-                                    </div>
-                                ` : ''}
-                            </div>
-                            <span class="badge ${e.status === 'passed' ? 'success' : 'danger'}">${e.status.toUpperCase()}</span>
-                        </div>
-                        
-                        <div class="scenario-list" style="margin-top:1.5rem;">
-                            ${e.scenarios.map(s => html`
-                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:0.85rem;">
-                                    <span style="opacity:0.8;">${s.name}</span>
-                                    <span style="color:${s.status === 'passed' ? 'var(--success)' : 'var(--danger)'}">
-                                        ${s.status === 'passed' ? '✓' : '✗'}
-                                    </span>
+                    <!-- Test Results Pane -->
+                    <div class="card" style="padding: 1.25rem; background: rgba(15, 23, 42, 0.65); border: 1px solid var(--glass-border); border-radius: 12px; flex: 1; min-height: 400px; display: flex; flex-direction: column;">
+                        ${!lastRun ? html`
+                            <div style="padding: 4rem 1rem; text-align: center; color: var(--text-dim); margin: auto;">
+                                <div style="font-size: 3rem; margin-bottom: 0.75rem; opacity: 0.4;">🧪</div>
+                                <div style="font-size: 1.05rem; font-weight: 600; color: var(--text-bright);">Parikshak Test Suite Ready</div>
+                                <div style="font-size: 0.85rem; margin-top: 0.35rem; max-width: 480px; margin-left: auto; margin-right: auto;">
+                                    Click <strong>Run Parikshak Tests</strong> above to execute the test suite for application <code>${this.admin.selectedApp || 'default'}</code>.
                                 </div>
-                            `)}
+                            </div>
+                        ` : html`
+                            ${!lastRun.success ? html`
+                                <div class="alert error" style="margin-bottom: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+                                    <strong>Runner Error:</strong> ${lastRun.error || lastRun.message}
+                                </div>
+                            ` : ''}
+
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-bright);">
+                                    Test Cases (${tests.length})
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-dim);">
+                                    App: <code>${lastRun.app || this.admin.selectedApp}</code>
+                                </div>
+                            </div>
+
+                            ${tests.length === 0 ? html`
+                                <div style="padding: 3rem; text-align: center; color: var(--text-dim); font-size: 0.85rem;">
+                                    ${lastRun.success ? 'No tests found matching criteria. Parikshak tests reside in src/<App>/tests/ or tests/.' : ''}
+                                </div>
+                            ` : html`
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto;">
+                                    ${tests.map((t, idx) => html`
+                                        <div class="card" style="padding: 0.75rem 1rem; background: rgba(255,255,255,0.02); border: 1px solid ${t.passed ? 'rgba(52, 211, 153, 0.25)' : 'rgba(248, 113, 113, 0.3)'}; border-radius: 8px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;"
+                                                 @click=${() => this.toggleTestExpand(idx)}>
+                                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                    <span class="${t.passed ? 'suite-pill-green' : 'suite-pill-red'}" style="font-size: 0.7rem; font-weight: 700;">
+                                                        ${t.passed ? 'PASS' : 'FAIL'}
+                                                    </span>
+                                                    <div>
+                                                        <span style="font-weight: 600; font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; color: var(--text-bright);">
+                                                            ${t.method || t.name}
+                                                        </span>
+                                                        <span style="font-size: 0.75rem; color: var(--text-dim); margin-left: 0.5rem;">
+                                                            ${t.class || t.file || ''}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                                    ${t.duration_ms !== undefined ? html`
+                                                        <span style="font-size: 0.75rem; color: var(--text-dim);">${t.duration_ms} ms</span>
+                                                    ` : ''}
+                                                    <span style="font-size: 0.8rem; color: var(--text-dim);">${expandedTest === idx ? '▲' : '▼'}</span>
+                                                </div>
+                                            </div>
+
+                                            ${expandedTest === idx ? html`
+                                                <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--glass-border); font-size: 0.8rem;">
+                                                    ${t.passed ? html`
+                                                        <div style="color: #34d399;">
+                                                            ✅ All assertions passed successfully in ${t.duration_ms || 0} ms.
+                                                        </div>
+                                                    ` : html`
+                                                        <div class="alert error" style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">
+                                                            <strong>Failure:</strong> ${t.message || t.error || 'Assertion failed'}
+                                                            ${t.file ? html`<div style="margin-top: 4px; opacity: 0.8;">at ${t.file}:${t.line}</div>` : ''}
+                                                            ${t.trace ? html`<pre style="margin-top: 6px; max-height: 120px; overflow-y: auto; font-size: 0.72rem;">${t.trace}</pre>` : ''}
+                                                        </div>
+                                                    `}
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                    `)}
+                                </div>
+                            `}
+                        `}
+                    </div>
+                ` : ''}
+
+                <!-- Tab 2: Evolutionary & Chaos Testing -->
+                ${activeTab === 'chaos' ? html`
+                    <div class="card" style="padding: 1.5rem; background: rgba(15, 23, 42, 0.65); border: 1px solid var(--glass-border); border-radius: 12px; display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 1rem; color: #38bdf8;">Autonomous Chaos Engine & Mutation Testing</h3>
+                                <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: var(--text-dim);">Stress-test database entities and form manifests with evolutionary fuzzing and self-healing repair.</p>
+                            </div>
+                            <button class="btn primary-btn" @click=${() => this.runChaosScan()} ?disabled=${chaosRunning}>
+                                ${chaosRunning ? html`<span class="sppux-spinner" style="width:14px;height:14px;display:inline-block;margin-right:6px;"></span> Scanning...` : html`🧬 Trigger Chaos Scan`}
+                            </button>
                         </div>
 
-                        ${e.diagnostics && e.diagnostics.length > 0 ? html`
-                            <div class="diagnostics-panel" style="margin-top:15px; padding:12px; background:rgba(var(--accent-rgb), 0.05); border-left:3px solid var(--accent-color); border-radius:4px;">
-                                <div style="font-size:0.7rem; text-transform:uppercase; opacity:0.6; margin-bottom:8px; font-weight:bold;">💡 Heuristic Diagnosis</div>
-                                ${e.diagnostics.map(d => html`
-                                    <div style="margin-bottom:10px;">
-                                        <div style="font-size:0.85rem; font-weight:600;">${d.type}: ${d.message}</div>
-                                        <div style="font-size:0.8rem; opacity:0.8; margin-top:2px;">Proposed Fix: ${d.action}</div>
-                                        <button class="btn btn-xs success" style="margin-top:8px;" @click="${() => this.applyFix(e.class, d)}">⚡ One-Click Repair</button>
-                                    </div>
-                                `)}
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-dim); margin-bottom: 0.35rem; text-transform: uppercase;">
+                                Autonomous Mutation Activity Log
                             </div>
-                        ` : ''}
-
-                        ${e.errors && e.errors.length > 0 && (!e.diagnostics || e.diagnostics.length === 0) ? html`
-                            <div class="error-box" style="margin-top:15px; padding:10px; background:rgba(255,0,0,0.1); border-radius:5px; font-size:0.8rem; color:var(--danger);">
-                                <strong>Log:</strong> ${e.errors[0]}
-                            </div>
-                        ` : ''}
-
-                        <div style="margin-top:1.5rem; text-align:right; display:flex; justify-content:space-between; align-items:center;">
-                             <span style="font-size:0.65rem; opacity:0.4;">Seed: ${results.seed}</span>
-                             <div style="display:flex; gap:5px;">
-                                <button class="btn ghost-btn btn-xs" @click="${() => this.generateBlueprint(e.class)}">📐 Blueprint</button>
-                                <button class="btn ghost-btn btn-xs" @click="${() => this.notify('CI Report: ' + (results.report_path || 'Generating...'), 'info')}">📂 JUnit XML</button>
-                             </div>
+                            <pre class="suite-terminal" style="margin: 0; padding: 1rem; height: 280px; overflow-y: auto; font-size: 0.82rem; background: #060913; border-radius: 8px;">${chaosLog || 'Click "Trigger Chaos Scan" to launch autonomous evolutionary testing.'}</pre>
                         </div>
                     </div>
-                `)}
+                ` : ''}
             </div>
         `;
     }

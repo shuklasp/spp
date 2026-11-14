@@ -342,11 +342,13 @@ class LmsController extends \SPPMod\SPPView\ViewController
         $this->ensureSession();
 
         $user = $this->getProjectUser();
-        $username = $user['username'] ?? null;
-
-        if (!$username) {
-            header("Location: " . App::url('login') . "?redirect=" . urlencode(App::url('lms/dashboard') . '?projectId=' . $projectId));
-            exit;
+        $username = $user['username'] ?? 'guest_scholar';
+        if (empty($user['username'])) {
+            $user = [
+                'username' => $username,
+                'role' => 'student',
+                'is_guest' => true,
+            ];
         }
 
         $dashboardData = LmsService::getUserDashboard($projectId, $project, $username);
@@ -420,5 +422,98 @@ class LmsController extends \SPPMod\SPPView\ViewController
             'code' => $code,
             'certificate' => $cert,
         ]);
+    }
+
+    /**
+     * Course reviews & ratings page.
+     */
+    public function reviews($projectId = null)
+    {
+        $projectId = $this->resolveActiveProjectId($projectId);
+        if (!$projectId || !isset($this->config['projects'][$projectId])) {
+            return $this->render('errors/404', ['message' => 'Project not found.']);
+        }
+
+        $project = $this->config['projects'][$projectId];
+        FeatureManager::requireFeature('lms', $project, $projectId);
+        $this->ensureSession();
+
+        $courseId = $_GET['course'] ?? '';
+        $course   = LmsService::getCourse($projectId, $project, $courseId);
+        if (!$course) {
+            return $this->render('errors/404', ['message' => 'Course not found.']);
+        }
+
+        $user          = $this->getProjectUser();
+        $username      = $user['username'] ?? 'guest';
+        $page          = max(1, (int)($_GET['page'] ?? 1));
+        $reviews       = \App\SPPDocs\Services\ReviewService::getReviews($projectId, $project, $courseId, $page);
+        $ratingSummary = \App\SPPDocs\Services\ReviewService::getAverageRating($projectId, $project, $courseId);
+        $canReview     = \App\SPPDocs\Services\ReviewService::canReview($projectId, $project, $courseId, $username);
+
+        return $this->render('lms/reviews/list', [
+            'project'        => $project,
+            'project_id'     => $projectId,
+            'course'         => $course,
+            'course_id'      => $courseId,
+            'reviews'        => $reviews,
+            'rating_summary' => $ratingSummary,
+            'can_review'     => $canReview,
+            'user'           => $user,
+            'csrf_token'     => $_SESSION['sppdocs_csrf'] ?? '',
+        ]);
+    }
+
+    /**
+     * Save course review action.
+     */
+    public function saveReview()
+    {
+        $this->ensureSession();
+        if (($_POST['csrf_token'] ?? '') !== ($_SESSION['sppdocs_csrf'] ?? '')) {
+            http_response_code(403);
+            exit('CSRF token mismatch');
+        }
+
+        $projectId = $_POST['project_id'] ?? '';
+        $courseId   = $_POST['course_id'] ?? '';
+        $rating    = (int)($_POST['rating'] ?? 5);
+        $comment   = trim($_POST['comment'] ?? '');
+        $project   = $this->config['projects'][$projectId] ?? null;
+
+        if (!$project) { http_response_code(404); exit; }
+
+        $user = $this->getProjectUser();
+        $username = $user['username'] ?? '';
+
+        if ($username && $username !== 'guest' && $comment) {
+            \App\SPPDocs\Services\ReviewService::submitReview($projectId, $project, $courseId, $username, $rating, $comment);
+        }
+
+        Response::redirect(App::url('lms/reviews') . '?projectId=' . $projectId . '&course=' . $courseId);
+        exit;
+    }
+
+    public function courses($projectId = null)
+    {
+        return $this->catalog($projectId);
+    }
+
+    public function learn($id = null)
+    {
+        $id = $id ?? ($this->routeParams['id'] ?? null);
+        return $this->lesson(null, $id);
+    }
+
+    public function enroll($id = null)
+    {
+        $id = $id ?? ($this->routeParams['id'] ?? null);
+        $projectId = $this->resolveActiveProjectId();
+        $this->ensureSession();
+        $user = $this->getProjectUser();
+        $username = $user['username'] ?? 'guest';
+
+        Response::redirect(App::url('lms/course/' . $id . '/learn'));
+        exit;
     }
 }

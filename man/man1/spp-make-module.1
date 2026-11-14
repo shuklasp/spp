@@ -1,29 +1,25 @@
-.TH SPP-make-module 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
+.TH "MAKE:MODULE" 1 "October 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-spp-make-module \- Create a new SPP module (System or App level)
+make:module \- Scaffold a new modern SPP module with declarative manifests and service providers
 .SH SYNOPSIS
 .B php spp.php make:module
-[OPTIONS]
+\fIname\fR [\fB--scope=\fIspp|optional|contrib|app\fR] [\fB--app=\fIAppName\fR]
 .SH DESCRIPTION
-Create a new SPP module (System or App level)
-.PP
-Usage: php spp.php make:module <name> [--scope=spp|optional|contrib|app] [--app=AppName]
-.br
-
-.PP
+\fBmake:module\fR creates a complete module structure adhering to the Modularity 2.0 specification.
+Generated components include \fBmodule.yml\fR, declarative database schema definitions in \fBdb.yml\fR,
+lifecycle bootstrap routines (\fBmodinit.php\fR, \fBinstall.php\fR, \fBuninstall.php\fR), zero-boot event
+registrations (\fBevents.yml\fR), and a Dependency Injection container service provider implementing
+\fB\\SPP\\Core\\Interfaces\\ServiceProviderInterface\fR.
 .SH OPTIONS
 .TP
-.B --scope=
-Expects a value. Extracted via static analysis from MakeModuleCommand.php
+\fIname\fR
+The alphanumeric internal name of the module.
 .TP
-.B --app=
-Expects a value. Extracted via static analysis from MakeModuleCommand.php
+\fB--scope=\fIapp|optional|contrib|spp\fR
+The target directory scope. Defaults to \fBapp\fR (placed in \fIsrc/<AppName>/modules/<name>\fR).
+.TP
+\fB--app=\fIAppName\fR
+Specify the targeted application context when scaffolding an application-level module.
 .SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Interacts with the SPP database layer directly.
-.br
-\(bu Performs raw filesystem modifications (create/write/delete).
-.br
-\(bu Instantiates key components: SPP, MyService.
-.br
+Creates module directories, writes boilerplate manifests (\fBmodule.yml\fR, \fBdb.yml\fR, \fBevents.yml\fR),
+and authors lifecycle scripts without performing immediate database mutations.

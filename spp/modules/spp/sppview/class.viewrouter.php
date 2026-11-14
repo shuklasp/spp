@@ -10,15 +10,16 @@ class ViewRouter
 {
     public static function showPage($page = null, array $options = [])
     {
-        $q = isset($_GET['q']) ? $_GET['q'] : null;
+        $q = ($page !== null && $page !== '') ? $page : ($_GET['q'] ?? null);
         $pageData = [];
         $src = SPPRouter::getDefault('pagedir');
 
-        if ($q == null) {
-            $def = SPPRouter::getDefault('home');
+        if ($q === null || $q === '') {
+            $def = SPPRouter::getDefault('home') ?: 'index';
             $pageData = SPPRouter::getPage($def);
+            $q = $def;
         } else {
-            $pageData = SPPRouter::getPage();
+            $pageData = SPPRouter::getPage($q);
         }
 
         $isSppUx = (\SPP\App::getApp()->type === 'sppux');
@@ -32,14 +33,14 @@ class ViewRouter
                 echo \SPPMod\SPPRouter\SPPRouter::$method($q ?? '', $context);
                 return true;
             }
-            $includePath = SPP_APP_DIR . SPP_DS . ltrim($pageData['url'], '/\\');
-            if (file_exists($includePath)) {
+            $relUrl = ltrim($pageData['url'], '/\\');
+            $legacyPath = ($src !== '') ? (rtrim(SPP_APP_DIR, '/\\') . SPP_DS . trim($src, '/\\') . SPP_DS . $relUrl) : null;
+            $includePath = SPP_APP_DIR . SPP_DS . $relUrl;
+
+            if ($legacyPath !== null && file_exists($legacyPath)) {
+                include($legacyPath);
+            } elseif (file_exists($includePath) && !self::isRootIndex($includePath)) {
                 include($includePath);
-            } else {
-                $legacyPath = SPP_APP_DIR . SPP_DS . $src . SPP_DS . ltrim($pageData['url'], '/\\');
-                if (file_exists($legacyPath)) {
-                    include($legacyPath);
-                }
             }
             return true;
         }
@@ -50,23 +51,39 @@ class ViewRouter
         SPPGlobal::set('q', $q);
         SPPGlobal::set('numparams', count($pageData['params']));
 
-        $filename = ($pageData['url'] !== '') ? (SPP_APP_DIR . SPP_DS . ltrim($pageData['url'], '/\\')) : null;
-        if ($filename !== null && !file_exists($filename)) {
-            $srcPath = rtrim(SPP_APP_DIR, '/\\') . SPP_DS . trim($src, '/\\') . SPP_DS . ltrim($pageData['url'], '/\\');
-            if (file_exists($srcPath)) {
+        $filename = null;
+        if ($pageData['url'] !== '') {
+            $relUrl = ltrim($pageData['url'], '/\\');
+            $srcPath = ($src !== '') ? (rtrim(SPP_APP_DIR, '/\\') . SPP_DS . trim($src, '/\\') . SPP_DS . $relUrl) : null;
+            $rootPath = SPP_APP_DIR . SPP_DS . $relUrl;
+
+            if ($srcPath !== null && file_exists($srcPath)) {
                 $filename = $srcPath;
+            } elseif (file_exists($rootPath) && !self::isRootIndex($rootPath)) {
+                $filename = $rootPath;
+            } elseif ($srcPath !== null) {
+                $filename = $srcPath;
+            } else {
+                $filename = $rootPath;
             }
         }
 
-        if ($filename !== null && $filename === SPP_APP_DIR . SPP_US . 'index.php') {
+        if ($filename !== null && self::isRootIndex($filename)) {
             throw new SPPException('Router safety: Infinite recursion detected. Please check your "pagedir" setting in pages.yml.');
         }
 
         // --- Controller Execution ---
         if (isset($pageData['controller'])) {
             $parts = explode('@', $pageData['controller']);
-            $class = $parts[0];
+            $class = '\\' . ltrim(preg_replace('/\\\\+/', '\\', $parts[0]), '\\');
             $method = $parts[1] ?? 'index';
+
+            if (!class_exists($class)) {
+                $altClass = ltrim($class, '\\');
+                if (class_exists($altClass)) {
+                    $class = $altClass;
+                }
+            }
 
             if (class_exists($class)) {
                 if (!empty($pageData['middleware']) && is_array($pageData['middleware'])) {
@@ -80,38 +97,159 @@ class ViewRouter
                     }
                 }
 
-                $controller = new $class();
+                if (class_exists('\\SPP\\Core\\Container')) {
+                    try {
+                        $controller = \SPP\Core\Container::getInstance()->get($class);
+                    } catch (\Throwable $e) {
+                        $controller = new $class();
+                    }
+                } else {
+                    $controller = new $class();
+                }
                 if (method_exists($controller, $method)) {
                     $params = $pageData['params'] ?? [];
                     $namedParams = $pageData['named_params'] ?? [];
                     
-                    if (!empty($namedParams)) {
-                        try {
-                            $refMethod = new \ReflectionMethod($controller, $method);
-                            $finalParams = [];
-                            $positionalIndex = 0;
-                            
-                            foreach ($refMethod->getParameters() as $refParam) {
-                                $paramName = $refParam->getName();
-                                if (array_key_exists($paramName, $namedParams)) {
-                                    $finalParams[] = $namedParams[$paramName];
-                                } elseif (array_key_exists($positionalIndex, $params)) {
-                                    $finalParams[] = $params[$positionalIndex];
-                                } else {
-                                    $finalParams[] = $refParam->isDefaultValueAvailable() ? $refParam->getDefaultValue() : null;
-                                }
-                                $positionalIndex++;
+                    if (property_exists($controller, 'routeParams')) {
+                        $controller->routeParams = $namedParams;
+                    }
+
+                    try {
+                        $refMethod = new \ReflectionMethod($controller, $method);
+                        $finalParams = [];
+                        $positionalIndex = 0;
+                        
+                        foreach ($refMethod->getParameters() as $refParam) {
+                            $paramName = $refParam->getName();
+                            $paramType = $refParam->getType();
+                            $className = null;
+                            if ($paramType instanceof \ReflectionNamedType && !$paramType->isBuiltin()) {
+                                $className = $paramType->getName();
                             }
-                            $params = $finalParams;
-                        } catch (\ReflectionException $e) {
-                            // Fallback to basic positional binding if reflection fails
+
+                            // 1. Dependency injection for FormRequest with automatic validation
+                            if ($className && is_subclass_of($className, '\\SPPMod\\SPPView\\FormRequest')) {
+                                /** @var \SPPMod\SPPView\FormRequest $formRequest */
+                                $formRequest = new $className();
+                                if (!$formRequest->authorize()) {
+                                    $formRequest->failedAuthorization();
+                                    $filename = null;
+                                    return true;
+                                }
+                                $valResult = $formRequest->validate();
+                                if (!$valResult->isValid()) {
+                                    $formRequest->failedValidation($valResult);
+                                    $filename = null;
+                                    return true;
+                                }
+                                $finalParams[] = $formRequest;
+                                continue;
+                            }
+
+                            // 2. Dependency injection for SPPRequest
+                            if ($className && (is_subclass_of($className, '\\SPP\\SPPRequest') || $className === 'SPP\\SPPRequest' || $className === 'SPPMod\\SPPView\\SPPRequest' || is_subclass_of($className, '\\SPPMod\\SPPView\\SPPRequest'))) {
+                                $finalParams[] = new $className();
+                                continue;
+                            }
+
+                            // 2. Automatic Route Model Binding for SPPEntity subclasses
+                            if ($className && (is_subclass_of($className, '\\SPPMod\\SPPDB\\SPPEntity') || is_subclass_of($className, '\\SPPMod\\SPPEntity\\SPPEntity'))) {
+                                $idVal = $namedParams[$paramName] ?? ($namedParams[$paramName . '_id'] ?? ($namedParams['id'] ?? ($params[$positionalIndex] ?? null)));
+                                if ($idVal !== null && $idVal !== '') {
+                                    $entity = $className::find($idVal);
+                                    if ($entity === null && !$refParam->allowsNull()) {
+                                        throw new \SPPMod\SPPDB\EntityNotFoundException("Entity {$className} with ID '{$idVal}' not found.");
+                                    }
+                                    $finalParams[] = $entity;
+                                    $positionalIndex++;
+                                    continue;
+                                } elseif ($refParam->allowsNull()) {
+                                    $finalParams[] = null;
+                                    $positionalIndex++;
+                                    continue;
+                                }
+                            }
+
+                            // 3. Named route params or positional fallback
+                            if (array_key_exists($paramName, $namedParams)) {
+                                $finalParams[] = $namedParams[$paramName];
+                            } elseif (array_key_exists($positionalIndex, $params)) {
+                                $finalParams[] = $params[$positionalIndex];
+                            } else {
+                                $finalParams[] = $refParam->isDefaultValueAvailable() ? $refParam->getDefaultValue() : null;
+                            }
+                            $positionalIndex++;
+                        }
+                        $params = $finalParams;
+                    } catch (\ReflectionException $e) {
+                        // Fallback to basic positional binding if reflection fails
+                    }
+
+                    // Lifecycle hook: beforeAction
+                    if (method_exists($controller, 'beforeAction')) {
+                        $hookResult = $controller->beforeAction($method, $params);
+                        if ($hookResult !== null) {
+                            if ($hookResult instanceof \SPP\Response || (class_exists('\\SPPMod\\SPPView\\SPPResponse') && $hookResult instanceof \SPPMod\SPPView\SPPResponse)) {
+                                $hookResult->send();
+                            } elseif ($hookResult instanceof \Stringable) {
+                                echo (string)$hookResult;
+                            } elseif (is_string($hookResult)) {
+                                echo $hookResult;
+                            }
+                            $filename = null;
+                            return true;
                         }
                     }
 
                     $result = call_user_func_array([$controller, $method], $params);
-                    if (is_string($result)) {
+
+                    // Lifecycle hook: afterAction
+                    if (method_exists($controller, 'afterAction')) {
+                        $controller->afterAction($method, $result);
+                    }
+
+                    if ($result instanceof \SPP\Response || (class_exists('\\SPPMod\\SPPView\\SPPResponse') && $result instanceof \SPPMod\SPPView\SPPResponse)) {
+                        $result->send();
+                        $filename = null;
+                        return true;
+                    } elseif (is_string($result)) {
                         echo $result;
                         $filename = null;
+                        return true;
+                    } elseif ($result instanceof \Stringable) {
+                        echo (string)$result;
+                        $filename = null;
+                        return true;
+                    } elseif ($result instanceof \JsonSerializable) {
+                        if (!headers_sent()) {
+                            header('Content-Type: application/json; charset=utf-8');
+                        }
+                        echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        $filename = null;
+                        return true;
+                    } elseif (is_array($result)) {
+                        if (isset($result['view']) && isset($result['data']) && is_string($result['view']) && is_array($result['data']) && method_exists($controller, 'render')) {
+                            echo $controller->render($result['view'], $result['data']);
+                        } else {
+                            if (!headers_sent()) {
+                                header('Content-Type: application/json; charset=utf-8');
+                            }
+                            echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        }
+                        $filename = null;
+                        return true;
+                    } elseif ($result !== null) {
+                        if (!headers_sent()) {
+                            header('Content-Type: application/json; charset=utf-8');
+                        }
+                        echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                        $filename = null;
+                        return true;
+                    } else {
+                        if (headers_sent() || ob_get_length() > 0) {
+                            $filename = null;
+                            return true;
+                        }
                     }
                 }
             }
@@ -239,5 +377,23 @@ class ViewRouter
         }
 
         return false;
+    }
+
+    /**
+     * Checks if a resolved path targets the root front controller index.php.
+     */
+    public static function isRootIndex(?string $path): bool
+    {
+        if ($path === null || $path === '') {
+            return false;
+        }
+        $normPath = str_replace('\\', '/', $path);
+        $normRoot = str_replace('\\', '/', SPP_APP_DIR) . '/index.php';
+        if ($normPath === $normRoot) {
+            return true;
+        }
+        $rp = realpath($path);
+        $rr = realpath(SPP_APP_DIR . '/index.php');
+        return ($rp !== false && $rr !== false && $rp === $rr);
     }
 }

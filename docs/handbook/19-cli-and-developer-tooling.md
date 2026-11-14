@@ -294,7 +294,35 @@ Use the repository's deployment/environment facilities and your deployment secre
 
 ---
 
-## 19.14 A useful CLI debugging workflow
+## 19.14 Manifest OS and File Properties Tooling
+
+The SPP Manifest OS (`__spp_file_props.yml`) is backed by a comprehensive CLI command suite for continuous compilation, security auditing, and self-healing:
+
+```mermaid
+flowchart LR
+    A["Developer Source Code"] --> B["props:heal / props:watch"]
+    B --> C["__spp_file_props.yml"]
+    C --> D["props:compile"]
+    D --> E["var/cache/file_props.db (SQLite WAL)"]
+    C --> F["props:lint (Taint & Boundary Check)"]
+    C --> G["props:sbom (CycloneDX / SPDX)"]
+    C --> H["props:search --semantic (Vector Search)"]
+```
+
+### Core Manifest Commands
+
+- **`props:compile [--force] [--db]`**: Compiles all workspace manifests into an optimized SQLite WAL database (`var/cache/file_props.db`) and PHP opcode cache (`file_props.cache.php`) in <450ms across 16,500+ files.
+- **`props:sbom [--format=spdx|cyclonedx] [--out=path]`**: Emits a cryptographic Software Bill of Materials with SLSA Level 3 build provenance and capability sandbox metrics.
+- **`props:heal [path] [--dry-run]`**: AST-powered reconciler that parses source files, detects classes, inheritance, and entities, and auto-repairs manifests to eliminate drift.
+- **`props:watch [--heal]`**: Background filesystem watcher that recompiles manifests and auto-heals code changes in real time.
+- **`props:search <query> [--semantic]`**: Hybrid keyword and 64-dimensional semantic vector search across workspace components.
+- **`props:lint [path] [--strict]`**: Statically traces data flow taint from untrusted sources to dangerous sinks and enforces layer boundaries.
+- **`props:verify [path] [--strict]`**: Verifies cryptographic SHA-256 digests to detect unauthorized file tampering.
+- **`props:impact <path> [--depth=N]`**: Computes transitive semantic blast radius and risk scores before refactoring.
+
+---
+
+## 19.15 A useful CLI debugging workflow
 
 When an SPP feature fails, do not immediately begin changing source code.
 
@@ -316,7 +344,7 @@ This approach reduces the debugging search space.
 
 ---
 
-## 19.15 Coming from other frameworks
+## 19.16 Coming from other frameworks
 
 ### Laravel / Symfony
 
@@ -332,7 +360,7 @@ Think of the CLI as development/operations tooling around the application runtim
 
 ---
 
-## 19.16 Why the CLI belongs in the architecture handbook
+## 19.17 Why the CLI belongs in the architecture handbook
 
 It may seem strange to document commands in an architecture book, but commands are important because they exercise and modify the same runtime architecture described throughout this handbook.
 
@@ -354,6 +382,85 @@ That is architecture, not merely command syntax.
 
 ---
 
+## 19.18 SPPAdmin & SPPDev Visual Operations and Development Workstations
+
+The SPP framework pairs its terminal CLI tooling with two companion browser workstations:
+1. **SPPAdmin** (`/sppadmin`): Production and hosting platform command center for virtual host management, service monitoring, multi-tenant accounts, automated deployments, and lifecycle operations.
+2. **SPPDev** (`/sppdev`): High-velocity local development console for live component prototyping, database schemas, code scaffolding, and routing diagnostics.
+
+Both workstations share a canonical backend service layer (`spp/admin/services/`) and a synchronized command bridge (`CommandBridge.php`) that maps GUI actions directly to underlying CLI commands and framework APIs.
+
+### 1. Domain Architecture & Virtual Host Management (`#domains`)
+
+The Domains & Virtual Hosts console provides full visual control over routing modes:
+* **Architecture Mode Banner**: Prominently displays the active mode (`🟢 Single Domain Mode` vs `🌐 Multi-Domain Mode`).
+* **1-Click Mode Toggle**: Enables developers to instantly switch between zero-config single domain operation (where domain routing is bypassed and any host/IP is accepted) and enforced virtual host multi-tenancy.
+* **Virtual Host Policy Dropdown**: Easily select between `Strict (404)`, `Inherit Parent`, `302 Redirect`, `Dynamic Tenant`, and `Permissive` modes.
+* **SSL Inspector & DNS Diagnostics**: Inspect SSL certificates, trace DNS records, manage BIND DNS zones, and simulate routing for any hostname in real time.
+
+### 2. Universal Infrastructure & OS Workstation (`#server`)
+
+Powered by the universal abstraction engine `\SPP\Core\Infra`, the server console provides complete operational visibility across any operating system or hosting topology:
+* **Operating System & Distro Detection**: Normalizes and displays OS family (`windows`, `linux`, `darwin`, `bsd`), distribution name (`Microsoft Windows 11`, `Ubuntu 24.04 (WSL)`, `Alpine Linux`, `RHEL / Rocky`), and C runtime (`glibc`, `musl`, `msvcrt`).
+* **Hosting Topology Classification**: Automatically categorizes the runtime environment into `Standard FHS (/var/www)`, `User-Home cPanel Style (/home/*)`, `Windows (IIS / Apache)`, `Container (Docker / Podman / K8s)`, or `Serverless (AWS Lambda / Cloud Run)`.
+* **Normalized Paths**: Inspects cross-platform storage locations including guaranteed writable scratch roots (`writablePath()`) and temporary storage directories (`tempDir()`).
+* **Detected Services & Daemons**: Inspects active host daemons and services discovered in `etc/detected-services.yml`.
+
+### 3. App Studio & Application Lifecycle Management (`#apps`)
+
+The App Studio Console unifies application registration, domain restrictions, and decommissioning:
+* **Visual Domain Scoping**: Configure an application's exposure across domains with the `🌐 Scope` button. Choose between **Global** (accessible across all domains) and **Domain-Only** (restricted to specific virtual host domains with whitelist enforcement).
+* **Application Uninstaller & Decommissioning Modal**: Click `🗑️ Uninstall` to safely decommission any non-protected application with granular controls:
+  * **Config-Only Removal**: Unbinds virtual hosts from `etc/domains.yml`, removes registration from `global-settings.yml`, and purges routing caches while preserving application source code in `src/{appName}`.
+  * **Full Removal**: Completely purges application source code, configuration directories (`etc/apps/{appName}`), caches, and database files.
+  * **Automated Safety Backup**: Checkbox to generate a standalone compressed zip archive in `var/backups/apps/` before uninstallation, guaranteeing zero accidental data loss.
+  * **Database Purge**: Optional purge of the application SQLite database (`var/db/{appName}.sqlite`).
+* **Dedicated Backups & Restoration Tab**:
+  * Lists all standalone backup archives in `var/backups/apps/` with file count, size, timestamp, and database status.
+  * **1-Click Restore**: Instantly reconstructs application code, configuration in `etc/apps/`, and virtual host domain bindings.
+  * **Permanent Disk Reclamation**: Delete unneeded backups with 1 click to free server disk space.
+  * **Manual Backup Generator**: Create full standalone backup archives of any registered application at any time.
+
+### 4. Multi-Language Application Fleet & Process Supervision (`#apps`)
+The App Studio Console unifies native SPP applications and multi-language guest applications (Python, Node.js, Go, PHP-FPM, Static SPAs) into a single operational interface:
+* **Combined Application Inventory**: Displays native SPP apps alongside external microservices declared in `etc/apps.yml`.
+* **Runtime Stack Badges**: Highlights the guest application environment (🐍 Python, 🟢 Node.js, 🐘 PHP-FPM, 🐹 Go, 📄 Static SPA).
+* **Ingress Route & Virtual Subdomain Links**: Clickable links (`📁 /ai ↗`, `🌐 ai.school.local`) that open the application directly in a new browser tab.
+* **Operational Supervisor Controls**:
+  * 1-Click Process Management: `▶️ Start`, `⏹️ Stop`, and `🔄 Restart` guest daemons on the fly.
+  * Live Log Stream Modal: `📜 Logs` opens a real-time dark terminal modal streaming `var/run/apps/{app_id}.log`.
+  * In-Context RPC: `⚡ RPC` opens the interactive RPC Sandbox pre-filled for the target microservice.
+
+### 5. Service Mesh Studio & Inter-App RPC Sandbox (`#apps?tab=mesh` or `#mesh`)
+Selecting the **🕸️ Service Mesh & Daemons** tab reveals the deep-dive integration workspace:
+* **Fleet Metric Overview**: Real-time summary cards displaying Total Registered Applications, Active Supervised Daemons, Exposed Mesh Services, and Dynamic Port Pool range (`10000 - 20000`).
+* **Batch Supervisor Fleet**: Global batch controls (`▶️ Start All`, `⏹️ Stop All`, `🔄 Refresh`) with live process table tracking PIDs, loopback ports, and uptime.
+* **Interactive Inter-App RPC Sandbox**:
+  * Target Microservice & Endpoint Selectors: Auto-populates exposed endpoints from `etc/apps.yml`.
+  * HTTP Method Picker: `POST`, `GET`, `PUT`, `DELETE`.
+  * JSON Payload Editor: Built-in syntax checking and 1-click JSON formatting.
+  * Live Execution Inspector: Displays execution latency in milliseconds, HTTP response status (e.g. `200 OK`), and formatted JSON response.
+* **Cross-App Event Bus Inspector**:
+  * Displays registered listeners across native SPP modules and foreign guest applications.
+  * Synthetic Event Dispatcher: Enter an event name (e.g. `user.created`, `workflow.after_transition`) and JSON payload to test cross-runtime event broadcasting in real time.
+
+### 6. CLI Application Supervisor & Service Mesh Commands
+Complementing the visual studio, developers manage guest applications and inter-app RPC via high-level CLI commands:
+```bash
+# Daemon Process Management
+php spp.php app:start [<app_id>|all]     # Boot supervised multi-language daemons
+php spp.php app:stop [<app_id>|all]      # Gracefully terminate running daemons
+php spp.php app:restart <app_id>         # Restart daemon and reload runtime config
+php spp.php app:status [--json]          # Live dashboard of PIDs, ports, routes, and statuses
+php spp.php app:logs <app_id> [--tail=N] # Stream real-time stdout and stderr log outputs
+
+# Inter-App Service Mesh
+php spp.php mesh:services [--json]       # Discover all capabilities exposed across apps
+php spp.php mesh:call <app> <ep> [json]  # Dispatch inter-app RPC requests directly
+```
+
+---
+
 ## Kernel Hacker note
 
 The SPP CLI is effectively another set of framework entry points. Some commands construct application/runtime state directly, some modify configuration or source files, and others launch long-running services.
@@ -364,6 +471,12 @@ That means a production-safe CLI design should be reviewed with the same source-
 
 - `docs/spp-cli-manual.md`
 - `spp/commands/`
+- `spp/commands/AppSupervisor*.php`
+- `spp/commands/Mesh*.php`
+- `spp/core/apps/AppSupervisor.php`
+- `spp/core/apps/Mesh.php`
+- `spp/dev/js/views/apps.js`
+- `spp/admin/js/views/apps.js`
 - `spp/commands/stubs/`
 - `spp/commands/MakeAppCommand.php`
 - command-specific implementations for module/live/polyglot/database/deployment/testing operations

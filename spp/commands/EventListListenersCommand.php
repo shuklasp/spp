@@ -28,27 +28,19 @@ class EventListListenersCommand extends Command
             echo "Event listeners registered in app context: {$appname}\n";
             echo str_repeat('-', 50) . "\n";
             
-            if (!class_exists('\\SPP\\Core\\EventManager')) {
-                echo "EventManager not available.\n";
+            $listeners = \SPP\SPPEvent::getRegisteredListeners();
+            if (empty($listeners)) {
+                echo "No event listeners registered.\n";
                 return;
             }
             
-            try {
-                $refClass = new \ReflectionClass('\\SPP\\Core\\EventManager');
-                $refProp = $refClass->getProperty('listeners');
-                $refProp->setAccessible(true);
-                $listeners = $refProp->getValue();
-                
-                if (empty($listeners)) {
-                    echo "No event listeners registered.\n";
-                    return;
+            foreach ($listeners as $event => $callbacks) {
+                echo "Event: {$event} (Listeners: " . count($callbacks) . ")\n";
+                foreach ($callbacks as $cb) {
+                    $handler = $cb['handler'] ?? 'Unknown';
+                    $priority = $cb['priority'] ?? 500;
+                    echo "  -> {$handler} (Priority: {$priority})\n";
                 }
-                
-                foreach ($listeners as $event => $callbacks) {
-                    echo "Event: {$event} (Listeners: " . count($callbacks) . ")\n";
-                }
-            } catch (\Exception $e) {
-                echo "Could not fetch event listeners: " . $e->getMessage() . "\n";
             }
         });
     }

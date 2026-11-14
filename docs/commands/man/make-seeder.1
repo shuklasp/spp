@@ -1,7 +1,18 @@
-.TH "make:seeder" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH MAKE:SEEDER 1 "SPP CLI" "Version 1.0" "SPP Manual"
 .SH NAME
-make:seeder \- Create a new Database Seeder class
+make:seeder \- Scaffolds a modern, fluent database seeder class extending SPPSeeder.
 .SH SYNOPSIS
 .B php spp.php make:seeder
+.I <SeederName>
+[\-\-app=AppName]
 .SH DESCRIPTION
-Create a new Database Seeder class
+Scaffolds a standardized database seeder class under src/{app}/seeders/{SeederName}Seeder.php. The generated seeder extends \\SPPMod\\SPPDB\\SPPSeeder and provides native entity synthesis, realistic fakes, table truncation, and workflow state fixtures.
+.SH OPTIONS
+.TP
+.B <SeederName>
+Name of the seeder class to scaffold (e.g., UserSeeder). Suffix 'Seeder' is automatically appended if omitted.
+.TP
+.B \-\-app=<app_name>
+(Optional) Application namespace and target directory under src/ (defaults to 'default').
+.SH UNDER THE HOOD
+Resolves src/{app}/seeders/, verifies identifier validity, and generates the seeder PHP class file with modern SPPSeeder boilerplate.

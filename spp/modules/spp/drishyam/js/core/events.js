@@ -53,7 +53,7 @@ let _rootElement = null;
  * @private
  */
 const _noPreventSet = new Set([
-    'input', 'change', 'focus', 'blur', 'keydown', 'keyup', 'keypress',
+    'click', 'input', 'change', 'focus', 'blur', 'keydown', 'keyup', 'keypress',
     'dragstart', 'mousedown', 'mouseup', 'mousemove', 'mouseenter', 'mouseleave',
     'pointerdown', 'pointerup', 'pointermove', 'pointerenter', 'pointerleave',
     'touchstart', 'touchmove', 'touchend', 'touchcancel',
@@ -133,9 +133,8 @@ function _ensureDelegated(eventType) {
 
                         handled = true;
 
-                        // Stop propagation if the handler requested it or
-                        // if it's not a drag event (matching v11 behavior)
-                        if (e.cancelBubble || (!eventType.startsWith('drag') && eventType !== 'drop')) {
+                        // Stop propagation if the handler requested it via e.stopPropagation()
+                        if (e.cancelBubble) {
                             break; // breaks out of the while loop
                         }
                     }

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $book['title'] }} — Complete Documentation Book</title>
+    <link rel="stylesheet" href="{{ \SPP\App::getBaseUrl() }}/res/shared/css/prism-tomorrow.min.css">
     <style>
         :root {
             --book-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -191,8 +192,8 @@
 
         /* Typography & Code */
         pre {
-            background: #f7fafc;
-            border: 1px solid var(--border-color);
+            background: #1e1e1e !important;
+            border: 1px solid #333333;
             border-radius: 6px;
             padding: 1rem;
             overflow-x: auto;
@@ -208,8 +209,9 @@
             font-size: 0.88em;
         }
         pre code {
-            background: none;
+            background: none !important;
             padding: 0;
+            border-radius: 0;
         }
         table {
             width: 100%;
@@ -247,13 +249,32 @@
         .sppdocs-callout-CAUTION { border-color: #e53e3e; background: #fff5f5; color: #742a2a; }
         .callout-title { font-weight: 800; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 0.25rem; }
 
+        /* Mermaid Graphs & Diagrams */
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem auto;
+            text-align: center;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            overflow-x: auto;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .mermaid svg {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
         /* Print Media Styles */
         @media print {
             body {
                 background: #ffffff;
                 font-size: 11pt;
             }
-            .book-toolbar {
+            .book-toolbar, #spp-devlens {
                 display: none !important;
             }
             .book-wrapper {
@@ -277,6 +298,17 @@
             .book-chapter {
                 break-inside: avoid-page;
             }
+            .mermaid {
+                border: none;
+                box-shadow: none;
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin: 1.5rem auto;
+            }
+            .mermaid svg {
+                max-width: 100% !important;
+                height: auto !important;
+            }
             h1, h2, h3 {
                 break-after: avoid;
             }
@@ -295,7 +327,7 @@
     <div class="book-toolbar">
         <div style="display: flex; align-items: center; gap: 1rem;">
             <a href="{{ \SPP\App::getBaseUrl() }}/project/{{ $project_id }}">← Back to Documentation</a>
-            <span style="font-weight: 700;">📕 {{ $book['title'] }} (v{{ $book['version'] }})</span>
+            <span style="font-weight: 700;">📕 {{ $book['title'] }} ({{ str_starts_with($book['version'], 'v') ? $book['version'] : 'v' . $book['version'] }})</span>
         </div>
         <div style="display: flex; gap: 0.6rem;">
             <a href="{{ \SPP\App::getBaseUrl() }}/export/markdown?project={{ urlencode($project_id) }}&version={{ urlencode($version) }}">
@@ -312,7 +344,7 @@
         <!-- 1. Cover Page -->
         <div class="book-cover">
             @if(!empty($book['logo']))
-                <img src="{{ $book['logo'] }}" alt="Logo" class="book-cover-logo">
+                <img src="{{ $book['logo'] }}" alt="Logo" class="book-cover-logo" onerror="this.style.display='none'">
             @endif
             <h1 class="book-cover-title">{{ $book['title'] }}</h1>
             <p class="book-cover-motto">{{ $book['motto'] }}</p>
@@ -362,12 +394,60 @@
         @endforeach
     </div>
 
+    <!-- Scripts: Syntax Highlighting & Vector Diagrams -->
+    <script src="{{ \SPP\App::getBaseUrl() }}/res/shared/js/prism.min.js"></script>
+    <script src="{{ \SPP\App::getBaseUrl() }}/res/shared/js/prism-php.min.js"></script>
+    <script src="{{ \SPP\App::getBaseUrl() }}/res/shared/js/prism-bash.min.js"></script>
+    <script src="{{ \SPP\App::getBaseUrl() }}/res/shared/js/prism-javascript.min.js"></script>
+    <script src="{{ \SPP\App::getBaseUrl() }}/res/shared/js/prism-markup-templating.min.js"></script>
+    <script src="{{ \SPP\App::getBaseUrl() }}/res/shared/js/mermaid.min.js"></script>
+    <script>
+        if (typeof mermaid !== 'undefined') {
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'default',
+                securityLevel: 'loose',
+                flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' }
+            });
+        }
+
+        window.renderMermaidDiagrams = function() {
+            if (typeof mermaid === 'undefined') return;
+            const blocks = document.querySelectorAll('pre code.language-mermaid');
+            for (let i = 0; i < blocks.length; i++) {
+                const block = blocks[i];
+                const pre = block.parentElement;
+                const code = block.textContent;
+
+                const container = document.createElement('div');
+                container.className = 'mermaid';
+                container.textContent = code;
+
+                pre.parentNode.replaceChild(container, pre);
+            }
+
+            try {
+                mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+            } catch (err) {
+                console.error('Mermaid render error:', err);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            }
+            window.renderMermaidDiagrams();
+        });
+    </script>
+
     @if(!empty($auto_print))
         <script>
             window.addEventListener('load', function() {
+                // Wait for all Mermaid SVGs and code blocks to finish rendering before triggering print
                 setTimeout(function() {
                     window.print();
-                }, 500);
+                }, 1200);
             });
         </script>
     @endif

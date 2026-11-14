@@ -10,11 +10,14 @@ class FileCache implements CacheInterface
 {
     protected string $path;
 
-    public function __construct(string $path = null)
+    public function __construct(string|array|null $path = null)
     {
+        if (is_array($path)) {
+            $path = $path['cache_path'] ?? ($path['path'] ?? null);
+        }
         $this->path = $path ?: (defined('SPP_APP_DIR') ? SPP_APP_DIR . '/var/cache' : 'var/cache');
         if (!is_dir($this->path)) {
-            mkdir($this->path, 0777, true);
+            @mkdir($this->path, 0777, true);
         }
     }
 
@@ -45,7 +48,8 @@ class FileCache implements CacheInterface
         $file = $this->getFilePath($key);
         $dir = dirname($file);
         if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
+            @mkdir($dir, 0777, true);
+            @chmod($dir, 0777);
         }
 
         $data = [
@@ -55,11 +59,17 @@ class FileCache implements CacheInterface
 
         // Atomic write via temporary file
         $tempFile = $file . '.' . uniqid('', true) . '.tmp';
-        if (file_put_contents($tempFile, serialize($data), LOCK_EX) === false) {
+        if (@file_put_contents($tempFile, serialize($data), LOCK_EX) === false) {
             return false;
         }
 
-        return rename($tempFile, $file);
+        @chmod($tempFile, 0666);
+        if (!@rename($tempFile, $file)) {
+            @unlink($tempFile);
+            return false;
+        }
+        @chmod($file, 0666);
+        return true;
     }
 
     public function delete(string $key): bool
@@ -111,6 +121,7 @@ class FileCache implements CacheInterface
             $dir = dirname($tagFile);
             if (!is_dir($dir)) {
                 @mkdir($dir, 0777, true);
+            @chmod($dir, 0777);
             }
 
             $fp = @fopen($tagFile, 'c+');
@@ -221,3 +232,11 @@ class FileCache implements CacheInterface
         ];
     }
 }
+
+if (!class_exists('SPPMod\SPPCache\FileCacheDriver', false)) {
+    class_alias(FileCache::class, 'SPPMod\SPPCache\FileCacheDriver');
+}
+if (!class_exists('SPPMod\SPPCache\FileCache', false)) {
+    class_alias(FileCache::class, 'SPPMod\SPPCache\FileCache');
+}
+

@@ -1,8 +1,0 @@
-pages:
-  index:
-    url: index.php
-    title: MyReactApp
-    special: 1
-defaults:
-  home: index
-  pagedir: /src/MyReactApp

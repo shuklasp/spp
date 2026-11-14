@@ -1,512 +1,499 @@
 # Volume VIII — Integration Architecture
 
-## Chapter 10 — Polyglot Bridges and External Application Integration
+## Chapter 10 — Polyglot Bridges, Multi-Language Application Hosting & Sovereign Service Mesh
 
-**Evidence:** `spp/core/Polyglot/`, `spp/services/`, `spp/lib/polyglot/`, `spp/lib/python/`, `spp/lib/node/`, `spp/lib/go/`, `spp/lib/java/`, `spp/lib/dotnet/`, `spp/modules/contrib/`, `spp/docs/tutorials/integrating_external_apps.md`, and the repository's integration/CLI commands.
+**Evidence:** `etc/apps.yml`, `spp/core/apps/ForeignAppRegistry.php`, `spp/core/apps/SubpathVirtualizer.php`, `spp/core/apps/SubpathGateway.php`, `spp/core/apps/AppSupervisor.php`, `spp/core/apps/MeshServiceDispatcher.php`, `spp/core/apps/Mesh.php`, `spp/lib/mesh/`, `spp/commands/AppSupervisor*.php`, `spp/commands/Mesh*.php`, `spp/dev/js/views/apps.js`, `spp/core/Polyglot/`, `spp/lib/polyglot/`, and `tests/core/test.multi_language_app_mesh.php`.
 
 A serious enterprise system rarely lives entirely inside one PHP codebase.
 
 You may already have:
 
-- a Python machine-learning service;
-- a Node.js notification service;
-- a Java enterprise application;
-- a .NET service;
-- a Go worker;
-- a legacy Drupal installation; or
-- another SPP application.
+- a Python machine-learning service (FastAPI, PyTorch, LangChain);
+- a Node.js real-time collaborative service (Express, Socket.io, NestJS);
+- a Go high-concurrency microservice (Gin, Fiber);
+- a standalone WordPress or Laravel installation running on PHP-FPM;
+- a static Single Page Application (Vite, React, Vue); or
+- another SPP application context.
 
-If you have never studied software architecture, the important concept to learn first is **process/runtime boundaries**.
+If you have never studied enterprise software architecture, the most important concept to learn first is **process and runtime boundaries**.
 
-PHP code runs inside a PHP runtime. Python code runs inside a Python runtime. A legacy application may have its own request lifecycle. These systems do not magically share PHP objects just because they run on the same server.
+PHP code runs inside a PHP runtime. Python code runs inside a Python virtual environment. A guest application has its own request lifecycle, memory space, and dependency graph. These systems do not magically share in-memory PHP objects merely because they sit on the same server.
 
 They need an **integration boundary**.
 
-SPP contains explicit infrastructure for several kinds of such boundaries.
+SPP provides two distinct, complementary integration tiers:
+
+1. **In-Process Code Bridges (`SPP\Core\Polyglot`)**: Synchronous and asynchronous function-level invocations across language boundaries via compilers, CLI adapters, and specialized worker processes.
+2. **Sovereign Multi-Language Application Integrator & Service Mesh (`ForeignAppRegistry`, `SubpathVirtualizer`, `AppSupervisor`, `\SPP\Mesh`)**: Transparent hosting and orchestration of complete external applications running under server route directories (`/blog`, `/ai`, `/chat`) or dedicated subdomains (`ai.myserver.com`), with ambient Single Sign-On (SSO), cross-platform process supervision, dynamic port mapping, mutual RPC calling, and unified Developer Studio management at `/sppdev#apps`.
 
 ---
 
-## 10.1 What is a polyglot application?
+## 10.1 What is a Polyglot Architecture?
 
-“Polyglot” in software architecture means **using more than one programming language/runtime because different parts of the system need different capabilities**.
+“Polyglot” in software engineering means **using more than one programming language or runtime because different components of an enterprise require different strengths**.
 
 For example:
 
 ```text
-SPP/PHP
+SPP / PHP
    ↓
-Business application
+Core Institutional ERP, Workflow Engine, CQRS & Domain Models
 
-Python
+Python (FastAPI / PyTorch)
    ↓
-Machine-learning service
+Predictive Analytics & AI Inference Microservice
 
-Node.js
+Node.js (Express / WebSockets)
    ↓
-Realtime/notification service
+Real-Time Chat & Collaborative Canvas
 
-Go
+PHP-FPM (WordPress / Laravel)
    ↓
-High-throughput worker
+Public Marketing Blog & Knowledge Base
 ```
 
-This is not the same thing as simply having multiple PHP classes.
-
-Each external runtime is another execution environment.
-
----
-
-## 10.2 Why would an SPP application call another runtime?
-
-Possible reasons include:
-
-- an existing service is already implemented in another language;
-- a library is substantially stronger in another ecosystem;
-- a workload needs a different runtime model;
-- a team owns a service independently;
-- a legacy application must remain operational;
-- a specialized worker should be deployed separately.
-
-The architectural goal is not “use every language”.
+The architectural goal is not "use every language for the sake of it."
 
 The goal is:
 
-> **Give each subsystem the runtime that solves its problem while keeping integration explicit and controlled.**
+> **Give each subsystem the runtime best suited to its workload, while providing a single, sovereign host that supervises their lifecycles, virtualizes their ingress routes, and unifies their communication into a single pane of glass.**
 
 ---
 
-## 10.3 Integration is not one thing
+## 10.2 The Two Integration Paradigms in SPP
 
-Before learning SPP's polyglot subsystem, separate these concepts:
+Before writing code, understand the architectural distinction between the two integration paradigms:
 
-| Integration type | What crosses the boundary |
-|---|---|
-| Library call | Code inside the same process/runtime |
-| HTTP/API | Network request/response |
-| Webhook | Event-like HTTP notification into another service |
-| Process bridge | Explicit invocation of another runtime/process |
-| External-app routing | Requests delegated to another application |
-| Shared datastore | Data exchanged through storage rather than direct invocation |
-
-Do not call all of these “IPC”.
-
-**IPC (inter-process communication)** is a useful architectural term, but an HTTP API, a webhook, a Redis queue, and a local process invocation are different protocols and should be documented as such.
+| Dimension | Tier 1: In-Process Code Bridges (`Polyglot`) | Tier 2: Application Hosting & Service Mesh (`Mesh`) |
+| :--- | :--- | :--- |
+| **Primary Units** | Functions, scripts, compilers, code snippets. | Full guest applications, microservices, daemons, SPAs. |
+| **Mounting** | Called internally within PHP controllers/services. | Mounted on public subpaths (`/ai`) or subdomains (`ai.domain.com`). |
+| **Execution** | Ephemeral process invocation or worker pool. | Supervised background daemons with persistent loopback ports. |
+| **Networking** | STDIN/STDOUT pipes, local sockets, or CLI flags. | Transparent HTTP reverse proxy, FastCGI multiplexer, or WebSockets. |
+| **Identity & SSO** | Passed as raw method arguments. | Automatic HMAC-SHA256 signed user claims passed via ingress headers. |
+| **Management UI** | `/sppdev#polyglot` Studio. | `/sppdev#apps` & `/sppdev#mesh` Unified Developer Workbench. |
 
 ---
 
-## 10.4 SPP's polyglot bridge concept
+## 10.3 Declarative Application Manifest & Catalog (`etc/apps.yml`)
 
-The source contains a concrete bridge family under `SPP\Core\Polyglot`.
+The backbone of SPP's multi-language hosting is the declarative application manifest located at `etc/apps.yml`.
 
-The core concepts include:
+In this file, developers declare every native and external application participating in the system:
 
-- `PolyglotBridgeInterface`;
-- `PolyglotBridgeFactory`;
-- `DefaultBridge`;
-- `CompilerBridge`;
-- `DotNetBridge`;
-- `GoBridge`; and
-- `JavaBridge`.
+```yaml
+version: '2.0'
 
-The factory/adapter structure can be understood as:
+apps:
+  # 1. Native SPP ERP Application (Mounted at Server Root)
+  school:
+    type: spp
+    name: "School ERP"
+    route: /
+    enabled: true
 
-```mermaid
-flowchart TD
-    A[SPP application] --> B[Polyglot bridge factory]
-    B --> C[Selected bridge]
-    C --> D[External language runtime]
+  # 2. Standalone WordPress Running on Dedicated PHP-FPM Pool
+  blog:
+    type: php-fpm
+    name: "Campus Editorial Blog"
+    route: /blog
+    subdomain: blog.school.local
+    root_dir: apps/wordpress
+    fpm_socket: 127.0.0.1:9000
+    enabled: true
+    virtualization:
+      rewrite_redirects: true
+      rewrite_html_base: true
+      rewrite_cookie_paths: true
+
+  # 3. Supervised Python FastAPI Microservice
+  ai_engine:
+    type: python
+    name: "AI Analytics Microservice"
+    route: /ai
+    subdomain: ai.school.local
+    root_dir: apps/ai_engine
+    command: "python -m uvicorn main:app --host 127.0.0.1 --port {PORT}"
+    health_check: /health
+    enabled: true
+    spp_integration:
+      ambient_sensing: true
+      service_mesh: true
+      expose_services:
+        - name: ai.predict
+          endpoint: /api/predict
+          method: POST
+          description: "Predict student performance and dropout risk"
+        - name: ai.summarize
+          endpoint: /api/summarize
+          method: POST
+          description: "Summarize course transcripts and notes"
+
+  # 4. Supervised Node.js Real-Time Service
+  chat:
+    type: node
+    name: "Campus Live Chat"
+    route: /chat
+    root_dir: apps/chat
+    command: "node server.js"
+    health_check: /health
+    enabled: true
 ```
 
-The value of the common interface is that application code can work through a stable abstraction while the concrete bridge knows how to interact with its target runtime.
+### Route & Subdomain Resolution (`ForeignAppRegistry`)
+
+At boot time, `ForeignAppRegistry` parses `etc/apps.yml`. When an incoming HTTP request arrives at `public/index.php` or `spp/router.php`, `ForeignAppRegistry::resolveApp($path, $host)` evaluates:
+
+1. **Subdomain Matching**: If the incoming `Host` header matches a declared `subdomain` (e.g. `ai.school.local`), the request is instantly routed to that application.
+2. **Longest Route Prefix Matching**: If accessed via URL paths (e.g. `https://school.local/ai/api/predict`), the router sorts registered applications by route length in descending order (`/ai` before `/`). The longest matching prefix claims the request.
+3. **Subpath Extraction**: The matched prefix (`/ai`) is stripped from the request URI to calculate the internal `$subPath` (`/api/predict`) delivered to the guest daemon.
 
 ---
 
-## 10.5 What is an adapter?
+## 10.4 The Subpath Virtualization Dilemma & The SPP Solution
 
-An **adapter** is a piece of software that makes one system's interface usable through another system's expected interface.
+Mounting guest applications inside route directories (e.g. `myserver.com/blog` or `myserver.com/ai`) is notoriously difficult in traditional architectures. It frequently leads to three catastrophic failures:
 
-Suppose your PHP application understands:
+1. **Broken Relative Assets**: The guest app emits HTML linking to `<script src="assets/app.js">`. The browser resolves this relative to root (`myserver.com/assets/app.js`), triggering 404 errors.
+2. **Redirect Loops & Directory Escapes**: A guest app issues an HTTP redirect `Location: /login`. The browser navigates to the host root (`myserver.com/login`), escaping the guest application subpath completely.
+3. **Cookie Path Collisions**: Session cookies set by guest apps overwrite or collide with host session cookies on `/`.
 
-```text
-invoke service
-```
+### How SPP Solves This (`SubpathVirtualizer`)
 
-but the external runtime requires a completely different invocation protocol.
-
-The bridge/adapter translates between those worlds.
-
-That lets application code focus on the business intention rather than encoding the wire/process protocol in every controller.
-
----
-
-## 10.6 What the factory does
-
-A factory is responsible for choosing or creating an appropriate object.
-
-In this architecture:
-
-```mermaid
-flowchart LR
-    A[Application requests bridge] --> B[Bridge factory]
-    B --> C[Bridge implementation]
-    C --> D[Target runtime]
-```
-
-The application does not need a large `if/else` statement containing every supported language/runtime.
-
-That is the practical value of the factory abstraction.
-
-The exact bridge-selection rules come from `PolyglotBridgeFactory` and should not be inferred from class names alone.
-
----
-
-## 10.7 Runtime support in the repository
-
-The repository contains language-specific assets and/or services for:
-
-- C++;
-- .NET;
-- Go;
-- Java;
-- Node.js;
-- Perl; and
-- Python.
-
-It also contains runtime helper libraries, daemon-service assets, and language-specific bridge artifacts.
-
-This is important evidence, but we must interpret it carefully.
-
-> **The presence of integration assets proves that integration support exists in the repository; it does not automatically prove that every language has identical feature parity or deployment semantics.**
-
-Each concrete adapter needs its own source-level review before the handbook states its exact protocol.
-
----
-
-## 10.8 Polyglot commands
-
-The repository contains a CLI surface for polyglot operations including capabilities around bridge execution, workers, status, listing, asynchronous execution, and partial generation.
-
-That makes polyglot integration part of the developer workflow rather than an undocumented experiment hidden in a library directory.
-
-For new developers, the important progression is:
-
-1. understand the bridge abstraction;
-2. identify the concrete runtime you need;
-3. inspect its invocation/serialization contract;
-4. configure the runtime;
-5. use the CLI/tools to validate the integration.
-
----
-
-## 10.9 External applications are a different problem
-
-A second integration problem is not “another language”; it is **another application**.
-
-For example:
-
-```text
-SPP application
-      +
-Legacy Drupal application
-```
-
-The external application may have its own routing, session, templates, and database.
-
-The repository contains an example of this model in the contributed `sppdrupal` module and the external-app integration tutorial.
-
-The key architectural idea is:
-
-> **An external application can remain an external application. You do not have to rewrite it as an SPP module merely to integrate it.**
-
----
-
-## 10.10 External application routing
-
-One supported pattern is routing a public URL path to an external application while allowing the SPP router to bypass that path as required.
-
-Conceptually:
-
-```mermaid
-flowchart LR
-    A[Incoming request] --> B{SPP managed path}
-    B -- Yes --> C[SPP routing]
-    B -- No --> D[External application runtime]
-```
-
-The exact path matching/bypass configuration belongs to the integration implementation and the application's web-server setup.
-
-The important distinction is that this is **application integration**, not a polyglot bridge by itself.
-
----
-
-## 10.11 External application adapters
-
-A contributed module can also provide a PHP-side adapter around an external system.
-
-This is useful when SPP needs to:
-
-- call the external system;
-- expose it through an SPP service;
-- attach application-specific configuration;
-- add authentication/authorization rules; or
-- make an external system available to another SPP subsystem.
-
-The adapter does not turn the external application into a normal SPP module. It creates an explicit integration boundary.
-
----
-
-## 10.12 HTTP APIs and webhooks
-
-The repository also contains controllers, API modules, webhook-related classes, and integration paths.
-
-These represent protocol-based integration.
-
-### API call
-
-SPP actively requests something from another service.
-
-### Webhook
-
-Another system notifies SPP about an event.
-
-Conceptually:
+SPP introduces a bi-directional virtualization layer between the client and the guest daemon:
 
 ```mermaid
 sequenceDiagram
-    participant S as SPP
-    participant X as External service
-    S->>X: API request
-    X-->>S: API response
-    X->>S: Webhook notification
-    S-->>X: Acknowledge
+    autonumber
+    participant Browser as Browser Client
+    participant Kernel as SPP Gateway (SubpathVirtualizer)
+    participant Guest as Guest Microservice (Python / Node / PHP)
+
+    Browser->>Kernel: GET /ai/dashboard (Session Cookie: spp_session=abc)
+    Note over Kernel: Ingress Virtualization: Build Headers & Sign Claims
+    Kernel->>Guest: GET /dashboard<br/>X-Forwarded-Prefix: /ai<br/>X-SPP-User-Id: 42<br/>X-SPP-Signature: hmac_sha256(...)
+    Guest->>Kernel: HTTP 302 Found<br/>Location: /login<br/>Set-Cookie: session=xyz; Path=/
+    Note over Kernel: Egress Virtualization: Rewrite Redirects, Cookies & Inject <base>
+    Kernel->>Browser: HTTP 302 Found<br/>Location: /ai/login<br/>Set-Cookie: session=xyz; Path=/ai/
 ```
 
-The exact message contract, authentication, signature validation, and retry behavior must be read from each actual integration.
+1. **Ingress Header Virtualization**:
+   - `X-Forwarded-Prefix: /ai`: Informs the guest application of its mount path.
+   - `X-Forwarded-Host` & `X-Forwarded-Proto`: Informs the guest app of the public domain and SSL state.
+   - `X-SPP-Gateway: sovereign-mesh`: Confirms to the guest app that it is running inside the SPP mesh.
+   - **Signed SSO User Claims**: If an authenticated SPP user is logged in, the gateway computes an HMAC-SHA256 signature using `SPP_APP_TOKEN` and passes `X-SPP-User-Id`, `X-SPP-User-Email`, `X-SPP-Claims`, and `X-SPP-Signature`. The guest app verifies the signature and authenticates the user instantly.
+
+2. **Egress Response Virtualization**:
+   - **`Location:` Header Rewriting**: If the guest returns `Location: /login` or `Location: http://127.0.0.1:10042/login`, `SubpathVirtualizer::rewriteRedirectLocation()` rewrites it to `/ai/login`.
+   - **Cookie Scoping**: If the guest sets `Set-Cookie: session_id=...; Path=/`, the path is rewritten to `Path=/ai/`, preventing cookie bleed.
+   - **HTML `<base>` Injection**: If the response is HTML, the virtualizer scans `<head>` and injects `<base href="/ai/">`. All relative CSS, JavaScript, and image URLs resolve perfectly without touching a single line of the guest application's code!
 
 ---
 
-## 10.13 Multi-application SPP versus external applications
+## 10.5 Sovereign Cross-Platform Process Supervision (`AppSupervisor`)
 
-These concepts are easy to confuse.
+Traditional systems force developers to install external process supervisors like Docker, PM2, or Supervisord. This creates massive friction on developer machines, especially across Windows, Linux, and macOS.
 
-### Multiple SPP applications
-
-The same SPP runtime can register several `App` objects and switch the active Scheduler context.
-
-### External application
-
-The other application has its own runtime and remains outside the SPP application object model.
-
-Therefore:
-
-| Scenario | Primary SPP mechanism |
-|---|---|
-| Several SPP apps in one runtime | Scheduler/application contexts |
-| Feature reuse within an app | Modules |
-| Another language/runtime | Polyglot bridge/services |
-| Another independent application | Integration/router/adapter |
-| Networked service | API/webhook integration |
-
-This distinction is fundamental to enterprise architecture.
-
----
-
-## 10.14 The enterprise integration picture
-
-A realistic SPP deployment might look like:
+SPP features a native, cross-platform process supervisor (`\SPP\Core\Apps\AppSupervisor`):
 
 ```mermaid
-flowchart TB
-    H[SPP host] --> A[SPP application A]
-    H --> B[SPP application B]
-    H --> I[Integration layer]
-    A --> M1[SPP modules]
-    B --> M2[SPP modules]
-    I --> P[Python service]
-    I --> N[Node service]
-    I --> G[Go service]
-    I --> J[Java service]
-    I --> L[Legacy application]
+flowchart TD
+    CLI["CLI Command (app:start)"] --> AS["AppSupervisor"]
+    Admin["Developer Studio (/sppdev#apps)"] --> AS
+
+    subgraph Supervisor_Engine["AppSupervisor Engine"]
+        PortScan["Loopback Port Allocator<br/>(Scans 10000 - 20000)"]
+        TokenGen["HMAC Secret Generator<br/>(SPP_APP_TOKEN)"]
+        ProcSpawn["OS Process Spawner<br/>(proc_open / Windows CLI / POSIX)"]
+        HealthPoll["Health Check Monitor<br/>(cURL loopback polling)"]
+        Ledger["Runtime State Ledger<br/>(var/run/apps/*.state.json)"]
+    end
+
+    AS --> PortScan
+    AS --> TokenGen
+    AS --> ProcSpawn
+    ProcSpawn --> HealthPoll
+    HealthPoll --> Ledger
+
+    subgraph Guest_Daemons["Supervised Guest Daemons"]
+        D1["Python FastAPI (Port: 10001)"]
+        D2["Node.js Express (Port: 10002)"]
+        D3["Go Microservice (Port: 10003)"]
+    end
+
+    ProcSpawn -.-> D1
+    ProcSpawn -.-> D2
+    ProcSpawn -.-> D3
 ```
 
-This diagram represents **verified building blocks that can be composed**. It does not assert that one universal transport automatically connects every node.
+### Key Supervisor Capabilities:
 
-That qualification is important.
+1. **Dynamic Loopback Port Allocation**: Scans ports `10000–20000` to find a guaranteed free port. The allocated port is passed to the daemon command via the `{PORT}` placeholder (e.g. `uvicorn main:app --port {PORT}`).
+2. **Environment Variable Injection**: Injects `SPP_HOST=1`, `SPP_APP_ID`, `PORT`, `SPP_ROUTE_PREFIX`, `SPP_APP_TOKEN`, and `SPP_GATEWAY_URL`.
+3. **Cross-Platform Process Spawning**:
+   - On Windows: Uses background WScript/CMD wrappers to spawn detached processes with tracked PIDs.
+   - On Linux/macOS: Uses `nohup` and POSIX signal handling (`kill -0` for alive checks, `kill -15` for graceful termination).
+4. **State Persistence & Log Streaming**: Writes daemon metadata to `var/run/apps/{app_id}.state.json` and streams all stdout/stderr directly to `var/run/apps/{app_id}.log`.
 
----
+### CLI Supervisor Commands
 
-## 10.15 Keeping external systems out of the module tree
+Developers manage all multi-language daemons using high-level CLI commands:
 
-A common architectural mistake is to force every external dependency into the SPP module model.
+```bash
+# Start all multi-language daemons
+php spp.php app:start all
 
-A better decision process is:
+# Start a specific daemon
+php spp.php app:start ai_engine
 
-### Is it actually an SPP feature?
+# Check live operational status
+php spp.php app:status
 
-Use a module.
+# Inspect real-time stdout/stderr log stream
+php spp.php app:logs ai_engine --tail=50
 
-### Is it another independent application?
+# Restart daemon and reload configuration
+php spp.php app:restart ai_engine
 
-Use an application integration boundary.
+# Stop daemons gracefully
+php spp.php app:stop all
+```
 
-### Is it a specialized language/runtime service?
+### Request-Driven Applications vs. Supervised Background Daemons
 
-Use the appropriate polyglot bridge/service mechanism.
+`AppSupervisor` intelligently distinguishes between **request-driven applications** and **persistent background daemons**:
 
-### Is it a generic network service?
-
-Use an explicit API/integration client.
-
-This keeps boundaries honest.
-
----
-
-## 10.16 Security at integration boundaries
-
-The moment information leaves one runtime/application, you have a trust boundary.
-
-Do not assume:
-
-> “It is inside our infrastructure, therefore it is trusted.”
-
-The receiving system should have appropriate controls for the actual protocol, such as:
-
-- authentication;
-- authorization;
-- input validation;
-- payload/schema checks;
-- signature validation where applicable;
-- network controls;
-- timeout/failure handling;
-- audit logging.
-
-Which of these are implemented by a specific SPP adapter must be established from that adapter's source.
-
-The handbook does not claim a single universal “SPP integration security protocol”.
+1. **Request-Driven Applications (`type: php-fpm`, `php`, `static`, `spp`)**:
+   - Standard PHP web applications (such as WordPress, Drupal, or Laravel) and static SPAs do not maintain persistent TCP listener processes.
+   - When an HTTP request targets `/blog`, the web server (Apache/Nginx) or SPP's `SubpathGateway` dispatches the request on-demand to the local PHP-FPM worker pool or executes it in-process.
+   - In `/sppdev#apps` and the CLI status table, these applications display `Ready (PHP-FPM)`, `Ready (PHP Engine)`, or `Ready (Static)`. They do not require `▶ Start` or `⏹ Stop` lifecycle buttons because the PHP engine is always ready to handle incoming web traffic on demand.
+2. **Supervised Background Daemons (`type: python`, `node`, `go`, `rust`, `ruby` or any app with an explicit `command: ...`)**:
+   - Microservices written in Python (e.g. FastAPI/Uvicorn), Node.js (e.g. Express/Nest), or compiled binaries (Go/Rust) run as persistent background daemon processes listening on private loopback ports.
+   - `AppSupervisor` dynamically allocates ports (e.g. `10042`), spawns processes, polls health endpoints, tracks OS PIDs, streams logs to `var/run/apps/*.log`, and offers `Start`, `Stop`, and `Restart` lifecycle controls.
 
 ---
 
-## 10.17 Correlation and observability
+## 10.6 Ambient Sensing & Zero-Dependency Guest SDKs
 
-Enterprise integration becomes difficult to operate when one request crosses several systems and nobody can tell which operation belongs to which original request.
+Guest applications do not need heavy framework libraries to talk to SPP. SPP provides standalone, zero-dependency SDKs for Python, Node.js, and PHP.
 
-Where the source/transport implements correlation metadata, the handbook should preserve it and show how to trace it.
+### Python SDK (`spp/lib/mesh/python/spp_mesh.py`)
 
-Where the implementation does not provide such propagation, the handbook should not invent it as a framework guarantee.
+In a Python FastAPI application:
 
-This is another example of the source-evidence rule.
+```python
+from fastapi import FastAPI, Request
+from spp_mesh import SPPMesh
 
----
+app = FastAPI()
+mesh = SPPMesh()
 
-## 10.18 Failure is part of integration design
+# 1. Ambient Sensing
+if mesh.is_spp_managed():
+    print(f"🚀 Running under SPP at route: {mesh.route_prefix}")
 
-A local PHP method call may fail because of a programming error.
+# 2. Seamless Single Sign-On (SSO)
+@app.get("/api/profile")
+async def get_profile(request: Request):
+    # Validates HMAC-SHA256 signature against SPP_APP_TOKEN
+    user = mesh.get_auth_user(dict(request.headers))
+    if not user:
+        return {"error": "Unauthorized"}, 401
+    return {"message": f"Hello, {user['email']} (ID: {user['id']})"}
 
-A remote integration can fail because:
+# 3. Inter-App Service Calling (Invoking Peer Services)
+@app.post("/api/predict")
+async def predict(data: dict):
+    # Call another guest service or native SPP endpoint
+    chat_response = mesh.call_service("chat", "/api/notify", {"text": "Prediction complete!"})
+    
+    # Broadcast an event across the SPP event bus
+    mesh.publish_event("ai.prediction_completed", {"score": 98.5})
+    return {"status": "ok", "prediction": 98.5}
+```
 
-- the remote process is down;
-- the network is unavailable;
-- a timeout occurs;
-- serialization fails;
-- the remote service rejects the request;
-- a schema changed;
-- authentication expired.
+### Node.js SDK (`spp/lib/mesh/node/spp_mesh.js`)
 
-The enterprise architecture therefore needs explicit failure handling.
+In an Express or NestJS application:
 
-The exact behavior—retries, exceptions, fallback, queueing, or logging—must be documented from the selected bridge/service implementation.
+```javascript
+const express = require('express');
+const { SPPMesh } = require('./spp_mesh');
 
----
+const app = express();
+const mesh = new SPPMesh();
 
-## 10.19 Why polyglot does not automatically mean microservices
+app.get('/api/live-status', (req, res) => {
+    const user = mesh.getAuthUser(req.headers);
+    res.json({
+        spp_managed: mesh.isManaged,
+        active_user: user ? user.email : 'Anonymous',
+        route_prefix: mesh.routePrefix
+    });
+});
+```
 
-These terms are often confused.
+### Drop-In WordPress SSO Bridge
 
-**Polyglot** means multiple languages/runtimes.
-
-**Microservices** means independently deployable service boundaries with defined communication contracts and operational ownership.
-
-You can build a polyglot monolith-adjacent system without using microservices.
-
-You can also build a microservice architecture where every service uses the same language.
-
-SPP's bridge subsystem provides integration building blocks; it does not, by itself, force one organizational architecture.
-
----
-
-## 10.20 Coming from other ecosystems
-
-### Laravel / PHP
-
-Think of SPP's bridge/services as an explicit integration layer above ordinary PHP HTTP clients or process wrappers.
-
-### Spring Boot
-
-The adapter/factory idea will feel familiar. The key SPP-specific concern is the integration with Scheduler, Registry, modules, and SPP services.
-
-### .NET
-
-Think of a polyglot bridge as a boundary adapter, not as a class library reference inside PHP.
-
-### Node.js
-
-The browser/event-driven mindset may feel familiar, but an SPP bridge is crossing from PHP into another runtime, not merely calling another JavaScript module in the same process.
-
----
-
-## 10.21 Common beginner mistakes
-
-### Mistake 1 — Calling every cross-process call “IPC”
-
-Name the actual protocol: HTTP, WebSocket, queue, local process invocation, etc.
-
-### Mistake 2 — Assuming every language adapter behaves identically
-
-Each bridge implementation must be inspected separately.
-
-### Mistake 3 — Turning an external application into a module without reason
-
-Keep an external application's own runtime when that boundary is useful.
-
-### Mistake 4 — Trusting internal network traffic automatically
-
-Integration boundaries require explicit security decisions.
-
-### Mistake 5 — Mixing domain logic with bridge/protocol code
-
-Keep the transport/adapter boundary separate from application business logic.
+For WordPress applications hosted at `/blog`:
+1. Drop `spp/modules/optional/sppapps/plugins/wordpress/spp-sso-bridge.php` into `wp-content/plugins/`.
+2. When an authenticated SPP user navigates to `https://myserver.com/blog/`, the bridge verifies the HMAC user claims and logs them into WordPress instantly as Administrator or Subscriber. **Zero login screens, zero duplicate passwords!**
 
 ---
 
-## 10.22 Kernel Hacker: bridge architecture
+## 10.7 Sovereign Inter-App Service Mesh (`\SPP\Mesh`)
 
-The core polyglot family is organized around an interface/factory plus concrete bridge implementations.
+The SPP Service Mesh allows native PHP controllers, CQRS commands, workflows, and CLI scripts to invoke guest microservices directly:
 
-The deep-dive should trace:
+```php
+// 1. Invoke a Python FastAPI microservice from native PHP
+$prediction = \SPP\Mesh::call('ai_engine', '/api/predict', [
+    'student_id' => 101,
+    'features'   => [85, 92, 78]
+]);
 
-1. factory selection;
-2. bridge initialization;
-3. payload serialization;
-4. process/service invocation;
-5. response decoding;
-6. exception/error handling;
-7. worker/daemon integration; and
-8. cleanup/lifecycle behavior.
+// 2. Publish an event into the unified event bus
+\SPP\Mesh::publishEvent('student.evaluated', [
+    'student_id' => 101,
+    'prediction' => $prediction
+]);
 
-Only after those paths are traced should the handbook make language-specific claims.
+// 3. Discover all registered microservices across the entire server
+$services = \SPP\Mesh::listServices();
+```
 
-The same principle applies to external applications: inspect the actual integration adapter, routing bypass, controller/API, or contributed module rather than describing a generic “SPP external app protocol”.
+### Automatic Daemon Bootstrapping
+When `\SPP\Mesh::call('ai_engine', ...)` is called, the mesh checks if the target daemon is running. If stopped, it **boots the daemon on demand**, waits for the health check to pass, and forwards the request without failing!
 
-### Source map
+### CLI Service Mesh Commands
 
-- `spp/core/Polyglot/`
-- `spp/services/`
-- `spp/lib/polyglot/`
-- `spp/lib/python/`
-- `spp/lib/node/`
-- `spp/lib/go/`
-- `spp/lib/java/`
-- `spp/lib/dotnet/`
-- `spp/modules/contrib/`
-- `spp/docs/tutorials/integrating_external_apps.md`
-- polyglot/integration CLI commands
+```bash
+# Discover exposed microservice endpoints
+php spp.php mesh:services
+
+# Call an endpoint directly from the command line
+php spp.php mesh:call ai_engine /api/predict '{"student_id": 42}' --method=POST
+```
+
+---
+
+## 10.8 Unified Developer Studio (`/sppdev#apps` & `/sppdev#mesh`)
+
+To ensure developers do not have to hop between different browser tabs and terminals, all native and multi-language application management features are unified directly into `/sppdev#apps`.
+
+```mermaid
+flowchart TD
+    URL["/sppdev#apps (Developer Studio)"] --> TV["AppsView (spp/dev/js/views/apps.js)"]
+
+    subgraph Tab_Bar["Unified Navigation"]
+        T1["📱 Applications Tab"]
+        T2["🕸️ Service Mesh & Daemons Tab"]
+        T3["📦 Modules Registry"]
+        T4["🔄 Deployments & Lifecycle"]
+    end
+
+    TV --> Tab_Bar
+
+    subgraph Apps_Tab_Content["📱 Applications Tab Content"]
+        NativeTable["Native SPP Applications Table<br/>(Base App, Table Prefixes, Domain Scopes)"]
+        ForeignTable["Multi-Language Applications Table<br/>(Python, Node, PHP-FPM, Port, Status, 1-Click Start/Stop/Logs/RPC)"]
+    end
+
+    T1 --> Apps_Tab_Content
+
+    subgraph Mesh_Tab_Content["🕸️ Service Mesh Tab Content"]
+        StatCards["Metric Cards: Total Apps, Active Daemons, Exposed Services, Port Pool"]
+        SupervisorFleet["Process Supervisor Fleet Table with Batch Controls"]
+        RPCSandbox["Interactive RPC Sandbox (Method, Endpoint, JSON Payload Editor, Latency & Response)"]
+        EventBusInspector["Inter-App Event Bus Inspector & Synthetic Event Dispatcher"]
+    end
+
+    T2 --> Mesh_Tab_Content
+```
+
+### 1. Unified Application Inventory (`#apps`)
+- Displays native SPP apps and multi-language guest apps in one consolidated view.
+- Language badges (🐍 `Python`, 🟢 `Node.js`, 🐘 `PHP-FPM`, 🐹 `Go`, 📄 `Static SPA`).
+- Ingress link (`📁 /ai ↗`) and subdomain link (`🌐 ai.school.local`).
+- Supervisor status (`🟢 Running on Port 10001, PID 14208` or `🔴 Stopped`).
+- Inline actions: `▶️ Start`, `⏹️ Stop`, `🔄 Restart`, `📜 Logs`, `⚡ RPC`, `🌐 Open`.
+
+### 2. Service Mesh & Daemons Studio (`#apps?tab=mesh` or `#mesh`)
+- **Fleet Metrics**: Live counts of Total Apps, Active Daemons, Exposed Mesh Services, and Dynamic Port Pool (`10000 - 20000`).
+- **Batch Supervisor Controls**: `▶️ Start All`, `⏹️ Stop All`, `🔄 Refresh`.
+- **Interactive RPC Sandbox**: Select an application, pick an auto-discovered endpoint (e.g. `POST /api/predict`), edit JSON payload with auto-formatting, and execute live calls with latency (ms) and response inspection.
+- **Cross-App Event Bus Inspector**: Fire synthetic domain events and verify real-time propagation across native subscribers and guest microservices.
+
+---
+
+## 10.9 Production Web Server Synthesis (Apache, Nginx, Caddy)
+
+While SPP's internal gateway multiplexer (`SubpathGateway`) handles routing automatically during development or single-entry setups, production servers benefit from generating optimized web server configuration files:
+
+```bash
+php spp.php server:configure --domain=school.example.com --app=school
+```
+
+This command inspects `etc/apps.yml` and generates production virtual host files in `domains/_vhosts/`:
+
+- **Nginx (`nginx-school.example.com.conf`)**:
+  ```nginx
+  location /ai/ {
+      proxy_pass http://127.0.0.1:10042/;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-Prefix /ai;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+  }
+  ```
+- **Apache (`apache-school.example.com.conf`)**:
+  ```apache
+  ProxyPass /ai/ http://127.0.0.1:10042/
+  ProxyPassReverse /ai/ http://127.0.0.1:10042/
+  RequestHeader set X-Forwarded-Prefix "/ai"
+  ```
+- **Caddy (`caddy-school.example.com.conf`)**:
+  ```caddy
+  handle_path /ai/* {
+      reverse_proxy 127.0.0.1:10042
+  }
+  ```
+
+---
+
+## 10.10 Verification with Parikshak
+
+Every feature of the Multi-Language Application Integrator and Service Mesh is covered by comprehensive automated tests in SPP's primary native testing engine, **Parikshak** (`\SPPMod\Parikshak\SPPTestCase`):
+
+```bash
+php spp.php test tests/core/test.multi_language_app_mesh.php
+```
+
+```text
+Running tests for [school1]...
+✔ PASS Tests\Core\MultiLanguageAppMeshParikshakTest::testRoutePrefixAndSubdomainResolution
+✔ PASS Tests\Core\MultiLanguageAppMeshParikshakTest::testSubpathVirtualizerIngressHeadersAndSsoSigning
+✔ PASS Tests\Core\MultiLanguageAppMeshParikshakTest::testSubpathResponseRewriting
+✔ PASS Tests\Core\MultiLanguageAppMeshParikshakTest::testAppSupervisorPortAllocationAndRuntimeState
+✔ PASS Tests\Core\MultiLanguageAppMeshParikshakTest::testServiceMeshDiscoveryAndEventBus
+✔ PASS Tests\Core\MultiLanguageAppMeshParikshakTest::testAmbientPhpMeshClient
+✔ PASS Tests\Core\MultiLanguageAppMeshParikshakTest::testServerConfiguratorGeneratesSubpathRules
+✔ PASS Tests\Core\MultiLanguageAppMeshParikshakTest::testCommandBridgeAndDeveloperAdminMeshIntegration
+
+Test Run Summary:
+Total: 8, Passed: 8, Failed: 0 (100% Pass Rate)
+```
+
+---
+
+## 10.11 Common Beginner Mistakes
+
+1. **Mistake: Hardcoding Absolute URLs in Guest Applications**:
+   If your guest app renders `<a href="/dashboard">`, it forces the browser to the root domain. Always use relative links (`<a href="dashboard">`) or read the injected `X-Forwarded-Prefix` header.
+2. **Mistake: Storing Loopback Ports in Hardcoded Configs**:
+   Do not hardcode port numbers like `8000` or `5000`. Use the `{PORT}` placeholder in `etc/apps.yml` so `AppSupervisor` can dynamically assign available ports and prevent port collision conflicts.
+3. **Mistake: Hopping Between Multiple Terminal Windows**:
+   Do not run separate terminals for every microservice. Use `php spp.php app:start all` or the `/sppdev#apps` dashboard to supervise all daemons and stream their logs in one place.
+4. **Mistake: Bypassing the Gateway for Inter-App Communication**:
+   Do not make raw curl calls to hardcoded ports. Use `\SPP\Mesh::call($appId, $endpoint, $payload)` which handles automatic daemon boot-up, health verification, and distributed tracing context propagation.

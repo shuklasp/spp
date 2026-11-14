@@ -1478,15 +1478,21 @@ if (!function_exists('live_delete_entity')) {
 if (!function_exists('live_list_forms')) {
     function live_list_forms($la, $params)
     {
+        if (function_exists('live_Forms_List')) {
+            return live_Forms_List($la, $params);
+        }
         $appContext = $params['appname'] ?? 'default';
         $forms = [];
         $formDir = SPP_APP_DIR . "/etc/apps/{$appContext}/forms";
         if (is_dir($formDir)) {
-            foreach (glob($formDir . '/*.{yml,yaml}', GLOB_BRACE) as $file) {
+            foreach (glob($formDir . '/*.{yml,yaml,xml}', GLOB_BRACE) as $file) {
                 $forms[] = [
                     'name' => pathinfo($file, PATHINFO_FILENAME),
+                    'type' => strtoupper(pathinfo($file, PATHINFO_EXTENSION) ?: 'YML'),
                     'path' => relativizePath($file),
-                    'size' => filesize($file)
+                    'size' => (int)filesize($file),
+                    'modified' => date('Y-m-d H:i', filemtime($file)),
+                    'content' => file_get_contents($file) ?: ''
                 ];
             }
         }
@@ -1630,7 +1636,37 @@ if (!function_exists('live_list_modules')) {
             foreach ($manifests as $manifestPath) {
                 try {
                     $mod = new \SPP\Module($manifestPath);
-                    $modName = $mod->InternalName;
+                    $rawDeps = $mod->Dependencies ?? [];
+                    $normalizedDeps = [];
+                    if (is_array($rawDeps)) {
+                        foreach ($rawDeps as $depKey => $depVal) {
+                            if (is_array($depVal)) {
+                                foreach ($depVal as $subVal) {
+                                    if (is_string($subVal) || is_numeric($subVal)) {
+                                        $normalizedDeps[] = (string) $subVal;
+                                    }
+                                }
+                            } elseif (is_string($depVal) || is_numeric($depVal)) {
+                                if (is_string($depKey) && !is_numeric($depKey)) {
+                                    $normalizedDeps[] = "{$depKey} ({$depVal})";
+                                } else {
+                                    $normalizedDeps[] = (string) $depVal;
+                                }
+                            } elseif (is_string($depKey) && !is_numeric($depKey)) {
+                                $normalizedDeps[] = $depKey;
+                            }
+                        }
+                    } elseif (is_string($rawDeps)) {
+                        $parts = explode(',', $rawDeps);
+                        foreach ($parts as $p) {
+                            $p = trim($p);
+                            if ($p !== '') {
+                                $normalizedDeps[] = $p;
+                            }
+                        }
+                    }
+                    $normalizedDeps = array_values(array_unique($normalizedDeps));
+
                     $modules[] = [
                         'name' => $modName,
                         'public_name' => $mod->PublicName ?? $modName,
@@ -1640,7 +1676,7 @@ if (!function_exists('live_list_modules')) {
                         'path' => $manifestPath,
                         'module_category' => $mod->ModuleCategory ?? 'App Modules',
                         'description' => $mod->PublicDesc ?? '',
-                        'dependencies' => $mod->Dependencies ?? [],
+                        'dependencies' => $normalizedDeps,
                         'has_config' => !empty($mod->ConfigFile) || !empty($mod->ConfigVariables) || !empty($mod->Settings)
                     ];
                 } catch (\Exception $e) {
@@ -1710,20 +1746,41 @@ if (!function_exists('live_execute_scaffold')) {
     function live_execute_scaffold($la, $params)
     {
         $appContext = $params['appname'] ?? 'default';
-        $command = $params['command'] ?? '';
+        $command = $params['command'] ?? $params['cmd'] ?? '';
         $target = $params['target'] ?? '';
         $optionsRaw = $params['options'] ?? '';
 
+        if (!$target && !empty($params['args'])) {
+            $parts = preg_split('/\s+/', trim($params['args']));
+            $target = array_shift($parts) ?: '';
+            $optionsRaw = implode(' ', $parts);
+        }
+
         if (!$command || !$target) {
             return $la->setStatus('error')->notify("Command and Target are required.", "error");
+        }
+
+        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $target)) {
+            return $la->setStatus('error')->notify("Target must be an alphanumeric identifier.", "error");
         }
 
         $allowedCommands = [
             'make:app',
             'make:module',
             'make:entity',
+            'make:model',
             'make:controller',
             'make:scaffold',
+            'make:blade-scaffold',
+            'make:blade-project',
+            'make:livecomponent',
+            'make:wizard',
+            'make:form',
+            'make:migration',
+            'make:stream',
+            'make:partial',
+            'make:page',
+            'make:workflow',
             'make:service',
             'make:blade',
             'make:twig',
@@ -1749,12 +1806,34 @@ if (!function_exists('live_execute_scaffold')) {
         }
 
         try {
-            $cmdLine = "php " . escapeshellarg(SPP_BASE_DIR . '/spp.php') . " " . escapeshellarg($command) . " " . escapeshellarg($target) . $optionsStr . " 2>&1";
+            if ($command === 'make:app') {
+                $appType = $params['app_type'] ?? $params['mode'] ?? 'barebones';
+                if (str_contains($optionsRaw, '--api')) $appType = 'api';
+                elseif (str_contains($optionsRaw, '--showcase') || str_contains($optionsRaw, 'mixed')) $appType = 'mixed';
+                elseif (str_contains($optionsRaw, '--barebones')) $appType = 'barebones';
+
+                $baseUrl = $params['base_url'] ?? ('/' . strtolower($target));
+                $tablePrefix = $params['table_prefix'] ?? (strtolower($target) . '_');
+
+                $cmdLine = "php " . escapeshellarg(SPP_BASE_DIR . '/spp.php') . " make:app " . escapeshellarg($target) . " " . escapeshellarg($appType) . " " . escapeshellarg($baseUrl) . " " . escapeshellarg($tablePrefix) . " 2>&1";
+            } else {
+                $cmdLine = "php " . escapeshellarg(SPP_BASE_DIR . '/spp.php') . " " . escapeshellarg($command) . " " . escapeshellarg($target) . $optionsStr . " 2>&1";
+            }
             $output = shell_exec($cmdLine);
             return $la->setData(['output' => $output])->notify("Command executed successfully.", "success");
         } catch (\Exception $e) {
             return $la->setStatus('error')->setData(['output' => $e->getMessage()])->notify("Command execution failed.", "error");
         }
+    }
+}
+
+if (!function_exists('live_command_execute')) {
+    function live_command_execute($la, $params)
+    {
+        if (empty($params['target']) && !empty($params['name'])) {
+            $params['target'] = $params['name'];
+        }
+        return live_execute_scaffold($la, $params);
     }
 }
 

@@ -35,8 +35,8 @@ class ApiController
         $cacheFile = $cacheDir . "/index_{$projectId}.php";
         
         if (!file_exists($cacheFile)) {
-            if (class_exists('\SPPDocs\classes\SPPCMS')) {
-                \SPPDocs\classes\SPPCMS::buildIndex($this->config['projects'][$projectId], $projectId);
+            if (class_exists('\App\SPPDocs\Classes\SPPCMS')) {
+                \App\SPPDocs\Classes\SPPCMS::buildIndex($this->config['projects'][$projectId], $projectId);
             }
         }
         

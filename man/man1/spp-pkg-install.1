@@ -1,24 +1,47 @@
-.TH SPP-pkg-install 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-PKG-INSTALL 1 "October 2026" "SPP Framework" "User Commands"
 .SH NAME
-spp-pkg-install \- Download and install a native SPP app or external package from a URL, local path, or central registry
+spp-pkg-install \- Universal Installer for SPP Applications and Modules
 .SH SYNOPSIS
 .B php spp.php pkg:install
-[OPTIONS]
+\fIsourceOrName\fR
+[\fB--as=\fIcustomName\fR]
+[\fB--scope=\fIsystem|app\fR]
+[\fB--app=\fItargetApp\fR]
+[\fB--version=\fIversion\fR]
+[\fB--repo=\fIrepoNameOrUrl\fR]
+[\fB--force\fR]
 .SH DESCRIPTION
-Download and install a native SPP app or external package from a URL, local path, or central registry
-.PP
-Usage: php spp.php pkg:install <source_or_name> <app_name> [--type=native|external] [--route=/path]
-.br
-
-.PP
+\fBpkg:install\fR downloads and installs SPP applications and modules into an existing SPP environment.
+It seamlessly resolves packages from the central registry (\fBsatyalab.net\fR), CDNs, GitHub releases,
+direct URLs, or local archives, validates SHA-256 signatures, provisions directory trees, and updates system manifests.
 .SH OPTIONS
-No explicit options statically detected.
+.TP
+.BR \fIsourceOrName\fR
+Package name (e.g. 'satyalab/school1'), direct URL, or local archive path.
+.TP
+.BR --as=\fIcustomName\fR
+Override the installed application or module folder name.
+.TP
+.BR --scope=\fIsystem|app\fR
+Module installation scope: system-wide or scoped to a specific application.
+.TP
+.BR --app=\fItargetApp\fR
+Target application identifier for app-level modules.
+.TP
+.BR --version=\fIversion\fR
+Specify target release version. Defaults to latest.
+.TP
+.BR --repo=\fIrepoNameOrUrl\fR
+Repository identifier or URL. Defaults to 'satyalab'.
+.TP
+.BR --force
+Overwrite existing files if the application/module already exists.
 .SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Performs raw filesystem modifications (create/write/delete).
-.br
-\(bu Executes external system binaries or shell commands.
-.br
-\(bu Instantiates key components: \ZipArchive.
-.br
+.IP 1.
+Downloads package to \fBvar/cache/packages/\fR and verifies cryptographic SHA-256 integrity.
+.IP 2.
+Extracts files into \fBsrc/\fR, \fBetc/apps/\fR, and \fBresources/\fR (apps) or \fBspp/modules/\fR (modules).
+.IP 3.
+Registers applications in \fBglobal-settings.yml\fR or modules in \fBmodules.yml\fR.
+.IP 4.
+Executes automated database migrations and setup routines.

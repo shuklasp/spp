@@ -1,7 +1,17 @@
-.TH "xdb:query" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "xdb:query" 1 "November 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-xdb:query \- Execute a SQL or XPath query on the XML database
+xdb:query \- Execute a SQL, XPath, XQuery 3.1, or XQUF query on the XML database
 .SH SYNOPSIS
 .B php spp.php xdb:query
+\fI"<query_string>"\fR [\fB\-\-type\fR=\fIsql|xpath|xquery|xquf\fR] [\fB\-\-json\fR]
 .SH DESCRIPTION
-Execute a SQL or XPath query on the XML database
+\fBxdb:query\fR executes SQL queries, XPath selections, native W3C XQuery 3.1 FLWOR expressions, and XQuery Update Facility (XQUF) mutations against SPP XDB storage.
+.SH OPTIONS
+.TP
+.BI \-\-type= type
+Specify the query execution dialect: \fBsql\fR (default), \fBxpath\fR, \fBxquery\fR, or \fBxquf\fR.
+.TP
+.B \-\-json
+Output result sets or execution responses formatted as JSON.
+.SH UNDER THE HOOD
+Instantiates \fBSPP_XDB\fR and routes query strings to the appropriate processing subsystem (\fBXMLEngine\fR, \fBXQueryEngine\fR, or \fBXQUFEngine\fR). Writes transactional mutations to the MVCC Write-Ahead Log (\fB_wal.jsonl\fR).

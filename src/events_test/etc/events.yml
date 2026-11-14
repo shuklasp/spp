@@ -1,3 +1,0 @@
-events:
-  user.login:
-    - App\Events_test\Events\UserLoginHandler

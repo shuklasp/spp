@@ -310,8 +310,20 @@ class SPPConfig extends \SPP\SPPObject
 
     private static function getFromApp(string $key, string $appname): mixed
     {
-        $app = \SPP\App::getApp($appname);
-        $file = $app->getAppConfDir() . SPP_DS . 'settings.yml';
+        $app = \SPP\App::getInstance($appname);
+        if ($app) {
+            $confDir = $app->getAppConfDir();
+        } else {
+            $etcPath = \SPP\App::getAppConf('etc_path', $appname);
+            if ($etcPath) {
+                $base = defined('SPP_APP_DIR') ? SPP_APP_DIR : (defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : getcwd());
+                $confDir = rtrim($base, '/\\') . SPP_DS . ltrim(str_replace(['/', '\\'], SPP_DS, (string)$etcPath), SPP_DS);
+            } else {
+                $etcBase = defined('APP_ETC_DIR') ? APP_ETC_DIR : (defined('SPP_APP_DIR') ? SPP_APP_DIR . SPP_DS . 'etc' : 'etc');
+                $confDir = $etcBase . SPP_DS . 'apps' . SPP_DS . $appname;
+            }
+        }
+        $file = $confDir . SPP_DS . 'settings.yml';
         if (!file_exists($file)) {
             return null;
         }
@@ -341,8 +353,20 @@ class SPPConfig extends \SPP\SPPObject
 
     private static function putToApp(string $key, mixed $value, string $appname): void
     {
-        $app = \SPP\App::getApp($appname);
-        $file = $app->getAppConfDir() . SPP_DS . 'settings.yml';
+        $app = \SPP\App::getInstance($appname);
+        if ($app) {
+            $confDir = $app->getAppConfDir();
+        } else {
+            $etcPath = \SPP\App::getAppConf('etc_path', $appname);
+            if ($etcPath) {
+                $base = defined('SPP_APP_DIR') ? SPP_APP_DIR : (defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : getcwd());
+                $confDir = rtrim($base, '/\\') . SPP_DS . ltrim(str_replace(['/', '\\'], SPP_DS, (string)$etcPath), SPP_DS);
+            } else {
+                $etcBase = defined('APP_ETC_DIR') ? APP_ETC_DIR : (defined('SPP_APP_DIR') ? SPP_APP_DIR . SPP_DS . 'etc' : 'etc');
+                $confDir = $etcBase . SPP_DS . 'apps' . SPP_DS . $appname;
+            }
+        }
+        $file = $confDir . SPP_DS . 'settings.yml';
         $data = self::loadYaml($file);
         self::setNestedValue($data, $key, $value);
         self::saveYaml($file, $data);
@@ -397,8 +421,20 @@ class SPPConfig extends \SPP\SPPObject
 
         // Flatten App settings
         try {
-            $app = \SPP\App::getApp($appname);
-            $appFile = $app->getAppConfDir() . SPP_DS . 'settings.yml';
+            $app = \SPP\App::getInstance($appname);
+        if ($app) {
+            $confDir = $app->getAppConfDir();
+        } else {
+            $etcPath = \SPP\App::getAppConf('etc_path', $appname);
+            if ($etcPath) {
+                $base = defined('SPP_APP_DIR') ? SPP_APP_DIR : (defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : getcwd());
+                $confDir = rtrim($base, '/\\') . SPP_DS . ltrim(str_replace(['/', '\\'], SPP_DS, (string)$etcPath), SPP_DS);
+            } else {
+                $etcBase = defined('APP_ETC_DIR') ? APP_ETC_DIR : (defined('SPP_APP_DIR') ? SPP_APP_DIR . SPP_DS . 'etc' : 'etc');
+                $confDir = $etcBase . SPP_DS . 'apps' . SPP_DS . $appname;
+            }
+        }
+            $appFile = $confDir . SPP_DS . 'settings.yml';
             if (file_exists($appFile)) {
                 $appData = self::loadYaml($appFile);
                 foreach ($appData as $k => $v) {
@@ -449,8 +485,20 @@ class SPPConfig extends \SPP\SPPObject
             }
         }
         try {
-            $app = \SPP\App::getApp($appname);
-            $appFile = $app->getAppConfDir() . SPP_DS . 'settings.yml';
+            $app = \SPP\App::getInstance($appname);
+        if ($app) {
+            $confDir = $app->getAppConfDir();
+        } else {
+            $etcPath = \SPP\App::getAppConf('etc_path', $appname);
+            if ($etcPath) {
+                $base = defined('SPP_APP_DIR') ? SPP_APP_DIR : (defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : getcwd());
+                $confDir = rtrim($base, '/\\') . SPP_DS . ltrim(str_replace(['/', '\\'], SPP_DS, (string)$etcPath), SPP_DS);
+            } else {
+                $etcBase = defined('APP_ETC_DIR') ? APP_ETC_DIR : (defined('SPP_APP_DIR') ? SPP_APP_DIR . SPP_DS . 'etc' : 'etc');
+                $confDir = $etcBase . SPP_DS . 'apps' . SPP_DS . $appname;
+            }
+        }
+            $appFile = $confDir . SPP_DS . 'settings.yml';
             if (file_exists($appFile)) {
                 $appData = self::loadYaml($appFile);
                 foreach ($appData as $k => $v) {
@@ -475,8 +523,20 @@ class SPPConfig extends \SPP\SPPObject
 
         switch ($type) {
             case 'app':
-                $app = \SPP\App::getApp($appname);
-                $file = $app->getAppConfDir() . SPP_DS . 'settings.yml';
+                $app = \SPP\App::getInstance($appname);
+        if ($app) {
+            $confDir = $app->getAppConfDir();
+        } else {
+            $etcPath = \SPP\App::getAppConf('etc_path', $appname);
+            if ($etcPath) {
+                $base = defined('SPP_APP_DIR') ? SPP_APP_DIR : (defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : getcwd());
+                $confDir = rtrim($base, '/\\') . SPP_DS . ltrim(str_replace(['/', '\\'], SPP_DS, (string)$etcPath), SPP_DS);
+            } else {
+                $etcBase = defined('APP_ETC_DIR') ? APP_ETC_DIR : (defined('SPP_APP_DIR') ? SPP_APP_DIR . SPP_DS . 'etc' : 'etc');
+                $confDir = $etcBase . SPP_DS . 'apps' . SPP_DS . $appname;
+            }
+        }
+                $file = $confDir . SPP_DS . 'settings.yml';
                 $data = self::loadYaml($file);
                 self::unsetNestedValue($data, $realKey);
                 self::saveYaml($file, $data);

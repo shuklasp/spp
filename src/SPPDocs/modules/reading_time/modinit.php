@@ -2,8 +2,9 @@
 
 namespace AppMod\SPPDocs\ReadingTime;
 
-class ReadingTimeModule
-{
+if (!class_exists(__NAMESPACE__ . '\\ReadingTimeModule', false)) {
+    class ReadingTimeModule
+    {
     /**
      * Hook into document rendering data alter.
      */
@@ -25,14 +26,15 @@ class ReadingTimeModule
     /**
      * Hook to provide block info.
      */
-    public function hook_block_info()
-    {
-        return [
-            'reading_time_badge' => [
-                'title' => 'Reading Time Badge',
-                'description' => 'Displays reading duration and total word count badge',
-            ]
-        ];
+        public function hook_block_info()
+        {
+            return [
+                'reading_time_badge' => [
+                    'title' => 'Reading Time Badge',
+                    'description' => 'Displays reading duration and total word count badge',
+                ]
+            ];
+        }
     }
 }
 

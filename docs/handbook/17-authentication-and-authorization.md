@@ -368,6 +368,19 @@ The framework provides building blocks; application/domain policy still decides 
 
 ---
 
+## 17.20 Sovereign Publisher Identity & Content Moderation
+
+In distributed and community-driven platforms (such as SatyaLab Store & SPPDocs), identity extends beyond internal employees to external package publishers and contributors:
+
+1. **Self-Service Publisher Registration**: Public registration (`/store/register`) validates credentials, creates accounts via `UserService::createUser()`, and computes cryptographically secure bcrypt password hashes (`PASSWORD_DEFAULT`).
+2. **Account Status Lifecycle**: Accounts transition across `active`, `suspended`, and `banned` states. Suspended accounts are barred at the authentication gate before any session state is initialized.
+3. **Centralized Content Moderation Queue (`/admin/moderation`)**: Administrators can audit public projects and packages, suspend non-compliant submissions with explicit audit reasoning, or promote high-quality software to the featured spotlight.
+4. **Root Administrator Protection Shield**: The framework strictly rejects attempts to suspend, deactivate, or demote the root `admin` user, preventing irreversible administrative lockouts.
+
+*(For full architecture, workflows, and code examples, see [Chapter 72 — Sovereign App Store, Publisher Governance, and Bare-Metal Linux Operations](72-sovereign-store-user-governance-and-baremetal-telemetry.md).)*
+
+---
+
 ## Kernel Hacker note
 
 The current SPPAuth implementation is best understood as a **facade + guard + rights/role data model**.

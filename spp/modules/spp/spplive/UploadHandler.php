@@ -12,7 +12,7 @@ class UploadHandler {
 
         $maxSize = defined('SPP_LIVE_MAX_UPLOAD_SIZE') ? SPP_LIVE_MAX_UPLOAD_SIZE : 10485760;
         $deniedMimes = ['application/x-php', 'application/x-httpd-php', 'text/x-php'];
-        $deniedExts = ['php', 'phtml', 'phar', 'php3', 'php4', 'php5', 'phps', 'php7'];
+        $deniedExts = ['php', 'phtml', 'phar', 'php3', 'php4', 'php5', 'phps', 'php7', 'php8', 'pht', 'phpt', 'inc', 'cgi', 'pl', 'shtml', 'sh', 'bash', 'exe'];
 
         $uploadDir = defined('SPP_BASE_DIR') ? SPP_BASE_DIR . '/var/tmp/spplive_uploads' : '/tmp/spplive_uploads';
         $useS3 = defined('SPP_LIVE_UPLOAD_DISK') && SPP_LIVE_UPLOAD_DISK === 's3' && class_exists('\SPPMod\SPPStorage\S3Adapter');
@@ -38,7 +38,7 @@ class UploadHandler {
                     continue;
                 }
 
-                $mimeType = mime_content_type($tmpNames[$i]);
+                $mimeType = function_exists('mime_content_type') ? @mime_content_type($tmpNames[$i]) : false;
                 if ($mimeType && in_array(strtolower((string)$mimeType), $deniedMimes)) {
                     continue;
                 }

@@ -48,11 +48,14 @@ class SPPLive extends \SPP\SPPObject
 
         // Admin-only topics
         if (str_starts_with($topic, 'admin_')) {
+            if (!empty($_SESSION['spp_admin_user']) || !empty($_SESSION['spp_admin_fallback'])) {
+                return true;
+            }
             if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth')) {
                 return \SPPMod\SPPAuth\SPPAuth::isLoggedIn() && \SPPMod\SPPAuth\SPPAuth::hasRole(1); // Assuming 1 is admin
             }
             // Fallback for dev mode
-            return defined('SPP_DEBUG') && SPP_DEBUG;
+            return (defined('SPP_DEBUG') && SPP_DEBUG) || (defined('SPP_DEV_MODE') && SPP_DEV_MODE);
         }
 
         // User-specific topics

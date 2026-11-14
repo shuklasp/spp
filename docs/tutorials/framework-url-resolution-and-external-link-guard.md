@@ -5,7 +5,7 @@
 When developing web applications, few bugs are as frustrating and common as broken hyperlinks. In multi-tenant, sub-directory routed environments (such as `http://localhost/school1/sppdocs/`), hyperlinks generally fall into two distinct categories:
 
 1. **Internal Application Routes**: Relative or application-scoped paths (e.g. `issues`, `milestones/view`, `admin/login`) that must be routed relative to the application base URI (`/school1/sppdocs/issues`).
-2. **External Web Resources**: Third-party domains, repositories, documentation sites, and community portals (e.g. `https://github.com/shuklasp/spp`, `https://satyalab.com`).
+2. **External Web Resources**: Third-party domains, repositories, documentation sites, and community portals (e.g. `https://github.com/shuklasp/spp`, `https://example.com`).
 
 ### The "Relative URL Trap"
 In HTML, if a link target is rendered without a leading protocol scheme (such as `http://` or `https://`), every modern web browser treats the target as a **relative path** against the current directory!
@@ -48,10 +48,10 @@ The SPP URL subsystem is anchored by `\SPP\Core\Url` (aliased universally as `\S
                   │                    ┌────────────────┴───────────────┐
                   │                    │                                │
                   │            Internal Route                   External Domain
-                  │         ('issues', '/admin')            ('satyalab.com', 'foo.org')
+                  │         ('issues', '/admin')            ('example.com', 'foo.org')
                   │                    │                                │
                   │       Prepend Application Base            Prepend Default Scheme
-                  │     (/school1/sppdocs/issues)             (https://satyalab.com)
+                  │     (/school1/sppdocs/issues)             (https://example.com)
                   │                    │                                │
                   └────────────────────┼────────────────────────────────┘
                                        │
@@ -149,7 +149,7 @@ Included automatically during framework boot (`sppinit.php`):
 $admin = url('admin/roles', 'SPPDocs');
 
 // external_url($url, $defaultScheme)
-$site = external_url('satyalab.com');
+$site = external_url('example.com');
 ```
 
 ### SPPBlade Directives

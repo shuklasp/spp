@@ -1,0 +1,9 @@
+module:
+  name: sppcache
+  version: "1.0.0"
+  type: module
+  compulsory: true
+  publicname: "SPP Cache Engine"
+  publicdesc: "Centralized caching layer with File, Redis, and Array drivers."
+  category: "Core Required"
+  author: "SPP Framework"

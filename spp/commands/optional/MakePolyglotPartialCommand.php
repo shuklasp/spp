@@ -9,7 +9,7 @@ namespace SPP\CLI\Commands;
 class MakePolyglotPartialCommand extends BaseMakeCommand
 {
     protected string $name = 'make:polyglot-partial';
-    protected string $description = 'Scaffold a new external polyglot partial service file (Python/Node/Go)';
+    protected string $description = 'Scaffold a new external polyglot partial service file for any registered language';
 
     
     public function isCLIOnly(): bool
@@ -43,6 +43,18 @@ class MakePolyglotPartialCommand extends BaseMakeCommand
         $fileName = $name;
         $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
+        if (class_exists('\\SPP\\Core\\Polyglot\\LanguageRegistry')) {
+            $driver = \SPP\Core\Polyglot\LanguageRegistry::getDriver($lang ?: ($ext ?: 'python'));
+            if ($driver) {
+                $lang = $driver['id'];
+                $defaultExt = $driver['extensions'][0] ?? 'py';
+                if (!$ext || !in_array($ext, $driver['extensions'] ?? [])) {
+                    $fileName = pathinfo($fileName, PATHINFO_FILENAME) . '.' . $defaultExt;
+                    $ext = $defaultExt;
+                }
+            }
+        }
+
         if (!$lang) {
             if ($ext === 'py') {
                 $lang = 'python';
@@ -54,17 +66,6 @@ class MakePolyglotPartialCommand extends BaseMakeCommand
                 $lang = 'python';
                 $fileName .= '.py';
                 $ext = 'py';
-            }
-        } else {
-            if ($lang === 'python' && $ext !== 'py') {
-                $fileName .= '.py';
-                $ext = 'py';
-            } elseif ($lang === 'node' && $ext !== 'js') {
-                $fileName .= '.js';
-                $ext = 'js';
-            } elseif ($lang === 'go' && $ext !== 'go') {
-                $fileName .= '.go';
-                $ext = 'go';
             }
         }
         
@@ -137,7 +138,7 @@ function renderPartial(args = {}) {
 
 module.exports = { renderPartial };
 PARTIAL;
-        } else {
+        } elseif ($lang === 'go') {
             $content = <<<'PARTIAL'
 // External Polyglot View Partial Service: {{PARTIAL_NAME}}
 // Context: {{CONTEXT}}
@@ -180,6 +181,22 @@ func RenderPartial(args map[string]interface{}) string {
 
 	return strings.TrimSpace(html)
 }
+PARTIAL;
+        } else {
+            $content = <<<PARTIAL
+// External Polyglot View Partial Service: {{PARTIAL_NAME}} ({$lang})
+// Context: {{CONTEXT}}
+// Designed to be invoked via ViewController::renderPolyglotPartial or @polyglotpartial
+
+<div class="spp-partial-container polyglot {$lang}" id="polyglot-{{PARTIAL_NAME}}">
+    <div class="partial-header">
+        <h4>{{PARTIAL_NAME}} ({$lang} Service)</h4>
+        <span class="badge badge-primary">{{CONTEXT}}</span>
+    </div>
+    <div class="partial-body">
+        <p>Rendered dynamically via the SPP Universal Polyglot 2.0 {$lang} driver.</p>
+    </div>
+</div>
 PARTIAL;
         }
 

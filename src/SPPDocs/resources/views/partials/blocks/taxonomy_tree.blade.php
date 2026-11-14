@@ -12,8 +12,8 @@
                 <ul style="list-style: none; padding-left: 1.25rem; margin: 0.3rem 0 0 0;">
                     @foreach($term['children'] as $child)
                     <li style="margin-bottom: 0.25rem;">
-                        <a href="{{ \SPP\App::getBaseUrl() }}/project/{{ rawurlencode($project_id) }}/taxonomy/{{ rawurlencode($block['vocab'] ?? 'categories') }}/{{ rawurlencode($child['slug']) }}" style="color: var(--vp-c-text-2); text-decoration: none; font-size: 0.8rem;">
-                            ↳ {{ $child['name'] }}
+                        <a href="{{ \SPP\App::getBaseUrl() }}/project/{{ rawurlencode($project_id) }}/taxonomy/{{ rawurlencode($block['vocab'] ?? 'categories') }}/{{ rawurlencode($child['slug']) }}" style="color: var(--vp-c-text-2); text-decoration: none; font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem;">
+                            <span style="opacity: 0.55; font-size: 0.85rem;">&rdsh;</span> {{ $child['name'] }}
                         </a>
                     </li>
                     @endforeach

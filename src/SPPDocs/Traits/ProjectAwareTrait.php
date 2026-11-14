@@ -11,46 +11,254 @@ use Symfony\Component\Yaml\Yaml;
 trait ProjectAwareTrait
 {
     protected array $config = ['projects' => []];
+    protected ?array $project = null;
+
+    protected function safeParseYaml(string $filePath): array
+    {
+        if (!file_exists($filePath)) {
+            return [];
+        }
+        $raw = @file_get_contents($filePath);
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+        try {
+            return (array)Yaml::parse($raw);
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
 
     protected function loadProjectConfig(): void
     {
         $configFile = __DIR__ . '/../etc/sppdocs.yml';
         $this->config = ['projects' => []];
-        
+        $baseDir = defined('APP_BASE_DIR') ? APP_BASE_DIR : (defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : getcwd());
+        $normBase = str_replace('\\', '/', $baseDir);
+
         if (file_exists($configFile)) {
-            $mainConfig = Yaml::parseFile($configFile);
+            $mainConfig = $this->safeParseYaml($configFile);
             if (isset($mainConfig['projects']) && is_array($mainConfig['projects'])) {
                 foreach ($mainConfig['projects'] as $id => $projectConfigPath) {
-                    if (strpos($projectConfigPath, 'C:/') === 0 || strpos($projectConfigPath, 'c:/') === 0) {
-                        $projectConfigPath = str_replace(['C:/projects/apache/school1/', 'c:/projects/apache/school1/'], '', $projectConfigPath);
+                    $normPath = str_replace('\\', '/', (string)$projectConfigPath);
+                    $normPath = str_ireplace($normBase . '/', '', $normPath);
+
+                    if (!str_starts_with($normPath, '/') && !str_contains($normPath, ':')) {
+                        $resolvedPath = rtrim($baseDir, '/\\') . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, ltrim($normPath, '/'));
+                    } else {
+                        $resolvedPath = $normPath;
                     }
-                    if (!str_starts_with($projectConfigPath, '/') && !str_contains($projectConfigPath, ':\\')) {
-                        $projectConfigPath = dirname(SPP_BASE_DIR) . '/' . $projectConfigPath;
+
+                    if (file_exists($resolvedPath)) {
+                        $parsed = $this->safeParseYaml($resolvedPath);
+                        $parsed['_config_path'] = $resolvedPath;
+                        $this->config['projects'][$id] = $this->normalizeProjectMetadata($id, $parsed);
                     }
-                    if (file_exists($projectConfigPath)) {
-                        $this->config['projects'][$id] = Yaml::parseFile($projectConfigPath);
-                        $this->config['projects'][$id]['_config_path'] = $projectConfigPath;
-                    }
+                }
+            }
+        }
+
+        // Auto-discover dynamic/gitignored projects stored in data/projects/*/project.yml
+        $dataProjectsDir = __DIR__ . '/../data/projects';
+        if (is_dir($dataProjectsDir)) {
+            $entries = scandir($dataProjectsDir);
+            foreach ($entries as $entry) {
+                if ($entry === '.' || $entry === '..' || !is_dir($dataProjectsDir . '/' . $entry)) {
+                    continue;
+                }
+                $dynYaml = $dataProjectsDir . '/' . $entry . '/project.yml';
+                if (file_exists($dynYaml) && !isset($this->config['projects'][$entry])) {
+                    $parsed = $this->safeParseYaml($dynYaml);
+                    $parsed['_config_path'] = $dynYaml;
+                    $this->config['projects'][$entry] = $this->normalizeProjectMetadata($entry, $parsed);
                 }
             }
         }
     }
 
     /**
+     * Standardizes project metadata with defaults conforming to SatyaLab project model.
+     */
+    protected function normalizeProjectMetadata(string $id, array $data): array
+    {
+        $data['id'] = $id;
+        $data['type'] = strtolower($data['type'] ?? 'docs'); // 'docs' | 'app' | 'module'
+        $data['visibility'] = strtolower($data['visibility'] ?? 'public'); // 'public' | 'personal' | 'group'
+        $data['creator'] = $data['creator'] ?? 'admin';
+        $data['is_archived'] = !empty($data['is_archived']) || ($data['status'] ?? '') === 'archived';
+        $data['status'] = $data['is_archived'] ? 'archived' : ($data['status'] ?? 'active');
+        $data['is_featured'] = !empty($data['is_featured']) || !empty($data['moderation']['is_featured']);
+        $data['demo_url'] = $data['demo_url'] ?? ($data['links']['website'] ?? '');
+        $data['repo_url'] = $data['repo_url'] ?? ($data['links']['source'] ?? '');
+        $data['package_name'] = $data['package_name'] ?? '';
+        $data['members'] = $data['members'] ?? [];
+        $data['moderation'] = $data['moderation'] ?? [];
+        return $data;
+    }
+
+    /**
+     * Determine if a given user can view a specific project based on its visibility and moderation status.
+     */
+    public function canUserViewProject(string $projectId, array $project, ?string $username = null): bool
+    {
+        $isGlobalAdmin = $username ? \App\SPPDocs\Services\PermissionManager::isGlobalAdmin($username) : false;
+        if ($isGlobalAdmin) {
+            return true; // Global admin can see everything
+        }
+
+        // Suspended projects are hidden from public and non-admin/non-creator users
+        $status = strtolower($project['status'] ?? 'active');
+        if ($status === 'suspended') {
+            $isCreator = $username && strcasecmp($project['creator'] ?? '', $username) === 0;
+            return $isCreator;
+        }
+
+        $visibility = strtolower($project['visibility'] ?? 'public');
+        if ($visibility === 'personal') {
+            if (!$username) {
+                return false; // Guests cannot view personal projects
+            }
+            return strcasecmp($project['creator'] ?? '', $username) === 0;
+        }
+
+        if ($visibility === 'group' || $visibility === 'closed_group') {
+            if (!$username) {
+                return false; // Guests cannot view closed group projects
+            }
+            $isCreator = strcasecmp($project['creator'] ?? '', $username) === 0;
+            if ($isCreator) {
+                return true;
+            }
+            // Check members/team list
+            if (isset($project['members'][$username])) {
+                return true;
+            }
+            $team = (array)($project['team'] ?? []);
+            foreach ($team as $member) {
+                if (is_string($member) && strcasecmp($member, $username) === 0) {
+                    return true;
+                }
+                if (is_array($member) && strcasecmp($member['user'] ?? ($member['username'] ?? ''), $username) === 0) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Determine if a user has management/configuration authority over a project.
+     * Creators, designated project admins, and Global Admins have management rights.
+     */
+    public function canUserManageProject(string $projectId, array $project, ?string $username = null): bool
+    {
+        if (!$username) {
+            return false;
+        }
+        if (\App\SPPDocs\Services\PermissionManager::isGlobalAdmin($username)) {
+            return true;
+        }
+        if (strcasecmp($project['creator'] ?? '', $username) === 0) {
+            return true;
+        }
+        if (\App\SPPDocs\Services\PermissionManager::isProjectAdmin($projectId, $username)) {
+            return true;
+        }
+        if (!empty($project['members'][$username])) {
+            $role = is_array($project['members'][$username]) ? ($project['members'][$username][0] ?? '') : $project['members'][$username];
+            if (in_array(strtolower($role), ['admin', 'owner', 'maintainer'], true)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Resolves a flexible project identifier (e.g. 'demo app', 'DEMO-APP', 'My Demo App', 'demo-app')
+     * to the canonical project key registered in sppdocs.yml.
+     */
+    public function findProjectId(?string $projectId): ?string
+    {
+        if (empty($this->config['projects'])) {
+            $this->loadProjectConfig();
+        }
+
+        if ($projectId === null || trim($projectId) === '') {
+            return null;
+        }
+
+        $trimmed = trim($projectId, " \t\n\r\0\x0B/");
+        if ($trimmed === '') {
+            return null;
+        }
+
+        // 1. Direct exact match
+        if (isset($this->config['projects'][$trimmed])) {
+            return $trimmed;
+        }
+
+        // 2. Direct case-insensitive key match
+        foreach ($this->config['projects'] as $key => $proj) {
+            if (strcasecmp($key, $trimmed) === 0) {
+                return $key;
+            }
+        }
+
+        // 3. Slugified comparison (replaces spaces, underscores, and special characters with hyphens)
+        $slug = strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', $trimmed), '-'));
+        if ($slug !== '') {
+            if (isset($this->config['projects'][$slug])) {
+                return $slug;
+            }
+            foreach ($this->config['projects'] as $key => $proj) {
+                $keySlug = strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', $key), '-'));
+                if ($keySlug === $slug) {
+                    return $key;
+                }
+            }
+        }
+
+        // 4. Project title match
+        foreach ($this->config['projects'] as $key => $proj) {
+            if (!empty($proj['title'])) {
+                if (strcasecmp($proj['title'], $trimmed) === 0) {
+                    return $key;
+                }
+                $titleSlug = strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', $proj['title']), '-'));
+                if ($slug !== '' && $titleSlug === $slug) {
+                    return $key;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Resolves the active project ID from parameter, query string, session, or default.
-     * Prevents 404s when navigation links omit the projectId query parameter.
+     * Prevents 404s when navigation links omit the projectId query parameter or pass slug variations.
      */
     protected function resolveActiveProjectId(?string $projectId = null): ?string
     {
+        if (empty($this->config['projects'])) {
+            $this->loadProjectConfig();
+        }
+
         $projectId = $projectId ?? $_GET['projectId'] ?? $_GET['project'] ?? null;
 
         // 1. Explicit and valid: persist to session and return
-        if ($projectId && isset($this->config['projects'][$projectId])) {
-            if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
-                @session_start();
+        if ($projectId) {
+            $matched = $this->findProjectId($projectId);
+            if ($matched) {
+                if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+                    @session_start();
+                }
+                $_SESSION['sppdocs_current_project'] = $matched;
+                $this->project = $this->config['projects'][$matched] ?? null;
+                return $matched;
             }
-            $_SESSION['sppdocs_current_project'] = $projectId;
-            return $projectId;
         }
 
         // 2. Session fallback
@@ -58,13 +266,31 @@ trait ProjectAwareTrait
             @session_start();
         }
         $sessionProj = $_SESSION['sppdocs_current_project'] ?? null;
-        if ($sessionProj && isset($this->config['projects'][$sessionProj])) {
-            return $sessionProj;
+        if ($sessionProj) {
+            $matched = $this->findProjectId($sessionProj);
+            if ($matched) {
+                $this->project = $this->config['projects'][$matched] ?? null;
+                return $matched;
+            }
+        }
+
+        // 2b. Contextual URI fallback (e.g., /vshiksha/* or /lekhak/* routes)
+        $reqUri = $_SERVER['REQUEST_URI'] ?? ($_GET['q'] ?? '');
+        if (str_contains($reqUri, 'vshiksha') && isset($this->config['projects']['vshiksha'])) {
+            $_SESSION['sppdocs_current_project'] = 'vshiksha';
+            $this->project = $this->config['projects']['vshiksha'] ?? null;
+            return 'vshiksha';
+        }
+        if (str_contains($reqUri, 'lekhak') && isset($this->config['projects']['lekhak'])) {
+            $_SESSION['sppdocs_current_project'] = 'lekhak';
+            $this->project = $this->config['projects']['lekhak'] ?? null;
+            return 'lekhak';
         }
 
         // 3. Demo App fallback
         if (isset($this->config['projects']['demo-app'])) {
             $_SESSION['sppdocs_current_project'] = 'demo-app';
+            $this->project = $this->config['projects']['demo-app'] ?? null;
             return 'demo-app';
         }
 
@@ -72,25 +298,104 @@ trait ProjectAwareTrait
         if (!empty($this->config['projects'])) {
             $firstKey = array_key_first($this->config['projects']);
             $_SESSION['sppdocs_current_project'] = $firstKey;
+            $this->project = $this->config['projects'][$firstKey] ?? null;
             return $firstKey;
         }
 
         return null;
     }
 
+    /**
+     * Resolves the active user role/persona across the ecosystem:
+     * student, teacher, parent, admin, or all.
+     * Persists across navigation via session and cookie.
+     */
+    public function getActiveRole(): string
+    {
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            @session_start();
+        }
+
+        $role = $_GET['role'] ?? ($_GET['as'] ?? ($_COOKIE['sppdocs_active_role'] ?? ($_SESSION['sppdocs_active_role'] ?? null)));
+
+        if ($role) {
+            $roleLower = strtolower(trim((string)$role));
+            $aliases = [
+                'faculty' => 'teacher',
+                'instructor' => 'teacher',
+                'guardian' => 'parent',
+                'father' => 'parent',
+                'mother' => 'parent',
+                'principal' => 'admin',
+                'superadmin' => 'admin',
+                'manager' => 'admin',
+            ];
+            $normalized = $aliases[$roleLower] ?? $roleLower;
+
+            if (in_array($normalized, ['student', 'teacher', 'parent', 'admin', 'all'], true)) {
+                $_SESSION['sppdocs_active_role'] = $normalized;
+                if (!headers_sent()) {
+                    @setcookie('sppdocs_active_role', $normalized, time() + 86400 * 30, '/');
+                }
+                return $normalized;
+            }
+        }
+
+        // Fallback to user account role if logged in
+        $user = $this->getProjectUser();
+        if (!empty($user['role'])) {
+            $uRole = strtolower(trim($user['role']));
+            if (in_array($uRole, ['student', 'teacher', 'parent', 'admin'], true)) {
+                $_SESSION['sppdocs_active_role'] = $uRole;
+                return $uRole;
+            }
+        }
+
+        return $_SESSION['sppdocs_active_role'] ?? 'admin';
+    }
+
+    protected function resolveProjectIdFromProject($project): string
+    {
+        if (is_string($project) && trim($project) !== '') {
+            return trim($project);
+        }
+        if (is_array($project)) {
+            if (!empty($project['id'])) return (string)$project['id'];
+            if (!empty($project['slug'])) return (string)$project['slug'];
+            if (!empty($this->config['projects'])) {
+                foreach ($this->config['projects'] as $pId => $pCfg) {
+                    if (is_array($pCfg) && isset($pCfg['_config_path'], $project['_config_path']) && $pCfg['_config_path'] === $project['_config_path']) {
+                        return (string)$pId;
+                    }
+                }
+            }
+            if (!empty($project['_config_path'])) {
+                $base = basename(dirname($project['_config_path']));
+                return $base === 'docs' ? basename(dirname(dirname($project['_config_path']))) : $base;
+            }
+        }
+        return 'global';
+    }
+
     protected function getIssuesDir($project): string
     {
-        $dir = $project['issues_dir'] ?? dirname($project['_config_path']) . '/issues';
-        if (strpos($dir, 'C:/') === 0 || strpos($dir, 'c:/') === 0) {
-            $dir = str_replace(['C:/projects/apache/school1/', 'c:/projects/apache/school1/'], '', $dir);
-        }
-        if (!str_starts_with($dir, '/') && !str_contains($dir, ':\\')) {
-            $dir = SPP_BASE_DIR . '/' . $dir;
-        }
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-        return $dir;
+        $projectId = $this->resolveProjectIdFromProject($project);
+        $projectArr = is_array($project) ? $project : ($this->config['projects'][$projectId] ?? null);
+        return \App\SPPDocs\Services\DataStorageResolver::getIssuesDir($projectId, $projectArr);
+    }
+
+    protected function getForumsDir($project): string
+    {
+        $projectId = $this->resolveProjectIdFromProject($project);
+        $projectArr = is_array($project) ? $project : ($this->config['projects'][$projectId] ?? null);
+        return \App\SPPDocs\Services\DataStorageResolver::getForumsDir($projectId, $projectArr);
+    }
+
+    protected function getDataDir(?string $projectId = null): string
+    {
+        $pId = $projectId ?? $this->resolveProjectIdFromProject($this->project ?? []);
+        $projectArr = is_array($this->project) ? $this->project : ($this->config['projects'][$pId] ?? null);
+        return \App\SPPDocs\Services\DataStorageResolver::getProjectDataDir($pId, $projectArr);
     }
 
     protected function getProjectUser(): ?array
@@ -102,6 +407,20 @@ trait ProjectAwareTrait
             return [
                 'username' => $_SESSION['sppdocs_user'],
                 'role' => $_SESSION['sppdocs_role'] ?? 'admin'
+            ];
+        }
+
+        if (isset($_SESSION['store_publisher'])) {
+            return [
+                'username' => $_SESSION['store_publisher'],
+                'role' => $_SESSION['store_role'] ?? 'publisher'
+            ];
+        }
+
+        if (isset($_SESSION['auth_user'])) {
+            return [
+                'username' => is_array($_SESSION['auth_user']) ? ($_SESSION['auth_user']['username'] ?? 'User') : (string)$_SESSION['auth_user'],
+                'role' => 'user'
             ];
         }
 
@@ -391,10 +710,14 @@ trait ProjectAwareTrait
         $this->ensureSession();
         $user = $this->getProjectUser();
         $username = $user['username'] ?? null;
+        if (empty($this->config['projects'])) {
+            $this->loadProjectConfig();
+        }
+        $project = $this->config['projects'][$projectId] ?? [];
 
-        if (!\App\SPPDocs\Services\PermissionManager::isProjectAdmin($projectId, $username)) {
+        if (!$this->canUserManageProject($projectId, $project, $username)) {
             http_response_code(403);
-            exit("Access Denied: Administrator privileges for project '{$projectId}' required.");
+            exit("Access Denied: You do not have management authority over project '{$projectId}'.");
         }
     }
 

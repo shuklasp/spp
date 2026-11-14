@@ -185,9 +185,26 @@ body { font-family: 'Outfit', 'Inter', -apple-system, sans-serif; background-col
 .sppux-toast-error { border-left-color: var(--sppux-danger); }
 @keyframes sppux-toast-in { from { transform: translateX(100%) scale(0.8); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
 
-/* Universal Busy State */
-body.sppux-is-busy { cursor: wait !important; }
-body.sppux-is-busy button, body.sppux-is-busy .btn, body.sppux-is-busy input, body.sppux-is-busy select { pointer-events: none !important; opacity: 0.6 !important; filter: grayscale(0.6); }
+/* Universal Busy State - Non-Blocking Top Progress Indicator */
+body.sppux-is-busy { cursor: progress !important; }
+body.sppux-is-busy::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #6366f1, #38bdf8, #6366f1);
+    background-size: 200% 100%;
+    animation: sppux-busy-bar 1.2s infinite linear;
+    z-index: 999999;
+    pointer-events: none;
+}
+@keyframes sppux-busy-bar {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+.sppux-lock-on-busy { pointer-events: none !important; opacity: 0.6 !important; }
 
 /* Master Data Table */
 .sppux-table { width: 100%; border-collapse: separate; border-spacing: 0; }

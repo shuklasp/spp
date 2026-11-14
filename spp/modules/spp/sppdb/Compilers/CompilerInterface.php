@@ -39,4 +39,15 @@ interface CompilerInterface
      * Compile an ADD COLUMN DDL statement.
      */
     public function compileAddColumns(string $table, array $columns): array;
+
+    /**
+     * Compile a vector similarity search clause.
+     *
+     * @param string $column Column name containing vector embeddings
+     * @param array $queryVector Float array representing the target embedding
+     * @param string $metric Distance metric: 'cosine', 'l2', or 'inner_product'
+     * @param int $topK Maximum number of nearest neighbours
+     * @return array{sql: string, bindings: array, orderBy: string, select: string, limit: int}
+     */
+    public function compileVectorSimilarity(string $column, array $queryVector, string $metric = 'cosine', int $topK = 10): array;
 }

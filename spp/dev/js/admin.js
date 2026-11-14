@@ -6,6 +6,52 @@
  * Now refactored to a Standard Script with Global SPP-UX support.
  */
 
+// Ensure global BaseComponent fallback for all view modules
+if (typeof window !== 'undefined' && !window.BaseComponent) {
+    window.BaseComponent = class BaseComponent {
+        constructor(admin, container, props) {
+            this.admin = admin || window.admin;
+            this.container = container;
+            this.props = props || {};
+            this.state = {};
+        }
+
+        setState(partial) {
+            this.state = Object.assign({}, this.state, partial);
+        }
+
+        update() {
+            if (this.container && typeof this.render === 'function') {
+                this.container.innerHTML = this.render();
+            }
+        }
+
+        openSubEditor(title, content, data = {}, onSave = null) {
+            if (typeof SPPUX !== 'undefined' && typeof SPPUX.openSubEditor === 'function') {
+                return SPPUX.openSubEditor(title, content, data, onSave);
+            }
+            if (this.admin && typeof this.admin.openSubEditor === 'function') {
+                return this.admin.openSubEditor(title, content, data, onSave);
+            }
+            if (typeof window !== 'undefined' && window.admin && typeof window.admin.openSubEditor === 'function') {
+                return window.admin.openSubEditor(title, content, data, onSave);
+            }
+            console.warn('SPPUX.openSubEditor not available');
+        }
+
+        updateSubEditor(content) {
+            if (typeof SPPUX !== 'undefined' && typeof SPPUX.updateSubEditor === 'function') {
+                return SPPUX.updateSubEditor(content);
+            }
+            console.warn('SPPUX.updateSubEditor not available');
+        }
+    };
+}
+if (typeof window !== 'undefined' && window.SPPUX) {
+    if (!window.SPPUX.BaseComponent) window.SPPUX.BaseComponent = window.BaseComponent;
+    if (!window.SPPUX.callAction) window.SPPUX.callAction = (action, data = {}) => window.SPPUX.api(action, data);
+}
+
 class SPPAdmin {
     constructor() {
         console.log("SPP Admin Workbench v1.1 Loaded");
@@ -31,8 +77,10 @@ class SPPAdmin {
             this.truncatePath = SPPUX.utils.truncatePath;
         }
         this.user = null;
+        this.theme = localStorage.getItem('spp_admin_theme') || 'night';
+        this.selectedApp = localStorage.getItem('spp_admin_selected_app') || 'default';
         
-        // Initialize Global Root Store
+        // Initialize Global Root Store with proper context values
         const StoreClass = window.SPPStore || (window.SPPUX && window.SPPUX.SPPStore);
         if (StoreClass) {
             window.spp_root_store = new StoreClass({
@@ -46,10 +94,18 @@ class SPPAdmin {
         this.viewIcons = {
             'dashboard': '👋',
             'studio': '💻',
+            'coder': '💻',
+            'workflows': '🔄',
             'entities': '🏗️',
             'forms': '📝',
             'routing': '🛤️',
+            'reports': '📊',
+            'ai': '🤖',
+            'tinker': '💬',
+            'mesh': '🕸️',
             'testing': '🧪',
+            'pages': '📐',
+            'trace': '📈',
             'commands': '⚡',
             // Legacy aliases
             'editor': '💻',
@@ -62,33 +118,62 @@ class SPPAdmin {
             'mobile': '📱',
             'services': '🔌',
             'parikshak': '🧪',
-            'trace': '🐛'
+            'mail': '📬',
+            'fleet': '🌐',
+            'apm': '🔥',
+            'webhooks': '⚡',
+            'apistudio': '🚀',
+            'terminal': '⬛',
+            'files': '📁',
+            'deploy': '🚀',
+            'manifests': '🛡️',
+            'cron': '⏱️',
+            'system': '🖥️'
         };
         this.viewTitles = {
             'dashboard': 'Developer Studio Hub',
-            'studio': 'Studio & Scaffolder',
+            'studio': 'Code Studio & Scaffolder',
+            'coder': 'Code Studio & Scaffolder',
+            'workflows': 'Workflows & State Machines',
             'entities': 'Entities & Schemas',
             'forms': 'Forms & Locales',
             'routing': 'Routing & Endpoints',
-            'testing': 'Testing & Tracing',
+            'reports': 'Reports & Analytics',
+            'ai': 'AI Copilot & Playground',
+            'tinker': 'Web Tinker REPL',
+            'mesh': 'Integration Mesh',
+            'testing': 'Parikshak Test Studio',
+            'pages': 'SPP Studio',
+            'trace': 'Distributed Tracing Waterfall',
             'commands': 'CLI Command Center',
-            // Legacy aliases
+            // Legacy aliases & imported views
             'editor': 'Code Editor',
             'apps': 'App Studio',
             'docs': 'Code Explorer & Docs',
             'xdb': 'XML Database (XDB)',
             'interdb': 'InterDB Data Mesh',
-            'database': 'Entities & Schemas',
+            'database': 'Unified Developer Data Plane',
             'spplang': 'Translations & Locales',
             'mobile': 'Mobile Studio',
             'services': 'Services & Polyglot API',
-            'parikshak': 'Parikshak Testing',
-            'trace': 'Event Tracing'
+            'parikshak': 'Parikshak Test Studio',
+            'mail': 'Mail & Gateway',
+            'fleet': 'Multi-Server Fleet & DNS Cluster',
+            'apm': 'Native In-Panel APM & Flame Graph Profiler',
+            'webhooks': 'Sovereign Webhook Relay & Inspector',
+            'apistudio': 'Interactive API Studio & OpenAPI 3.1',
+            'terminal': 'Interactive Web Terminal',
+            'files': 'File Manager & Storage Quotas',
+            'deploy': 'Deployments, Packaging & Cloud Sync',
+            'manifests': 'Manifest OS & Dependency Graph',
+            'cron': 'Background Tasks, Queue & DAG Jobs',
+            'system': 'Observability, OPcache & Live Logs'
         };
         this.availableApps = [];
         this.selectedApp = localStorage.getItem('spp_admin_selected_app') || 'default';
         this.searchTimeout = null;
         this.theme = localStorage.getItem('spp_admin_theme') || 'night';
+        this._loadCounter = 0;
         
         // Define base configuration for components
         const p = window.location.pathname;
@@ -107,7 +192,39 @@ class SPPAdmin {
 
     async init() {
         this.applyTheme(this.theme);
+        this.restoreSidebarState();
         this.bindEvents();
+
+        // 1. Fast Path: Server-validated authentication state (Instant load on refresh)
+        const initialAuth = window.SPP_AUTH_STATE;
+        if (initialAuth && initialAuth.authenticated) {
+            this.user = initialAuth.user || { username: 'Administrator' };
+            if (window.spp_root_store) {
+                if (window.spp_root_store?.set) {
+                    window.spp_root_store.set({ user: this.user });
+                }
+            }
+            this.updateUserDisplay(this.user);
+
+            // Ensure DOM layers reflect authenticated state instantly (no flash of login screen)
+            const loginLayer = document.getElementById('login-layer');
+            if (loginLayer) loginLayer.classList.remove('active');
+            const workspace = document.getElementById('ide-workspace') || document.getElementById('workspace-layer');
+            if (workspace) workspace.classList.add('active');
+
+            // Render current route immediately on first paint
+            this.handleRouting();
+
+            // Run non-critical background synchronization in parallel without blocking the UI
+            Promise.all([
+                this.loadRoutes(),
+                this.loadApps(),
+                this.loadAdminPermissions()
+            ]).catch(e => console.warn("Background sync warning:", e));
+            return;
+        }
+
+        // 2. Unauthenticated Path: load routes and check auth/magic link
         await this.loadRoutes();
         await this.checkAuth();
 
@@ -227,10 +344,54 @@ class SPPAdmin {
                 });
             }
 
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') this.closeModal();
-            });
+            // Keyboard shortcuts (Capture-phase for Omnibox suppression & universal palette)
+            const handlePaletteShortcuts = (e) => {
+                const isCtrlOrCmd = (e.ctrlKey || e.metaKey) && !e.altKey;
+                const isK = (e.key && e.key.toLowerCase() === 'k') || e.code === 'KeyK' || e.keyCode === 75 || e.which === 75;
+                const isShiftP = (e.ctrlKey || e.metaKey) && e.shiftKey && (e.key?.toLowerCase() === 'p' || e.code === 'KeyP');
+                const isF1 = e.key === 'F1' && !e.ctrlKey && !e.metaKey && !e.altKey;
+
+                if ((isCtrlOrCmd && isK) || isShiftP || isF1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (typeof e.stopImmediatePropagation === 'function') {
+                        e.stopImmediatePropagation();
+                    }
+                    this.toggleCommandPalette();
+                    return false;
+                }
+
+                if (isCtrlOrCmd && (e.key === '/' || e.code === 'Slash')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (typeof e.stopImmediatePropagation === 'function') {
+                        e.stopImmediatePropagation();
+                    }
+                    this.toggleShortcutsCheatsheet();
+                    return false;
+                }
+
+                if (e.key === 'Escape') {
+                    if (window.SPPCommandPalette) {
+                        window.SPPCommandPalette.close();
+                        if (typeof window.SPPCommandPalette.closeCheatsheet === 'function') {
+                            window.SPPCommandPalette.closeCheatsheet();
+                        }
+                    }
+                    this.closeModal();
+                }
+            };
+
+            window.addEventListener('keydown', handlePaletteShortcuts, true);
+            window.addEventListener('keyup', (e) => {
+                const isCtrlOrCmd = (e.ctrlKey || e.metaKey) && !e.altKey;
+                const isK = (e.key && e.key.toLowerCase() === 'k') || e.code === 'KeyK' || e.keyCode === 75 || e.which === 75;
+                if (isCtrlOrCmd && isK) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, true);
 
             // Close portal suggestions on outside click
             document.addEventListener('click', (e) => {
@@ -252,6 +413,7 @@ class SPPAdmin {
     // =============================================
 
     async checkAuth() {
+        if (this.isAuthenticating) return;
         // Auto-consume magic link if present
         const urlParams = new URLSearchParams(window.location.search);
         const magicToken = urlParams.get('magic_token');
@@ -277,8 +439,10 @@ class SPPAdmin {
             const res = await this.api('check_auth');
             if (res.success) {
                 this.user = res.data;
-                window.spp_root_store.set({ user: this.user });
-                this.showWorkspace();
+                if (window.spp_root_store?.set) {
+                    window.spp_root_store.set({ user: this.user });
+                }
+                await this.showWorkspace();
                 
                 // Update Sidebar Profile
                 const profileRes = await this.api('get_profile');
@@ -286,10 +450,14 @@ class SPPAdmin {
                     this.updateUserDisplay(profileRes.data);
                 }
             } else {
-                this.showLogin();
+                if (!this.user && !this.isAuthenticating) {
+                    this.showLogin();
+                }
             }
         } catch (e) {
-            this.showLogin();
+            if (!this.user && !this.isAuthenticating) {
+                this.showLogin();
+            }
         }
     }
 
@@ -373,6 +541,7 @@ class SPPAdmin {
         }
 
         console.log(`Attempting login for user: ${username}`);
+        this.isAuthenticating = true;
         try {
             const res = await this.apiPost(formData);
             console.log("Login API response:", res);
@@ -390,9 +559,22 @@ class SPPAdmin {
                     this.mfaChallengeToken = null;
                     document.getElementById('mfa-section').style.display = 'none';
                     this.user = { username: res.data.user || username };
+                    if (window.spp_root_store?.set) {
                     window.spp_root_store.set({ user: this.user });
-                    location.hash = 'dashboard';
-                    this.showWorkspace();
+                }
+                    
+                    // Immediately transition DOM to workspace to prevent any flash or redirect back to login
+                    const loginLayer = document.getElementById('login-layer');
+                    if (loginLayer) loginLayer.classList.remove('active');
+                    const workspace = document.getElementById('ide-workspace') || document.getElementById('workspace-layer');
+                    if (workspace) workspace.classList.add('active');
+
+                    const currentHash = location.hash ? location.hash.replace('#', '').split('?')[0].trim() : '';
+                    const targetHash = (currentHash && currentHash !== 'dashboard') ? currentHash : 'dashboard';
+                    if (location.hash.replace('#', '').split('?')[0] !== targetHash) {
+                        location.hash = targetHash;
+                    }
+                    await this.showWorkspace();
                     this.notify(`Welcome back, ${this.user.username}`, 'success');
 
                     // Update Sidebar Profile
@@ -403,7 +585,7 @@ class SPPAdmin {
                 }
             } else {
                 this.handleApiErrors(res);
-                this.notify(res.message || 'Invalid credentials.', 'error');
+
                 if (this.mfaChallengeToken) {
                     mfaCodeEl.value = '';
                     mfaCodeEl.focus();
@@ -412,6 +594,8 @@ class SPPAdmin {
         } catch (err) {
             console.error("Login Error:", err);
             this.notify('Connection error. Is the server running?', 'error');
+        } finally {
+            this.isAuthenticating = false;
         }
 
         if (btn) {
@@ -423,7 +607,9 @@ class SPPAdmin {
     async handleLogout() {
         await this.api('logout');
         this.user = null;
-        window.spp_root_store.set({ user: null });
+        if (window.spp_root_store?.set) {
+            window.spp_root_store.set({ user: null });
+        }
         this.showLogin();
         this.notify('Successfully logged out.');
     }
@@ -436,11 +622,12 @@ class SPPAdmin {
         this.theme = theme;
         localStorage.setItem('spp_admin_theme', theme);
         this.applyTheme(theme);
-        this.notify(`Theme switched to ${theme} mode.`, 'success');
+
     }
 
     applyTheme(theme) {
         document.body.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-theme', theme);
         
         // Sync SPPUX Global Variable Theme if library is loaded
         if (window.SPPUX && window.SPPUX.Theme) {
@@ -452,6 +639,19 @@ class SPPAdmin {
             document.body.style.backgroundImage = 'none';
         } else {
             document.body.style.backgroundImage = '';
+        }
+
+        // Dispatch global theme change event
+        window.dispatchEvent(new CustomEvent('spp:theme-change', { detail: { theme } }));
+
+        // Re-render active view if it implements onThemeChange or update
+        if (this.viewInstances && this.currentView && this.viewInstances[this.currentView]) {
+            const inst = this.viewInstances[this.currentView];
+            if (typeof inst.onThemeChange === 'function') {
+                inst.onThemeChange(theme);
+            } else if (typeof inst.update === 'function') {
+                inst.update();
+            }
         }
     }
 
@@ -602,30 +802,42 @@ class SPPAdmin {
     // =============================================
 
     handleRouting() {
-        let rawHash = location.hash.replace('#', '') || 'dashboard';
+        // Clean redundant trailing '?' from URL if present
+        if (window.location.search === '?') {
+            try {
+                window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+            } catch (e) {}
+        }
+
+        let rawHash = location.hash.replace('#', '').trim() || 'dashboard';
         let baseHash = rawHash.split('?')[0];
+        let queryString = rawHash.includes('?') ? rawHash.split('?')[1] : '';
+        let params = {};
+        if (queryString) {
+            try { params = Object.fromEntries(new URLSearchParams(queryString)); } catch (e) {}
+        }
+        if (window.location.search && window.location.search.length > 1) {
+            try {
+                const searchParams = Object.fromEntries(new URLSearchParams(window.location.search));
+                params = { ...searchParams, ...params };
+            } catch (e) {}
+        }
         
-        // Backward-compatible redirects for developer studio
+        // Backward-compatible redirects for legacy URLs
         const redirects = {
-            'editor': 'studio?tab=editor',
-            'apps': 'studio?tab=apps',
-            'docs': 'studio?tab=docs',
+            'editor': 'coder',
             'xdb': 'entities?tab=xdb',
             'interdb': 'entities?tab=interdb',
-            'database': 'entities',
             'spplang': 'forms?tab=spplang',
             'mobile': 'forms?tab=mobile',
             'services': 'routing?tab=services',
             'middleware': 'routing?tab=middleware',
             'parikshak': 'testing?tab=parikshak',
-            'trace': 'testing?tab=trace',
-            'events': 'testing?tab=trace',
+            'events': 'trace',
             'access': 'identity',
             'groups': 'identity',
             'copilot': 'ai',
-            'sppai': 'ai',
-            'lifecycle': 'commands',
-            'system': 'dashboard'
+            'sppai': 'ai'
         };
 
         if (redirects[baseHash]) {
@@ -667,7 +879,21 @@ class SPPAdmin {
         }
 
         if (this.user) {
-            this.loadView(hash);
+            this.loadView(hash, params);
+        }
+    }
+
+    /**
+     * Programmatic Navigation API for SPPAdmin / SPPDev
+     * Supports navigating to any view with optional query parameters.
+     */
+    navigate(view, params = {}) {
+        let hash = view;
+        const q = new URLSearchParams(params).toString();
+        if (q) hash += `?${q}`;
+        window.location.hash = `#${hash}`;
+        if (this.loadView) {
+            this.loadView(view, params);
         }
     }
 
@@ -711,7 +937,8 @@ class SPPAdmin {
         }
     }
 
-    async loadView(view) {
+    async loadView(view, params = {}) {
+        const loadId = ++this._loadCounter;
         this.activeView = view;
         const mainContainer = document.getElementById('view-container') || document.getElementById('ide-tools-container');
         if (!mainContainer) return;
@@ -719,7 +946,7 @@ class SPPAdmin {
         const headerActions = document.getElementById('header-actions');
         if (headerActions) headerActions.innerHTML = '';
         
-        const params = {}; // Reserved for future deep-linking parameters
+        params = params || {};
         
         // Initialize View Cache
         this.viewWrappers = this.viewWrappers || {};
@@ -730,9 +957,33 @@ class SPPAdmin {
             this.viewCacheInitialized = true;
         }
 
-        // Hide all existing view wrappers
+        // Deactivate previous active view if switching away
+        if (this.previousActiveView && this.previousActiveView !== view && this.viewInstances[this.previousActiveView]) {
+            const prevInstance = this.viewInstances[this.previousActiveView];
+            if (typeof prevInstance.onDeactivate === 'function') {
+                try {
+                    prevInstance.onDeactivate();
+                } catch (e) {
+                    console.warn(`Error during onDeactivate for ${this.previousActiveView}:`, e);
+                }
+            }
+        }
+        this.previousActiveView = view;
+
+        // Hide all other view wrappers and any container children
         for (let k in this.viewWrappers) {
-            this.viewWrappers[k].style.display = 'none';
+            if (k !== view && this.viewWrappers[k]) {
+                this.viewWrappers[k].style.setProperty('display', 'none', 'important');
+                this.viewWrappers[k].classList.add('view-wrapper-hidden');
+            }
+        }
+        if (mainContainer.children) {
+            Array.from(mainContainer.children).forEach(child => {
+                if (child.id !== 'view-wrapper-' + view) {
+                    child.style.setProperty('display', 'none', 'important');
+                    child.classList.add('view-wrapper-hidden');
+                }
+            });
         }
 
         let container = this.viewWrappers[view];
@@ -745,14 +996,33 @@ class SPPAdmin {
             
             container.innerHTML = '<div class="loading-state">Loading section...</div>';
             this.showSkeleton(container);
-        } else {
-            container.style.display = 'block';
-            if (this.viewInstances[view]) {
-                // View already loaded and cached, instant switch!
-                this.updateViewTitle(view);
-                this.viewInstances[view].update(); // trigger a fast re-render without re-fetching
-                return;
+        }
+        container.classList.remove('view-wrapper-hidden');
+        container.style.removeProperty('display');
+        container.style.display = 'block';
+
+        // Update nav sidebar active class immediately
+        document.querySelectorAll('#sidebar-nav .nav-item').forEach(link => {
+            link.classList.toggle('active', link.getAttribute('data-view') === view);
+        });
+
+        if (this.viewInstances[view]) {
+            // View already loaded and cached, instant switch!
+            this.updateViewTitle(view);
+            if (typeof this.viewInstances[view].onActivate === 'function') {
+                try {
+                    this.viewInstances[view].onActivate(params);
+                } catch (e) {
+                    console.warn(`Error during onActivate for ${view}:`, e);
+                }
             }
+            if (typeof this.viewInstances[view].update === 'function') {
+                this.viewInstances[view].update(); // trigger a fast re-render without re-fetching
+            }
+            container.classList.remove('view-wrapper-hidden');
+            container.style.removeProperty('display');
+            container.style.display = 'block';
+            return;
         }
 
         // List of views that should be loaded as PHP templates
@@ -794,9 +1064,21 @@ class SPPAdmin {
 
                 let module;
                 // List of views that are strictly core framework views and should not be requested from apps
-                const coreOnlyViews = ['apps', 'commands', 'dashboard', 'entities', 'forms', 'identity', 'interdb', 'lifecycle', 'modules', 'parikshak', 'routing', 'services', 'system', 'xdb', 'ai', 'trace', 'reports', 'api_keys', 'mobile', 'docs', 'editor'];
+                const coreOnlyViews = ['apps', 'commands', 'dashboard', 'entities', 'workflows', 'forms', 'identity', 'interdb', 'lifecycle', 'modules', 'parikshak', 'pages', 'routing', 'services', 'system', 'xdb', 'ai', 'trace', 'reports', 'api_keys', 'mobile', 'docs', 'editor', 'tinker', 'mesh', 'testing', 'coder', 'studio', 'domains', 'files', 'terminal', 'deploy', 'cron', 'manifests', 'mail', 'fleet', 'apm', 'webhooks', 'apistudio', 'polyglot', 'database', 'server', 'spplang'];
                 const isCoreView = coreOnlyViews.includes(view);
                 
+                // Helper to detect JavaScript syntax/parsing defects vs 404 network misses
+                const isSyntaxError = (err) => {
+                    if (!err) return false;
+                    if (err instanceof SyntaxError) return true;
+                    const msg = (err.message || String(err)).toLowerCase();
+                    return msg.includes('unexpected token') || 
+                           msg.includes('syntaxerror') || 
+                           msg.includes('invalid or unexpected') || 
+                           msg.includes('identifier') ||
+                           msg.includes('missing ) after argument list');
+                };
+
                 // If a specific app is selected (not 'default' or '__sppadmin__'), and it's not a strict core view, try app-side first
                 const useAppFirst = !isCoreView && this.selectedApp !== 'default' && this.selectedApp !== '__sppadmin__';
 
@@ -805,25 +1087,33 @@ class SPPAdmin {
                         module = await import(appPath);
                         console.log(`Loaded app-side component (Priority): ${view}`);
                     } catch (e) {
+                        if (isSyntaxError(e)) {
+                            console.error(`Syntax error in app component "${view}":`, e);
+                            throw new Error(`Syntax Error in App Component "${view}":\n${e.message}\nFile: ${appPath}`);
+                        }
                         console.warn(`App-side component not found, trying core: ${corePath}`);
                         try {
                             module = await import(corePath);
                             console.log(`Loaded core component (Fallback): ${view}`);
                         } catch (e2) {
-                             console.error(`Core component also failed: ${corePath}`, e2);
-                             // Try manage.js fallback for apps
-                             if (appMeta) {
+                            if (isSyntaxError(e2)) {
+                                console.error(`Syntax error in core component "${view}":`, e2);
+                                throw new Error(`Syntax Error in Core Component "${view}":\n${e2.message}\nFile: ${corePath}`);
+                            }
+                            console.error(`Core component also failed: ${corePath}`, e2);
+                            // Try manage.js fallback for apps
+                            if (appMeta) {
                                 try {
                                     const srcPath = appMeta.src_path || `src/${view}`;
                                     const managePath = `${rootPath}${srcPath}/comp/manage.js?v=${ts}`;
                                     module = await import(managePath);
                                     console.log(`Loaded app-side component: manage.js for ${view}`);
                                 } catch (e3) {
-                                    throw new Error(`Component "${view}" failed to load from app or core.\nApp: ${appPath} -> ${e.message}\nCore: ${corePath} -> ${e2.message}`);
+                                    throw new Error(`Component "${view}" could not be loaded from app or core.\nApp: ${appPath} -> ${e.message}\nCore: ${corePath} -> ${e2.message}`);
                                 }
-                             } else {
-                                throw new Error(`Component "${view}" failed to load from app or core.\nApp: ${appPath} -> ${e.message}\nCore: ${corePath} -> ${e2.message}`);
-                             }
+                            } else {
+                                throw new Error(`Component "${view}" could not be loaded from app or core.\nApp: ${appPath} -> ${e.message}\nCore: ${corePath} -> ${e2.message}`);
+                            }
                         }
                     }
                 } else {
@@ -833,11 +1123,18 @@ class SPPAdmin {
                         console.log(`Loaded core component: ${view}`);
                     } catch (e) {
                         console.error(`Failed to load core component: ${corePath}`, e);
+                        // If core component has a syntax error, do NOT failover to appPath!
+                        if (isSyntaxError(e)) {
+                            throw new Error(`Syntax Error in Core Component "${view}":\n${e.message}\nFile: ${corePath}`);
+                        }
                         try {
                             module = await import(appPath);
                             console.log(`Loaded app-side component: ${view}`);
                         } catch (e2) {
-                            throw e2;
+                            if (isSyntaxError(e2)) {
+                                throw new Error(`Syntax Error in App Component "${view}":\n${e2.message}\nFile: ${appPath}`);
+                            }
+                            throw new Error(`Component "${view}" failed to load.\nCore: ${corePath} -> ${e.message}\nApp: ${appPath} -> ${e2.message}`);
                         }
                     }
                 }
@@ -855,24 +1152,162 @@ class SPPAdmin {
                     throw new Error(`Component or Legacy View "${view}" not found.`);
                 }
 
+                if (loadId !== this._loadCounter) return;
+
                 // 3. Render SPP-UX Component
                 if (module.default) {
                     this.viewInstances[view] = new module.default(this, container, params);
-                    await this.viewInstances[view].onInit();
-                    this.viewInstances[view].update();
+                    if (typeof this.viewInstances[view].onInit === 'function') {
+                        await this.viewInstances[view].onInit();
+                    }
+                    if (loadId !== this._loadCounter) {
+                        console.log(`[SPPAdmin] loadView('${view}') superseded after onInit.`);
+                        return;
+                    }
+                    if (typeof this.viewInstances[view].update === 'function') {
+                        this.viewInstances[view].update();
+                    }
+                    if (typeof this.viewInstances[view].onActivate === 'function') {
+                        try {
+                            await this.viewInstances[view].onActivate(params);
+                        } catch (e) {
+                            console.warn(`Error during onActivate for ${view}:`, e);
+                        }
+                    }
+
+                    // Enforce that the active view wrapper is visible and all others are hidden
+                    container.classList.remove('view-wrapper-hidden');
+                    container.style.removeProperty('display');
+                    container.style.display = 'block';
+
+                    for (let k in this.viewWrappers) {
+                        if (k !== view && this.viewWrappers[k]) {
+                            this.viewWrappers[k].style.setProperty('display', 'none', 'important');
+                            this.viewWrappers[k].classList.add('view-wrapper-hidden');
+                        }
+                    }
+
+                    this.updateViewTitle(view);
+                    document.querySelectorAll('#sidebar-nav .nav-item').forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('data-view') === view);
+                    });
                 }
             } catch (err) {
-                console.error('View load error:', err);
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">⚠️</div>
-                    <h3>Failed to Load</h3>
-                    <p>An error occurred while loading "${this.escapeHtml(view)}".</p>
-                    <div class="error-detail" style="font-family: monospace; font-size: 0.8rem; background: var(--danger-bg); padding: 10px; border-radius: 4px; margin-top: 10px; color: var(--danger);">
-                        ${this.escapeHtml(err.message || String(err))}
+                if (loadId !== this._loadCounter) return;
+                console.error('[SPPAdmin] View load error:', err);
+                delete this.viewInstances[view];
+
+                // Intelligent Error Categorization & Diagnosis
+                const rawMsg = err.message || String(err);
+                const isSyntax = err instanceof SyntaxError || 
+                    rawMsg.includes('Unexpected token') || 
+                    rawMsg.includes('SyntaxError') || 
+                    rawMsg.includes('Syntax Error') ||
+                    rawMsg.includes('Invalid or unexpected');
+                const isNotFound = rawMsg.includes('Failed to fetch dynamically imported module') || 
+                    rawMsg.includes('404') || 
+                    rawMsg.includes('not found') ||
+                    rawMsg.includes('Cannot find module');
+
+                let errorBadge = 'Runtime Exception';
+                let badgeColor = '#d29922'; // Warning gold
+                let categoryTitle = 'Component Execution Error';
+                let plainExplanation = `An uncaught exception occurred while loading or initializing the <strong>${this.escapeHtml(view)}</strong> component.`;
+                let diagnosticTips = [
+                    'Open the browser developer console (<kbd style="background:#21262d; padding:1px 5px; border-radius:3px;">F12</kbd> &rarr; Console) to view the full execution callstack.',
+                    'Check for null property access, invalid configuration parameters, or unhandled promise rejections.'
+                ];
+
+                if (isSyntax) {
+                    errorBadge = 'Syntax Error';
+                    badgeColor = '#f85149'; // Error red
+                    categoryTitle = 'JavaScript Parsing / Syntax Error';
+                    plainExplanation = `The browser JavaScript runtime could not parse the component module for <strong>${this.escapeHtml(view)}</strong> due to invalid syntax.`;
+                    diagnosticTips = [
+                        'A syntax error indicates malformed code, such as an unexpected token, an unclosed brace <code>{ }</code>, mismatched parentheses <code>( )</code>, or a misplaced <code>else</code>/<code>catch</code> statement.',
+                        'Inspect the file and line reported below, or run a quick syntax check in your terminal: <code>node --check &lt;file&gt;</code>.'
+                    ];
+                } else if (isNotFound) {
+                    errorBadge = 'Module Not Found';
+                    badgeColor = '#f0883e'; // Orange
+                    categoryTitle = 'Component Module Missing or Unreachable';
+                    plainExplanation = `Neither the active application component nor the core framework view could be loaded for <strong>${this.escapeHtml(view)}</strong>.`;
+                    diagnosticTips = [
+                        `Verify that the component file exists at <code>spp/dev/js/views/${this.escapeHtml(view)}.js</code> or <code>src/${this.escapeHtml(this.selectedApp)}/comp/${this.escapeHtml(view)}.js</code>.`,
+                        'Ensure your web server (Apache/Nginx) has read permissions for the file.'
+                    ];
+                }
+
+                const retryFn = `window.admin ? window.admin.loadView('${this.escapeHtml(view)}') : window.location.reload()`;
+                const copyData = {
+                    view,
+                    app: this.selectedApp,
+                    error: rawMsg,
+                    timestamp: new Date().toISOString(),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent
+                };
+
+                container.innerHTML = `
+                <div style="max-width:880px; margin:40px auto; background:#0d1117; border:1px solid #30363d; border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.5); overflow:hidden; font-family:Inter,system-ui,sans-serif;">
+                    <!-- Card Header -->
+                    <div style="background:#161b22; padding:18px 24px; border-bottom:1px solid #30363d; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span style="font-size:1.6rem;">⚠️</span>
+                            <div>
+                                <h3 style="margin:0; font-size:1.1rem; font-weight:700; color:#f0f6fc; display:flex; align-items:center; gap:10px;">
+                                    ${categoryTitle}
+                                    <span style="background:${badgeColor}22; color:${badgeColor}; border:1px solid ${badgeColor}66; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:12px; text-transform:uppercase; letter-spacing:0.5px;">
+                                        ${errorBadge}
+                                    </span>
+                                </h3>
+                                <p style="margin:4px 0 0; font-size:0.8rem; color:#8b949e;">Component: <code style="color:#58a6ff; background:#1f242c; padding:1px 6px; border-radius:4px;">${this.escapeHtml(view)}</code> &bull; Context: <strong style="color:#f0f6fc;">${this.escapeHtml(this.selectedApp)}</strong></p>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button type="button" class="btn primary-btn btn-sm" onclick="${retryFn}" style="display:flex; align-items:center; gap:6px; padding:6px 14px; font-size:0.8rem; border-radius:6px; cursor:pointer;">
+                                <span>🔄</span> Retry Loading
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div style="padding:24px;">
+                        <p style="color:#c9d1d9; font-size:0.9rem; line-height:1.5; margin-top:0;">
+                            ${plainExplanation}
+                        </p>
+
+                        <!-- Error Message Console Box -->
+                        <div style="margin:16px 0; background:#090d13; border:1px solid rgba(248,81,73,0.35); border-left:4px solid ${badgeColor}; border-radius:6px; padding:14px; overflow-x:auto;">
+                            <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px; font-weight:700; color:${badgeColor}; margin-bottom:8px;">Diagnostic Log Output</div>
+                            <pre style="margin:0; font-family:'Fira Code',Consolas,monospace; font-size:0.82rem; color:#f0f6fc; white-space:pre-wrap; word-break:break-word; line-height:1.5;">${this.escapeHtml(rawMsg)}</pre>
+                        </div>
+
+                        <!-- Actionable Suggestions -->
+                        <div style="background:#161b22; border:1px solid #30363d; border-radius:8px; padding:16px; margin-top:20px;">
+                            <h4 style="margin:0 0 10px; font-size:0.85rem; font-weight:600; color:#58a6ff; display:flex; align-items:center; gap:6px;">
+                                <span>💡</span> Troubleshooting & Remediation
+                            </h4>
+                            <ul style="margin:0; padding-left:20px; font-size:0.82rem; color:#8b949e; line-height:1.6;">
+                                ${diagnosticTips.map(tip => `<li>${tip}</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <!-- Quick Actions Bar -->
+                        <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding-top:16px; border-top:1px solid #21262d;">
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" class="btn ghost-btn btn-sm" onclick="navigator.clipboard.writeText(${this.escapeHtml(JSON.stringify(JSON.stringify(copyData)))}).then(() => alert('Diagnostic details copied to clipboard!')).catch(() => prompt('Copy diagnostics:', ${this.escapeHtml(JSON.stringify(JSON.stringify(copyData)))}))" style="font-size:0.78rem; padding:5px 12px; border:1px solid #30363d; border-radius:6px; color:#c9d1d9; cursor:pointer;">
+                                    📋 Copy Diagnostics
+                                </button>
+                                <button type="button" class="btn ghost-btn btn-sm" onclick="window.location.hash='#editor?file=' + encodeURIComponent('spp/dev/js/views/${this.escapeHtml(view)}.js')" style="font-size:0.78rem; padding:5px 12px; border:1px solid #30363d; border-radius:6px; color:#58a6ff; cursor:pointer;">
+                                    💻 Open in Code Studio
+                                </button>
+                            </div>
+                            <span style="font-size:0.75rem; color:#484f58;">Press <kbd style="background:#21262d; padding:2px 5px; border-radius:4px; color:#8b949e;">F12</kbd> for browser console stack trace</span>
+                        </div>
                     </div>
                 </div>`;
-        }
+            }
     }
 
     async executeLegacyViewLogic(view) {
@@ -963,6 +1398,11 @@ class SPPAdmin {
         const container = document.getElementById('app-selector-container');
         if (!container) return;
         
+        if (!Array.isArray(this.availableApps) || this.availableApps.length === 0) {
+            this.loadApps();
+            return;
+        }
+
         const options = this.availableApps.map(app => `
             <option value="${app.name}" ${app.name === this.selectedApp ? 'selected' : ''}>
                 ${app.icon || '🛠️'} ${app.title || app.name}
@@ -984,12 +1424,42 @@ class SPPAdmin {
         this.loadView('modules');
     }
 
-    onAppContextChange(appname) {
+    async switchApp(appname) {
+        return await this.onAppContextChange(appname);
+    }
+
+    async onAppContextChange(appname) {
         this.selectedApp = appname;
         localStorage.setItem('spp_admin_selected_app', appname);
-        this.notify(`App context switched to "${appname}".`, 'success');
+
+        // 1. Synchronize Global Root Store so all components read the new context
+        if (window.spp_root_store && typeof window.spp_root_store.set === 'function') {
+            window.spp_root_store.set({ selectedApp: appname });
+        }
+
+        // 2. Synchronize Left Sidebar Active Context selector
+        this.renderAppSelector();
+        const sidebarSelect = document.querySelector('.app-context-select');
+        if (sidebarSelect && sidebarSelect.value !== appname) {
+            sidebarSelect.value = appname;
+        }
+
+        // 3. Synchronize SPP Studio app dropdown if present in DOM
+        const studioSelect = document.querySelector('.studio-app-select');
+        if (studioSelect && studioSelect.value !== appname) {
+            studioSelect.value = appname;
+        }
+
+        // 4. Notify backend to set session context
+        try {
+            await this.api('switch_context', { appname });
+        } catch (e) {
+            console.warn('Backend context update failed:', e);
+        }
+
+
         
-        // Dynamically update the app-specific sidebar menu
+        // 3. Dynamically update the app-specific sidebar menu
         const container = document.getElementById('app-specific-menu-container');
         if (container) {
             container.innerHTML = '';
@@ -1012,7 +1482,25 @@ class SPPAdmin {
             }
         }
         
-        this.loadView(this.currentView);
+        // 4. Invalidate all cached view instances and DOM wrappers so every page re-renders fresh for the new context
+        for (let k in this.viewInstances) {
+            if (this.viewInstances[k] && typeof this.viewInstances[k].dispose === 'function') {
+                try { this.viewInstances[k].dispose(); } catch (e) {}
+            }
+        }
+        this.viewInstances = {};
+        for (let k in this.viewWrappers) {
+            if (this.viewWrappers[k] && this.viewWrappers[k].parentNode) {
+                this.viewWrappers[k].parentNode.removeChild(this.viewWrappers[k]);
+            }
+        }
+        this.viewWrappers = {};
+
+        // 5. Broadcast global context change event
+        window.dispatchEvent(new CustomEvent('spp:context-change', { detail: { appname } }));
+
+        // 6. Re-load current view with the new context data
+        await this.loadView(this.currentView);
     }
 
     // =============================================
@@ -1048,8 +1536,9 @@ class SPPAdmin {
     // API HELPERS
     // =============================================
 
-    async api(action, params = {}, options = { lock: true }) {
-        if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
+    async api(action, params = {}, options = { lock: false }) {
+        const shouldLock = Boolean(options && options.lock === true);
+        if (shouldLock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
         try {
             params.appname = this.selectedApp;
             // Unify with SPPUX.api which handles LiveAction instructions automatically
@@ -1057,12 +1546,13 @@ class SPPAdmin {
             if (res.errors_html) this.handleApiErrors(res);
             return res;
         } finally {
-            if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.stop();
+            if (shouldLock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.stop();
         }
     }
 
-    async apiPost(actionOrFormData, params = {}, options = { lock: true }) {
-        if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
+    async apiPost(actionOrFormData, params = {}, options = { lock: false }) {
+        const shouldLock = Boolean(options && options.lock === true);
+        if (shouldLock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
         try {
             let res;
             if (actionOrFormData instanceof FormData) {
@@ -1077,7 +1567,7 @@ class SPPAdmin {
             if (res.errors_html) this.handleApiErrors(res);
             return res;
         } finally {
-            if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.stop();
+            if (shouldLock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.stop();
         }
     }
 
@@ -1086,6 +1576,7 @@ class SPPAdmin {
     // =============================================
 
     showLogin() {
+        if (this.user || this.isAuthenticating || window.spp_root_store?.get?.()?.user) return;
         const loginLayer = document.getElementById('login-layer');
         if (loginLayer) loginLayer.classList.add('active');
         
@@ -1115,13 +1606,45 @@ class SPPAdmin {
         }
 
 
-        // Discovery & Resource Sync
-        await this.loadApps();
-
-        // Load admin RBAC permissions and gate sidebar
-        await this.loadAdminPermissions();
-
+        this.restoreSidebarState();
         this.handleRouting();
+
+        // Non-blocking background sync for apps and permissions
+        Promise.all([
+            this.loadApps(),
+            this.loadAdminPermissions()
+        ]).catch(e => console.warn("Workspace background sync error:", e));
+    }
+
+    restoreSidebarState() {
+        const savedCollapsed = localStorage.getItem('spp_sidebar_collapsed') === 'true';
+        const workspace = document.getElementById('ide-workspace') || document.getElementById('workspace-layer');
+        if (workspace) {
+            workspace.classList.toggle('sidebar-collapsed', savedCollapsed);
+        }
+        const toggleBtn = document.getElementById('global-sidebar-toggle-btn');
+        if (toggleBtn) {
+            toggleBtn.title = savedCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
+            toggleBtn.classList.toggle('active', savedCollapsed);
+        }
+    }
+
+    toggleSidebar(forceState) {
+        const workspace = document.getElementById('ide-workspace') || document.getElementById('workspace-layer');
+        if (!workspace) return false;
+        const isCurrentlyCollapsed = workspace.classList.contains('sidebar-collapsed');
+        const nextState = typeof forceState === 'boolean' ? forceState : !isCurrentlyCollapsed;
+        workspace.classList.toggle('sidebar-collapsed', nextState);
+        localStorage.setItem('spp_sidebar_collapsed', String(nextState));
+
+        const toggleBtn = document.getElementById('global-sidebar-toggle-btn');
+        if (toggleBtn) {
+            toggleBtn.title = nextState ? 'Expand Sidebar' : 'Collapse Sidebar';
+            toggleBtn.classList.toggle('active', nextState);
+        }
+
+        window.dispatchEvent(new CustomEvent('spp:sidebar-toggle', { detail: { collapsed: nextState } }));
+        return nextState;
     }
 
     /**
@@ -1132,7 +1655,10 @@ class SPPAdmin {
         try {
             const res = await this.api('get_admin_permissions');
             if (res.success && res.data) {
-                this.adminScopes = res.data.scopes || [];
+                const rawScopes = res.data.scopes;
+                this.adminScopes = Array.isArray(rawScopes)
+                    ? rawScopes
+                    : (rawScopes && typeof rawScopes === 'object' ? Object.values(rawScopes) : []);
                 this.adminScopeMap = res.data.scope_map || {};
                 this.applyAdminScopeGating();
             }
@@ -1143,7 +1669,7 @@ class SPPAdmin {
     }
 
     applyAdminScopeGating() {
-        if (!this.adminScopes || this.adminScopes.length === 0) return;
+        if (!this.adminScopes || !Array.isArray(this.adminScopes) || this.adminScopes.length === 0) return;
 
         document.querySelectorAll('#sidebar-nav .nav-item').forEach(link => {
             const view = link.getAttribute('data-view');
@@ -1188,11 +1714,20 @@ class SPPAdmin {
     }
 
     updateModal(title, content, actions = null) {
+        if (window.SPPUX && typeof SPPUX.updateModal === 'function') {
+            this._activeModal = SPPUX.updateModal(title, content, actions || []);
+            if (this.viewInstance) this.viewInstance._registerGlobalHandlers();
+            return this._activeModal;
+        }
         if (this._activeModal) {
             this._activeModal.props.title = title;
             this._activeModal.props.content = content;
             if (actions) this._activeModal.props.actions = actions;
-            this._activeModal.update();
+            if (typeof this._activeModal.setState === 'function') {
+                this._activeModal.setState({ title, content, actions: actions || this._activeModal.props.actions });
+            } else {
+                this._activeModal.update();
+            }
             if (this.viewInstance) this.viewInstance._registerGlobalHandlers();
         } else {
             this.openModal(title, content, actions || []);
@@ -1203,6 +1738,42 @@ class SPPAdmin {
         if (this._activeModal) {
             this._activeModal.close();
             this._activeModal = null;
+        }
+    }
+
+    openCommandPalette() {
+        if (window.SPPCommandPalette && typeof window.SPPCommandPalette.open === 'function') {
+            window.SPPCommandPalette.open();
+        }
+    }
+
+    closeCommandPalette() {
+        if (window.SPPCommandPalette && typeof window.SPPCommandPalette.close === 'function') {
+            window.SPPCommandPalette.close();
+        }
+    }
+
+    toggleCommandPalette() {
+        if (window.SPPCommandPalette && typeof window.SPPCommandPalette.toggle === 'function') {
+            window.SPPCommandPalette.toggle();
+        }
+    }
+
+    openShortcutsCheatsheet() {
+        if (window.SPPCommandPalette && typeof window.SPPCommandPalette.openCheatsheet === 'function') {
+            window.SPPCommandPalette.openCheatsheet();
+        }
+    }
+
+    closeShortcutsCheatsheet() {
+        if (window.SPPCommandPalette && typeof window.SPPCommandPalette.closeCheatsheet === 'function') {
+            window.SPPCommandPalette.closeCheatsheet();
+        }
+    }
+
+    toggleShortcutsCheatsheet() {
+        if (window.SPPCommandPalette && typeof window.SPPCommandPalette.toggleCheatsheet === 'function') {
+            window.SPPCommandPalette.toggleCheatsheet();
         }
     }
 
@@ -1715,3 +2286,20 @@ const admin = new SPPAdmin();
 window.admin = admin;
 
 window.SPPAdmin = SPPAdmin;
+
+// Phase 14: Sovereign 1-Click Multi-Portal Single Sign-On (SSO) Handover
+window.switchPortalWithSso = async function(targetPortal) {
+    try {
+        if (window.admin && typeof window.admin.api === 'function') {
+            const res = await window.admin.api('auth_sso_generate', { target: targetPortal });
+            if (res && res.success && res.url) {
+                window.location.href = res.url;
+                return;
+            }
+        }
+    } catch (e) {
+        console.warn('SSO token handover fallback:', e);
+    }
+    window.location.href = targetPortal === 'sppdev' ? '../sppdev/#dashboard' : '../sppadmin/#dashboard';
+};
+

@@ -59,6 +59,38 @@
                     <label class="adm-form-label">Default Documentation Version</label>
                     <input type="text" name="settings[default_version]" value="{{ $project['default_version'] ?? 'v1' }}" class="adm-form-input">
                 </div>
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Project Type</label>
+                    @php $currType = strtolower($project['type'] ?? 'docs'); @endphp
+                    <select name="settings[type]" class="adm-form-input">
+                        <option value="docs" {{ $currType === 'docs' ? 'selected' : '' }}>📚 Documentation Project</option>
+                        <option value="app" {{ $currType === 'app' ? 'selected' : '' }}>📱 Application / Hosted App</option>
+                        <option value="module" {{ $currType === 'module' ? 'selected' : '' }}>📦 SPP Module / Package</option>
+                        <option value="presentation" {{ $currType === 'presentation' ? 'selected' : '' }}>📊 Presentation / Deck</option>
+                    </select>
+                </div>
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Project Visibility</label>
+                    @php $currVis = strtolower($project['visibility'] ?? 'public'); @endphp
+                    <select name="settings[visibility]" class="adm-form-input">
+                        <option value="public" {{ $currVis === 'public' ? 'selected' : '' }}>🌐 Public (Showcase &amp; Catalog)</option>
+                        <option value="personal" {{ $currVis === 'personal' ? 'selected' : '' }}>🔒 Personal (Private to Creator)</option>
+                        <option value="closed_group" {{ in_array($currVis, ['group', 'closed_group'], true) ? 'selected' : '' }}>👥 Closed Group (Team Members Only)</option>
+                        <option value="team" {{ $currVis === 'team' ? 'selected' : '' }}>🏢 Team (Organization Workspace)</option>
+                    </select>
+                </div>
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Hosted Demo / Live App URL</label>
+                    <input type="text" name="settings[demo_url]" value="{{ $project['demo_url'] ?? '' }}" placeholder="https://example.com or /school1" class="adm-form-input">
+                </div>
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Source Code / Git Repo URL</label>
+                    <input type="text" name="settings[repo_url]" value="{{ $project['repo_url'] ?? '' }}" placeholder="https://github.com/..." class="adm-form-input">
+                </div>
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Package Identifier (for Modules)</label>
+                    <input type="text" name="settings[package_name]" value="{{ $project['package_name'] ?? '' }}" placeholder="spp/sppdeploy" class="adm-form-input">
+                </div>
             </div>
 
             <div class="adm-form-group" style="margin-top: 1rem;">
@@ -783,6 +815,78 @@ function syncCustomPresetFeatures(form) {
 
 <!-- Tab 7: Danger Zone -->
 <div id="tab-danger" class="adm-tab-content" style="{{ $currentTab === 'tab-danger' ? 'display: block;' : 'display: none;' }}">
+    @php
+        $isSuspended = ($project['status'] ?? '') === 'suspended' || !empty($project['moderation']['is_suspended']);
+        $isFeatured = !empty($project['is_featured']);
+    @endphp
+    <!-- Administrative Moderation -->
+    <div class="adm-card" style="border-color: rgba(245, 158, 11, 0.4); margin-bottom: 1.5rem;">
+        <div class="adm-card-header" style="border-bottom-color: rgba(245, 158, 11, 0.2);">
+            <h2 class="adm-card-title" style="color: #f59e0b;">🛡️ Content Moderation Controls</h2>
+        </div>
+        <p style="color: var(--adm-text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">
+            Global Super Administrators can moderate user content, feature projects on the SatyaLab showcase, or enforce policy suspensions.
+        </p>
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+            {{-- Suspend / Unsuspend --}}
+            <form action="@url('admin/project/moderate')" method="POST" style="display: inline-block;">
+                <input type="hidden" name="csrf_token" value="{{ $csrf_token }}">
+                <input type="hidden" name="project_id" value="{{ $project_id }}">
+                @if($isSuspended)
+                    <input type="hidden" name="action" value="unsuspend">
+                    <button type="submit" class="adm-btn adm-btn-secondary" style="border-color: #10b981; color: #10b981; font-weight: 600;">
+                        ✅ Lift Suspension (Restore to Active)
+                    </button>
+                @else
+                    <input type="hidden" name="action" value="suspend">
+                    <input type="hidden" name="reason" value="Suspended via admin console">
+                    <button type="submit" class="adm-btn adm-btn-danger" onclick="return confirm('Suspend this project? It will be blocked from public view until reinstated.');">
+                        ⚠️ Suspend Project
+                    </button>
+                @endif
+            </form>
+
+            {{-- Feature / Unfeature --}}
+            <form action="@url('admin/project/moderate')" method="POST" style="display: inline-block;">
+                <input type="hidden" name="csrf_token" value="{{ $csrf_token }}">
+                <input type="hidden" name="project_id" value="{{ $project_id }}">
+                @if($isFeatured)
+                    <input type="hidden" name="action" value="unfeature">
+                    <button type="submit" class="adm-btn adm-btn-secondary">
+                        ⭐ Remove from Featured Showcase
+                    </button>
+                @else
+                    <input type="hidden" name="action" value="feature">
+                    <button type="submit" class="adm-btn adm-btn-primary" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none;">
+                        ⭐ Feature on SatyaLab Showcase
+                    </button>
+                @endif
+            </form>
+        </div>
+    </div>
+    <div class="adm-card" style="border-color: #fde68a; margin-bottom: 1.5rem;">
+        <div class="adm-card-header" style="border-bottom-color: #fef3c7;">
+            <h2 class="adm-card-title" style="color: #d97706;">📦 Project Archival Lifecycle</h2>
+        </div>
+        <p style="color: var(--adm-text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+            Archiving puts the project into read-only mode. It preserves all documentation, releases, and discussion threads, but hides it from the default public catalog. Creators and administrators can unarchive it at any time.
+        </p>
+        <form action="@url('admin/project/archive')" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ $csrf_token }}">
+            <input type="hidden" name="project_id" value="{{ $project_id }}">
+            @if(!empty($project['is_archived']))
+                <button type="submit" class="adm-btn adm-btn-secondary" style="border-color: #d97706; color: #d97706; font-weight: 600;">
+                    ♻️ Unarchive Project (Restore to Active)
+                </button>
+            @else
+                <button type="submit" class="adm-btn adm-btn-secondary" style="border-color: #d97706; color: #d97706; font-weight: 600;" onclick="return confirm('Archive this project? It will become read-only and hidden from default public listings.');">
+                    📦 Archive Project
+                </button>
+            @endif
+        </form>
+    </div>
+
     <div class="adm-card" style="border-color: #fca5a5;">
         <div class="adm-card-header" style="border-bottom-color: #fee2e2;">
             <h2 class="adm-card-title" style="color: #dc2626;">⚠️ Danger Zone</h2>

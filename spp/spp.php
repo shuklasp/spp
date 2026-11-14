@@ -72,7 +72,8 @@ $cliSettingsPath = __DIR__ . '/etc/cli-settings.yml';
 $cliSettings = [];
 if (file_exists($cliSettingsPath)) {
     if (class_exists('\Symfony\Component\Yaml\Yaml')) {
-        $cliSettings = \Symfony\Component\Yaml\Yaml::parseFile($cliSettingsPath);
+        $rawCliSettings = @file_get_contents($cliSettingsPath);
+        $cliSettings = ($rawCliSettings !== false && $rawCliSettings !== '') ? (\Symfony\Component\Yaml\Yaml::parse($rawCliSettings) ?: []) : [];
     } else {
         error_log("[SPP CLI] Warning: Symfony YAML component not found. CLI settings may not load correctly.");
     }
@@ -105,7 +106,8 @@ if (isset($discoveredCommands[$command])) {
 
     if ($explicitApp) {
         $settings = \SPP\App::getGlobalSettings();
-        if (isset($settings['apps'][$explicitApp])) {
+        $appDir = (defined('SPP_APP_DIR') ? SPP_APP_DIR : dirname(__DIR__)) . '/src/' . $explicitApp;
+        if (isset($settings['apps'][$explicitApp]) || is_dir($appDir)) {
             try {
                 new \SPP\App($explicitApp);
                 \SPP\Scheduler::setContext($explicitApp);

@@ -83,6 +83,16 @@
                             <span>🛡️</span> Roles & Permissions
                         </a>
                     </li>
+                    <li>
+                        <a href="@url('admin/moderation')" class="adm-nav-link {{ ($active_tab ?? '') === 'moderation' ? 'active' : '' }}">
+                            <span>⚖️</span> Content Moderation
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@url('admin/server')" class="adm-nav-link {{ ($active_tab ?? '') === 'server' ? 'active' : '' }}">
+                            <span>🖥️</span> Server &amp; Node Operations
+                        </a>
+                    </li>
                     @endif
                 </ul>
             </div>
@@ -298,7 +308,7 @@
     </script>
 
     @yield('scripts')
-    @spppartial('partials/command_palette.blade.php', ['project_id' => !empty($project_id) ? $project_id : ($_SESSION['sppdocs_current_project'] ?? 'demo-app')])
+    @spppartial('partials/command_palette.blade.php', ['project_id' => !empty($project_id) ? $project_id : ($_SESSION['sppdocs_current_project'] ?? 'demo-app'), 'project' => $project ?? []])
     @spppartial('partials/keyboard_shortcuts.blade.php')
 </body>
 </html>

@@ -1,35 +1,51 @@
-php_flag display_errors 1
+# PHP settings guard (mod_php only; prevents 500 Internal Server Error on FastCGI/PHP-FPM)
+<IfModule mod_php7.c>
+    php_flag display_errors 1
+</IfModule>
+<IfModule mod_php.c>
+    php_flag display_errors 1
+</IfModule>
+
 RewriteEngine On
 
-# Ban direct external browser access targeting the underlying spp/admin and spp/dev paths directly
-RewriteCond %{THE_REQUEST} \s/+(.+/)?spp/(admin|dev) [NC]
+# Allow ACME HTTP-01 challenge requests directly without rewrite or restriction
+RewriteRule ^\.well-known/acme-challenge/ - [L]
+
+# Ban direct external browser access targeting the underlying spp/admin, spp/dev, and spp/mail paths directly
+RewriteCond %{THE_REQUEST} \s/+(.+/)?spp/(admin|dev|mail) [NC]
 RewriteRule ^ - [F,L]
 
 # Ban direct access to sensitive internal configurations, blueprints, and markup templates
-RewriteCond %{REQUEST_URI} !/sppadmin/routes\.json$ [NC]
-RewriteCond %{REQUEST_URI} !/spp/admin/routes\.json$ [NC]
-RewriteCond %{REQUEST_URI} !/sppdev/routes\.json$ [NC]
-RewriteCond %{REQUEST_URI} !/spp/dev/routes\.json$ [NC]
+RewriteCond %{REQUEST_URI} !routes\.json$ [NC]
+RewriteCond %{REQUEST_URI} !manifest\.json$ [NC]
+RewriteCond %{REQUEST_URI} !packages\.json$ [NC]
 RewriteRule \.(yml|yaml|json|lock|md|html|blade\.php|sppux\.js)$ - [F,L]
 
 # Ban direct execution of backend application scripts under /src and framework core modules
-RewriteCond %{REQUEST_URI} ^/school1/(src|spp/modules|spp/core)/ [NC]
+RewriteCond %{REQUEST_URI} (src|spp/modules|spp/core)/ [NC]
 RewriteRule \.php$ - [F,L]
 
-# Redirect /sppadmin and /sppdev to include trailing slash
-RewriteRule ^sppadmin$ /school1/sppadmin/ [R=301,L]
-RewriteRule ^sppdev$ /school1/sppdev/ [R=301,L]
+# Redirect /sppadmin, /sppdev, and /sppmail to include trailing slash
+RewriteRule ^(sppadmin|sppdev|sppmail)$ %{REQUEST_URI}/ [R=301,L]
 
 # Route requests to the isolated framework directories
 RewriteRule ^sppadmin/(.*)$ spp/admin/$1 [L,QSA]
 RewriteRule ^sppdev/(.*)$ spp/dev/$1 [L,QSA]
+RewriteRule ^sppmail/(.*)$ spp/mail/$1 [L,QSA]
 
 # Dedicated API routes
 RewriteRule ^spp-api/(.*)$ spp/admin/api.php?action=$1 [L,QSA]
 RewriteRule ^sppdev-api/(.*)$ spp/dev/api.php?action=$1 [L,QSA]
+RewriteRule ^sppmail-api/(.*)$ spp/admin/api.php?action=$1 [L,QSA]
+
+# Route docs and project endpoints directly to index.php even if physical directory exists
+DirectorySlash Off
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(docs|project)(/.*)?$ index.php?q=$1$2 [L,QSA]
 
 # Framework processing for all other requests
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/school1/spp/(admin|dev)/
+RewriteCond %{REQUEST_URI} !spp/(admin|dev)/ [NC]
 RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
+ErrorDocument 404 /.spp/error_pages/404.html

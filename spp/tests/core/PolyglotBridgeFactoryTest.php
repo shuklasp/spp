@@ -4,7 +4,7 @@ use SPP\Core\Polyglot\PolyglotBridgeFactory;
 use SPP\Core\Polyglot\DefaultBridge;
 use SPP\Core\Polyglot\JavaBridge;
 
-class PolyglotBridgeFactoryTest extends \SPP\Parikshak\TestCase
+class PolyglotBridgeFactoryTest extends \SPPMod\Parikshak\TestCase
 {
     public function testGetBridge()
     {

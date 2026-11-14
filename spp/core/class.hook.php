@@ -50,6 +50,11 @@ class Hook
 
         // Sort descending by priority
         usort(self::$hooks[$hook], fn($a, $b) => $b['priority'] <=> $a['priority']);
+
+        // Bridge directly to unified SPPEvent bus
+        if (class_exists('\\SPP\\SPPEvent', false)) {
+            \SPP\SPPEvent::listen($hook, $callback, false, $priority);
+        }
     }
 
     /**
@@ -114,16 +119,11 @@ class Hook
         $hook = strtolower(trim($hook));
         $results = [];
 
-        // 1. Dual Event Bus dispatching
+        // 1. Unified Event Bus dispatching
         if (class_exists('\SPP\SPPEvent', false)) {
             try {
                 $evtParams = new \SPP\EventParams($args);
-                \SPP\SPPEvent::fireEvent("hook.{$hook}", $evtParams);
                 \SPP\SPPEvent::fireEvent($hook, $evtParams);
-                $argsCopy1 = $args;
-                \SPP\SPPEvent::triggerHook("hook:{$hook}", $argsCopy1);
-                $argsCopy2 = $args;
-                \SPP\SPPEvent::triggerHook($hook, $argsCopy2);
             } catch (\Throwable $e) {
                 error_log("[Hook Event Bus Error] ({$hook}): " . $e->getMessage());
             }
@@ -214,15 +214,11 @@ class Hook
         $hook = strtolower(trim($hook));
         $alterHook = $hook . '_alter';
 
-        // 1. Dual Event Bus dispatching
+        // 1. Unified Event Bus dispatching
         if (class_exists('\SPP\SPPEvent', false)) {
             try {
                 $evtParams = new \SPP\EventParams(['data' => &$data, 'context' => $context]);
-                \SPP\SPPEvent::fireEvent("hook.{$alterHook}", $evtParams);
-                $alterPayload1 = ['data' => &$data, 'context' => $context];
-                \SPP\SPPEvent::triggerHook("hook:{$alterHook}", $alterPayload1);
-                $alterPayload2 = ['data' => &$data, 'context' => $context];
-                \SPP\SPPEvent::triggerHook($alterHook, $alterPayload2);
+                \SPP\SPPEvent::fireEvent($alterHook, $evtParams);
             } catch (\Throwable $e) {
                 error_log("[Hook Alter Event Bus Error] ({$alterHook}): " . $e->getMessage());
             }

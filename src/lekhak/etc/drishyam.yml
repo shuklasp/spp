@@ -1,6 +1,0 @@
-default_theme: premium
-contexts:
-  admin: glass_admin
-  site: eduxpro
-hooks:
-  drishyam.theme_init: '\SPPMod\Lekhak\Hooks\ThemeInit::handle'

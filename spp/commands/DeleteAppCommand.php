@@ -10,15 +10,19 @@ use Symfony\Component\Yaml\Yaml;
  * Removes an SPP application and all its associated resources, caches, and configuration.
  *
  * Usage:
- *   php spp.php delete:app <AppName> [--force] [--keep-db]
+ *   php spp.php delete:app <AppName> [--config-only] [--backup] [--force] [--keep-db] [--dry-run]
  *
  * Options:
- *   --force    Skip confirmation prompt
- *   --keep-db  Preserve database tables (only remove files and config)
- *   --dry-run  Show what would be deleted without actually deleting anything
+ *   --config-only  Only remove configuration, caches, and domain bindings; keep source code in src/
+ *   --backup       Create a full zip backup archive in var/backups/apps/ before deleting
+ *   --force        Skip confirmation prompt
+ *   --keep-db      Preserve database tables (only remove files and config)
+ *   --dry-run      Show what would be deleted without actually deleting anything
  *
  * Examples:
  *   php spp.php delete:app MyApp
+ *   php spp.php delete:app MyApp --backup
+ *   php spp.php delete:app MyApp --config-only
  *   php spp.php delete:app MyApp --force
  *   php spp.php delete:app MyApp --dry-run
  *   php spp.php delete:app MyApp --force --keep-db
@@ -64,7 +68,7 @@ class DeleteAppCommand extends Command
         $appName = trim($appName, '-');
 
         // ── Validate ────────────────────────────────────────────────
-        if (in_array($appName, ['default', 'admin', 'spp', 'core'])) {
+        if (in_array(strtolower($appName), ['default', 'admin', 'spp', 'core', 'system'], true)) {
             $this->error("Cannot delete system application '{$appName}'.");
             return;
         }
@@ -74,8 +78,10 @@ class DeleteAppCommand extends Command
             return;
         }
 
-        $force   = in_array('--force', $args) || isset($args['--force']) || $this->hasFlag($args, 'force');
-        $keepDb  = in_array('--keep-db', $args) || isset($args['--keep-db']) || $this->hasFlag($args, 'keep-db');
+        $force       = in_array('--force', $args) || isset($args['--force']) || $this->hasFlag($args, 'force');
+        $keepDb      = in_array('--keep-db', $args) || isset($args['--keep-db']) || $this->hasFlag($args, 'keep-db');
+        $configOnly  = in_array('--config-only', $args) || isset($args['--config-only']) || $this->hasFlag($args, 'config-only');
+        $backup      = in_array('--backup', $args) || isset($args['--backup']) || $this->hasFlag($args, 'backup');
         $this->dryRun = in_array('--dry-run', $args) || isset($args['--dry-run']) || $this->hasFlag($args, 'dry-run');
 
         // ── Check if app exists ─────────────────────────────────────
@@ -115,10 +121,16 @@ class DeleteAppCommand extends Command
         echo "  Mode:        {$appType}\n";
         echo "  Base URL:    {$baseUrl}\n";
         echo "  DB Prefix:   {$prefix}\n";
+        if ($configOnly) {
+            echo "  Scope:       CONFIG ONLY (source code in src/{$appName}/ will be kept)\n";
+        }
+        if ($backup) {
+            echo "  Backup:      Pre-removal backup archive will be created in var/backups/apps/\n";
+        }
         echo "\n";
 
         // Build list of targets
-        $targets = $this->buildDeleteTargets($appName, $keepDb);
+        $targets = $this->buildDeleteTargets($appName, $keepDb, $configOnly);
 
         if (empty($targets)) {
             $this->info("Nothing to delete for '{$appName}'.");
@@ -135,10 +147,10 @@ class DeleteAppCommand extends Command
 
         // ── Confirm ─────────────────────────────────────────────────
         if (!$force && !$this->dryRun) {
-            $confirm = $this->prompt(
-                "⚠ Are you sure you want to PERMANENTLY delete '{$appName}' and all its data? Type the app name to confirm",
-                ""
-            );
+            $promptMsg = $configOnly
+                ? "⚠ Are you sure you want to remove configurations and unbind '{$appName}'? Type the app name to confirm"
+                : "⚠ Are you sure you want to PERMANENTLY delete '{$appName}' and all its data? Type the app name to confirm";
+            $confirm = $this->prompt($promptMsg, "");
             if ($confirm !== $appName) {
                 echo "\n  Deletion cancelled. You must type the exact app name to confirm.\n";
                 return;
@@ -149,6 +161,21 @@ class DeleteAppCommand extends Command
         echo "\n";
         $this->deletedCount = 0;
         $dbHandled = false;
+
+        // Pre-removal backup
+        if ($backup) {
+            if ($this->dryRun) {
+                echo "  → Would create pre-removal backup archive in var/backups/apps/\n";
+            } else {
+                require_once SPP_APP_DIR . '/spp/core/class.appuninstaller.php';
+                $backupRes = \SPP\Core\AppUninstaller::createBackup(SPP_APP_DIR, $appName);
+                if ($backupRes['success']) {
+                    echo "  ✓ Created pre-removal backup: {$backupRes['filename']} ({$backupRes['size_formatted']})\n";
+                } else {
+                    $this->warn("Pre-removal backup failed: " . $backupRes['message']);
+                }
+            }
+        }
 
         // 0. Database cleanup (if not keep-db)
         $sppdbConfPath = SPP_APP_DIR . "/etc/apps/{$appName}/modsconf/sppdb/config.yml";
@@ -253,10 +280,14 @@ class DeleteAppCommand extends Command
         }
 
         // 1. Remove source directory: src/{AppName}/
-        $this->deleteDirectory(
-            SPP_APP_DIR . "/src/{$appName}",
-            "Source directory (src/{$appName}/)"
-        );
+        if ($configOnly) {
+            echo "  ℹ Preserved source directory: src/{$appName}/ (--config-only mode)\n";
+        } else {
+            $this->deleteDirectory(
+                SPP_APP_DIR . "/src/{$appName}",
+                "Source directory (src/{$appName}/)"
+            );
+        }
 
         // 2. Remove config directory: etc/apps/{AppName}/
         $this->deleteDirectory(
@@ -308,6 +339,37 @@ class DeleteAppCommand extends Command
             echo "  → Would remove '{$appName}' from global-settings.yml\n";
         }
 
+        // 7b. Unbind from etc/domains.yml
+        $domainsPath = SPP_APP_DIR . '/etc/domains.yml';
+        if (file_exists($domainsPath)) {
+            if ($this->dryRun) {
+                echo "  → Would unbind domain mappings for '{$appName}' in etc/domains.yml\n";
+            } else {
+                $domainConfig = Yaml::parseFile($domainsPath) ?: [];
+                $modified = false;
+                foreach ($domainConfig['domains'] ?? [] as $domainKey => $dMeta) {
+                    if (($dMeta['default_app'] ?? '') === $appName) {
+                        $domainConfig['domains'][$domainKey]['default_app'] = 'default';
+                        $modified = true;
+                        echo "  ✓ Unbound default_app for domain '{$domainKey}' (reverted to 'default')\n";
+                    }
+                    if (isset($dMeta['apps']) && is_array($dMeta['apps'])) {
+                        $origCount = count($dMeta['apps']);
+                        $dMeta['apps'] = array_values(array_filter($dMeta['apps'], fn($a) => $a !== $appName));
+                        if (count($dMeta['apps']) !== $origCount) {
+                            $domainConfig['domains'][$domainKey]['apps'] = $dMeta['apps'];
+                            $modified = true;
+                            echo "  ✓ Removed '{$appName}' from mapped apps for domain '{$domainKey}'\n";
+                        }
+                    }
+                }
+                if ($modified) {
+                    file_put_contents($domainsPath, Yaml::dump($domainConfig, 10, 2));
+                    $this->deletedCount++;
+                }
+            }
+        }
+
         // 8. Invalidate compiled config cache
         $configCache = SPP_APP_DIR . '/var/cache/system/config.php';
         if (file_exists($configCache) && !$this->dryRun) {
@@ -335,13 +397,15 @@ class DeleteAppCommand extends Command
         );
 
         // 11. Clear class map cache (may contain app's classes)
-        $classMap = SPP_APP_DIR . '/var/cache/system/classmap.php';
-        if (file_exists($classMap) && !$this->dryRun) {
-            @unlink($classMap);
-            echo "  ✓ Cleared class map cache\n";
-            $this->deletedCount++;
-        } elseif (file_exists($classMap) && $this->dryRun) {
-            echo "  → Would clear class map cache\n";
+        foreach (['classmap.php', 'classmap_unix.php', 'classmap_win.php'] as $cmFile) {
+            $classMap = SPP_APP_DIR . '/var/cache/system/' . $cmFile;
+            if (file_exists($classMap) && !$this->dryRun) {
+                @unlink($classMap);
+                echo "  ✓ Cleared class map cache ({$cmFile})\n";
+                $this->deletedCount++;
+            } elseif (file_exists($classMap) && $this->dryRun) {
+                echo "  → Would clear class map cache ({$cmFile})\n";
+            }
         }
 
         // ── Summary ─────────────────────────────────────────────────
@@ -368,7 +432,7 @@ class DeleteAppCommand extends Command
     /**
      * Build the list of all targets that will be checked for deletion.
      */
-    private function buildDeleteTargets(string $appName, bool $keepDb): array
+    private function buildDeleteTargets(string $appName, bool $keepDb, bool $configOnly = false): array
     {
         $targets = [];
         $lcName = strtolower($appName);
@@ -398,14 +462,15 @@ class DeleteAppCommand extends Command
             }
         }
 
-        $dirs = [
-            ["src/{$appName}/", SPP_APP_DIR . "/src/{$appName}"],
-            ["etc/apps/{$appName}/", SPP_APP_DIR . "/etc/apps/{$appName}"],
-            ["spp/etc/apps/{$appName}/", SPP_APP_DIR . "/spp/etc/apps/{$appName}"],
-            ["resources/{$appName}/", SPP_APP_DIR . "/resources/{$appName}"],
-            ["resources/views/{$appName}/", SPP_APP_DIR . "/resources/views/{$appName}"],
-            ["var/cache/{$appName}/", SPP_APP_DIR . "/var/cache/{$appName}"],
-        ];
+        $dirs = [];
+        if (!$configOnly) {
+            $dirs[] = ["src/{$appName}/", SPP_APP_DIR . "/src/{$appName}"];
+        }
+        $dirs[] = ["etc/apps/{$appName}/", SPP_APP_DIR . "/etc/apps/{$appName}"];
+        $dirs[] = ["spp/etc/apps/{$appName}/", SPP_APP_DIR . "/spp/etc/apps/{$appName}"];
+        $dirs[] = ["resources/{$appName}/", SPP_APP_DIR . "/resources/{$appName}"];
+        $dirs[] = ["resources/views/{$appName}/", SPP_APP_DIR . "/resources/views/{$appName}"];
+        $dirs[] = ["var/cache/{$appName}/", SPP_APP_DIR . "/var/cache/{$appName}"];
 
         foreach ($dirs as [$label, $path]) {
             $targets[] = [

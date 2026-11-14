@@ -1,8 +1,39 @@
+default_environment: production
+token: ''
+environments:
+  production:
+    url: 'https://example.com/'
+    token: ''
+  staging:
+    url: 'https://staging.example.com/'
+    token: ''
 protected:
-  - 'spp/etc/db-config.yml'
-  - 'spp/etc/secrets.yml'
-  - 'var/logs/*'
-pre_deploy:
-  - 'echo "Running pre_deploy hook"'
-post_deploy:
-  - 'echo "Running post_deploy hook"'
+  - '.env'
+  - '.env.*'
+  - 'etc/domains.yml'
+  - 'etc/domains.local.yml'
+  - 'spp/etc/domains.yml'
+  - 'spp/etc/domains.local.yml'
+  - 'etc/apps/**'
+  - 'domains/**'
+  - 'data/**'
+  - 'sppdata/**'
+  - 'storage/**'
+  - 'uploads/**'
+  - 'var/**'
+exclude:
+  - '.git/**'
+  - 'var/**'
+  - 'spp/var/**'
+  - 'tests/**'
+  - 'scratch/**'
+  - 'brain/**'
+  - '*.log'
+  - '*.sqlite'
+  - '*.sqlite3'
+  - '*.db'
+  - 'data/**'
+  - 'sppdata/**'
+  - 'storage/**'
+  - 'uploads/**'
+

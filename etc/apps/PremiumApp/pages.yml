@@ -1,6 +1,0 @@
-home: index
-pages:
-  index:
-    url: PremiumApp_index.php
-    title: PremiumApp
-    special: 1

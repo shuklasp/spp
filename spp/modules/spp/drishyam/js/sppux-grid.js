@@ -11,6 +11,9 @@
         return;
     }
 
+    const BaseComponent = SPPUX.BaseComponent || (typeof window !== 'undefined' ? window.BaseComponent : class {});
+    const html = SPPUX.html || (typeof window !== 'undefined' ? window.html : (s, ...v) => s.join(''));
+
     class MasterGrid extends BaseComponent {
         onInit() {
             this.state = {

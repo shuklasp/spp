@@ -39,6 +39,7 @@ const _preservedClasses = new Set([
 function _shouldPreserve(el) {
     if (!el || el.nodeType !== Node.ELEMENT_NODE) return false;
     if (el.getAttribute('data-spp-preserve') === 'true') return true;
+    if (el.hasAttribute('wire:ignore')) return true;
     if (el.getAttribute('contenteditable') === 'true') return true;
     const classList = el.classList;
     if (classList) {
@@ -110,7 +111,10 @@ function _restoreFocus(container, snapshot) {
     try {
         target.focus();
         if (snapshot.value !== undefined && 'value' in target) {
-            target.value = snapshot.value;
+            // If target.value was intentionally updated/cleared during reconciliation, retain the new value
+            if (target.value === snapshot.value) {
+                target.value = snapshot.value;
+            }
         }
         if (snapshot.selectionStart !== undefined && snapshot.selectionStart !== null) {
             target.setSelectionRange(
@@ -133,17 +137,14 @@ function _restoreFocus(container, snapshot) {
 // ─── Attribute Patching ───────────────────────────────────────────
 
 /**
- * Synchronize attributes from a new element to an old element.
- * Adds new attributes, updates changed ones, removes stale ones.
- * 
- * Special handling for input `value` property: only updated
- * when the element is NOT the currently focused element, preventing
- * cursor jumps during typing.
- * 
- * @param {Element} oldEl - Existing DOM element to update
- * @param {Element} newEl - Reference element with desired attributes
+ * Patch attributes from newEl to oldEl.
+ * @param {Element} oldEl - Live DOM element
+ * @param {Element} newEl - Virtual DOM element with new attributes
+ * @private
  */
 export function patchAttributes(oldEl, newEl) {
+    if (oldEl.nodeType !== Node.ELEMENT_NODE || newEl.nodeType !== Node.ELEMENT_NODE) return;
+
     const oldAttrs = oldEl.attributes;
     const newAttrs = newEl.attributes;
 
@@ -165,8 +166,11 @@ export function patchAttributes(oldEl, newEl) {
 
     // Sync value/checked properties for form elements
     if ('value' in oldEl && 'value' in newEl) {
-        if (oldEl.value !== newEl.value && document.activeElement !== oldEl) {
-            oldEl.value = newEl.value;
+        const isControlled = newEl.hasAttribute('value');
+        if (oldEl.value !== newEl.value) {
+            if (document.activeElement !== oldEl || isControlled || newEl.value === '') {
+                oldEl.value = newEl.value;
+            }
         }
     }
     if ('checked' in oldEl && 'checked' in newEl) {

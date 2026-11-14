@@ -242,22 +242,60 @@ Think request mapping and controller methods.
 
 The concepts translate; the APIs do not.
 
-## 36.17 Source deep dive
+## 36.17 Multi-tenant domain routing lab
+
+In production, SPP does not assume all routes belong to a single global hostname.
+
+1. **Configure a tenant domain in `etc/domains.yml`**:
+   ```yaml
+   domains:
+     portal.school1.edu:
+       canonical_host: "portal.school1.edu"
+       default_app: "student_portal"
+       apps: ["student_portal", "library"]
+   ```
+
+2. **Test domain scoping security**:
+   ```bash
+   # Restrict admin app so it cannot be reached from portal.school1.edu
+   php spp.php domain:app:scope admin --domain-only --allow=mgmt.school1.internal
+   ```
+   When hitting `portal.school1.edu/admin`, SPP's pipeline halts immediately with an **HTTP 403 Forbidden** error partial.
+
+3. **Domain-Isolated Applications**:
+   Install an app into `domains/portal.school1.edu/src/custom_app` to ensure its code and data are physically unreachable on any other domain.
+
+4. **Single Domain vs. Multi-Domain Mode Toggling**:
+   ```bash
+   # Switch to Single Domain Mode: any host/IP serves default app with zero config
+   php spp.php domain:mode single
+   php spp.php domain:test 192.168.1.100 /
+   # Status: ALLOWED (Domain routing not required/enforced)
+
+   # Switch to Multi-Domain Mode: activates virtual host enforcement
+   php spp.php domain:mode multi strict
+   ```
+
+---
+
+## 36.18 Source deep dive
 
 Trace:
 
-1. request enters the active application;
-2. route definitions are loaded;
-3. matcher selects a route;
-4. middleware context is constructed;
-5. handler/controller is resolved;
-6. arguments/parameters are resolved;
-7. controller calls application services;
-8. response is returned.
+1. request enters runtime and `DomainRouter` identifies the active tenant host;
+2. `Scheduler` selects the application context (or default domain application);
+3. Domain Scoping checks permissions against host whitelists;
+4. route definitions are loaded from attributes or `etc/routes.yml`;
+5. PCRE chunked matcher selects a route;
+6. middleware context is constructed;
+7. handler/controller is resolved;
+8. arguments/parameters are resolved;
+9. controller calls application services;
+10. response is returned.
 
 Also identify where API routing diverges from normal page handling.
 
-## 36.18 Lab completion criteria
+## 36.19 Lab completion criteria
 
 You are finished when you can:
 
@@ -266,6 +304,7 @@ You are finished when you can:
 - use parameters;
 - connect routes to MVC controllers;
 - combine routing with middleware;
+- configure multi-tenant domain routing and application scoping;
 - explain model binding conceptually;
 - write Parikshak route/API tests;
 - debug an unmatched/misrouted request;

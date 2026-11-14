@@ -18,6 +18,8 @@ class DeployPlanCommand extends Command
 
         $apiKey = 'default_cli_key';
         $noDb = false;
+        $frameworkOnly = false;
+        $scope = null;
 
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--key=')) {
@@ -26,13 +28,21 @@ class DeployPlanCommand extends Command
             if ($arg === '--no-db') {
                 $noDb = true;
             }
+            if ($arg === '--framework-only') {
+                $frameworkOnly = true;
+            }
+        }
+
+        $rootDir = defined('SPP_APP_DIR') ? SPP_APP_DIR : (defined('SPP_BASE_DIR') && basename(SPP_BASE_DIR) === 'spp' ? dirname(SPP_BASE_DIR) : (defined('SPP_BASE_DIR') ? SPP_BASE_DIR : getcwd()));
+        if ($frameworkOnly) {
+            $scope = ['spp', 'public', 'index.php', 'spp.php', 'router.php', 'install.php', 'setup.php', 'setup.sh', '.htaccess', 'bundle-manifest.json'];
         }
 
         $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
 
         echo "🔍 Scanning local application state...\n";
         $fileScanner = new \SPPMod\SPPDeploy\Scanner\ProjectScanner();
-        $localHashes = $fileScanner->scan(SPP_BASE_DIR);
+        $localHashes = $fileScanner->scan($rootDir, $scope);
 
         $localDbHashes = [];
         if (!$noDb) {
@@ -43,7 +53,7 @@ class DeployPlanCommand extends Command
         try {
             \SPPMod\SPPDeploy\Deployer\TargetConnection::acquireDeploymentLock();
             echo "📡 Fetching remote diff from {$target}...\n";
-            $diffResp = $conn->getDiff(['files' => $localHashes, 'db' => $localDbHashes]);
+            $diffResp = $conn->getDiff(['files' => $localHashes, 'db' => $localDbHashes], $scope);
 
             if (!isset($diffResp['status']) || $diffResp['status'] !== 'ok') {
                 echo "❌ Error computing diff: " . ($diffResp['message'] ?? 'Unknown error') . "\n";
@@ -62,10 +72,16 @@ class DeployPlanCommand extends Command
             echo "\n==================== PRE-FLIGHT PLAN ====================\n";
             echo "FILES:\n";
             echo "  Created : " . count($diff['files']['create']) . "\n";
+            if (count($diff['files']['create']) > 0) {
+                echo "    + " . implode("\n    + ", $diff['files']['create']) . "\n";
+            }
             echo "  Updated : " . count($diff['files']['update']) . "\n";
+            if (count($diff['files']['update']) > 0) {
+                echo "    ~ " . implode("\n    ~ ", $diff['files']['update']) . "\n";
+            }
             echo "  Deleted : " . count($diff['files']['delete']) . "\n";
             if (count($diff['files']['delete']) > 0) {
-                echo "  Files to be removed: \n    - " . implode("\n    - ", $diff['files']['delete']) . "\n";
+                echo "    - " . implode("\n    - ", $diff['files']['delete']) . "\n";
             }
 
             echo "\nDATABASE:\n";

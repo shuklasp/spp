@@ -21,7 +21,24 @@ class MySQLCompiler implements CompilerInterface
     public function compile(SppEntityQuery $query, string $baseTable, string $entityClass): array
     {
         $dynamicTable = \SPPMod\SPPDB\SPPDB::sppTable('spp_entity_fields');
-        $sql = "SELECT base.* FROM {$baseTable} base ";
+                $vectorSearch = method_exists($query, 'getVectorSearch') ? $query->getVectorSearch() : null;
+        $vectorClause = null;
+        $selectValues = [];
+        if ($vectorSearch !== null) {
+            $vectorClause = $this->compileVectorSimilarity(
+                $vectorSearch['column'],
+                $vectorSearch['vector'],
+                $vectorSearch['metric'],
+                $vectorSearch['topK']
+            );
+            $selectValues = $vectorClause['bindings'];
+        }
+
+        $selectCols = "base.*";
+        if ($vectorClause !== null) {
+            $selectCols .= ", " . $vectorClause['select'];
+        }
+        $sql = "SELECT {$selectCols} FROM {$baseTable} base ";
 
         $joinIndex = 0;
         $values = [];
@@ -31,6 +48,14 @@ class MySQLCompiler implements CompilerInterface
         foreach ($query->getConditions() as $cond) {
             $field = preg_replace('/[^a-zA-Z0-9_]/', '', $cond['field']);
             $operator = $cond['operator'];
+
+            if ($operator === 'RAW') {
+                $whereClauses[] = $cond['field'];
+                if (!empty($cond['values']) && is_array($cond['values'])) {
+                    $values = array_merge($values, $cond['values']);
+                }
+                continue;
+            }
 
             if (in_array($operator, ['IN', 'NOT IN']) && is_array($cond['value'])) {
                 $placeholders = implode(',', array_fill(0, count($cond['value']), '?'));
@@ -54,6 +79,14 @@ class MySQLCompiler implements CompilerInterface
                 $field = $cond['field'];
                 $value = $cond['value'];
                 $operator = $cond['operator'];
+
+            if ($operator === 'RAW') {
+                $whereClauses[] = $cond['field'];
+                if (!empty($cond['values']) && is_array($cond['values'])) {
+                    $values = array_merge($values, $cond['values']);
+                }
+                continue;
+            }
 
                 $col = is_int($value) ? 'value_int' : (is_float($value) ? 'value_decimal' : 'value_string');
 
@@ -82,11 +115,23 @@ class MySQLCompiler implements CompilerInterface
             $sql .= " WHERE " . implode(' AND ', $whereClauses);
         }
 
-        if ($query->getSort()) {
+                if ($query->getSort()) {
+            $sql .= " ORDER BY base." . preg_replace('/[^a-zA-Z0-9_\s]/', '', $query->getSort());
+        } elseif ($vectorClause !== null) {
+            $sql .= " ORDER BY _spp_vector_distance ASC";
+        }
+        if (false) {
             $sql .= " ORDER BY base." . preg_replace('/[^a-zA-Z0-9_\s]/', '', $query->getSort());
         }
 
-        if ($query->getLimit()) {
+                $limit = $query->getLimit() ?? ($vectorClause !== null ? $vectorClause['limit'] : null);
+        if ($limit) {
+            $sql .= " LIMIT " . (int) $limit;
+            if ($query->getOffset()) {
+                $sql .= " OFFSET " . (int) $query->getOffset();
+            }
+        }
+        if (false) {
             $sql .= " LIMIT " . (int) $query->getLimit();
             if ($query->getOffset()) {
                 $sql .= " OFFSET " . (int) $query->getOffset();
@@ -96,6 +141,10 @@ class MySQLCompiler implements CompilerInterface
         $lockSql = $this->compileLock($query);
         if ($lockSql) {
             $sql .= " " . $lockSql;
+        }
+
+                if (!empty($selectValues)) {
+            $values = array_merge($selectValues, $values);
         }
 
         return ['sql' => trim($sql), 'values' => $values];
@@ -155,5 +204,31 @@ class MySQLCompiler implements CompilerInterface
             $statements[] = "ALTER TABLE {$safeTableName} ADD {$safeCol} {$type}";
         }
         return $statements;
+    }
+
+    public function compileVectorSimilarity(
+        string $column,
+        array $queryVector,
+        string $metric = 'cosine',
+        int $topK = 10
+    ): array {
+        $vectorStr = '[' . implode(',', array_map('floatval', $queryVector)) . ']';
+        $metricUpper = strtoupper($metric);
+        $metricName = match ($metricUpper) {
+            'L2' => 'L2',
+            'INNER_PRODUCT', 'IP', 'DOT' => 'INNER_PRODUCT',
+            default => 'COSINE',
+        };
+
+        $safeCol = $this->escapeIdentifier($column);
+        $distExpr = "DISTANCE({$safeCol}, CAST(? AS VECTOR), '{$metricName}')";
+
+        return [
+            'sql'      => "1=1",
+            'bindings' => [$vectorStr],
+            'orderBy'  => "{$distExpr} ASC",
+            'select'   => "{$distExpr} AS _spp_vector_distance",
+            'limit'    => $topK,
+        ];
     }
 }

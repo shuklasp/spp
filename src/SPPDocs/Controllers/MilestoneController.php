@@ -64,7 +64,7 @@ class MilestoneController extends \SPPMod\SPPView\ViewController
     }
 
     #[Route('/milestones/view', method: 'GET')]
-    public function view()
+    public function view(...$args)
     {
         $projectId = $this->resolveActiveProjectId();
         $msId = $_GET['milestoneId'] ?? null;
@@ -174,5 +174,14 @@ class MilestoneController extends \SPPMod\SPPView\ViewController
         $this->saveMilestones($issuesDir, $milestones);
 
         Response::redirect(App::url('milestones') . "?projectId={$projectId}");
+    }
+
+    public function create()
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+            return $this->save();
+        }
+        $projectId = $this->resolveActiveProjectId();
+        Response::redirect(App::url('milestones') . "?projectId={$projectId}&create=1");
     }
 }

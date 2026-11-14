@@ -350,4 +350,10 @@ class AdminPMController extends \SPPMod\SPPView\ViewController
         header("Location: " . \SPP\App::getBaseUrl() . "/admin/webhooks?projectId=$projectId");
         exit;
     }
+
+    #[Route('/admin/pm', method: 'GET')]
+    public function settings()
+    {
+        return $this->automationsIndex();
+    }
 }

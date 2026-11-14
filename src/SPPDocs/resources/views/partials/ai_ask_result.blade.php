@@ -21,7 +21,7 @@
     </div>
 
     <div class="sppdocs-ai-answer-body">
-        {!! nl2br(htmlspecialchars($answer)) !!}
+        {!! \App\SPPDocs\Services\IssueMarkdownService::render($answer, $project_id ?? null) !!}
     </div>
 
     @if(!empty($citations))

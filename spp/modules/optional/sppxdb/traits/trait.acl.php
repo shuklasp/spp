@@ -2,11 +2,15 @@
 
 namespace SPPMod\SPPXDB;
 
+use Exception;
+
 trait XDB_Acl
 {
     protected function loadACL()
     {
-        $aclPath = $this->dataDir . '/_perms.json';
+        $aclPath = file_exists($this->dataDir . '/acl.json')
+            ? $this->dataDir . '/acl.json'
+            : $this->dataDir . '/_perms.json';
         if (file_exists($aclPath)) {
             $this->permissions = json_decode(file_get_contents($aclPath), true) ?: [];
         }
@@ -14,9 +18,9 @@ trait XDB_Acl
 
     public function setPermissions($table, $perms)
     {
-        $aclPath = $this->dataDir . '/_perms.json';
         $this->permissions[$table] = $perms;
-        file_put_contents($aclPath, json_encode($this->permissions, JSON_PRETTY_PRINT));
+        file_put_contents($this->dataDir . '/acl.json', json_encode($this->permissions, JSON_PRETTY_PRINT));
+        file_put_contents($this->dataDir . '/_perms.json', json_encode($this->permissions, JSON_PRETTY_PRINT));
         return $this;
     }
 

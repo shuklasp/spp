@@ -15,12 +15,26 @@ class SPP_ViewErrors
         }
         self::$errorHolders[$errorHolder][$errorType][] = $errorMessage;
     }
-    public static function getErrors(string $errorHolder)
+    public static function getErrors(?string $errorHolder = null)
     {
+        if ($errorHolder === null) {
+            return self::$errorHolders;
+        }
         if (isset(self::$errorHolders[$errorHolder])) {
             return self::$errorHolders[$errorHolder];
         }
         return [];
+    }
+
+    public static function hasErrors(string $errorHolder): bool
+    {
+        return !empty(self::getErrors($errorHolder));
+    }
+
+    public static function getErrorsForField(string $errorHolder): array
+    {
+        $errs = self::getErrors($errorHolder);
+        return $errs['error'] ?? (is_array($errs) ? $errs : []);
     }
 
     public static function clearErrors(string $errorHolder)

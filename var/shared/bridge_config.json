@@ -1,5 +1,5 @@
 {
-    "timestamp": 1788784517,
+    "timestamp": 1792927952,
     "spp_version": "0.7",
     "base_dir": "C:\\projects\\apache\\school1\\spp",
     "database": {
@@ -10,13 +10,15 @@
         "dbpasswd": false
     },
     "modules": {
-        "sppapi": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppapi",
         "sppdb": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppdb",
+        "sppapi": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppapi",
         "dbconfig": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/dbconfig",
         "sppauth": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppauth",
         "spplogger": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/spplogger",
         "sppview": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppview",
         "drishyam": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/drishyam",
+        "sppcache": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppcache",
+        "sppworkflow": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppworkflow",
         "parikshak": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/parikshak",
         "sppai": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppai",
         "lekhni": "C:\\projects\\apache\\school1\\spp\/modules\/contrib\/lekhni",
@@ -24,14 +26,18 @@
         "sppdeploy": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppdeploy",
         "sppdoc": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppdoc",
         "spprouter": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/spprouter",
-        "reading_time": "C:\/projects\/apache\/school1\/src\/SPPDocs\/modules\/reading_time",
-        "slack_webhook": "C:\/projects\/apache\/school1\/src\/SPPDocs\/modules\/slack_webhook"
+        "sppshield": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppshield",
+        "sppmetrics": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppmetrics",
+        "sppserver": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppserver",
+        "sppapps": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppapps",
+        "sppruntime": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppruntime",
+        "sppreseller": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppreseller"
     },
     "runtimes": {
         "python": {
             "name": "Python",
             "path": "C:\\Python312\\python.exe",
-            "version": "Python 3.12.0"
+            "version": "Python 3.12.10"
         },
         "perl": {
             "name": "Perl",
@@ -41,7 +47,7 @@
         "java": {
             "name": "Java",
             "path": "C:\\Program Files\\Common Files\\Oracle\\Java\\javapath\\java.exe",
-            "version": "15.0.2"
+            "version": "27"
         },
         "node": {
             "name": "Node.js",
@@ -56,12 +62,222 @@
         "go": {
             "name": "Go",
             "path": "C:\\Program Files\\Go\\bin\\go.exe",
-            "version": "1.26.2"
+            "version": "1.27.0"
         },
         "compiler": {
             "name": "C++ Compiler",
             "path": "",
             "version": ""
+        },
+        "ada": {
+            "name": "Ada (GNAT)",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "awk": {
+            "name": "AWK",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "bun": {
+            "name": "Bun Runtime",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "clojure": {
+            "name": "Clojure",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "cpp": {
+            "name": "C++ (Native)",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "crystal": {
+            "name": "Crystal",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "dart": {
+            "name": "Dart",
+            "path": "C:\\flutter\\bin\\dart",
+            "version": "Dart SDK version: 3.11.5 (stable) (Wed Apr 15 00:36:32 2026 -0700) on \"windows_x64\""
+        },
+        "deno": {
+            "name": "Deno Runtime",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "dlang": {
+            "name": "D (Dlang)",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "elixir": {
+            "name": "Elixir",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "erlang": {
+            "name": "Erlang",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "formula": {
+            "name": "SPP Formula & Rule DSL",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "fortran": {
+            "name": "Fortran",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "fsharp": {
+            "name": "F# (.NET Functional)",
+            "path": "C:\\Program Files\\dotnet\\dotnet.exe",
+            "version": "8.0.400"
+        },
+        "groovy": {
+            "name": "Groovy",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "haskell": {
+            "name": "Haskell (GHC)",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "julia": {
+            "name": "Julia",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "kotlin": {
+            "name": "Kotlin",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "lisp": {
+            "name": "Common Lisp (SBCL)",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "lua": {
+            "name": "Lua",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "nim": {
+            "name": "Nim",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "ocaml": {
+            "name": "OCaml",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "octave": {
+            "name": "GNU Octave \/ MATLAB",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "odin": {
+            "name": "Odin",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "pascal": {
+            "name": "Free Pascal",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "php": {
+            "name": "PHP (Worker \/ Script)",
+            "path": "C:\\xampp\\php\\php.exe",
+            "version": "PHP 8.2.12 (cli) (built: Oct 24 2023 21:15:15) (ZTS Visual C++ 2019 x64)"
+        },
+        "r": {
+            "name": "R (Rscript)",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "racket": {
+            "name": "Racket",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "ruby": {
+            "name": "Ruby",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "rust": {
+            "name": "Rust",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "scala": {
+            "name": "Scala",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "scheme": {
+            "name": "Scheme (Guile)",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "shell": {
+            "name": "Shell (Bash \/ PowerShell)",
+            "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            "version": "At line:1 char:3"
+        },
+        "solidity": {
+            "name": "Solidity",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "sql": {
+            "name": "SQL Script",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "swift": {
+            "name": "Swift",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "tcl": {
+            "name": "Tcl",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "typescript": {
+            "name": "TypeScript",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "vlang": {
+            "name": "V (Vlang)",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "wasm": {
+            "name": "WebAssembly (WASI)",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "zig": {
+            "name": "Zig",
+            "path": "",
+            "version": "Not found in PATH"
+        },
+        "minilang": {
+            "name": "Minilang",
+            "path": "",
+            "version": "Not found in PATH"
         }
     },
     "bridge_settings": {

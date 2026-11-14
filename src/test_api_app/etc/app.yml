@@ -1,6 +1,0 @@
-# Self-contained application descriptor
-# Discovered automatically by SPP framework
-base_url: "/test_api_app"
-table_prefix: "test_api_app_"
-type: "mixed"
-shared_group: "core"

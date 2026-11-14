@@ -7,5 +7,5 @@ regions:
       vocab: categories
       weight: 10
       visibility:
-        paths: ['*']
+        paths: ['docs*']
         roles: ['*']

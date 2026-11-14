@@ -15,6 +15,11 @@ class SPPErrorHandler {
     }
 
     public static function handleError(int $level, string $message, string $file = '', int $line = 0): void {
+        // Suppress non-breaking deprecation notices so they do not abort execution
+        if ($level & (E_DEPRECATED | E_USER_DEPRECATED)) {
+            return;
+        }
+
         if (error_reporting() & $level) {
             throw new \ErrorException($message, 0, $level, $file, $line);
         }
@@ -32,19 +37,30 @@ class SPPErrorHandler {
             exit(1);
         }
 
-        http_response_code($exception->getCode() ?: 500);
+        if (!headers_sent()) {
+            http_response_code($exception->getCode() ?: 500);
+        }
         
-        $isApi = str_starts_with($_SERVER['REQUEST_URI'] ?? '', '/api/');
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        $isApi = str_contains($uri, '/api/') 
+            || str_contains($uri, 'api.php')
+            || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'))
+            || !empty($_SERVER['HTTP_X_SPP_AJAX'])
+            || !empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+            || (headers_sent() && str_contains(implode(',', headers_list()), 'application/json'));
 
         if ($isApi) {
-            header('Content-Type: application/json');
+            if (!headers_sent()) {
+                header('Content-Type: application/json; charset=utf-8');
+            }
             echo json_encode([
                 'status' => 'error',
+                'success' => false,
                 'message' => $isDebug ? $exception->getMessage() : 'Internal Server Error',
                 'file' => $isDebug ? $exception->getFile() : null,
                 'line' => $isDebug ? $exception->getLine() : null,
                 'trace' => $isDebug ? explode("\n", $exception->getTraceAsString()) : null,
-            ]);
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         } else {
             // Render Ignition-style HTML page
             echo self::renderHtmlError($exception, $isDebug);
@@ -55,69 +71,75 @@ class SPPErrorHandler {
     public static function handleShutdown(): void {
         $error = error_get_last();
         if ($error !== null && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE])) {
+            // If output was already emitted and headers sent for an API/JSON response, avoid corrupting it
+            if (headers_sent() && !ob_get_level()) {
+                exit;
+            }
             self::handleException(new \ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']));
         }
     }
 
     private static function renderHtmlError(\Throwable $exception, bool $isDebug): string {
-        if (!$isDebug) {
-            return <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Service Unavailable</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f3f4f6; color: #1f2937; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .error-card { text-align: center; background: #ffffff; padding: 3rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #3b82f6; max-width: 500px; }
-        h1 { color: #1f2937; margin-top: 0; font-size: 2rem; }
-        p { color: #4b5563; font-size: 1.1rem; }
-    </style>
-</head>
-<body>
-    <div class="error-card">
-        <h1>Oops!</h1>
-        <p>Something went wrong on our end. Please try again later.</p>
-    </div>
-</body>
-</html>
-HTML;
-        }
-        
-        $class = get_class($exception);
-        $message = htmlspecialchars($exception->getMessage());
-        $file = htmlspecialchars($exception->getFile());
-        $line = $exception->getLine();
-        $trace = htmlspecialchars($exception->getTraceAsString());
+        $baseDir = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__);
+        $viewFile = $isDebug ? ($baseDir . '/views/errors/debug.php') : ($baseDir . '/views/errors/production.php');
 
-        return <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Exception: {$class}</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f3f4f6; color: #1f2937; padding: 2rem; margin: 0; }
-        .container { max-width: 1200px; margin: 0 auto; background: #ffffff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #ef4444; }
-        h1 { color: #dc2626; font-size: 1.5rem; margin-top: 0; }
-        .message { font-size: 1.25rem; font-weight: 500; margin-bottom: 1rem; }
-        .file-info { background: #f9fafb; padding: 1rem; border-radius: 4px; font-family: monospace; color: #4b5563; border: 1px solid #e5e7eb; }
-        .trace { background: #1f2937; color: #f3f4f6; padding: 1.5rem; border-radius: 4px; overflow-x: auto; font-family: monospace; font-size: 0.875rem; line-height: 1.5; margin-top: 1.5rem; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>{$class}</h1>
-        <div class="message">{$message}</div>
-        <div class="file-info">
-            In <strong>{$file}</strong> on line <strong>{$line}</strong>
-        </div>
-        <div class="trace">
-<pre>{$trace}</pre>
-        </div>
-    </div>
-</body>
-</html>
-HTML;
+        if (file_exists($viewFile)) {
+            $class = get_class($exception);
+            $message = $exception->getMessage();
+            $file = $exception->getFile();
+            $line = $exception->getLine();
+            $trace = $exception->getTraceAsString();
+            $codeSnippet = self::getCodeSnippet($file, $line);
+            $suggestion = self::inferSuggestion($exception);
+
+            ob_start();
+            include $viewFile;
+            return (string) ob_get_clean();
+        }
+
+        return "Service Unavailable";
+    }
+
+    private static function getCodeSnippet(string $file, int $line, int $radius = 6): ?array {
+        if (!file_exists($file) || !is_readable($file)) {
+            return null;
+        }
+
+        $lines = file($file, FILE_IGNORE_NEW_LINES);
+        if ($lines === false) {
+            return null;
+        }
+
+        $totalLines = count($lines);
+        $start = max(1, $line - $radius);
+        $end = min($totalLines, $line + $radius);
+
+        $snippetLines = [];
+        for ($i = $start; $i <= $end; $i++) {
+            $snippetLines[$i] = $lines[$i - 1] ?? '';
+        }
+
+        return [
+            'start' => $start,
+            'end' => $end,
+            'lines' => $snippetLines
+        ];
+    }
+
+    private static function inferSuggestion(\Throwable $e): ?string {
+        $msg = $e->getMessage();
+        if (stripos($msg, 'no such table') !== false || stripos($msg, 'Base table or view not found') !== false) {
+            return "A database table is missing. Run 'php spp.php sys:upgrade' to synchronize your schema from db.yml definitions.";
+        }
+        if (stripos($msg, 'Class') !== false && stripos($msg, 'not found') !== false) {
+            return "Class resolution failed. Check the namespace in src/ or run 'php spp.php sys:status' to inspect autoloader bindings.";
+        }
+        if (stripos($msg, 'View template') !== false || stripos($msg, 'Template not found') !== false) {
+            return "Blade view could not be located. Ensure the .blade.php file exists in resources/views/ or use @spppartial.";
+        }
+        if (stripos($msg, 'Call to undefined method') !== false) {
+            return "Method does not exist on the targeted instance. Verify interface contracts or active record model inheritance.";
+        }
+        return null;
     }
 }

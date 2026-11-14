@@ -1,1 +1,54 @@
-{  }
+# Feature presets for SPPDocs application profiles
+lean-docs:
+  name: "Lean Documentation"
+  description: "Minimalist Markdown documentation engine without heavy PM or community features."
+  enabled_packages:
+    - docs
+  disabled_packages:
+    - pm
+    - forum
+    - erp
+  storage_driver: json
+  features:
+    docs: true
+    issues: false
+    forums: false
+    blog: false
+    milestones: false
+
+enterprise-km:
+  name: "Enterprise Knowledge & Delivery"
+  description: "Full-featured technical documentation, issue tracking, sprint management, and collaboration."
+  enabled_packages:
+    - docs
+    - pm
+    - forum
+    - cms
+  disabled_packages:
+    - erp
+  storage_driver: sqlite
+  features:
+    docs: true
+    issues: true
+    forums: true
+    blog: true
+    milestones: true
+    pm_dashboard: true
+    webhooks: true
+
+academic-wiki:
+  name: "Academic & Research Wiki"
+  description: "Documentation engine with community forums and peer review capabilities."
+  enabled_packages:
+    - docs
+    - forum
+  disabled_packages:
+    - pm
+    - erp
+  storage_driver: sqlite
+  features:
+    docs: true
+    issues: false
+    forums: true
+    blog: true
+    milestones: false

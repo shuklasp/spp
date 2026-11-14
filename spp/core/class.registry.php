@@ -152,6 +152,14 @@ class Registry extends \SPP\SPPObject
     }
 
     /**
+     * Alias for register() for developer convenience.
+     */
+    public static function set(string $entity, mixed $value): void
+    {
+        self::register($entity, $value);
+    }
+
+    /**
      * Flags the shared registry for synchronization at shutdown.
      */
     private static function syncShared(): void

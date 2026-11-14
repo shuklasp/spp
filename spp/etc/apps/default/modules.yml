@@ -3,3 +3,6 @@ modules:
         name: sppapi
         path: spp/sppapi
         status: active
+    2:
+        name: sys_billing
+        status: active

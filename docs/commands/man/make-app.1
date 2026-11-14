@@ -1,7 +1,60 @@
-.TH "make:app" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "MAKE:APP" 1 "September 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-make:app \- Create a new SPP application context
+make:app \- Scaffold a new isolated SPP application context
 .SH SYNOPSIS
 .B php spp.php make:app
+[\fIapp_name\fR] [\fIapp_type\fR] [\fIbase_url\fR] [\fItable_prefix\fR] [\fB\-\-enterprise\fR]
 .SH DESCRIPTION
-Create a new SPP application context
+The
+.B make:app
+command initializes an isolated application namespace under \fIsrc/<AppName>/\fR, \fIetc/apps/<AppName>/\fR, and \fIresources/<AppName>/\fR.
+.PP
+Available application architecture types include:
+.TP
+.B barebones
+Minimal clean starter with step-by-step developer directions & guidance on visual page design, entities, workflows, partials, and testing. Recommended for novice developers.
+.TP
+.B mixed
+Flagship showcase combining SPP-UX reactive components, Blade views, PHP scripts, and REST API.
+.TP
+.B blade
+Server-rendered application using Blade templates and ViewControllers.
+.TP
+.B sppux
+Single Page Application (SPA) driven by SPP-UX reactive component stores.
+.TP
+.B native
+Native PHP pages augmented with ViewPage pipeline.
+.TP
+.B api
+Headless REST API backend with JSON endpoints and authentication middleware.
+.TP
+.B dropin
+Low-code prototyping structure with drop-in HTML/PHP files.
+.SH OPTIONS
+.TP
+\fIapp_name\fR
+PascalCase application name (e.g., MyClinic).
+.TP
+\fIapp_type\fR
+Application architecture preset: \fIbarebones\fR (default), \fImixed\fR, \fIblade\fR, \fIsppux\fR, \fInative\fR, \fIapi\fR, or \fIdropin\fR.
+.TP
+\fIbase_url\fR
+Routing path segment (default: /<app_name>).
+.TP
+\fItable_prefix\fR
+Database table prefix for entity isolation (default: <app_name>_).
+.TP
+\fB\-\-enterprise\fR
+Enable enterprise Redis caching and session handling.
+.SH UNDER THE HOOD
+.IP 1. 4
+Creates application directories, workflow configurations (\fIetc/apps/<AppName>/workflows/default.yml\fR), and registers routes in \fIspp/etc/global-settings.yml\fR.
+.IP 2. 4
+Generates starter Blade views, layouts, and controllers.
+.IP 3. 4
+Runs initial database migrations via \fBphp spp.php migrate \-\-app=<AppName>\fR if the \fIsppdb\fR module is active.
+.IP 4. 4
+Synchronizes directory manifests (\fI__spp_file_props.yml\fR).
+.IP 5. 4
+Guarded by CLI SAPI check (\fBisCLIOnly() === true\fR).

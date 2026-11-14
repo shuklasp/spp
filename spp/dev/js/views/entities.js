@@ -53,10 +53,15 @@ export default class EntitiesView extends BaseComponent {
 
     async fetchData() {
         try {
-            const res = await this.api('list_entities');
+            const app = this.selectedApp;
+            const res = await this.api('list_entities', { appname: app, context: app });
             if (res.success) {
+                const entities = (res.data.entities || []).filter(e => {
+                    const name = typeof e === 'string' ? e : e?.name;
+                    return !name || !name.startsWith('__');
+                });
                 this.setState({
-                    entities: res.data.entities || [],
+                    entities: entities,
                     loading: false
                 });
             } else {
@@ -79,10 +84,11 @@ export default class EntitiesView extends BaseComponent {
         if (headerActions) {
             if (activeMainTab === 'list') {
                 const defaultSource = 'table: my_table\nid_field: id\nattributes:\n  name:\n    type: varchar\n    length: 255';
-                const headerHtml = html`
-                    <button type="button" class="btn primary-btn btn-sm" @click=${() => this.openEditor('', defaultSource)}>+ New Entity</button>
+                headerActions.innerHTML = `
+                    <button type="button" class="btn primary-btn btn-sm" id="btn-new-entity">+ New Entity</button>
                 `;
-                headerActions.innerHTML = headerHtml.toString();
+                const btnNew = document.getElementById('btn-new-entity');
+                if (btnNew) btnNew.onclick = () => this.openEditor('', defaultSource);
             } else {
                 headerActions.innerHTML = '';
             }
@@ -586,7 +592,7 @@ export default class EntitiesView extends BaseComponent {
                         <label title="The PHP class name for your entity. Must be in PascalCase (e.g. StudentProfile).">Class Name ℹ️</label>
                         <input type="text" value="${this.state.currentEntityName}" 
                             @change=${(e) => { this.state.currentEntityName = e.target.value; }} 
-                            placeholder="e.g. Staff" ${this.state.currentEntityName ? 'disabled' : ''}>
+                            placeholder="e.g. Staff" ?disabled="${!!this.state.currentEntityName}">
                     </div>
                     <div class="input-group">
                         <label title="The physical database table name where this entity's records will be stored. Usually plural lowercase (e.g. student_profiles).">Database Table ℹ️</label>
@@ -624,6 +630,19 @@ export default class EntitiesView extends BaseComponent {
                             @change=${(e) => { config.enable_api = e.target.checked; }}> Enable REST API ⚡
                         </label>
                     </div>
+                    <div class="input-group checkbox-group">
+                        <label title="Enable native Workflow state machine capability (implements WorkflowableInterface and tracks state machine history)">
+                            <input type="checkbox" ?checked="${config.workflowable}" 
+                            @change=${(e) => { config.workflowable = e.target.checked; this.refreshModal(); }}> Workflowable 🔄
+                        </label>
+                    </div>
+                    ${config.workflowable ? html`
+                        <div class="input-group">
+                            <label title="Linked Workflow definition name from etc/apps/{app}/workflows/*.yml">Workflow Name ℹ️</label>
+                            <input type="text" value="${config.workflow || ''}" 
+                                @change=${(e) => { config.workflow = e.target.value; }} placeholder="e.g. course_lifecycle">
+                        </div>
+                    ` : ''}
                 </div>
                 <div class="builder-main">
                     <div class="section-card attributes-section">
@@ -756,12 +775,18 @@ export default class EntitiesView extends BaseComponent {
             <div class="attribute-row">
                 <input type="text" value="${name}" @change=${(e) => this.updateAttributeName(name, e.target.value)} placeholder="Field name">
                 <select @change=${(e) => { this.state.currentEntityConfig.attributes[name] = e.target.value; }}>
-                    <option value="varchar(255)" ?selected="${typeStr.includes('varchar')}">Varchar</option>
+                    <option value="varchar(255)" ?selected="${typeStr === 'varchar(255)' || typeStr === 'varchar'}">Varchar (255)</option>
+                    <option value="varchar(100)" ?selected="${typeStr === 'varchar(100)'}">Varchar (100)</option>
+                    <option value="text" ?selected="${typeStr === 'text'}">Text</option>
+                    <option value="longtext" ?selected="${typeStr === 'longtext'}">LongText</option>
                     <option value="int" ?selected="${typeStr === 'int'}">Integer</option>
                     <option value="bigint" ?selected="${typeStr === 'bigint'}">BigInt</option>
-                    <option value="text" ?selected="${typeStr === 'text'}">Text</option>
+                    <option value="boolean" ?selected="${typeStr === 'boolean' || typeStr === 'tinyint(1)'}">Boolean</option>
+                    <option value="decimal(10,2)" ?selected="${typeStr.includes('decimal')}">Decimal (10,2)</option>
                     <option value="datetime" ?selected="${typeStr === 'datetime'}">DateTime</option>
-                    <option value="decimal(10,2)" ?selected="${typeStr.includes('decimal')}">Decimal</option>
+                    <option value="timestamp" ?selected="${typeStr === 'timestamp'}">Timestamp</option>
+                    <option value="date" ?selected="${typeStr === 'date'}">Date</option>
+                    <option value="json" ?selected="${typeStr === 'json'}">JSON</option>
                 </select>
                 <button type="button" class="btn btn-icon danger" @click=${() => this.removeAttribute(name)}>✕</button>
             </div>`;
@@ -772,8 +797,10 @@ export default class EntitiesView extends BaseComponent {
             <div class="relation-row card">
                 <div class="rel-meta">
                     <select @change=${(e) => { this.state.currentEntityConfig.relations[idx].relation_type = e.target.value; this.refreshModal(); }}>
-                        <option value="OneToMany" ?selected="${rel.relation_type === 'OneToMany'}">One-to-Many</option>
-                        <option value="ManyToMany" ?selected="${rel.relation_type === 'ManyToMany'}">Many-to-Many</option>
+                        <option value="OneToMany" ?selected="${rel.relation_type === 'OneToMany'}">One-to-Many (has_many)</option>
+                        <option value="ManyToOne" ?selected="${rel.relation_type === 'ManyToOne'}">Many-to-One (belongs_to)</option>
+                        <option value="OneToOne" ?selected="${rel.relation_type === 'OneToOne'}">One-to-One (has_one)</option>
+                        <option value="ManyToMany" ?selected="${rel.relation_type === 'ManyToMany'}">Many-to-Many (pivot)</option>
                     </select>
                     <span>Target:</span>
                     <select @change=${(e) => { this.state.currentEntityConfig.relations[idx].child_entity = e.target.value; this.refreshModal(); }}>
@@ -783,10 +810,10 @@ export default class EntitiesView extends BaseComponent {
                 </div>
                 <div class="rel-fields">
                     <input type="text" value="${rel.child_entity_field || ''}" 
-                        @change=${(e) => { this.state.currentEntityConfig.relations[idx].child_entity_field = e.target.value; }} placeholder="FK Field">
+                        @change=${(e) => { this.state.currentEntityConfig.relations[idx].child_entity_field = e.target.value; }} placeholder="FK Field (e.g. user_id)">
                     ${rel.relation_type === 'ManyToMany' ? html`
                         <input type="text" value="${rel.pivot_table || ''}" 
-                            @change=${(e) => { this.state.currentEntityConfig.relations[idx].pivot_table = e.target.value; }} placeholder="Pivot Table">
+                            @change=${(e) => { this.state.currentEntityConfig.relations[idx].pivot_table = e.target.value; }} placeholder="Pivot Table (e.g. role_user)">
                     ` : ''}
                 </div>
                 <button type="button" class="btn btn-icon danger" @click=${() => this.removeRelation(idx)}>✕</button>
@@ -852,6 +879,8 @@ export default class EntitiesView extends BaseComponent {
         if (c.extends) yaml.push(`extends: ${c.extends}`);
         if (c.login_enabled) yaml.push(`login_enabled: true`);
         if (c.enable_api) yaml.push(`enable_api: true`);
+        if (c.workflowable) yaml.push(`workflowable: true`);
+        if (c.workflow) yaml.push(`workflow: ${c.workflow}`);
         if (c.id_field) yaml.push(`id_field: ${c.id_field}`);
 
         if (Object.keys(c.attributes || {}).length > 0) {

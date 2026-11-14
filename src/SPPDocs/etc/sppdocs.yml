@@ -1,17 +1,19 @@
 projects:
-  spp: 'C:/projects/apache/school1/docs/handbook/spp.yml'
-  lekhak: 'C:/projects/apache/school1/src/lekhak/docs/lekhak.yml'
-  vshiksha: 'C:/projects/apache/school1/src/vshiksha/docs/vshiksha.yml'
-  indiwiki: 'C:/projects/apache/school1/src/indiwiki/docs/indiwiki.yml'
-  sppdocs: 'C:/projects/apache/school1/src/SPPDocs/docs/v1/sppdocs.yml'
+  spp: docs/handbook/spp.yml
+  lekhak: src/SPPDocs/packages/cms/docs/lekhak.yml
+  vshiksha: src/SPPDocs/packages/erp/docs/vshiksha.yml
+  indiwiki: src/SPPDocs/docs/indiwiki/indiwiki.yml
+  sppdocs: src/SPPDocs/docs/v1/sppdocs.yml
   global: docs/global/project.yml
   demo-app: docs/demo-app/project.yml
+  book: docs/book/project.yml
 auth_mode: sppauth
 global_admins:
   - admin
-portal_title: 'SatyaLab Enterprise Docs Portal'
-portal_logo: /school1/sppdocs/assets/logo.jpg
-default_storage: json
+portal_title: 'SPP Enterprise Docs Portal'
+portal_logo: /sppdocs/assets/logo.jpg
+data_dir: src/SPPDocs/data
+default_storage: sqlite
 default_features:
   docs: true
   issues: true

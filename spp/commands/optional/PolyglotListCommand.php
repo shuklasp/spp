@@ -27,11 +27,14 @@ class PolyglotListCommand extends Command {
                 foreach ($files as $file) {
                     if ($file->isFile()) {
                         $ext = strtolower($file->getExtension());
-                        if (in_array($ext, ['py', 'go', 'js', 'rs', 'rb', 'sh', 'cpp', 'cs', 'java', 'pl'])) {
+                        $driver = class_exists('\\SPP\\Core\\Polyglot\\LanguageRegistry') 
+                            ? \SPP\Core\Polyglot\LanguageRegistry::getDriver($ext) 
+                            : null;
+                        if ($driver !== null || in_array($ext, ['py', 'go', 'js', 'rs', 'rb', 'sh', 'cpp', 'cs', 'java', 'pl', 'calc', 'rule', 'zig', 'lua', 'ex', 'jl', 'r', 'swift', 'kt'])) {
                             $normalizedPath = str_replace('\\', '/', $file->getPathname());
                             if (strpos($normalizedPath, '/obj/') === false && strpos($normalizedPath, '/bin/') === false) {
                                 $found[] = [
-                                    'Language' => strtoupper($ext),
+                                    'Language' => $driver ? strtoupper($driver['id']) : strtoupper($ext),
                                     'Path' => str_replace(str_replace('\\', '/', SPP_BASE_DIR), '', $normalizedPath)
                                 ];
                             }

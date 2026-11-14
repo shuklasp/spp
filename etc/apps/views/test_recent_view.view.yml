@@ -1,7 +1,0 @@
-base_table: nodes
-filters:
-  title: 'Test Taxonomy Node'
-sort:
-  id: DESC
-pager:
-  limit: 3

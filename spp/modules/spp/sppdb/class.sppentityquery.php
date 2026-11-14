@@ -18,14 +18,22 @@ class SppEntityQuery
     protected bool $withoutGlobalScopes = false;
     protected bool $withTrashed = false;
     protected bool $onlyTrashed = false;
+    protected ?string $xquery = null;
+    protected ?string $xpath = null;
+    protected array $xqueryVars = [];
+    protected ?\SPPMod\SPPDB\SPPDB $db = null;
 
     /**
      * @param string $entityClass The fully qualified class name of the entity.
      */
     public function __construct(string $entityClass)
     {
-        if (!is_subclass_of($entityClass, '\\SPPMod\\SPPEntity\\SPPEntity')) {
-            throw new \InvalidArgumentException("{$entityClass} must extend \\SPPMod\\SPPEntity\\SPPEntity");
+        $normalized = ltrim($entityClass, '\\');
+        if (!is_subclass_of($entityClass, '\\SPPMod\\SPPEntity\\SPPEntity') && 
+            !is_subclass_of($entityClass, '\\SPPMod\\SPPDB\\SPPEntity') &&
+            $normalized !== 'SPPMod\\SPPDB\\SPPEntity' &&
+            $normalized !== 'SPPMod\\SPPEntity\\SPPEntity') {
+            throw new \InvalidArgumentException("{$entityClass} must extend \\SPPMod\\SPPEntity\\SPPEntity or \\SPPMod\\SPPDB\\SPPEntity");
         }
         $this->entityClass = $entityClass;
     }
@@ -156,6 +164,60 @@ class SppEntityQuery
     public function whereNotNull(string $field): self
     {
         return $this->condition($field, null, 'IS NOT');
+    }
+
+    /**
+     * Explicitly set the database instance for this query.
+     */
+    public function setDb(\SPPMod\SPPDB\SPPDB $db): self
+    {
+        $this->db = $db;
+        return $this;
+    }
+
+    /**
+     * Retrieve the database instance for this query.
+     */
+    public function getDb(): \SPPMod\SPPDB\SPPDB
+    {
+        return $this->db ?? new \SPPMod\SPPDB\SPPDB();
+    }
+
+    /**
+     * Filter entities by an XPath expression.
+     */
+    public function whereXPath(string $xpath): self
+    {
+        $this->xpath = $xpath;
+        return $this;
+    }
+
+    /**
+     * Filter entities by an XQuery FLWOR query.
+     */
+    public function whereXQuery(string $xquery, array $vars = []): self
+    {
+        $this->xquery = $xquery;
+        $this->xqueryVars = $vars;
+        return $this;
+    }
+
+    /**
+     * Execute an XQuery expression directly and return hydrated entities.
+     */
+    public function xquery(string $xquery, array $vars = []): array
+    {
+        $this->whereXQuery($xquery, $vars);
+        return $this->execute();
+    }
+
+    /**
+     * Execute an XPath expression directly and return hydrated entities.
+     */
+    public function xpath(string $xpath): array
+    {
+        $this->whereXPath($xpath);
+        return $this->execute();
     }
 
     /**
@@ -305,15 +367,28 @@ class SppEntityQuery
      */
     public function execute(): array
     {
-        $db = new \SPPMod\SPPDB\SPPDB();
-
-        $sqlData = $this->buildQuery();
-        $sql = $sqlData['sql'];
-        $values = $sqlData['values'];
+        $db = $this->getDb();
 
         /** @var \SPPMod\SPPDB\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
+
+        // Native XDB XQuery / XPath Execution
+        if ($this->xquery !== null || $this->xpath !== null) {
+            $adapter = $db->getAdapter();
+            if ($adapter instanceof \SPPMod\SPPDB\XDBAdapter) {
+                if ($this->xquery !== null) {
+                    $rawResults = $adapter->xquery($this->xquery, $this->xqueryVars);
+                } else {
+                    $rawResults = $adapter->xpath($this->xpath);
+                }
+                return $this->hydrateFromRaw($rawResults);
+            }
+        }
+
+        $sqlData = $this->buildQuery();
+        $sql = $sqlData['sql'];
+        $values = $sqlData['values'];
 
         if ($this->rememberTtl > 0 && class_exists('\\SPP\\Cache')) {
             $cacheKey = $this->rememberCacheKey ?? 'sppdb_query_' . md5($sql . serialize($values));

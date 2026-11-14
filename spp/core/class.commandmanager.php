@@ -99,7 +99,7 @@ class CommandManager
         $coreCmdDir = defined('SPP_BASE_DIR') ? SPP_BASE_DIR . '/commands' : dirname(__DIR__) . '/commands';
         $coreCmdDir = str_replace('\\', '/', $coreCmdDir);
         if (is_dir($coreCmdDir)) {
-            $files = glob($coreCmdDir . '/*.php');
+            $files = array_merge(glob($coreCmdDir . '/*.php') ?: [], glob($coreCmdDir . '/optional/*.php') ?: []);
             foreach ($files as $file) {
                 try {
                     $realFile = strtolower(str_replace('\\', '/', realpath($file) ?: $file));
@@ -258,6 +258,20 @@ class CommandManager
             $discoveredCommands['docs:openapi'] = $discoveredCommands['docs:build'];
             $discoveredCommands['docs:man'] = $discoveredCommands['docs:build'];
             $discoveredCommands['docs:phpdoc'] = $discoveredCommands['docs:build'];
+        }
+
+        // Domain management aliases (support both domain:* and domains:*)
+        foreach (['list', 'addon', 'default', 'mode', 'remove', 'set', 'test'] as $action) {
+            if (isset($discoveredCommands["domain:{$action}"]) && !isset($discoveredCommands["domains:{$action}"])) {
+                $discoveredCommands["domains:{$action}"] = $discoveredCommands["domain:{$action}"];
+            }
+        }
+
+        // Module management aliases (support both module:* and modules:*)
+        foreach (['list', 'install', 'uninstall', 'enable', 'disable', 'update'] as $action) {
+            if (isset($discoveredCommands["module:{$action}"]) && !isset($discoveredCommands["modules:{$action}"])) {
+                $discoveredCommands["modules:{$action}"] = $discoveredCommands["module:{$action}"];
+            }
         }
 
         \SPP\Registry::register('CLI_COMMANDS', $discoveredCommands);

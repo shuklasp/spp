@@ -159,6 +159,72 @@ class ConfigSyncCommand extends \SPP\CLI\Command
                         }
                     }
 
+                    // 2.5 Provision spp_workflow_slas table
+                    $tableSlas = \SPPMod\SPPDB\SPPDB::sppTable('spp_workflow_slas');
+                    if (class_exists('\\SPP\\Core\\SchemaValidator')) {
+                        $tableSlas = \SPP\Core\SchemaValidator::escapeIdentifier($tableSlas);
+                    }
+                    if (!$db->tableExists($tableSlas)) {
+                        echo "Table {$tableSlas} does not exist. Creating...\n";
+                        if ($db->getDriver() === 'sqlite') {
+                            $db->exec("CREATE TABLE {$tableSlas} (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                entity_type TEXT NOT NULL,
+                                entity_id TEXT NOT NULL,
+                                state TEXT NOT NULL,
+                                timeout_transition TEXT NOT NULL,
+                                expires_at TEXT NOT NULL
+                            );");
+                        } else {
+                            $db->exec("CREATE TABLE {$tableSlas} (
+                                id INT AUTO_INCREMENT PRIMARY KEY,
+                                entity_type VARCHAR(255) NOT NULL,
+                                entity_id VARCHAR(255) NOT NULL,
+                                state VARCHAR(255) NOT NULL,
+                                timeout_transition VARCHAR(255) NOT NULL,
+                                expires_at DATETIME NOT NULL,
+                                INDEX idx_expires (expires_at)
+                            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+                        }
+                        echo "Table {$tableSlas} created successfully.\n";
+                    }
+
+                    // 2.6 Provision spp_cqrs_outbox table
+                    $tableOutbox = \SPPMod\SPPDB\SPPDB::sppTable('spp_cqrs_outbox');
+                    if (class_exists('\\SPP\\Core\\SchemaValidator')) {
+                        $tableOutbox = \SPP\Core\SchemaValidator::escapeIdentifier($tableOutbox);
+                    }
+                    if (!$db->tableExists($tableOutbox)) {
+                        echo "Table {$tableOutbox} does not exist. Creating...\n";
+                        if ($db->getDriver() === 'sqlite') {
+                            $db->exec("CREATE TABLE {$tableOutbox} (
+                                id TEXT PRIMARY KEY,
+                                event_name TEXT NOT NULL,
+                                payload TEXT NOT NULL,
+                                target_url TEXT NOT NULL,
+                                secret TEXT NOT NULL,
+                                attempts INTEGER DEFAULT 0,
+                                next_retry INTEGER NOT NULL,
+                                status TEXT DEFAULT 'pending',
+                                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                            );");
+                        } else {
+                            $db->exec("CREATE TABLE {$tableOutbox} (
+                                id VARCHAR(64) PRIMARY KEY,
+                                event_name VARCHAR(100) NOT NULL,
+                                payload TEXT NOT NULL,
+                                target_url VARCHAR(1024) NOT NULL,
+                                secret VARCHAR(255) NOT NULL,
+                                attempts INT DEFAULT 0,
+                                next_retry INT NOT NULL,
+                                status VARCHAR(32) DEFAULT 'pending',
+                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                INDEX idx_status_retry (status, next_retry)
+                            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+                        }
+                        echo "Table {$tableOutbox} created successfully.\n";
+                    }
+
                     // 3. Populate spp_workflows
                     foreach ($workflows as $key => $definition) {
                         $parts = explode('.', $key);

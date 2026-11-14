@@ -25,15 +25,21 @@ class ModuleEnableCommand extends Command
     public function execute(array $args): void
     {
         $moduleName = $this->getArgument($args, 0) ?? null;
+        $appName = $this->getOption($args, 'app');
 
         if (!$moduleName) {
-            echo "Usage: php spp.php module:enable <modulename>\n";
+            echo "Usage: php spp.php module:enable <modulename> [--app=AppName]\n";
             return;
         }
 
-        echo "🚀 Enabling module '{$moduleName}'...\n";
+        if ($appName) {
+            \SPP\Scheduler::setContext($appName);
+        }
+
+        $context = $appName ?: (\SPP\Scheduler::getContext() ?: 'default');
+        echo "🚀 Enabling module '{$moduleName}' for context [{$context}]...\n";
         try {
-            $res = ModuleInstaller::setModuleStatus($moduleName, 'active');
+            $res = ModuleInstaller::setModuleStatus($moduleName, 'active', $context);
             if ($res) {
                 echo "✅ Module activated and cache recompiled.\n";
             } else {

@@ -214,9 +214,237 @@ abstract class LiveComponent implements FrontendComponentInterface
      */
     public function exception(\Throwable $e, \Closure $stopPropagation): void {}
 
+    /**
+     * Render a graceful error boundary fallback when an unhandled exception occurs
+     * during component rendering (React <ErrorBoundary> / Vue onErrorCaptured parity).
+     *
+     * @param \Throwable $e
+     * @return string
+     */
+    public function errorBoundary(\Throwable $e): string
+    {
+        $isDebug = defined('APP_DEBUG') && APP_DEBUG;
+        $class = get_class($this);
+        $msg = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+        $file = htmlspecialchars($e->getFile() . ':' . $e->getLine(), ENT_QUOTES, 'UTF-8');
+
+        if ($isDebug) {
+            return <<<HTML
+<div class="spp-error-boundary" style="padding: 1rem; border: 1px solid #f87171; background: #fef2f2; color: #991b1b; border-radius: 0.375rem; margin: 0.5rem 0; font-family: ui-monospace, monospace; font-size: 0.875rem;">
+    <div style="font-weight: bold; margin-bottom: 0.25rem;">⚠️ LiveComponent Error [{$class}]</div>
+    <div style="font-size: 0.8125rem;">{$msg}</div>
+    <div style="color: #6b7280; font-size: 0.75rem; margin-top: 0.25rem;">{$file}</div>
+</div>
+HTML;
+        }
+
+        return <<<HTML
+<div class="spp-error-boundary" style="padding: 0.75rem; background: #f3f4f6; color: #4b5563; border-radius: 0.375rem; margin: 0.5rem 0; font-size: 0.875rem; text-align: center;">
+    Unable to load component. Please try again later.
+</div>
+HTML;
+    }
+
+    /**
+     * Optional component-scoped CSS styles.
+     * Rules defined here or via <style scoped> in templates are automatically
+     * scoped to this component's wire:id container (Vue SFC parity).
+     *
+     * @return string CSS string
+     */
+    public function styles(): string
+    {
+        return '';
+    }
+
+    /**
+     * Get the validation rules declared on the component via #[Validate] or rules().
+     *
+     * @return array<string, string|array>
+     */
+    public function getValidationRules(): array
+    {
+        $rules = self::getParsedAttributes(static::class)['validationRules'];
+        if (method_exists($this, 'rules')) {
+            $dynamicRules = $this->rules();
+            if (is_array($dynamicRules)) {
+                $rules = array_merge($rules, $dynamicRules);
+            }
+        }
+        return $rules;
+    }
+
+    /**
+     * Compile PHP validation rules into client-friendly HTML5 / JS constraints.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function getClientValidationRules(): array
+    {
+        $clientRules = [];
+        $rules = $this->getValidationRules();
+
+        foreach ($rules as $field => $ruleDef) {
+            $ruleList = is_array($ruleDef) ? $ruleDef : explode('|', (string)$ruleDef);
+            $fieldConstraints = [];
+
+            foreach ($ruleList as $rule) {
+                // Check CustomRuleRegistry first (handles RuleInterface, custom macros, and built-in rules)
+                if (class_exists('\\SPPMod\\SPPView\\Validation\\CustomRuleRegistry')) {
+                    $customConstraints = \SPPMod\SPPView\Validation\CustomRuleRegistry::resolveClientRule($rule, $field);
+                    if (!empty($customConstraints)) {
+                        $fieldConstraints = array_merge($fieldConstraints, $customConstraints);
+                        continue;
+                    }
+                }
+
+                if (is_string($rule)) {
+                    $rule = trim($rule);
+                    if ($rule === 'required') {
+                        $fieldConstraints['required'] = true;
+                    } elseif (str_starts_with($rule, 'min:')) {
+                        $minVal = (int)substr($rule, 4);
+                        $fieldConstraints['minlength'] = $minVal;
+                    } elseif (str_starts_with($rule, 'max:')) {
+                        $maxVal = (int)substr($rule, 4);
+                        $fieldConstraints['maxlength'] = $maxVal;
+                    } elseif ($rule === 'email') {
+                        $fieldConstraints['type'] = 'email';
+                    } elseif ($rule === 'numeric' || $rule === 'integer') {
+                        $fieldConstraints['pattern'] = '^[0-9]+$';
+                    } elseif ($rule === 'url') {
+                        $fieldConstraints['type'] = 'url';
+                    }
+                }
+            }
+            if (!empty($fieldConstraints)) {
+                $clientRules[$field] = $fieldConstraints;
+            }
+        }
+
+        return $clientRules;
+    }
+
+    /**
+     * Scope CSS rules to a specific component identifier.
+     * Transforms selectors like `.btn` -> `[wire\:id="..."] .btn`.
+     *
+     * @param string $css
+     * @param string $scopeId
+     * @return string
+     */
+    public static function scopeCss(string $css, string $scopeId): string
+    {
+        $scopeIdEscaped = htmlspecialchars($scopeId, ENT_QUOTES, 'UTF-8');
+        $prefix = '[wire\\:id="' . $scopeIdEscaped . '"]';
+
+        // Strip comments
+        $cleanCss = preg_replace('!/\*.*?\*/!s', '', $css);
+        if (trim($cleanCss) === '') {
+            return '';
+        }
+
+        return preg_replace_callback('/(@media[^{]+)\{([^}]+(?:\{[^}]+\}[^}]*)*)\}|([^{]+)\{([^}]+)\}/s', function ($m) use ($prefix, $scopeId) {
+            if (!empty($m[1])) {
+                $mediaHeader = trim($m[1]);
+                $mediaBody = self::scopeCss($m[2], $scopeId);
+                return "{$mediaHeader} { {$mediaBody} }";
+            }
+
+            $rawSelectors = $m[3];
+            $declarations = $m[4];
+
+            $selectors = explode(',', $rawSelectors);
+            $scopedSelectors = [];
+            foreach ($selectors as $sel) {
+                $sel = trim($sel);
+                if ($sel === '') continue;
+                if (str_starts_with($sel, '@keyframes') || str_starts_with($sel, '@font-face')) {
+                    $scopedSelectors[] = $sel;
+                } elseif (str_starts_with($sel, ':host')) {
+                    $scopedSelectors[] = str_replace(':host', $prefix, $sel);
+                } else {
+                    $scopedSelectors[] = "{$prefix} {$sel}";
+                }
+            }
+            return implode(', ', $scopedSelectors) . ' {' . $declarations . '}';
+        }, $cleanCss);
+    }
+
     // =========================================================================
-    //  INITIAL RENDER
+    //  CLASS RESOLUTION & INITIAL RENDER
     // =========================================================================
+
+    /**
+     * Resolve a component name or alias into a fully-qualified class name.
+     * Supports:
+     * - Fully qualified class: '\App\MyApp\Components\Counter' or 'App\MyApp\Components\Counter'
+     * - PascalCase: 'Counter'
+     * - kebab-case: 'counter-component'
+     * - dot-notation: 'admin.user-list' -> 'Admin\UserList'
+     * - Colon-separated: 'my_app:counter' -> '\App\MyApp\Components\Counter'
+     *
+     * @param string $class
+     * @return string
+     */
+    public static function resolveClass(string $class): string
+    {
+        // 1. Direct class match
+        if (class_exists($class)) {
+            return $class;
+        }
+
+        $trimmed = ltrim($class, '\\');
+        if (class_exists('\\' . $trimmed)) {
+            return '\\' . $trimmed;
+        }
+
+        // 2. Determine target app name
+        $app = null;
+        if (str_contains($trimmed, ':')) {
+            list($appPrefix, $shortName) = explode(':', $trimmed, 2);
+            $app = $appPrefix;
+        } else {
+            $shortName = $trimmed;
+            if (class_exists('\\SPP\\Scheduler')) {
+                $app = \SPP\Scheduler::getContext();
+            }
+            if (!$app && class_exists('\\SPP\\App')) {
+                try {
+                    $app = \SPP\App::getApp()->getName();
+                } catch (\Throwable $e) {}
+            }
+        }
+        $app = $app ?: 'default';
+
+        // 3. Convert dot-notation / kebab-case to StudlyCase namespace
+        $segments = explode('.', $shortName);
+        $studlySegments = array_map(function ($seg) {
+            return str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $seg)));
+        }, $segments);
+        $studlyClass = implode('\\', $studlySegments);
+
+        // 4. Candidate namespaces to check (prioritize canonical PascalCase app name)
+        $appStudly = str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $app)));
+        $candidates = [
+            "\\App\\{$appStudly}\\Components\\{$studlyClass}",
+            "\\App\\{$app}\\Components\\{$studlyClass}",
+            "\\App\\{$appStudly}\\Comp\\{$studlyClass}",
+            "\\App\\{$app}\\Comp\\{$studlyClass}",
+            "\\App\\{$appStudly}\\Livewire\\{$studlyClass}",
+            "\\App\\{$app}\\Livewire\\{$studlyClass}",
+            "\\App\\Components\\{$studlyClass}",
+            "\\SPPMod\\SPPView\\Components\\{$studlyClass}",
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (class_exists($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return $class;
+    }
 
     /**
      * Renders a LiveComponent from a regular PHP view (initial page load).
@@ -225,12 +453,13 @@ abstract class LiveComponent implements FrontendComponentInterface
      * dehydrates its state, signs it with an HMAC checksum, and wraps the rendered
      * HTML in a wire:id container element for the frontend to discover.
      *
-     * @param string $class  Fully-qualified component class name
+     * @param string $class  Fully-qualified component class name or short name alias
      * @param array  $params Initial parameters to pass to mount()
      * @return string The complete HTML with wire: attributes
      */
     public static function renderComponent(string $class, array $params = []): string
     {
+        $class = self::resolveClass($class);
         if (!class_exists($class)) {
             throw new \Exception("LiveComponent {$class} not found.");
         }
@@ -269,10 +498,22 @@ abstract class LiveComponent implements FrontendComponentInterface
             return ob_get_clean();
         }
 
-        // Full render
-        $component->rendering();
-        $html = self::resolveRenderedHtml($component);
-        $component->rendered($html);
+        // Full render with error boundary protection
+        $stopped = false;
+        $stopPropagation = function () use (&$stopped) { $stopped = true; };
+
+        try {
+            $component->rendering();
+            $html = self::resolveRenderedHtml($component);
+            $component->rendered($html);
+        } catch (\Throwable $e) {
+            $component->exception($e, $stopPropagation);
+            if ($stopped) {
+                $html = '';
+            } else {
+                $html = $component->errorBoundary($e);
+            }
+        }
 
         // We wrap it in a div if it isn't already wrapped.
         $id = $component->id;
@@ -508,6 +749,9 @@ abstract class LiveComponent implements FrontendComponentInterface
      */
     public function dispatch(string $event, mixed ...$params): EventDispatch
     {
+        if ($this->_lastDispatch !== null) {
+            $this->_lastDispatch->emit();
+        }
         $dispatch = new EventDispatch($this->id, $event, $params);
         $this->_lastDispatch = $dispatch;
         return $dispatch;
@@ -667,6 +911,19 @@ abstract class LiveComponent implements FrontendComponentInterface
     abstract public function render(): string;
 
     /**
+     * Render a view template for this LiveComponent.
+     * Automatically merges dehydrated state, computed properties, errors, and component reference.
+     *
+     * @param string $view Template path or name (e.g. 'livewire.counter', 'counter.blade.php')
+     * @param array  $data Additional view data
+     * @return string
+     */
+    protected function view(string $view, array $data = []): string
+    {
+        return self::renderViewTemplate($this, $view, $data);
+    }
+
+    /**
      * Optional placeholder HTML for #[Lazy] components.
      * Override to provide a custom skeleton loader.
      *
@@ -681,8 +938,8 @@ abstract class LiveComponent implements FrontendComponentInterface
 
     /**
      * Resolve the render() output into final HTML.
-     * If render() returns a file path (.html, .php, .blade.php), it is compiled
-     * and executed with the component's public state and computed properties.
+     * If render() returns a file path or view name (.html, .php, .blade.php, dot.notation),
+     * it is located via ViewLocator, compiled, and executed with the component's state.
      *
      * @param LiveComponent $component The component instance
      * @return string Resolved HTML
@@ -691,21 +948,144 @@ abstract class LiveComponent implements FrontendComponentInterface
     {
         $rawHtml = $component->render();
 
-        if (str_ends_with($rawHtml, '.html') || str_ends_with($rawHtml, '.php') || str_ends_with($rawHtml, '.blade.php')) {
-            $filePath = SPP_APP_DIR . '/' . ltrim($rawHtml, '/');
-            if (file_exists($filePath)) {
-                $compiled = str_ends_with($rawHtml, '.html') ? ViewCompiler::compile($filePath) : $filePath;
-                ob_start();
-                extract($component->dehydrate());
-                extract($component->getComputedProperties());
-                $errors = $component->errors;
-                $id = $component->id;
-                include $compiled;
-                return ob_get_clean();
+        if ($rawHtml instanceof \Stringable) {
+            $rawHtml = (string) $rawHtml;
+        }
+
+        if (!is_string($rawHtml)) {
+            $rawHtml = '';
+        }
+
+        $trimmed = trim($rawHtml);
+
+        // If it starts with an HTML opening tag:
+        if (str_starts_with($trimmed, '<')) {
+            // Enable Single-File Component (SFC) inline Blade compilation (React/Vue parity)
+            if (str_contains($trimmed, '{{') || str_contains($trimmed, '@if') || str_contains($trimmed, '@foreach') || str_contains($trimmed, '@live') || str_contains($trimmed, '<live:')) {
+                $appName = null;
+                $class = get_class($component);
+                if (preg_match('/^App\\\\([^\\\\]+)/i', $class, $matches)) {
+                    $appName = $matches[1];
+                } else {
+                    $appName = (class_exists('\\SPP\\Scheduler') ? \SPP\Scheduler::getContext() : null) ?: 'default';
+                }
+
+                $state = $component->dehydrate();
+                $computed = $component->getComputedProperties();
+                $mergedData = array_merge($state, $computed, [
+                    'errors' => $component->errors,
+                    'id' => $component->id,
+                    'component' => $component,
+                    'this' => $component,
+                    'rules' => $component->getValidationRules(),
+                    'clientRules' => $component->getClientValidationRules(),
+                ]);
+
+                if (class_exists('\\SPPMod\\Drishyam\\SPPBlade')) {
+                    try {
+                        $rawHtml = \SPPMod\Drishyam\SPPBlade::renderString($trimmed, $mergedData, $appName);
+                    } catch (\Throwable $e) {
+                        $rawHtml = $trimmed;
+                    }
+                }
+            } else {
+                $rawHtml = $trimmed;
+            }
+        } else {
+            // Otherwise resolve as template
+            $rawHtml = self::renderViewTemplate($component, $trimmed);
+        }
+
+        // Process component-scoped styles (Vue SFC parity)
+        $cssToScope = '';
+        $classStyles = $component->styles();
+        if (!empty($classStyles)) {
+            $cssToScope .= "\n" . $classStyles;
+        }
+
+        if (str_contains($rawHtml, '<style scoped>') || str_contains($rawHtml, '<style scoped="scoped">')) {
+            $rawHtml = preg_replace_callback('/<style\s+scoped(?:\s*=\s*"scoped")?\s*>(.*?)<\/style>/s', function ($m) use (&$cssToScope) {
+                $cssToScope .= "\n" . $m[1];
+                return '';
+            }, $rawHtml);
+        }
+
+        if (trim($cssToScope) !== '') {
+            $scopedCss = self::scopeCss($cssToScope, $component->id);
+            if (trim($scopedCss) !== '') {
+                $rawHtml .= "\n<style data-spp-scoped=\"{$component->id}\">{$scopedCss}</style>";
             }
         }
 
         return $rawHtml;
+    }
+
+    /**
+     * Locate and render a view template with the component's state and context.
+     *
+     * @param LiveComponent $component
+     * @param string $view
+     * @param array $extraData
+     * @return string
+     */
+    public static function renderViewTemplate(LiveComponent $component, string $view, array $extraData = []): string
+    {
+        // Determine component app name
+        $appName = null;
+        $class = get_class($component);
+        if (preg_match('/^App\\\\([^\\\\]+)/i', $class, $matches)) {
+            $appName = $matches[1];
+        } else {
+            $appName = (class_exists('\\SPP\\Scheduler') ? \SPP\Scheduler::getContext() : null) ?: 'default';
+        }
+
+        // Try ViewLocator first
+        $filePath = null;
+        if (class_exists('\\SPPMod\\SPPView\\ViewLocator')) {
+            $filePath = \SPPMod\SPPView\ViewLocator::locate($view, $appName);
+        }
+
+        // Fallback to SPP_APP_DIR relative path
+        if (!$filePath && defined('SPP_APP_DIR') && file_exists(SPP_APP_DIR . '/' . ltrim($view, '/'))) {
+            $filePath = SPP_APP_DIR . '/' . ltrim($view, '/');
+        }
+
+        if (!$filePath && file_exists($view)) {
+            $filePath = $view;
+        }
+
+        if (!$filePath) {
+            // Not a located file, return view string
+            return $view;
+        }
+
+        $state = $component->dehydrate();
+        $computed = $component->getComputedProperties();
+        $mergedData = array_merge($state, $computed, [
+            'errors' => $component->errors,
+            'id' => $component->id,
+            'component' => $component,
+            'this' => $component,
+            'rules' => $component->getValidationRules(),
+            'clientRules' => $component->getClientValidationRules(),
+        ], $extraData);
+
+        // Blade template rendering
+        if (str_ends_with($filePath, '.blade.php')) {
+            if (class_exists('\\SPPMod\\Drishyam\\SPPBlade')) {
+                return \SPPMod\Drishyam\SPPBlade::getInstance($appName)->renderInstance($filePath, $mergedData);
+            }
+        }
+
+        // Native PHP / HTML rendering
+        $compiled = str_ends_with($filePath, '.html') && class_exists('\\SPPMod\\SPPView\\ViewCompiler')
+            ? \SPPMod\SPPView\ViewCompiler::compile($filePath)
+            : $filePath;
+
+        ob_start();
+        extract($mergedData, EXTR_SKIP);
+        include $compiled;
+        return ob_get_clean();
     }
 
     // =========================================================================
@@ -760,6 +1140,7 @@ abstract class LiveComponent implements FrontendComponentInterface
      */
     public static function handleRequest(string $componentClass, array $state, array $updates, string $checksum, ?string $action, array $params = [], array $topics = ['global']): array
     {
+        $componentClass = self::resolveClass($componentClass);
         if (!class_exists($componentClass)) {
             throw new \Exception("LiveComponent {$componentClass} not found.");
         }
@@ -869,6 +1250,7 @@ abstract class LiveComponent implements FrontendComponentInterface
             } catch (\Throwable $e) {
                 $component->exception($e, $stopPropagation);
                 if (!$stopped) {
+                    $html = $component->errorBoundary($e);
                     $flash = ['type' => 'error', 'message' => 'Render Error: ' . $e->getMessage()];
                 }
             }
@@ -896,6 +1278,11 @@ abstract class LiveComponent implements FrontendComponentInterface
             $title = preg_replace_callback('/\{([a-zA-Z0-9_]+)\}/', function($matches) use ($newState) {
                 return $newState[$matches[1]] ?? $matches[0];
             }, $title);
+        }
+
+        if (property_exists($component, '_lastDispatch') && $component->_lastDispatch !== null) {
+            $component->_lastDispatch->emit();
+            $component->_lastDispatch = null;
         }
 
         $response = [
@@ -944,15 +1331,14 @@ class EventDispatch
     private string $componentId;
     private string $event;
     private array $params;
+    private string $target = 'global';
+    private bool $emitted = false;
 
     public function __construct(string $componentId, string $event, array $params)
     {
         $this->componentId = $componentId;
         $this->event = $event;
         $this->params = $params;
-
-        // Default: global dispatch
-        $this->executeEmit('global');
     }
 
     /**
@@ -960,7 +1346,7 @@ class EventDispatch
      */
     public function to(string $componentClassOrId): self
     {
-        $this->executeEmit('target:' . $componentClassOrId);
+        $this->target = 'target:' . $componentClassOrId;
         return $this;
     }
 
@@ -969,7 +1355,7 @@ class EventDispatch
      */
     public function self(): self
     {
-        $this->executeEmit('target:' . $this->componentId);
+        $this->target = 'target:' . $this->componentId;
         return $this;
     }
 
@@ -978,19 +1364,29 @@ class EventDispatch
      */
     public function up(): self
     {
-        $this->executeEmit('target:up');
+        $this->target = 'target:up';
         return $this;
     }
 
-    private function executeEmit(string $target): void
+    public function emit(): void
     {
+        if ($this->emitted) {
+            return;
+        }
+        $this->emitted = true;
+
         $params = $this->params;
-        if ($target !== 'global') {
-            $params[] = $target;
+        if ($this->target !== 'global') {
+            $params[] = $this->target;
         }
 
         if (class_exists('\SPPMod\SPPLive\LiveEmitter')) {
             \SPPMod\SPPLive\LiveEmitter::emit($this->componentId, $this->event, $params, 'global');
         }
+    }
+
+    public function __destruct()
+    {
+        $this->emit();
     }
 }

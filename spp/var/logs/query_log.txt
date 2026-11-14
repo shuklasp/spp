@@ -867,3 +867,675 @@
 [2026-09-04 07:19:21] SELECT * FROM perfection_test.departments
 [2026-09-04 07:19:21] SELECT * FROM perfection_test.projects
 [2026-09-04 07:19:21] UPDATE perfection_test.employees SET title = NULL WHERE name = 'Satya'
+[2026-09-11 15:16:39] SHOW TABLES
+[2026-09-11 15:16:42] SELECT * FROM students LIMIT 5
+[2026-09-11 15:16:45] SHOW TABLES
+[2026-09-11 15:16:49] SELECT * FROM users LIMIT 5
+[2026-11-07 09:42:17] CREATE DATABASE IF NOT EXISTS perfection_test
+[2026-11-07 09:42:17] DROP TABLE IF EXISTS perfection_test.employees
+[2026-11-07 09:42:17] CREATE TABLE perfection_test.employees (id int PRIMARY KEY AUTO_INCREMENT, name varchar NOT NULL, role varchar, salary int, score float)
+[2026-11-07 09:42:18] DESCRIBE perfection_test.employees
+[2026-11-07 09:42:18] INSERT INTO perfection_test.employees (id, name, role, salary, score) VALUES 
+        (1, 'Satya', 'Architect', 120000, 95.5),
+        (2, 'Amit', 'Manager', 95000, 88.0),
+        (3, 'John', 'Developer', 80000, 90.0),
+        (4, 'Jane', 'Designer', 75000, 87.5)
+[2026-11-07 09:42:18] SELECT * FROM perfection_test.employees
+[2026-11-07 09:42:18] UPDATE perfection_test.employees SET salary = salary + 5000 WHERE name = 'John'
+[2026-11-07 09:42:18] UPDATE perfection_test.employees SET score = score - 2.5 WHERE name = 'Amit'
+[2026-11-07 09:42:18] SELECT salary FROM perfection_test.employees WHERE name = 'John'
+[2026-11-07 09:42:18] SELECT score FROM perfection_test.employees WHERE name = 'Amit'
+[2026-11-07 09:42:18] START TRANSACTION
+[2026-11-07 09:42:18] UPDATE perfection_test.employees SET salary = 150000 WHERE name = 'Satya'
+[2026-11-07 09:42:18] ROLLBACK
+[2026-11-07 09:42:18] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 09:42:18] START TRANSACTION
+[2026-11-07 09:42:18] UPDATE perfection_test.employees SET salary = 130000 WHERE name = 'Satya'
+[2026-11-07 09:42:18] COMMIT
+[2026-11-07 09:42:18] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 09:42:19] CREATE INDEX name_idx ON perfection_test.employees (name)
+[2026-11-07 09:42:19] DROP INDEX name_idx ON perfection_test.employees
+[2026-11-07 09:42:19] CREATE VIEW perfection_test.high_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 09:42:19] SELECT name, salary FROM perfection_test.high_earners
+[2026-11-07 09:42:19] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 09:42:19] CREATE MATERIALIZED VIEW perfection_test.mv_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 09:42:19] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 09:42:19] SELECT name, salary FROM perfection_test.mv_earners
+[2026-11-07 09:42:19] DROP VIEW perfection_test.high_earners
+[2026-11-07 09:42:19] DROP VIEW perfection_test.mv_earners
+[2026-11-07 09:42:19] SELECT CONCAT(name, ' (', role, ')') AS full_desc, UPPER(name) AS upper_name, LENGTH(role) AS role_len, COALESCE(NULL, role, 'N/A') AS current_role, IF(score >= 90.0, 'Excellent', 'Good') AS score_rating, ROUND(score, 0) AS rounded_score, CEIL(score) AS ceil_score, FLOOR(score) AS floor_score, ABS(-5.5) AS abs_val, POW(2, 3) AS pow_val, SQRT(9) AS sqrt_val, MD5(name) AS name_md5, REVERSE(name) AS rev_name, CURDATE() AS today, CURTIME() AS now_time, YEAR(NOW()) AS now_year, MONTH(NOW()) AS now_month, DAY(NOW()) AS now_day FROM perfection_test.employees
+[2026-11-07 09:42:19] ALTER TABLE perfection_test.employees RENAME COLUMN salary TO remuneration
+[2026-11-07 09:42:19] DESCRIBE perfection_test.employees
+[2026-11-07 09:42:19] ALTER TABLE perfection_test.employees DROP COLUMN score
+[2026-11-07 09:42:19] DESCRIBE perfection_test.employees
+[2026-11-07 09:42:19] ALTER TABLE perfection_test.employees MODIFY COLUMN remuneration double
+[2026-11-07 09:42:19] DESCRIBE perfection_test.employees
+[2026-11-07 09:42:20] ALTER TABLE perfection_test.employees CHANGE COLUMN role title varchar NOT NULL
+[2026-11-07 09:42:20] DESCRIBE perfection_test.employees
+[2026-11-07 09:42:20] CREATE TABLE perfection_test.departments (id INT PRIMARY KEY, dept_name VARCHAR)
+[2026-11-07 09:42:20] INSERT INTO perfection_test.departments (id, dept_name) VALUES (1, 'Engineering'), (2, 'Management'), (3, 'Design')
+[2026-11-07 09:42:20] CREATE TABLE perfection_test.projects (id INT PRIMARY KEY, project_name VARCHAR, dept_id INT)
+[2026-11-07 09:42:20] INSERT INTO perfection_test.projects (id, project_name, dept_id) VALUES (101, 'Studio', 1), (102, 'Polyglot', 1), (103, 'Lekhak', 3)
+[2026-11-07 09:42:20] SELECT dept_name AS name FROM perfection_test.departments UNION ALL SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 09:42:20] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 09:42:20] SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 09:42:20] SELECT dept_name AS name FROM perfection_test.departments UNION SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 09:42:20] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 09:42:20] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 09:42:20] SELECT name, score FROM (SELECT name, score FROM perfection_test.employees WHERE score >= 90) AS high_score WHERE score < 95
+[2026-11-07 09:42:20] SELECT name, score FROM perfection_test.employees WHERE score >= 90
+[2026-11-07 09:42:20] SELECT e.name, d.dept_name, p.project_name FROM perfection_test.employees e LEFT JOIN perfection_test.departments d ON e.id = d.id LEFT JOIN perfection_test.projects p ON d.id = p.dept_id
+[2026-11-07 09:42:20] SELECT * FROM perfection_test.departments
+[2026-11-07 09:42:20] SELECT * FROM perfection_test.projects
+[2026-11-07 09:42:20] UPDATE perfection_test.employees SET title = NULL WHERE name = 'Satya'
+[2026-11-07 10:23:16] CREATE DATABASE IF NOT EXISTS perfection_test
+[2026-11-07 10:23:16] DROP TABLE IF EXISTS perfection_test.employees
+[2026-11-07 10:23:16] CREATE TABLE perfection_test.employees (id int PRIMARY KEY AUTO_INCREMENT, name varchar NOT NULL, role varchar, salary int, score float)
+[2026-11-07 10:23:16] DESCRIBE perfection_test.employees
+[2026-11-07 10:23:16] INSERT INTO perfection_test.employees (id, name, role, salary, score) VALUES 
+        (1, 'Satya', 'Architect', 120000, 95.5),
+        (2, 'Amit', 'Manager', 95000, 88.0),
+        (3, 'John', 'Developer', 80000, 90.0),
+        (4, 'Jane', 'Designer', 75000, 87.5)
+[2026-11-07 10:23:16] SELECT * FROM perfection_test.employees
+[2026-11-07 10:23:16] UPDATE perfection_test.employees SET salary = salary + 5000 WHERE name = 'John'
+[2026-11-07 10:23:16] UPDATE perfection_test.employees SET score = score - 2.5 WHERE name = 'Amit'
+[2026-11-07 10:23:16] SELECT salary FROM perfection_test.employees WHERE name = 'John'
+[2026-11-07 10:23:16] SELECT score FROM perfection_test.employees WHERE name = 'Amit'
+[2026-11-07 10:23:16] START TRANSACTION
+[2026-11-07 10:23:16] UPDATE perfection_test.employees SET salary = 150000 WHERE name = 'Satya'
+[2026-11-07 10:23:16] ROLLBACK
+[2026-11-07 10:23:16] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 10:23:16] START TRANSACTION
+[2026-11-07 10:23:16] UPDATE perfection_test.employees SET salary = 130000 WHERE name = 'Satya'
+[2026-11-07 10:23:16] COMMIT
+[2026-11-07 10:23:17] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 10:23:17] CREATE INDEX name_idx ON perfection_test.employees (name)
+[2026-11-07 10:23:17] DROP INDEX name_idx ON perfection_test.employees
+[2026-11-07 10:23:17] CREATE VIEW perfection_test.high_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 10:23:17] SELECT name, salary FROM perfection_test.high_earners
+[2026-11-07 10:23:17] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 10:23:17] CREATE MATERIALIZED VIEW perfection_test.mv_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 10:23:17] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 10:23:17] SELECT name, salary FROM perfection_test.mv_earners
+[2026-11-07 10:23:17] DROP VIEW perfection_test.high_earners
+[2026-11-07 10:23:17] DROP VIEW perfection_test.mv_earners
+[2026-11-07 10:23:17] SELECT CONCAT(name, ' (', role, ')') AS full_desc, UPPER(name) AS upper_name, LENGTH(role) AS role_len, COALESCE(NULL, role, 'N/A') AS current_role, IF(score >= 90.0, 'Excellent', 'Good') AS score_rating, ROUND(score, 0) AS rounded_score, CEIL(score) AS ceil_score, FLOOR(score) AS floor_score, ABS(-5.5) AS abs_val, POW(2, 3) AS pow_val, SQRT(9) AS sqrt_val, MD5(name) AS name_md5, REVERSE(name) AS rev_name, CURDATE() AS today, CURTIME() AS now_time, YEAR(NOW()) AS now_year, MONTH(NOW()) AS now_month, DAY(NOW()) AS now_day FROM perfection_test.employees
+[2026-11-07 10:23:17] ALTER TABLE perfection_test.employees RENAME COLUMN salary TO remuneration
+[2026-11-07 10:23:17] DESCRIBE perfection_test.employees
+[2026-11-07 10:23:17] ALTER TABLE perfection_test.employees DROP COLUMN score
+[2026-11-07 10:23:17] DESCRIBE perfection_test.employees
+[2026-11-07 10:23:17] ALTER TABLE perfection_test.employees MODIFY COLUMN remuneration double
+[2026-11-07 10:23:17] DESCRIBE perfection_test.employees
+[2026-11-07 10:23:17] ALTER TABLE perfection_test.employees CHANGE COLUMN role title varchar NOT NULL
+[2026-11-07 10:23:17] DESCRIBE perfection_test.employees
+[2026-11-07 10:23:18] CREATE TABLE perfection_test.departments (id INT PRIMARY KEY, dept_name VARCHAR)
+[2026-11-07 10:23:18] INSERT INTO perfection_test.departments (id, dept_name) VALUES (1, 'Engineering'), (2, 'Management'), (3, 'Design')
+[2026-11-07 10:23:18] CREATE TABLE perfection_test.projects (id INT PRIMARY KEY, project_name VARCHAR, dept_id INT)
+[2026-11-07 10:23:18] INSERT INTO perfection_test.projects (id, project_name, dept_id) VALUES (101, 'Studio', 1), (102, 'Polyglot', 1), (103, 'Lekhak', 3)
+[2026-11-07 10:23:18] SELECT dept_name AS name FROM perfection_test.departments UNION ALL SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 10:23:18] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 10:23:18] SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 10:23:18] SELECT dept_name AS name FROM perfection_test.departments UNION SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 10:23:18] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 10:23:18] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 10:23:18] SELECT name, score FROM (SELECT name, score FROM perfection_test.employees WHERE score >= 90) AS high_score WHERE score < 95
+[2026-11-07 10:23:18] SELECT name, score FROM perfection_test.employees WHERE score >= 90
+[2026-11-07 10:23:18] SELECT e.name, d.dept_name, p.project_name FROM perfection_test.employees e LEFT JOIN perfection_test.departments d ON e.id = d.id LEFT JOIN perfection_test.projects p ON d.id = p.dept_id
+[2026-11-07 10:23:18] SELECT * FROM perfection_test.departments
+[2026-11-07 10:23:18] SELECT * FROM perfection_test.projects
+[2026-11-07 10:23:18] UPDATE perfection_test.employees SET title = NULL WHERE name = 'Satya'
+[2026-11-07 10:23:18] DROP TABLE perfection_test.departments
+[2026-11-07 10:23:18] DROP TABLE perfection_test.projects
+[2026-11-07 10:23:18] RENAME TABLE perfection_test.employees TO perfection_test.staff
+[2026-11-07 10:23:18] SHOW TABLES
+[2026-11-07 10:23:18] TRUNCATE TABLE perfection_test.staff
+[2026-11-07 10:23:19] SELECT * FROM perfection_test.staff
+[2026-11-07 10:23:19] DROP TABLE perfection_test.staff
+[2026-11-07 10:23:19] DROP DATABASE perfection_test
+[2026-11-07 10:23:39] CREATE TABLE products (id int, name varchar, category varchar, price int)
+[2026-11-07 10:23:39] INSERT INTO products (name, category, price) VALUES ('Laptop', 'Electronics', 1200)
+[2026-11-07 10:23:39] INSERT INTO products (name, category, price) VALUES ('Phone', 'Electronics', 800)
+[2026-11-07 10:23:39] INSERT INTO products (name, category, price) VALUES ('Shirt', 'Apparel', 25)
+[2026-11-07 10:23:39] INSERT INTO products (name, category, price) VALUES ('Pants', 'Apparel', 45)
+[2026-11-07 10:23:39] INSERT INTO products (name, category, price) VALUES ('Watch', 'Electronics', 200)
+[2026-11-07 10:23:39] SELECT * FROM products
+[2026-11-07 10:23:39] SELECT SUM(price) FROM products
+[2026-11-07 10:23:40] SELECT AVG(price) FROM products
+[2026-11-07 10:23:40] SELECT category, COUNT(*), SUM(price) FROM products GROUP BY category
+[2026-11-07 10:23:40] SELECT name FROM products WHERE name LIKE 'P%'
+[2026-11-07 10:23:40] SELECT name FROM products WHERE category IN ('Apparel')
+[2026-11-07 10:23:40] SELECT DISTINCT category FROM products
+[2026-11-07 10:23:40] INSERT INTO products (name, category, price) VALUES ('Temp Item', 'Misc', 10)
+[2026-11-07 10:23:40] SELECT * FROM products
+[2026-11-07 10:23:40] SELECT * FROM products
+[2026-11-07 10:23:40] INSERT INTO products (name, price) VALUES ('Bad Item', 'not-a-number')
+[2026-11-07 10:23:40] SELECT * FROM products
+[2026-11-07 10:23:40] SELECT * FROM products
+[2026-11-07 10:23:40] SELECT * FROM products
+[2026-11-07 10:23:55] CREATE DATABASE school
+[2026-11-07 10:23:55] CREATE DATABASE finance
+[2026-11-07 10:23:55] SHOW DATABASES
+[2026-11-07 10:23:55] CREATE TABLE school.students (id int, name varchar, grade varchar, score int)
+[2026-11-07 10:23:55] CREATE TABLE school.teachers (id int, name varchar, subject varchar)
+[2026-11-07 10:23:55] SHOW TABLES
+[2026-11-07 10:23:55] INSERT INTO school.students (id, name, grade, score) VALUES ('1', 'Satya', 'A', '95')
+[2026-11-07 10:23:55] INSERT INTO school.students (id, name, grade, score) VALUES ('2', 'John', 'B', '82')
+[2026-11-07 10:23:55] INSERT INTO school.students (id, name, grade, score) VALUES ('3', 'Jane', 'A', '91')
+[2026-11-07 10:23:55] INSERT INTO school.students (id, name, grade, score) VALUES ('4', 'Alice', 'C', '76')
+[2026-11-07 10:23:55] INSERT INTO school.students (id, name, grade, score) VALUES ('5', 'Bob', 'B', '88')
+[2026-11-07 10:23:55] SELECT * FROM school.students
+[2026-11-07 10:23:55] SELECT name, score FROM school.students WHERE grade='A'
+[2026-11-07 10:23:55] SELECT COUNT(*) FROM school.students
+[2026-11-07 10:23:55] SELECT COUNT(*) FROM school.students WHERE grade='B'
+[2026-11-07 10:23:55] SELECT name, score FROM school.students ORDER BY score DESC
+[2026-11-07 10:23:55] SELECT name, score FROM school.students ORDER BY score DESC LIMIT 3
+[2026-11-07 10:23:56] UPDATE school.students SET grade='A' WHERE name='Bob'
+[2026-11-07 10:23:56] SELECT name, grade FROM school.students WHERE name='Bob'
+[2026-11-07 10:23:56] DELETE FROM school.students WHERE name='Alice'
+[2026-11-07 10:23:56] SELECT COUNT(*) FROM school.students
+[2026-11-07 10:23:56] INSERT INTO finance.invoices (id, customer, amount, status) VALUES ('INV-001', 'Acme Corp', '5000', 'paid')
+[2026-11-07 10:23:56] INSERT INTO finance.invoices (id, customer, amount, status) VALUES ('INV-002', 'Globex', '3200', 'pending')
+[2026-11-07 10:23:56] SELECT * FROM finance.invoices
+[2026-11-07 10:23:56] SELECT COUNT(*) FROM school.students
+[2026-11-07 10:23:56] SELECT COUNT(*) FROM finance.invoices
+[2026-11-07 10:23:56] SHOW DATABASES
+[2026-11-07 10:23:56] DROP TABLE school.teachers
+[2026-11-07 10:23:56] SHOW TABLES
+[2026-11-07 10:52:26] CREATE DATABASE IF NOT EXISTS perfection_test
+[2026-11-07 10:52:26] DROP TABLE IF EXISTS perfection_test.employees
+[2026-11-07 10:52:26] CREATE TABLE perfection_test.employees (id int PRIMARY KEY AUTO_INCREMENT, name varchar NOT NULL, role varchar, salary int, score float)
+[2026-11-07 10:52:26] DESCRIBE perfection_test.employees
+[2026-11-07 10:52:26] INSERT INTO perfection_test.employees (id, name, role, salary, score) VALUES 
+        (1, 'Satya', 'Architect', 120000, 95.5),
+        (2, 'Amit', 'Manager', 95000, 88.0),
+        (3, 'John', 'Developer', 80000, 90.0),
+        (4, 'Jane', 'Designer', 75000, 87.5)
+[2026-11-07 10:52:26] SELECT * FROM perfection_test.employees
+[2026-11-07 10:52:26] UPDATE perfection_test.employees SET salary = salary + 5000 WHERE name = 'John'
+[2026-11-07 10:52:26] UPDATE perfection_test.employees SET score = score - 2.5 WHERE name = 'Amit'
+[2026-11-07 10:52:26] SELECT salary FROM perfection_test.employees WHERE name = 'John'
+[2026-11-07 10:52:26] SELECT score FROM perfection_test.employees WHERE name = 'Amit'
+[2026-11-07 10:52:26] START TRANSACTION
+[2026-11-07 10:52:26] UPDATE perfection_test.employees SET salary = 150000 WHERE name = 'Satya'
+[2026-11-07 10:52:26] ROLLBACK
+[2026-11-07 10:52:26] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 10:52:26] START TRANSACTION
+[2026-11-07 10:52:26] UPDATE perfection_test.employees SET salary = 130000 WHERE name = 'Satya'
+[2026-11-07 10:52:26] COMMIT
+[2026-11-07 10:52:26] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 10:52:26] CREATE INDEX name_idx ON perfection_test.employees (name)
+[2026-11-07 10:52:26] DROP INDEX name_idx ON perfection_test.employees
+[2026-11-07 10:52:26] CREATE VIEW perfection_test.high_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 10:52:26] SELECT name, salary FROM perfection_test.high_earners
+[2026-11-07 10:52:26] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 10:52:26] CREATE MATERIALIZED VIEW perfection_test.mv_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 10:52:26] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 10:52:26] SELECT name, salary FROM perfection_test.mv_earners
+[2026-11-07 10:52:26] DROP VIEW perfection_test.high_earners
+[2026-11-07 10:52:26] DROP VIEW perfection_test.mv_earners
+[2026-11-07 10:52:26] SELECT CONCAT(name, ' (', role, ')') AS full_desc, UPPER(name) AS upper_name, LENGTH(role) AS role_len, COALESCE(NULL, role, 'N/A') AS current_role, IF(score >= 90.0, 'Excellent', 'Good') AS score_rating, ROUND(score, 0) AS rounded_score, CEIL(score) AS ceil_score, FLOOR(score) AS floor_score, ABS(-5.5) AS abs_val, POW(2, 3) AS pow_val, SQRT(9) AS sqrt_val, MD5(name) AS name_md5, REVERSE(name) AS rev_name, CURDATE() AS today, CURTIME() AS now_time, YEAR(NOW()) AS now_year, MONTH(NOW()) AS now_month, DAY(NOW()) AS now_day FROM perfection_test.employees
+[2026-11-07 10:52:26] ALTER TABLE perfection_test.employees RENAME COLUMN salary TO remuneration
+[2026-11-07 10:52:26] DESCRIBE perfection_test.employees
+[2026-11-07 10:52:26] ALTER TABLE perfection_test.employees DROP COLUMN score
+[2026-11-07 10:52:26] DESCRIBE perfection_test.employees
+[2026-11-07 10:52:26] ALTER TABLE perfection_test.employees MODIFY COLUMN remuneration double
+[2026-11-07 10:52:26] DESCRIBE perfection_test.employees
+[2026-11-07 10:52:26] ALTER TABLE perfection_test.employees CHANGE COLUMN role title varchar NOT NULL
+[2026-11-07 10:52:27] DESCRIBE perfection_test.employees
+[2026-11-07 10:52:27] CREATE TABLE perfection_test.departments (id INT PRIMARY KEY, dept_name VARCHAR)
+[2026-11-07 10:52:27] INSERT INTO perfection_test.departments (id, dept_name) VALUES (1, 'Engineering'), (2, 'Management'), (3, 'Design')
+[2026-11-07 10:52:27] CREATE TABLE perfection_test.projects (id INT PRIMARY KEY, project_name VARCHAR, dept_id INT)
+[2026-11-07 10:52:27] INSERT INTO perfection_test.projects (id, project_name, dept_id) VALUES (101, 'Studio', 1), (102, 'Polyglot', 1), (103, 'Lekhak', 3)
+[2026-11-07 10:52:27] SELECT dept_name AS name FROM perfection_test.departments UNION ALL SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 10:52:27] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 10:52:27] SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 10:52:27] SELECT dept_name AS name FROM perfection_test.departments UNION SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 10:52:27] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 10:52:27] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 10:52:27] SELECT name, score FROM (SELECT name, score FROM perfection_test.employees WHERE score >= 90) AS high_score WHERE score < 95
+[2026-11-07 10:52:27] SELECT name, score FROM perfection_test.employees WHERE score >= 90
+[2026-11-07 10:52:27] SELECT e.name, d.dept_name, p.project_name FROM perfection_test.employees e LEFT JOIN perfection_test.departments d ON e.id = d.id LEFT JOIN perfection_test.projects p ON d.id = p.dept_id
+[2026-11-07 10:52:27] SELECT * FROM perfection_test.departments
+[2026-11-07 10:52:27] SELECT * FROM perfection_test.projects
+[2026-11-07 10:52:27] UPDATE perfection_test.employees SET title = NULL WHERE name = 'Satya'
+[2026-11-07 10:52:27] DROP TABLE perfection_test.departments
+[2026-11-07 10:52:27] DROP TABLE perfection_test.projects
+[2026-11-07 10:52:27] RENAME TABLE perfection_test.employees TO perfection_test.staff
+[2026-11-07 10:52:27] SHOW TABLES
+[2026-11-07 10:52:27] TRUNCATE TABLE perfection_test.staff
+[2026-11-07 10:52:27] SELECT * FROM perfection_test.staff
+[2026-11-07 10:52:27] DROP TABLE perfection_test.staff
+[2026-11-07 10:52:27] DROP DATABASE perfection_test
+[2026-11-07 10:52:35] CREATE TABLE products (id int, name varchar, category varchar, price int)
+[2026-11-07 10:52:35] INSERT INTO products (name, category, price) VALUES ('Laptop', 'Electronics', 1200)
+[2026-11-07 10:52:35] INSERT INTO products (name, category, price) VALUES ('Phone', 'Electronics', 800)
+[2026-11-07 10:52:35] INSERT INTO products (name, category, price) VALUES ('Shirt', 'Apparel', 25)
+[2026-11-07 10:52:35] INSERT INTO products (name, category, price) VALUES ('Pants', 'Apparel', 45)
+[2026-11-07 10:52:35] INSERT INTO products (name, category, price) VALUES ('Watch', 'Electronics', 200)
+[2026-11-07 10:52:35] SELECT * FROM products
+[2026-11-07 10:52:35] SELECT SUM(price) FROM products
+[2026-11-07 10:52:35] SELECT AVG(price) FROM products
+[2026-11-07 10:52:35] SELECT category, COUNT(*), SUM(price) FROM products GROUP BY category
+[2026-11-07 10:52:35] SELECT name FROM products WHERE name LIKE 'P%'
+[2026-11-07 10:52:35] SELECT name FROM products WHERE category IN ('Apparel')
+[2026-11-07 10:52:35] SELECT DISTINCT category FROM products
+[2026-11-07 10:52:35] INSERT INTO products (name, category, price) VALUES ('Temp Item', 'Misc', 10)
+[2026-11-07 10:52:35] SELECT * FROM products
+[2026-11-07 10:52:35] SELECT * FROM products
+[2026-11-07 10:52:35] INSERT INTO products (name, price) VALUES ('Bad Item', 'not-a-number')
+[2026-11-07 10:52:35] SELECT * FROM products
+[2026-11-07 10:52:35] SELECT * FROM products
+[2026-11-07 10:52:35] SELECT * FROM products
+[2026-11-07 10:52:43] CREATE DATABASE school
+[2026-11-07 10:52:43] CREATE DATABASE finance
+[2026-11-07 10:52:43] SHOW DATABASES
+[2026-11-07 10:52:43] CREATE TABLE school.students (id int, name varchar, grade varchar, score int)
+[2026-11-07 10:52:44] CREATE TABLE school.teachers (id int, name varchar, subject varchar)
+[2026-11-07 10:52:44] SHOW TABLES
+[2026-11-07 10:52:44] INSERT INTO school.students (id, name, grade, score) VALUES ('1', 'Satya', 'A', '95')
+[2026-11-07 10:52:44] INSERT INTO school.students (id, name, grade, score) VALUES ('2', 'John', 'B', '82')
+[2026-11-07 10:52:44] INSERT INTO school.students (id, name, grade, score) VALUES ('3', 'Jane', 'A', '91')
+[2026-11-07 10:52:44] INSERT INTO school.students (id, name, grade, score) VALUES ('4', 'Alice', 'C', '76')
+[2026-11-07 10:52:44] INSERT INTO school.students (id, name, grade, score) VALUES ('5', 'Bob', 'B', '88')
+[2026-11-07 10:52:44] SELECT * FROM school.students
+[2026-11-07 10:52:44] SELECT name, score FROM school.students WHERE grade='A'
+[2026-11-07 10:52:44] SELECT COUNT(*) FROM school.students
+[2026-11-07 10:52:44] SELECT COUNT(*) FROM school.students WHERE grade='B'
+[2026-11-07 10:52:44] SELECT name, score FROM school.students ORDER BY score DESC
+[2026-11-07 10:52:44] SELECT name, score FROM school.students ORDER BY score DESC LIMIT 3
+[2026-11-07 10:52:44] UPDATE school.students SET grade='A' WHERE name='Bob'
+[2026-11-07 10:52:44] SELECT name, grade FROM school.students WHERE name='Bob'
+[2026-11-07 10:52:44] DELETE FROM school.students WHERE name='Alice'
+[2026-11-07 10:52:44] SELECT COUNT(*) FROM school.students
+[2026-11-07 10:52:44] INSERT INTO finance.invoices (id, customer, amount, status) VALUES ('INV-001', 'Acme Corp', '5000', 'paid')
+[2026-11-07 10:52:44] INSERT INTO finance.invoices (id, customer, amount, status) VALUES ('INV-002', 'Globex', '3200', 'pending')
+[2026-11-07 10:52:44] SELECT * FROM finance.invoices
+[2026-11-07 10:52:44] SELECT COUNT(*) FROM school.students
+[2026-11-07 10:52:44] SELECT COUNT(*) FROM finance.invoices
+[2026-11-07 10:52:44] SHOW DATABASES
+[2026-11-07 10:52:44] DROP TABLE school.teachers
+[2026-11-07 10:52:44] SHOW TABLES
+[2026-11-07 10:52:52] CREATE TABLE accounts (id int, balance float)
+[2026-11-07 10:52:52] CREATE TABLE ledger (id int, tx_type varchar, amount float)
+[2026-11-07 10:52:52] SELECT COUNT(*) as total FROM accounts
+[2026-11-07 10:52:52] SELECT * FROM _audit ORDER BY timestamp DESC LIMIT 1
+[2026-11-07 10:52:52] SELECT * FROM _audit ORDER BY timestamp DESC LIMIT 1
+[2026-11-07 10:52:52] SELECT * FROM _audit ORDER BY timestamp ASC
+[2026-11-07 10:52:59] CREATE TABLE authors (id int, name varchar)
+[2026-11-07 10:52:59] CREATE TABLE books (id int, title varchar, author_id int)
+[2026-11-07 10:52:59] SELECT * FROM v_catalog
+[2026-11-07 10:52:59] SELECT books.title, authors.name FROM books INNER JOIN authors ON books.author_id = authors.id
+[2026-11-07 10:52:59] SELECT * FROM authors
+[2026-11-07 10:52:59] SELECT COUNT(*) as total FROM books
+[2026-11-07 10:52:59] SELECT id,name FROM authors WHERE name = 'Tolkien'
+[2026-11-07 10:53:06] CREATE TABLE secure_data (id int, secret varchar)
+[2026-11-07 10:53:50] CREATE TABLE secure_data (id int, secret varchar)
+[2026-11-07 10:53:50] SELECT COUNT(*) as total FROM large_table
+[2026-11-07 11:46:23] CREATE DATABASE IF NOT EXISTS perfection_test
+[2026-11-07 11:46:23] DROP TABLE IF EXISTS perfection_test.employees
+[2026-11-07 11:46:23] CREATE TABLE perfection_test.employees (id int PRIMARY KEY AUTO_INCREMENT, name varchar NOT NULL, role varchar, salary int, score float)
+[2026-11-07 11:46:23] DESCRIBE perfection_test.employees
+[2026-11-07 11:46:23] INSERT INTO perfection_test.employees (id, name, role, salary, score) VALUES 
+        (1, 'Satya', 'Architect', 120000, 95.5),
+        (2, 'Amit', 'Manager', 95000, 88.0),
+        (3, 'John', 'Developer', 80000, 90.0),
+        (4, 'Jane', 'Designer', 75000, 87.5)
+[2026-11-07 11:46:23] SELECT * FROM perfection_test.employees
+[2026-11-07 11:46:23] UPDATE perfection_test.employees SET salary = salary + 5000 WHERE name = 'John'
+[2026-11-07 11:46:23] UPDATE perfection_test.employees SET score = score - 2.5 WHERE name = 'Amit'
+[2026-11-07 11:46:23] SELECT salary FROM perfection_test.employees WHERE name = 'John'
+[2026-11-07 11:46:23] SELECT score FROM perfection_test.employees WHERE name = 'Amit'
+[2026-11-07 11:46:23] START TRANSACTION
+[2026-11-07 11:46:23] UPDATE perfection_test.employees SET salary = 150000 WHERE name = 'Satya'
+[2026-11-07 11:46:23] ROLLBACK
+[2026-11-07 11:46:23] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 11:46:23] START TRANSACTION
+[2026-11-07 11:46:23] UPDATE perfection_test.employees SET salary = 130000 WHERE name = 'Satya'
+[2026-11-07 11:46:23] COMMIT
+[2026-11-07 11:46:23] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 11:46:23] CREATE INDEX name_idx ON perfection_test.employees (name)
+[2026-11-07 11:46:23] DROP INDEX name_idx ON perfection_test.employees
+[2026-11-07 11:46:23] CREATE VIEW perfection_test.high_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 11:46:23] SELECT name, salary FROM perfection_test.high_earners
+[2026-11-07 11:46:23] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 11:46:23] CREATE MATERIALIZED VIEW perfection_test.mv_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 11:46:23] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 11:46:23] SELECT name, salary FROM perfection_test.mv_earners
+[2026-11-07 11:46:23] DROP VIEW perfection_test.high_earners
+[2026-11-07 11:46:23] DROP VIEW perfection_test.mv_earners
+[2026-11-07 11:46:23] SELECT CONCAT(name, ' (', role, ')') AS full_desc, UPPER(name) AS upper_name, LENGTH(role) AS role_len, COALESCE(NULL, role, 'N/A') AS current_role, IF(score >= 90.0, 'Excellent', 'Good') AS score_rating, ROUND(score, 0) AS rounded_score, CEIL(score) AS ceil_score, FLOOR(score) AS floor_score, ABS(-5.5) AS abs_val, POW(2, 3) AS pow_val, SQRT(9) AS sqrt_val, MD5(name) AS name_md5, REVERSE(name) AS rev_name, CURDATE() AS today, CURTIME() AS now_time, YEAR(NOW()) AS now_year, MONTH(NOW()) AS now_month, DAY(NOW()) AS now_day FROM perfection_test.employees
+[2026-11-07 11:46:23] ALTER TABLE perfection_test.employees RENAME COLUMN salary TO remuneration
+[2026-11-07 11:46:23] DESCRIBE perfection_test.employees
+[2026-11-07 11:46:23] ALTER TABLE perfection_test.employees DROP COLUMN score
+[2026-11-07 11:46:23] DESCRIBE perfection_test.employees
+[2026-11-07 11:46:23] ALTER TABLE perfection_test.employees MODIFY COLUMN remuneration double
+[2026-11-07 11:46:23] DESCRIBE perfection_test.employees
+[2026-11-07 11:46:23] ALTER TABLE perfection_test.employees CHANGE COLUMN role title varchar NOT NULL
+[2026-11-07 11:46:23] DESCRIBE perfection_test.employees
+[2026-11-07 11:46:23] CREATE TABLE perfection_test.departments (id INT PRIMARY KEY, dept_name VARCHAR)
+[2026-11-07 11:46:23] INSERT INTO perfection_test.departments (id, dept_name) VALUES (1, 'Engineering'), (2, 'Management'), (3, 'Design')
+[2026-11-07 11:46:23] CREATE TABLE perfection_test.projects (id INT PRIMARY KEY, project_name VARCHAR, dept_id INT)
+[2026-11-07 11:46:24] INSERT INTO perfection_test.projects (id, project_name, dept_id) VALUES (101, 'Studio', 1), (102, 'Polyglot', 1), (103, 'Lekhak', 3)
+[2026-11-07 11:46:24] SELECT dept_name AS name FROM perfection_test.departments UNION ALL SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 11:46:24] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 11:46:24] SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 11:46:24] SELECT dept_name AS name FROM perfection_test.departments UNION SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 11:46:24] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 11:46:24] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 11:46:24] SELECT name, score FROM (SELECT name, score FROM perfection_test.employees WHERE score >= 90) AS high_score WHERE score < 95
+[2026-11-07 11:46:24] SELECT name, score FROM perfection_test.employees WHERE score >= 90
+[2026-11-07 11:46:24] SELECT e.name, d.dept_name, p.project_name FROM perfection_test.employees e LEFT JOIN perfection_test.departments d ON e.id = d.id LEFT JOIN perfection_test.projects p ON d.id = p.dept_id
+[2026-11-07 11:46:24] SELECT * FROM perfection_test.departments
+[2026-11-07 11:46:24] SELECT * FROM perfection_test.projects
+[2026-11-07 11:46:24] UPDATE perfection_test.employees SET title = NULL WHERE name = 'Satya'
+[2026-11-07 11:46:24] DROP TABLE perfection_test.departments
+[2026-11-07 11:46:24] DROP TABLE perfection_test.projects
+[2026-11-07 11:46:24] RENAME TABLE perfection_test.employees TO perfection_test.staff
+[2026-11-07 11:46:24] SHOW TABLES
+[2026-11-07 11:46:24] TRUNCATE TABLE perfection_test.staff
+[2026-11-07 11:46:24] SELECT * FROM perfection_test.staff
+[2026-11-07 11:46:24] DROP TABLE perfection_test.staff
+[2026-11-07 11:46:24] DROP DATABASE perfection_test
+[2026-11-07 11:46:50] CREATE TABLE products (id int, name varchar, category varchar, price int)
+[2026-11-07 11:46:50] INSERT INTO products (name, category, price) VALUES ('Laptop', 'Electronics', 1200)
+[2026-11-07 11:46:50] INSERT INTO products (name, category, price) VALUES ('Phone', 'Electronics', 800)
+[2026-11-07 11:46:50] INSERT INTO products (name, category, price) VALUES ('Shirt', 'Apparel', 25)
+[2026-11-07 11:46:50] INSERT INTO products (name, category, price) VALUES ('Pants', 'Apparel', 45)
+[2026-11-07 11:46:50] INSERT INTO products (name, category, price) VALUES ('Watch', 'Electronics', 200)
+[2026-11-07 11:46:50] SELECT * FROM products
+[2026-11-07 11:46:50] SELECT SUM(price) FROM products
+[2026-11-07 11:46:50] SELECT AVG(price) FROM products
+[2026-11-07 11:46:50] SELECT category, COUNT(*), SUM(price) FROM products GROUP BY category
+[2026-11-07 11:46:50] SELECT name FROM products WHERE name LIKE 'P%'
+[2026-11-07 11:46:50] SELECT name FROM products WHERE category IN ('Apparel')
+[2026-11-07 11:46:50] SELECT DISTINCT category FROM products
+[2026-11-07 11:46:50] INSERT INTO products (name, category, price) VALUES ('Temp Item', 'Misc', 10)
+[2026-11-07 11:46:50] SELECT * FROM products
+[2026-11-07 11:46:50] SELECT * FROM products
+[2026-11-07 11:46:50] INSERT INTO products (name, price) VALUES ('Bad Item', 'not-a-number')
+[2026-11-07 11:46:50] SELECT * FROM products
+[2026-11-07 11:46:50] SELECT * FROM products
+[2026-11-07 11:46:50] SELECT * FROM products
+[2026-11-07 11:47:01] CREATE DATABASE school
+[2026-11-07 11:47:01] CREATE DATABASE finance
+[2026-11-07 11:47:01] SHOW DATABASES
+[2026-11-07 11:47:01] CREATE TABLE school.students (id int, name varchar, grade varchar, score int)
+[2026-11-07 11:47:01] CREATE TABLE school.teachers (id int, name varchar, subject varchar)
+[2026-11-07 11:47:01] SHOW TABLES
+[2026-11-07 11:47:01] INSERT INTO school.students (id, name, grade, score) VALUES ('1', 'Satya', 'A', '95')
+[2026-11-07 11:47:01] INSERT INTO school.students (id, name, grade, score) VALUES ('2', 'John', 'B', '82')
+[2026-11-07 11:47:01] INSERT INTO school.students (id, name, grade, score) VALUES ('3', 'Jane', 'A', '91')
+[2026-11-07 11:47:01] INSERT INTO school.students (id, name, grade, score) VALUES ('4', 'Alice', 'C', '76')
+[2026-11-07 11:47:02] INSERT INTO school.students (id, name, grade, score) VALUES ('5', 'Bob', 'B', '88')
+[2026-11-07 11:47:02] SELECT * FROM school.students
+[2026-11-07 11:47:02] SELECT name, score FROM school.students WHERE grade='A'
+[2026-11-07 11:47:02] SELECT COUNT(*) FROM school.students
+[2026-11-07 11:47:02] SELECT COUNT(*) FROM school.students WHERE grade='B'
+[2026-11-07 11:47:02] SELECT name, score FROM school.students ORDER BY score DESC
+[2026-11-07 11:47:02] SELECT name, score FROM school.students ORDER BY score DESC LIMIT 3
+[2026-11-07 11:47:02] UPDATE school.students SET grade='A' WHERE name='Bob'
+[2026-11-07 11:47:02] SELECT name, grade FROM school.students WHERE name='Bob'
+[2026-11-07 11:47:02] DELETE FROM school.students WHERE name='Alice'
+[2026-11-07 11:47:02] SELECT COUNT(*) FROM school.students
+[2026-11-07 11:47:02] INSERT INTO finance.invoices (id, customer, amount, status) VALUES ('INV-001', 'Acme Corp', '5000', 'paid')
+[2026-11-07 11:47:02] INSERT INTO finance.invoices (id, customer, amount, status) VALUES ('INV-002', 'Globex', '3200', 'pending')
+[2026-11-07 11:47:02] SELECT * FROM finance.invoices
+[2026-11-07 11:47:02] SELECT COUNT(*) FROM school.students
+[2026-11-07 11:47:02] SELECT COUNT(*) FROM finance.invoices
+[2026-11-07 11:47:02] SHOW DATABASES
+[2026-11-07 11:47:02] DROP TABLE school.teachers
+[2026-11-07 11:47:02] SHOW TABLES
+[2026-11-07 11:47:11] CREATE TABLE accounts (id int, balance float)
+[2026-11-07 11:47:11] CREATE TABLE ledger (id int, tx_type varchar, amount float)
+[2026-11-07 11:47:11] SELECT COUNT(*) as total FROM accounts
+[2026-11-07 11:47:11] SELECT * FROM _audit ORDER BY timestamp DESC LIMIT 1
+[2026-11-07 11:47:11] SELECT * FROM _audit ORDER BY timestamp DESC LIMIT 1
+[2026-11-07 11:47:11] SELECT * FROM _audit ORDER BY timestamp ASC
+[2026-11-07 11:47:19] CREATE TABLE authors (id int, name varchar)
+[2026-11-07 11:47:19] CREATE TABLE books (id int, title varchar, author_id int)
+[2026-11-07 11:47:19] SELECT * FROM v_catalog
+[2026-11-07 11:47:19] SELECT books.title, authors.name FROM books INNER JOIN authors ON books.author_id = authors.id
+[2026-11-07 11:47:19] SELECT * FROM authors
+[2026-11-07 11:47:19] SELECT COUNT(*) as total FROM books
+[2026-11-07 11:47:19] SELECT id,name FROM authors WHERE name = 'Tolkien'
+[2026-11-07 12:11:15] CREATE DATABASE IF NOT EXISTS perfection_test
+[2026-11-07 12:11:15] DROP TABLE IF EXISTS perfection_test.employees
+[2026-11-07 12:11:15] CREATE TABLE perfection_test.employees (id int PRIMARY KEY AUTO_INCREMENT, name varchar NOT NULL, role varchar, salary int, score float)
+[2026-11-07 12:11:15] DESCRIBE perfection_test.employees
+[2026-11-07 12:11:15] INSERT INTO perfection_test.employees (id, name, role, salary, score) VALUES 
+        (1, 'Satya', 'Architect', 120000, 95.5),
+        (2, 'Amit', 'Manager', 95000, 88.0),
+        (3, 'John', 'Developer', 80000, 90.0),
+        (4, 'Jane', 'Designer', 75000, 87.5)
+[2026-11-07 12:11:15] SELECT * FROM perfection_test.employees
+[2026-11-07 12:11:15] UPDATE perfection_test.employees SET salary = salary + 5000 WHERE name = 'John'
+[2026-11-07 12:11:15] UPDATE perfection_test.employees SET score = score - 2.5 WHERE name = 'Amit'
+[2026-11-07 12:11:15] SELECT salary FROM perfection_test.employees WHERE name = 'John'
+[2026-11-07 12:11:15] SELECT score FROM perfection_test.employees WHERE name = 'Amit'
+[2026-11-07 12:11:15] START TRANSACTION
+[2026-11-07 12:11:15] UPDATE perfection_test.employees SET salary = 150000 WHERE name = 'Satya'
+[2026-11-07 12:11:15] ROLLBACK
+[2026-11-07 12:11:15] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 12:11:15] START TRANSACTION
+[2026-11-07 12:11:15] UPDATE perfection_test.employees SET salary = 130000 WHERE name = 'Satya'
+[2026-11-07 12:11:15] COMMIT
+[2026-11-07 12:11:15] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 12:11:15] CREATE INDEX name_idx ON perfection_test.employees (name)
+[2026-11-07 12:11:15] DROP INDEX name_idx ON perfection_test.employees
+[2026-11-07 12:11:15] CREATE VIEW perfection_test.high_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 12:11:15] SELECT name, salary FROM perfection_test.high_earners
+[2026-11-07 12:11:15] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 12:11:15] CREATE MATERIALIZED VIEW perfection_test.mv_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 12:11:15] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 12:11:15] SELECT name, salary FROM perfection_test.mv_earners
+[2026-11-07 12:11:15] DROP VIEW perfection_test.high_earners
+[2026-11-07 12:11:15] DROP VIEW perfection_test.mv_earners
+[2026-11-07 12:11:15] SELECT CONCAT(name, ' (', role, ')') AS full_desc, UPPER(name) AS upper_name, LENGTH(role) AS role_len, COALESCE(NULL, role, 'N/A') AS current_role, IF(score >= 90.0, 'Excellent', 'Good') AS score_rating, ROUND(score, 0) AS rounded_score, CEIL(score) AS ceil_score, FLOOR(score) AS floor_score, ABS(-5.5) AS abs_val, POW(2, 3) AS pow_val, SQRT(9) AS sqrt_val, MD5(name) AS name_md5, REVERSE(name) AS rev_name, CURDATE() AS today, CURTIME() AS now_time, YEAR(NOW()) AS now_year, MONTH(NOW()) AS now_month, DAY(NOW()) AS now_day FROM perfection_test.employees
+[2026-11-07 12:11:15] ALTER TABLE perfection_test.employees RENAME COLUMN salary TO remuneration
+[2026-11-07 12:11:15] DESCRIBE perfection_test.employees
+[2026-11-07 12:11:15] ALTER TABLE perfection_test.employees DROP COLUMN score
+[2026-11-07 12:11:15] DESCRIBE perfection_test.employees
+[2026-11-07 12:11:15] ALTER TABLE perfection_test.employees MODIFY COLUMN remuneration double
+[2026-11-07 12:11:15] DESCRIBE perfection_test.employees
+[2026-11-07 12:11:15] ALTER TABLE perfection_test.employees CHANGE COLUMN role title varchar NOT NULL
+[2026-11-07 12:11:15] DESCRIBE perfection_test.employees
+[2026-11-07 12:11:15] CREATE TABLE perfection_test.departments (id INT PRIMARY KEY, dept_name VARCHAR)
+[2026-11-07 12:11:15] INSERT INTO perfection_test.departments (id, dept_name) VALUES (1, 'Engineering'), (2, 'Management'), (3, 'Design')
+[2026-11-07 12:11:15] CREATE TABLE perfection_test.projects (id INT PRIMARY KEY, project_name VARCHAR, dept_id INT)
+[2026-11-07 12:11:15] INSERT INTO perfection_test.projects (id, project_name, dept_id) VALUES (101, 'Studio', 1), (102, 'Polyglot', 1), (103, 'Lekhak', 3)
+[2026-11-07 12:11:15] SELECT dept_name AS name FROM perfection_test.departments UNION ALL SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 12:11:15] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 12:11:15] SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 12:11:15] SELECT dept_name AS name FROM perfection_test.departments UNION SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 12:11:15] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 12:11:15] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 12:11:15] SELECT name, score FROM (SELECT name, score FROM perfection_test.employees WHERE score >= 90) AS high_score WHERE score < 95
+[2026-11-07 12:11:15] SELECT name, score FROM perfection_test.employees WHERE score >= 90
+[2026-11-07 12:11:15] SELECT e.name, d.dept_name, p.project_name FROM perfection_test.employees e LEFT JOIN perfection_test.departments d ON e.id = d.id LEFT JOIN perfection_test.projects p ON d.id = p.dept_id
+[2026-11-07 12:11:15] SELECT * FROM perfection_test.departments
+[2026-11-07 12:11:15] SELECT * FROM perfection_test.projects
+[2026-11-07 12:11:15] UPDATE perfection_test.employees SET title = NULL WHERE name = 'Satya'
+[2026-11-07 12:11:15] DROP TABLE perfection_test.departments
+[2026-11-07 12:11:15] DROP TABLE perfection_test.projects
+[2026-11-07 12:11:16] RENAME TABLE perfection_test.employees TO perfection_test.staff
+[2026-11-07 12:11:16] SHOW TABLES
+[2026-11-07 12:11:16] TRUNCATE TABLE perfection_test.staff
+[2026-11-07 12:11:16] SELECT * FROM perfection_test.staff
+[2026-11-07 12:11:16] DROP TABLE perfection_test.staff
+[2026-11-07 12:11:16] DROP DATABASE perfection_test
+[2026-11-07 12:11:32] CREATE TABLE products (id int, name varchar, category varchar, price int)
+[2026-11-07 12:11:32] INSERT INTO products (name, category, price) VALUES ('Laptop', 'Electronics', 1200)
+[2026-11-07 12:11:32] INSERT INTO products (name, category, price) VALUES ('Phone', 'Electronics', 800)
+[2026-11-07 12:11:32] INSERT INTO products (name, category, price) VALUES ('Shirt', 'Apparel', 25)
+[2026-11-07 12:11:32] INSERT INTO products (name, category, price) VALUES ('Pants', 'Apparel', 45)
+[2026-11-07 12:11:32] INSERT INTO products (name, category, price) VALUES ('Watch', 'Electronics', 200)
+[2026-11-07 12:11:32] SELECT * FROM products
+[2026-11-07 12:11:32] SELECT SUM(price) FROM products
+[2026-11-07 12:11:32] SELECT AVG(price) FROM products
+[2026-11-07 12:11:32] SELECT category, COUNT(*), SUM(price) FROM products GROUP BY category
+[2026-11-07 12:11:32] SELECT name FROM products WHERE name LIKE 'P%'
+[2026-11-07 12:11:32] SELECT name FROM products WHERE category IN ('Apparel')
+[2026-11-07 12:11:32] SELECT DISTINCT category FROM products
+[2026-11-07 12:11:32] INSERT INTO products (name, category, price) VALUES ('Temp Item', 'Misc', 10)
+[2026-11-07 12:11:32] SELECT * FROM products
+[2026-11-07 12:11:32] SELECT * FROM products
+[2026-11-07 12:11:32] INSERT INTO products (name, price) VALUES ('Bad Item', 'not-a-number')
+[2026-11-07 12:11:32] SELECT * FROM products
+[2026-11-07 12:11:32] SELECT * FROM products
+[2026-11-07 12:11:32] SELECT * FROM products
+[2026-11-07 12:11:39] CREATE DATABASE school
+[2026-11-07 12:11:39] CREATE DATABASE finance
+[2026-11-07 12:11:39] SHOW DATABASES
+[2026-11-07 12:11:39] CREATE TABLE school.students (id int, name varchar, grade varchar, score int)
+[2026-11-07 12:11:39] CREATE TABLE school.teachers (id int, name varchar, subject varchar)
+[2026-11-07 12:11:39] SHOW TABLES
+[2026-11-07 12:11:39] INSERT INTO school.students (id, name, grade, score) VALUES ('1', 'Satya', 'A', '95')
+[2026-11-07 12:11:39] INSERT INTO school.students (id, name, grade, score) VALUES ('2', 'John', 'B', '82')
+[2026-11-07 12:11:39] INSERT INTO school.students (id, name, grade, score) VALUES ('3', 'Jane', 'A', '91')
+[2026-11-07 12:11:39] INSERT INTO school.students (id, name, grade, score) VALUES ('4', 'Alice', 'C', '76')
+[2026-11-07 12:11:39] INSERT INTO school.students (id, name, grade, score) VALUES ('5', 'Bob', 'B', '88')
+[2026-11-07 12:11:39] SELECT * FROM school.students
+[2026-11-07 12:11:39] SELECT name, score FROM school.students WHERE grade='A'
+[2026-11-07 12:11:39] SELECT COUNT(*) FROM school.students
+[2026-11-07 12:11:39] SELECT COUNT(*) FROM school.students WHERE grade='B'
+[2026-11-07 12:11:39] SELECT name, score FROM school.students ORDER BY score DESC
+[2026-11-07 12:11:39] SELECT name, score FROM school.students ORDER BY score DESC LIMIT 3
+[2026-11-07 12:11:39] UPDATE school.students SET grade='A' WHERE name='Bob'
+[2026-11-07 12:11:39] SELECT name, grade FROM school.students WHERE name='Bob'
+[2026-11-07 12:11:39] DELETE FROM school.students WHERE name='Alice'
+[2026-11-07 12:11:39] SELECT COUNT(*) FROM school.students
+[2026-11-07 12:11:39] INSERT INTO finance.invoices (id, customer, amount, status) VALUES ('INV-001', 'Acme Corp', '5000', 'paid')
+[2026-11-07 12:11:39] INSERT INTO finance.invoices (id, customer, amount, status) VALUES ('INV-002', 'Globex', '3200', 'pending')
+[2026-11-07 12:11:39] SELECT * FROM finance.invoices
+[2026-11-07 12:11:39] SELECT COUNT(*) FROM school.students
+[2026-11-07 12:11:39] SELECT COUNT(*) FROM finance.invoices
+[2026-11-07 12:11:39] SHOW DATABASES
+[2026-11-07 12:11:39] DROP TABLE school.teachers
+[2026-11-07 12:11:39] SHOW TABLES
+[2026-11-07 12:11:48] CREATE TABLE accounts (id int, balance float)
+[2026-11-07 12:11:48] CREATE TABLE ledger (id int, tx_type varchar, amount float)
+[2026-11-07 12:11:48] SELECT COUNT(*) as total FROM accounts
+[2026-11-07 12:11:48] SELECT * FROM _audit ORDER BY timestamp DESC LIMIT 1
+[2026-11-07 12:11:48] SELECT * FROM _audit ORDER BY timestamp DESC LIMIT 1
+[2026-11-07 12:11:48] SELECT * FROM _audit ORDER BY timestamp ASC
+[2026-11-07 12:22:59] CREATE DATABASE IF NOT EXISTS perfection_test
+[2026-11-07 12:22:59] DROP TABLE IF EXISTS perfection_test.employees
+[2026-11-07 12:22:59] CREATE TABLE perfection_test.employees (id int PRIMARY KEY AUTO_INCREMENT, name varchar NOT NULL, role varchar, salary int, score float)
+[2026-11-07 12:22:59] DESCRIBE perfection_test.employees
+[2026-11-07 12:22:59] INSERT INTO perfection_test.employees (id, name, role, salary, score) VALUES 
+        (1, 'Satya', 'Architect', 120000, 95.5),
+        (2, 'Amit', 'Manager', 95000, 88.0),
+        (3, 'John', 'Developer', 80000, 90.0),
+        (4, 'Jane', 'Designer', 75000, 87.5)
+[2026-11-07 12:22:59] SELECT * FROM perfection_test.employees
+[2026-11-07 12:22:59] UPDATE perfection_test.employees SET salary = salary + 5000 WHERE name = 'John'
+[2026-11-07 12:22:59] UPDATE perfection_test.employees SET score = score - 2.5 WHERE name = 'Amit'
+[2026-11-07 12:22:59] SELECT salary FROM perfection_test.employees WHERE name = 'John'
+[2026-11-07 12:22:59] SELECT score FROM perfection_test.employees WHERE name = 'Amit'
+[2026-11-07 12:22:59] START TRANSACTION
+[2026-11-07 12:22:59] UPDATE perfection_test.employees SET salary = 150000 WHERE name = 'Satya'
+[2026-11-07 12:22:59] ROLLBACK
+[2026-11-07 12:22:59] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 12:22:59] START TRANSACTION
+[2026-11-07 12:22:59] UPDATE perfection_test.employees SET salary = 130000 WHERE name = 'Satya'
+[2026-11-07 12:22:59] COMMIT
+[2026-11-07 12:22:59] SELECT salary FROM perfection_test.employees WHERE name = 'Satya'
+[2026-11-07 12:22:59] CREATE INDEX name_idx ON perfection_test.employees (name)
+[2026-11-07 12:22:59] DROP INDEX name_idx ON perfection_test.employees
+[2026-11-07 12:22:59] CREATE VIEW perfection_test.high_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 12:22:59] SELECT name, salary FROM perfection_test.high_earners
+[2026-11-07 12:22:59] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 12:22:59] CREATE MATERIALIZED VIEW perfection_test.mv_earners AS SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 12:22:59] SELECT * FROM perfection_test.employees WHERE salary >= 90000
+[2026-11-07 12:22:59] SELECT name, salary FROM perfection_test.mv_earners
+[2026-11-07 12:22:59] DROP VIEW perfection_test.high_earners
+[2026-11-07 12:22:59] DROP VIEW perfection_test.mv_earners
+[2026-11-07 12:22:59] SELECT CONCAT(name, ' (', role, ')') AS full_desc, UPPER(name) AS upper_name, LENGTH(role) AS role_len, COALESCE(NULL, role, 'N/A') AS current_role, IF(score >= 90.0, 'Excellent', 'Good') AS score_rating, ROUND(score, 0) AS rounded_score, CEIL(score) AS ceil_score, FLOOR(score) AS floor_score, ABS(-5.5) AS abs_val, POW(2, 3) AS pow_val, SQRT(9) AS sqrt_val, MD5(name) AS name_md5, REVERSE(name) AS rev_name, CURDATE() AS today, CURTIME() AS now_time, YEAR(NOW()) AS now_year, MONTH(NOW()) AS now_month, DAY(NOW()) AS now_day FROM perfection_test.employees
+[2026-11-07 12:22:59] ALTER TABLE perfection_test.employees RENAME COLUMN salary TO remuneration
+[2026-11-07 12:22:59] DESCRIBE perfection_test.employees
+[2026-11-07 12:22:59] ALTER TABLE perfection_test.employees DROP COLUMN score
+[2026-11-07 12:22:59] DESCRIBE perfection_test.employees
+[2026-11-07 12:22:59] ALTER TABLE perfection_test.employees MODIFY COLUMN remuneration double
+[2026-11-07 12:22:59] DESCRIBE perfection_test.employees
+[2026-11-07 12:22:59] ALTER TABLE perfection_test.employees CHANGE COLUMN role title varchar NOT NULL
+[2026-11-07 12:22:59] DESCRIBE perfection_test.employees
+[2026-11-07 12:23:00] CREATE TABLE perfection_test.departments (id INT PRIMARY KEY, dept_name VARCHAR)
+[2026-11-07 12:23:00] INSERT INTO perfection_test.departments (id, dept_name) VALUES (1, 'Engineering'), (2, 'Management'), (3, 'Design')
+[2026-11-07 12:23:00] CREATE TABLE perfection_test.projects (id INT PRIMARY KEY, project_name VARCHAR, dept_id INT)
+[2026-11-07 12:23:00] INSERT INTO perfection_test.projects (id, project_name, dept_id) VALUES (101, 'Studio', 1), (102, 'Polyglot', 1), (103, 'Lekhak', 3)
+[2026-11-07 12:23:00] SELECT dept_name AS name FROM perfection_test.departments UNION ALL SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 12:23:00] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 12:23:00] SELECT project_name AS name FROM perfection_test.projects
+[2026-11-07 12:23:00] SELECT dept_name AS name FROM perfection_test.departments UNION SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 12:23:00] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 12:23:00] SELECT dept_name AS name FROM perfection_test.departments
+[2026-11-07 12:23:00] SELECT name, score FROM (SELECT name, score FROM perfection_test.employees WHERE score >= 90) AS high_score WHERE score < 95
+[2026-11-07 12:23:00] SELECT name, score FROM perfection_test.employees WHERE score >= 90
+[2026-11-07 12:23:00] SELECT e.name, d.dept_name, p.project_name FROM perfection_test.employees e LEFT JOIN perfection_test.departments d ON e.id = d.id LEFT JOIN perfection_test.projects p ON d.id = p.dept_id
+[2026-11-07 12:23:00] SELECT * FROM perfection_test.departments
+[2026-11-07 12:23:00] SELECT * FROM perfection_test.projects
+[2026-11-07 12:23:00] UPDATE perfection_test.employees SET title = NULL WHERE name = 'Satya'
+[2026-11-07 12:23:00] DROP TABLE perfection_test.departments
+[2026-11-07 12:23:00] DROP TABLE perfection_test.projects
+[2026-11-07 12:23:00] RENAME TABLE perfection_test.employees TO perfection_test.staff
+[2026-11-07 12:23:00] SHOW TABLES
+[2026-11-07 12:23:00] TRUNCATE TABLE perfection_test.staff
+[2026-11-07 12:23:00] SELECT * FROM perfection_test.staff
+[2026-11-07 12:23:00] DROP TABLE perfection_test.staff
+[2026-11-07 12:23:00] DROP DATABASE perfection_test
+[2026-11-07 12:23:09] CREATE TABLE products (id int, name varchar, category varchar, price int)
+[2026-11-07 12:23:09] INSERT INTO products (name, category, price) VALUES ('Laptop', 'Electronics', 1200)
+[2026-11-07 12:23:09] INSERT INTO products (name, category, price) VALUES ('Phone', 'Electronics', 800)
+[2026-11-07 12:23:09] INSERT INTO products (name, category, price) VALUES ('Shirt', 'Apparel', 25)
+[2026-11-07 12:23:09] INSERT INTO products (name, category, price) VALUES ('Pants', 'Apparel', 45)
+[2026-11-07 12:23:09] INSERT INTO products (name, category, price) VALUES ('Watch', 'Electronics', 200)
+[2026-11-07 12:23:09] SELECT * FROM products
+[2026-11-07 12:23:09] SELECT SUM(price) FROM products
+[2026-11-07 12:23:09] SELECT AVG(price) FROM products
+[2026-11-07 12:23:09] SELECT category, COUNT(*), SUM(price) FROM products GROUP BY category
+[2026-11-07 12:23:09] SELECT name FROM products WHERE name LIKE 'P%'
+[2026-11-07 12:23:09] SELECT name FROM products WHERE category IN ('Apparel')
+[2026-11-07 12:23:09] SELECT DISTINCT category FROM products
+[2026-11-07 12:23:09] INSERT INTO products (name, category, price) VALUES ('Temp Item', 'Misc', 10)
+[2026-11-07 12:23:09] SELECT * FROM products
+[2026-11-07 12:23:09] SELECT * FROM products
+[2026-11-07 12:23:09] INSERT INTO products (name, price) VALUES ('Bad Item', 'not-a-number')
+[2026-11-07 12:23:09] SELECT * FROM products
+[2026-11-07 12:23:09] SELECT * FROM products
+[2026-11-07 12:23:09] SELECT * FROM products
+[2026-11-07 12:23:17] CREATE DATABASE school
+[2026-11-07 12:23:17] CREATE DATABASE finance
+[2026-11-07 12:23:17] SHOW DATABASES
+[2026-11-07 12:23:17] CREATE TABLE school.students (id int, name varchar, grade varchar, score int)
+[2026-11-07 12:23:17] CREATE TABLE school.teachers (id int, name varchar, subject varchar)
+[2026-11-07 12:23:17] SHOW TABLES
+[2026-11-07 12:23:17] INSERT INTO school.students (id, name, grade, score) VALUES ('1', 'Satya', 'A', '95')
+[2026-11-07 12:23:17] INSERT INTO school.students (id, name, grade, score) VALUES ('2', 'John', 'B', '82')
+[2026-11-07 12:23:17] INSERT INTO school.students (id, name, grade, score) VALUES ('3', 'Jane', 'A', '91')
+[2026-11-07 12:23:17] INSERT INTO school.students (id, name, grade, score) VALUES ('4', 'Alice', 'C', '76')
+[2026-11-07 12:23:17] INSERT INTO school.students (id, name, grade, score) VALUES ('5', 'Bob', 'B', '88')
+[2026-11-07 12:23:17] SELECT * FROM school.students
+[2026-11-07 12:23:17] SELECT name, score FROM school.students WHERE grade='A'
+[2026-11-07 12:23:17] SELECT COUNT(*) FROM school.students
+[2026-11-07 12:23:18] SELECT COUNT(*) FROM school.students WHERE grade='B'
+[2026-11-07 12:23:18] SELECT name, score FROM school.students ORDER BY score DESC
+[2026-11-07 12:23:18] SELECT name, score FROM school.students ORDER BY score DESC LIMIT 3
+[2026-11-07 12:23:18] UPDATE school.students SET grade='A' WHERE name='Bob'
+[2026-11-07 12:23:18] SELECT name, grade FROM school.students WHERE name='Bob'
+[2026-11-07 12:23:18] DELETE FROM school.students WHERE name='Alice'
+[2026-11-07 12:23:18] SELECT COUNT(*) FROM school.students
+[2026-11-07 12:23:18] INSERT INTO finance.invoices (id, customer, amount, status) VALUES ('INV-001', 'Acme Corp', '5000', 'paid')
+[2026-11-07 12:23:18] INSERT INTO finance.invoices (id, customer, amount, status) VALUES ('INV-002', 'Globex', '3200', 'pending')
+[2026-11-07 12:23:18] SELECT * FROM finance.invoices
+[2026-11-07 12:23:18] SELECT COUNT(*) FROM school.students
+[2026-11-07 12:23:18] SELECT COUNT(*) FROM finance.invoices
+[2026-11-07 12:23:18] SHOW DATABASES
+[2026-11-07 12:23:18] DROP TABLE school.teachers
+[2026-11-07 12:23:18] SHOW TABLES
+[2026-11-07 12:23:25] CREATE TABLE accounts (id int, balance float)
+[2026-11-07 12:23:25] CREATE TABLE ledger (id int, tx_type varchar, amount float)
+[2026-11-07 12:23:25] SELECT COUNT(*) as total FROM accounts
+[2026-11-07 12:23:25] SELECT * FROM _audit ORDER BY timestamp DESC LIMIT 1
+[2026-11-07 12:23:25] SELECT * FROM _audit ORDER BY timestamp DESC LIMIT 1
+[2026-11-07 12:23:25] SELECT * FROM _audit ORDER BY timestamp ASC

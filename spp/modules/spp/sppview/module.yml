@@ -13,9 +13,13 @@ module:
         - class.viewvalidator.php
         - class.viewpage.php
         - class.viewassetmanager.php
+        - class.assetfederation.php
         - class.viewformdispatcher.php
         - class.viewrenderer.php
         - class.viewrouter.php
+        - class.viewresponse.php
+        - class.formrequest.php
+        - class.jsonresource.php
         - class.viewform.php
         - class.ajax.php
         - ajaxexceptions.php

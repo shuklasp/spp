@@ -34,7 +34,9 @@ When the two differ, the handbook evidence policy applies: source and tests outr
 | LiveComponent | deep LiveComponent branch | `07-livecomponent.md` |
 | SPP Live | deep transport branch | `08-spp-live-transports.md` |
 | SPPUX | deep SPPUX branch | `09-sppux-runtime.md` |
-| Polyglot/IPC | polyglot branch | `10-polyglot-and-external-applications.md` |
+| Polyglot, Multi-Language Hosting & Service Mesh | `51-tutorial-branch-polyglot-external.md` | `10-polyglot-and-external-applications.md` |
+| Manifest OS / File Props | `docs/tutorials/manifest-os-mastery-and-governance.md` | `27-manifest-os-and-file-properties.md` |
+| Sovereign Store & Bare-Metal Host Operations | `docs/tutorials/satyalab_store_and_user_governance.md` | `72-sovereign-store-user-governance-and-baremetal-telemetry.md` |
 | Enterprise architecture | enterprise case study/capstone | `21-enterprise-architecture-and-deployment.md` |
 
 ## Duplication policy

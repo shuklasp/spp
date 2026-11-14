@@ -1,3 +1,0 @@
-# Autodemo Application Middleware
-global:
-  - SPP\Middleware\AppLogger

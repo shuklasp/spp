@@ -44,15 +44,30 @@ class SPPDocsStorageMigrateCommand extends Command
             return;
         }
 
-        $appDir = dirname(__DIR__, 2);
-        $projectYml = $appDir . '/docs/' . $projectArg . '/project.yml';
-        if (!file_exists($projectYml)) {
-            echo "❌ Error: Project configuration not found at {$projectYml}\n";
-            return;
+        $appDir = defined('APP_BASE_DIR') ? APP_BASE_DIR : dirname(__DIR__, 2);
+        $sppdocsYml = $appDir . '/src/SPPDocs/etc/sppdocs.yml';
+        $projectYml = null;
+        if (file_exists($sppdocsYml)) {
+            $sppdocsCfg = Yaml::parseFile($sppdocsYml);
+            if (isset($sppdocsCfg['projects'][$projectArg])) {
+                $rawPath = $sppdocsCfg['projects'][$projectArg];
+                $projectYml = (str_starts_with($rawPath, '/') || str_contains($rawPath, ':'))
+                    ? $rawPath
+                    : $appDir . '/' . ltrim($rawPath, '/');
+            }
+        }
+        if (!$projectYml || !file_exists($projectYml)) {
+            $fallbackYml = $appDir . '/docs/' . $projectArg . '/project.yml';
+            if (file_exists($fallbackYml)) {
+                $projectYml = $fallbackYml;
+            } else {
+                echo "❌ Error: Project configuration not found for '{$projectArg}'\n";
+                return;
+            }
         }
 
         $projectConfig = Yaml::parseFile($projectYml) ?: [];
-        $issuesDir = $appDir . '/docs/' . $projectArg . '/issues';
+        $issuesDir = dirname($projectYml) . '/issues';
         if (!is_dir($issuesDir)) {
             @mkdir($issuesDir, 0777, true);
         }

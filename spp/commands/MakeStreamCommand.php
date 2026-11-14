@@ -109,6 +109,19 @@ STREAM;
         }
         
         file_put_contents($filePath, $content);
+
+        $this->recordFileProps($filePath, [
+            'description' => "External Turbo Stream template: " . basename($filePath),
+            'usage' => "Streamed in real-time via ViewController::stream()",
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => [
+                'tags' => ['stream', 'turbo', $ext],
+                'action' => 'append'
+            ]
+        ]);
+
         echo "Success: External Turbo Stream template created at {$filePath}\n";
     }
 }

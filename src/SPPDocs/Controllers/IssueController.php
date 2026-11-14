@@ -35,7 +35,7 @@ class IssueController extends \SPPMod\SPPView\ViewController
         $issuesDir = $this->getIssuesDir($project);
         $this->ensureSession();
         
-        $allIssues = $this->loadAllIssues($issuesDir);
+        $allIssues = $this->loadAllIssues($issuesDir, $project);
 
         // Filtering
         $filterStatus = $_GET['status'] ?? 'open';
@@ -118,7 +118,7 @@ class IssueController extends \SPPMod\SPPView\ViewController
         $issuesDir = $this->getIssuesDir($project);
         $this->ensureSession();
 
-        $allIssues = $this->loadAllIssues($issuesDir);
+        $allIssues = $this->loadAllIssues($issuesDir, $project);
         // Filter to top-level only (no subtasks on the board)
         $boardIssues = array_filter($allIssues, fn($i) => empty($i['parent_id']));
 
@@ -253,6 +253,44 @@ class IssueController extends \SPPMod\SPPView\ViewController
         Response::json(['ok' => true]);
     }
 
+    #[Route('/pm/kanban', method: 'GET')]
+    #[Route('/issues/kanban', method: 'GET')]
+    public function kanban()
+    {
+        return $this->board();
+    }
+
+    #[Route('/issues/{id}/status', method: 'POST')]
+    public function updateStatus($id = null)
+    {
+        $this->ensureSession();
+        $projectId = $this->resolveActiveProjectId();
+        $project = $this->config['projects'][$projectId] ?? null;
+        if (!$project) {
+            return $this->render('errors/404', ['message' => 'Project not found.']);
+        }
+
+        $issuesDir = $this->getIssuesDir($project);
+        $issueId = $id ?: ($_POST['issue_id'] ?? ($this->routeParams['id'] ?? ''));
+        $newStatus = trim($_POST['status'] ?? 'todo');
+
+        $issue = $this->loadIssue($issuesDir, $issueId, $project);
+        if ($issue) {
+            $issue['status'] = $newStatus;
+            $issue['updated_at'] = time();
+            $this->saveIssue($issuesDir, $issueId, $issue, $project);
+        }
+
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'issue_id' => $issueId, 'status' => $newStatus]);
+            exit;
+        }
+
+        header('Location: ' . App::getBaseUrl() . '/pm/kanban?projectId=' . $projectId);
+        exit;
+    }
+
     #[Route('/issues/bulk-update', method: 'POST')]
     public function bulkUpdate()
     {
@@ -319,10 +357,10 @@ class IssueController extends \SPPMod\SPPView\ViewController
         $issuesDir = $this->getIssuesDir($project);
         $this->ensureSession();
         
-        $issue = $this->loadIssue($issuesDir, $issueId);
+        $issue = $this->loadIssue($issuesDir, $issueId, $project);
         if (!$issue) return $this->render('errors/404', ['message' => 'Issue not found']);
 
-        $allIssues = $this->loadAllIssues($issuesDir);
+        $allIssues = $this->loadAllIssues($issuesDir, $project);
         $subtasks = array_values(array_filter($allIssues, fn($i) => ($i['parent_id'] ?? null) === $issueId));
         usort($subtasks, fn($a, $b) => ($a['created_at'] ?? 0) <=> ($b['created_at'] ?? 0));
 
@@ -334,7 +372,7 @@ class IssueController extends \SPPMod\SPPView\ViewController
 
         $parentIssue = null;
         if (!empty($issue['parent_id'])) {
-            $parentIssue = $this->loadIssue($issuesDir, $issue['parent_id']);
+            $parentIssue = $this->loadIssue($issuesDir, $issue['parent_id'], $project);
         }
 
         $teams = $this->loadTeams($issuesDir);
@@ -425,7 +463,7 @@ class IssueController extends \SPPMod\SPPView\ViewController
             'time_logs' => [],
         ];
         
-        $this->saveIssue($issuesDir, $issueId, $issueData);
+        $this->saveIssue($issuesDir, $issueId, $issueData, $project);
         $this->logActivity($issuesDir, 'issue.created', $user['username'] ?? 'Guest', $issueId, "Created '{$title}'");
 
         // Transactional Outbox Webhook Dispatch
@@ -470,7 +508,7 @@ class IssueController extends \SPPMod\SPPView\ViewController
         $allowGuest = $project['forums_guest_posting'] ?? false;
         if (!$user && !$allowGuest) exit('Access denied.');
         
-        $issue = $this->loadIssue($issuesDir, $issueId);
+        $issue = $this->loadIssue($issuesDir, $issueId, $project);
         if (!$issue) exit('Issue not found');
         
         $issue['comments'][] = [
@@ -480,7 +518,7 @@ class IssueController extends \SPPMod\SPPView\ViewController
         ];
         $issue['updated_at'] = time();
         unset($issue['id']);
-        $this->saveIssue($issuesDir, $issueId, $issue);
+        $this->saveIssue($issuesDir, $issueId, $issue, $project);
         $this->logActivity($issuesDir, 'issue.commented', $user['username'] ?? 'Guest', $issueId, "Commented on '{$issue['title']}'");
 
         // Notify assignees about the comment
@@ -516,7 +554,7 @@ class IssueController extends \SPPMod\SPPView\ViewController
         if (!$user) exit('Access denied');
         
         $issuesDir = $this->getIssuesDir($project);
-        $issue = $this->loadIssue($issuesDir, $issueId);
+        $issue = $this->loadIssue($issuesDir, $issueId, $project);
         if (!$issue) exit('Issue not found');
 
         switch ($action) {
@@ -605,14 +643,14 @@ class IssueController extends \SPPMod\SPPView\ViewController
             case 'merge':
                 $sourceId = $_POST['source_issue_id'] ?? '';
                 if ($sourceId) {
-                    $src = $this->loadIssue($issuesDir, $sourceId);
+                    $src = $this->loadIssue($issuesDir, $sourceId, $project);
                     if ($src) {
                         foreach ($src['comments'] ?? [] as $c) $issue['comments'][] = $c;
                         $src['status'] = 'closed';
                         $src['merged_into'] = $issueId;
                         $src['comments'][] = ['author' => 'System', 'type' => 'event', 'timestamp' => time(), 'content' => "Merged into #{$issueId} by {$user['username']}."];
                         unset($src['id']);
-                        $this->saveIssue($issuesDir, $sourceId, $src);
+                        $this->saveIssue($issuesDir, $sourceId, $src, $project);
                         $issue['comments'][] = ['author' => 'System', 'type' => 'event', 'timestamp' => time(), 'content' => "{$user['username']} merged #{$sourceId} (\"{$src['title']}\") into this issue."];
                     }
                 }
@@ -621,7 +659,7 @@ class IssueController extends \SPPMod\SPPView\ViewController
 
         $issue['updated_at'] = time();
         unset($issue['id']);
-        $this->saveIssue($issuesDir, $issueId, $issue);
+        $this->saveIssue($issuesDir, $issueId, $issue, $project);
         
         Response::redirect(App::url('issues/view') . "?projectId={$projectId}&issueId={$issueId}");
     }
@@ -647,7 +685,7 @@ class IssueController extends \SPPMod\SPPView\ViewController
         if (!$user) exit('Access denied');
 
         $issuesDir = $this->getIssuesDir($project);
-        $issue = $this->loadIssue($issuesDir, $issueId);
+        $issue = $this->loadIssue($issuesDir, $issueId, $project);
         if (!$issue) exit('Issue not found');
 
         if (!isset($issue['time_logs'])) $issue['time_logs'] = [];
@@ -664,7 +702,7 @@ class IssueController extends \SPPMod\SPPView\ViewController
         ];
         $issue['updated_at'] = time();
         unset($issue['id']);
-        $this->saveIssue($issuesDir, $issueId, $issue);
+        $this->saveIssue($issuesDir, $issueId, $issue, $project);
         $this->logActivity($issuesDir, 'issue.time_logged', $user['username'], $issueId, "Logged {$hours}h on '{$issue['title']}'");
 
         Response::redirect(App::url('issues/view') . "?projectId={$projectId}&issueId={$issueId}");
@@ -688,7 +726,7 @@ class IssueController extends \SPPMod\SPPView\ViewController
         $issuesDir = $this->getIssuesDir($project);
         $this->ensureSession();
 
-        $allIssues = $this->loadAllIssues($issuesDir);
+        $allIssues = $this->loadAllIssues($issuesDir, $project);
         $datedIssues = array_filter($allIssues, fn($i) => !empty($i['due_date']));
 
         // Get month/year from query or default to current
@@ -783,5 +821,28 @@ class IssueController extends \SPPMod\SPPView\ViewController
         unset($teams[$teamId]);
         $this->saveTeams($issuesDir, $teams);
         Response::redirect(App::url('issues/teams') . "?projectId={$projectId}");
+    }
+
+    public function show($id = null)
+    {
+        $id = $id ?? ($this->routeParams['id'] ?? null);
+        if ($id && !isset($_GET['issueId'])) {
+            $_GET['issueId'] = $id;
+        }
+        return $this->viewIssue();
+    }
+
+    public function save($projectId = null)
+    {
+        return $this->create();
+    }
+
+    public function addComment($id = null)
+    {
+        $id = $id ?? ($this->routeParams['id'] ?? null);
+        if ($id && !isset($_POST['issue_id'])) {
+            $_POST['issue_id'] = $id;
+        }
+        return $this->postComment();
     }
 }

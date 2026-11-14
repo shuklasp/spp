@@ -10,8 +10,13 @@ use SPPMod\SPPView\Attributes\Middleware;
  * Auto-generated controller class with Developer-Friendly Enterprise ViewController capabilities.
  *
  * AVAILABLE ENTERPRISE FEATURES & EXTERNAL PARTIAL REFERENCING:
+ *   - $this->input(?$key, $default)   : Safe unified input extraction (route, JSON, POST, GET).
+ *   - $this->only(['key1', 'key2'])   : Safely extract filtered input subset.
+ *   - $this->respond([...])           : Fluent content negotiation (stream, htmx, json, html).
+ *   - $this->validateOrFail($rules)   : Validate request and return filtered data or respond 422.
+ *   - $this->view($name, $data)       : Intuitive view rendering alias.
+ *   - $this->partial($name, $data)    : Intuitive partial rendering alias.
  *   - #[Middleware(ClassName::class)] : Attach middleware via PHP 8 attributes at class or method level.
- *   - $this->validate(array $rules)   : Validate incoming requests using ViewValidator rules.
  *   - $this->hydrate(string $class)   : Dynamically hydrate DTOs or Entities using DataTransformers.
  *   - $this->share($key, $value)      : Share data across all rendered views in this controller.
  *   - $this->getCspNonce()            : Secure per-request Content Security Policy nonce generation.

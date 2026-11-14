@@ -101,7 +101,18 @@ class LiveDispatcher
                 }
             }
 
-            return LiveComponent::handleRequest($compClass, $state, $updates, $checksum, $method, $params, ['global']);
+            $rawTopics = isset($input['topics']) && is_array($input['topics']) ? $input['topics'] : ['global'];
+            $authorizedTopics = [];
+            foreach ($rawTopics as $t) {
+                if (is_string($t) && class_exists('\\SPPMod\\SPPLive\\SPPLive') && \SPPMod\SPPLive\SPPLive::authorizeTopic($t)) {
+                    $authorizedTopics[] = $t;
+                }
+            }
+            if (empty($authorizedTopics)) {
+                $authorizedTopics = ['global'];
+            }
+
+            return LiveComponent::handleRequest($compClass, $state, $updates, $checksum, $method, $params, $authorizedTopics);
         } finally {
             // Release the idempotency lock
             if ($lockAcquired && $lockKey !== null) {

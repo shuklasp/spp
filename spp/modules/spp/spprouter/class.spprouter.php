@@ -134,7 +134,23 @@ class SPPRouter extends \SPP\SPPObject
         }
 
         try {
-            $data = Yaml::parseFile($ymlFile);
+            $rawContent = @file_get_contents($ymlFile) ?: '';
+            try {
+                $data = Yaml::parse($rawContent);
+            } catch (\Symfony\Component\Yaml\Exception\ParseException $pe) {
+                // Auto-sanitize unescaped backslashes in double-quoted strings
+                $sanitized = preg_replace_callback('/:\s*"(\\\\[^"]+)"/', function ($m) {
+                    return ': \'' . addslashes($m[1]) . '\'';
+                }, $rawContent);
+                try {
+                    $data = Yaml::parse($sanitized);
+                } catch (\Throwable $pe2) {
+                    $data = [];
+                }
+            }
+            if (!is_array($data)) {
+                $data = [];
+            }
             if (isset($data['routes']) && is_array($data['routes'])) {
                 $pagesMap = [];
                 foreach ($data['routes'] as $r) {
@@ -143,8 +159,35 @@ class SPPRouter extends \SPP\SPPObject
                     $type = $r['type'] ?? '';
                     if ($type === 'static_asset') {
                         $pagesMap[$p] = ['assets' => $t];
+                    } elseif ($type === 'controller' || str_contains($t, '@')) {
+                        $entry = ['controller' => $t];
+                        if (isset($r['middleware'])) {
+                            $entry['middleware'] = (array)$r['middleware'];
+                        }
+                        if (isset($r['methods'])) {
+                            $entry['methods'] = (array)$r['methods'];
+                        }
+                        $pagesMap[$p] = $entry;
+                        if ($p === '' || $p === '/') {
+                            $pagesMap[''] = $entry;
+                            if (!isset($pagesMap['index'])) {
+                                $pagesMap['index'] = $entry;
+                            }
+                            if (!isset($pagesMap['home'])) {
+                                $pagesMap['home'] = $entry;
+                            }
+                        }
                     } else {
                         $pagesMap[$p] = ['url' => $t];
+                        if ($p === '' || $p === '/') {
+                            $pagesMap[''] = ['url' => $t];
+                            if (!isset($pagesMap['index'])) {
+                                $pagesMap['index'] = ['url' => $t];
+                            }
+                            if (!isset($pagesMap['home'])) {
+                                $pagesMap['home'] = ['url' => $t];
+                            }
+                        }
                     }
                 }
                 $data['pages'] = $pagesMap;
@@ -165,6 +208,12 @@ class SPPRouter extends \SPP\SPPObject
             if (class_exists('\SPPMod\SPPView\AttributeRouter')) {
                 $attrRoutes = \SPPMod\SPPView\AttributeRouter::getRoutes(\SPP\Scheduler::getContext());
                 $data['pages'] = array_merge($data['pages'] ?? [], $attrRoutes);
+            }
+
+            // Merge Autonomous App Package Routes
+            if (class_exists('\App\SPPDocs\Core\PackageKernel')) {
+                $pkgRoutes = \App\SPPDocs\Core\PackageKernel::getAggregatedRoutes();
+                $data['pages'] = array_merge($data['pages'] ?? [], $pkgRoutes);
             }
 
             self::$yamlFileCache[$ymlFile] = $data;
@@ -240,8 +289,8 @@ class SPPRouter extends \SPP\SPPObject
         $yaml = self::getYaml($ymlFile);
 
         // Handle empty routes by falling back to the 'home' setting
-        if ($q === '' && isset($yaml['home'])) {
-            $q = (string) $yaml['home'];
+        if (($q === '' || $q === '/') && (isset($yaml['home']) || isset($yaml['defaults']['home']))) {
+            $q = (string) ($yaml['home'] ?? $yaml['defaults']['home']);
         }
 
         if (!isset($yaml['pages']) || !is_array($yaml['pages'])) {
@@ -263,6 +312,17 @@ class SPPRouter extends \SPP\SPPObject
                     $res = self::processRoute($name, $routeConfig, $q, $appname, $ymlFile);
                     if ($res) {
                         $res['params'] = $m;
+                        if (!isset($res['named_params']) || !is_array($res['named_params'])) {
+                            $res['named_params'] = [];
+                        }
+                        preg_match_all('/\{([a-zA-Z0-9_]+)\}/', $name, $matches);
+                        if (!empty($matches[1])) {
+                            foreach ($matches[1] as $idx => $paramKey) {
+                                if (isset($m[$idx])) {
+                                    $res['named_params'][$paramKey] = $m[$idx];
+                                }
+                            }
+                        }
                     }
                     return $res;
                 }
@@ -541,8 +601,13 @@ class SPPRouter extends \SPP\SPPObject
      */
     public static function getPage($page = null): array
     {
-        $q = (isset($_GET['q']) && $_GET['q'] != null) ? $_GET['q'] : $page;
-        $q = ($page === null) ? $q : $page;
+        if ($page !== null && $page !== '') {
+            $q = (string)$page;
+        } elseif (isset($_GET['q']) && $_GET['q'] !== '') {
+            $q = (string)$_GET['q'];
+        } else {
+            $q = (string)(self::getDefault('home') ?: 'index');
+        }
         $appname = \SPP\Scheduler::getContext();
 
         $result = self::resolvePage($q, $appname);
@@ -551,17 +616,23 @@ class SPPRouter extends \SPP\SPPObject
             return $result;
         }
 
-        // --- Physical Discovery Fallback ---
-        // 1. Check auto-routing 'pages/' directory
-        $pageExts = ['.php', '.html', '.vue'];
-        foreach ($pageExts as $ext) {
-            $autoRoutePath = 'pages/' . ltrim($q, '/');
-            if (!str_ends_with($autoRoutePath, $ext) && !str_contains($autoRoutePath, '.')) {
-                $autoRoutePath .= $ext;
-            }
-            $resolvedAuto = self::resolveInternalPath($autoRoutePath, null, $appname);
-            if (file_exists(SPP_APP_DIR . SPP_DS . $resolvedAuto)) {
-                return self::buildPage($q, $resolvedAuto, $q);
+        // --- Physical & File-Based View Discovery Fallback ---
+        $pageExts = ['.blade.php', '.php', '.html', '.vue'];
+        $viewPrefixes = ['pages/', 'resources/views/pages/', 'resources/views/', 'views/'];
+        $checkTargets = ($q === '' || $q === '/') ? ['index', 'home'] : [ltrim($q, '/')];
+
+        foreach ($checkTargets as $targetQ) {
+            foreach ($viewPrefixes as $vPrefix) {
+                foreach ($pageExts as $ext) {
+                    $autoRoutePath = $vPrefix . $targetQ;
+                    if (!str_ends_with($autoRoutePath, $ext) && !str_contains($autoRoutePath, '.')) {
+                        $autoRoutePath .= $ext;
+                    }
+                    $resolvedAuto = self::resolveInternalPath($autoRoutePath, null, $appname);
+                    if (file_exists(SPP_APP_DIR . SPP_DS . $resolvedAuto)) {
+                        return self::buildPage($q ?: $targetQ, $resolvedAuto, $q ?: $targetQ);
+                    }
+                }
             }
         }
 
@@ -593,6 +664,26 @@ class SPPRouter extends \SPP\SPPObject
         $result = self::findPageInDynamicRoutes($q, $appname);
         if ($result !== null) {
             return $result;
+        }
+
+        // --- High-Performance O(1) Compiled Router Acceleration ---
+        if (!class_exists("\\SPPMod\\SPPRouter\\CompiledRouter")) {
+            $cRouterFile = dirname(__DIR__) . "/spprouter/src/CompiledRouter.php";
+            if (file_exists($cRouterFile)) {
+                require_once $cRouterFile;
+            }
+        }
+        if (class_exists("\\SPPMod\\SPPRouter\\CompiledRouter")) {
+            $method = $_SERVER["REQUEST_METHOD"] ?? "GET";
+            $cMatch = \SPPMod\SPPRouter\CompiledRouter::match($q, $method, $appname);
+            if ($cMatch !== null && !empty($cMatch["controller"])) {
+                $pg = self::buildPage($q, "", $q);
+                $pg["controller"] = '\\' . ltrim(preg_replace('/\\\\+/', '\\', $cMatch["controller"]), '\\');
+                $pg["middleware"] = $cMatch["middleware"] ?? [];
+                $pg["named_params"] = $cMatch["named_params"] ?? [];
+                $pg["params"] = array_values($cMatch["named_params"] ?? []);
+                return $pg;
+            }
         }
 
         // --- Module Asset Discovery ---
@@ -691,34 +782,49 @@ class SPPRouter extends \SPP\SPPObject
             if (!$mod) {
                 continue;
             }
-            $routes = [];
+            static $moduleRoutesCache = [];
+            $modKey = ($mod->InternalName ?? 'unknown') . '_' . ($mod->ModPath ?? '');
 
-            // 1. Routes from module.yml
-            if (isset($mod->Routes) && is_array($mod->Routes)) {
-                $routes = array_merge($routes, $mod->Routes);
-            }
+            if (!isset($moduleRoutesCache[$modKey])) {
+                $routes = [];
 
-            // 2. Routes from etc/routes.yml
-            $routesYml = $mod->ModPath . SPP_DS . 'etc' . SPP_DS . 'routes.yml';
-            if (file_exists($routesYml)) {
-                try {
-                    $rdata = Yaml::parseFile($routesYml);
-                    if (is_array($rdata)) {
-                        if (isset($rdata['routes']) && is_array($rdata['routes'])) {
-                            foreach ($rdata['routes'] as $r) {
-                                if (isset($r['path'])) {
-                                    $routes[ltrim($r['path'], '/')] = $r;
-                                }
-                            }
-                        } elseif (isset($rdata['pages']) && is_array($rdata['pages'])) {
-                            $routes = array_merge($routes, $rdata['pages']);
-                        } else {
-                            $routes = array_merge($routes, $rdata);
+                // 1. Routes from module.yml (support associative map and sequence with path)
+                if (isset($mod->Routes) && is_array($mod->Routes)) {
+                    foreach ($mod->Routes as $key => $r) {
+                        if (is_array($r) && isset($r['path'])) {
+                            $routes[ltrim($r['path'], '/')] = $r;
+                        } elseif (is_string($key)) {
+                            $routes[ltrim($key, '/')] = $r;
                         }
                     }
-                } catch (\Exception $e) {
-                    // Silently ignore or log parsing error
                 }
+
+                // 2. Routes from etc/routes.yml
+                $routesYml = $mod->ModPath . SPP_DS . 'etc' . SPP_DS . 'routes.yml';
+                if (file_exists($routesYml)) {
+                    try {
+                        $rdata = Yaml::parseFile($routesYml);
+                        if (is_array($rdata)) {
+                            if (isset($rdata['routes']) && is_array($rdata['routes'])) {
+                                foreach ($rdata['routes'] as $r) {
+                                    if (isset($r['path'])) {
+                                        $routes[ltrim($r['path'], '/')] = $r;
+                                    }
+                                }
+                            } elseif (isset($rdata['pages']) && is_array($rdata['pages'])) {
+                                $routes = array_merge($routes, $rdata['pages']);
+                            } else {
+                                $routes = array_merge($routes, $rdata);
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Silently ignore or log parsing error
+                    }
+                }
+
+                $moduleRoutesCache[$modKey] = $routes;
+            } else {
+                $routes = $moduleRoutesCache[$modKey];
             }
 
             foreach ($routes as $name => $cfg) {
@@ -1150,20 +1256,29 @@ class SPPRouter extends \SPP\SPPObject
                 SPP_APP_DIR . '/src/' . $appname . '/serv',
                 SPP_APP_DIR . '/src/' . ucfirst($appname) . '/serv',
                 SPP_APP_DIR . '/src/' . $appname . '/Controllers',
-                SPP_APP_DIR . '/src/' . ucfirst($appname) . '/Controllers'
+                SPP_APP_DIR . '/src/' . ucfirst($appname) . '/Controllers',
+                SPP_APP_DIR . '/src/' . $appname . '/controllers',
+                SPP_APP_DIR . '/src/' . ucfirst($appname) . '/controllers'
             ];
 
+            $scannedDirs = [];
             foreach ($dirsToScan as $dir) {
                 if (is_dir($dir)) {
+                    $realDir = realpath($dir) ?: $dir;
+                    if (isset($scannedDirs[$realDir])) {
+                        continue;
+                    }
+                    $scannedDirs[$realDir] = true;
+
                     try {
                         if (class_exists('\\SPPMod\\SPPView\\RouteScanner')) {
-                            $scanned = \SPPMod\SPPView\RouteScanner::scan($dir);
+                            $scanned = \SPPMod\SPPView\RouteScanner::scan($realDir);
                             if (is_array($scanned)) {
                                 $routes = array_merge($routes, $scanned);
                             }
                         }
                     } catch (\Throwable $t) {
-                        error_log("SPP Routing Error: Failed to scan directory $dir - " . $t->getMessage());
+                        error_log("SPP Routing Error: Failed to scan directory $realDir - " . $t->getMessage());
                     }
                 }
             }

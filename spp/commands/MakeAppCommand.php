@@ -48,19 +48,20 @@ class MakeAppCommand extends BaseMakeCommand
 
         $appType = $this->getArgument($args, 1) ?? null;
         if (!$appType) {
-            $types = ['mixed', 'sppux', 'blade', 'native', 'api', 'dropin'];
+            $types = ['barebones', 'mixed', 'sppux', 'blade', 'native', 'api', 'dropin'];
             echo "Available app types:\n";
-            echo "  mixed  — Flagship: SPP-UX + Blade + PHP + REST API (recommended)\n";
-            echo "  sppux  — Reactive SPA with SPP-UX components\n";
-            echo "  blade  — Server-rendered with Blade templates\n";
-            echo "  native — Raw PHP pages with augmentation pipeline\n";
-            echo "  api    — Headless REST API backend\n";
-            echo "  dropin — Low-code drop-in HTML/PHP files\n";
-            $typeInput = $this->prompt("Enter app type", "mixed");
+            echo "  barebones — Minimal clean starter with novice developer directions & guidance\n";
+            echo "  mixed     — Flagship: SPP-UX + Blade + PHP + REST API (full showcase)\n";
+            echo "  sppux     — Reactive SPA with SPP-UX components\n";
+            echo "  blade     — Server-rendered with Blade templates\n";
+            echo "  native    — Raw PHP pages with augmentation pipeline\n";
+            echo "  api       — Headless REST API backend\n";
+            echo "  dropin    — Low-code drop-in HTML/PHP files\n";
+            $typeInput = $this->prompt("Enter app type", "barebones");
             if (!empty($typeInput) && in_array(strtolower($typeInput), $types)) {
                 $appType = strtolower($typeInput);
             } else {
-                $appType = 'mixed';
+                $appType = 'barebones';
             }
         } else {
             $appType = strtolower($appType);
@@ -90,6 +91,7 @@ class MakeAppCommand extends BaseMakeCommand
         $dirs = [
             SPP_APP_DIR . "/etc/apps/{$appName}",
             SPP_APP_DIR . "/etc/apps/{$appName}/forms",
+            SPP_APP_DIR . "/etc/apps/{$appName}/reports",
             SPP_APP_DIR . "/etc/apps/{$appName}/workflows",
             SPP_APP_DIR . "/src/{$appName}",
             SPP_APP_DIR . "/src/{$appName}/etc",
@@ -97,6 +99,7 @@ class MakeAppCommand extends BaseMakeCommand
             SPP_APP_DIR . "/src/{$appName}/serv",
             SPP_APP_DIR . "/src/{$appName}/entities",
             SPP_APP_DIR . "/src/{$appName}/middleware",
+            SPP_APP_DIR . "/src/{$appName}/pages/partials/reports",
             SPP_APP_DIR . "/resources/{$appName}/views",
         ];
 
@@ -135,7 +138,136 @@ default:
       to: active
 WORKFLOW;
         file_put_contents(SPP_APP_DIR . "/etc/apps/{$appName}/workflows/default.yml", $workflowContent);
+        $this->recordFileProps(SPP_APP_DIR . "/etc/apps/{$appName}/workflows/default.yml", [
+            'description' => "Default workflow definition for {$appName}",
+            'usage' => "Orchestrates entity lifecycle states and transitions",
+            'stability' => 'stable',
+            'author' => 'SPP Scaffolder',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['workflow', 'saga']]
+        ]);
         echo "Generated default workflow configuration.\n";
+
+        // Scaffold Sample SPPForm Definition & Tutorial Comments
+        $formContent = <<<FORM
+# =====================================================================================
+# SPP Framework - Sample Declarative Form Definition: contact
+# =====================================================================================
+# Target Audience: Novice-First Tutorial
+#
+# Core Form Concepts:
+# 1. form.name: Unique form identifier.
+# 2. form.method: 'post', 'get', 'put', 'patch'.
+# 3. elements: Controls such as text, textarea, select, checkbox, date, file, otp, rating.
+# 4. validations: Required, email, min, max, custom, and SPPWorkflowGuardValidator.
+#
+# USAGE IN APPS:
+# - In Controller: return \$this->form('contact');
+# - In Blade: @sppform_render('contact')
+# - Programmatic: \SPPMod\SPPView\Forms::get('contact');
+
+form:
+  name: contact
+  method: post
+  action: '/{$appName}/contact'
+
+elements:
+  sp_hp_trap:
+    type: honeypot
+    label: Leave blank
+
+  name:
+    type: input
+    label: Full Name
+    placeholder: 'e.g. Jane Doe'
+    validations:
+      - type: required
+        message: 'Your name is required.'
+
+  email:
+    type: input
+    label: Email Address
+    placeholder: 'jane@example.com'
+    validations:
+      - type: required
+        message: 'Email address is required.'
+      - type: email
+        message: 'Please provide a valid email.'
+
+  inquiry_type:
+    type: select
+    label: Inquiry Type
+    options:
+      general: General Inquiry
+      support: Technical Support
+      callback: Request Phone Callback
+
+  phone:
+    type: input
+    label: Phone Number
+    placeholder: '+1 (555) 000-0000'
+    depends_on:
+      inquiry_type: callback
+
+  message:
+    type: textarea
+    label: Message / Comments
+    rows: 4
+    validations:
+      - type: required
+        message: 'Message cannot be empty.'
+
+  submit:
+    type: submit
+    label: Send Message
+FORM;
+        file_put_contents(SPP_APP_DIR . "/etc/apps/{$appName}/forms/contact.yml", $formContent);
+        echo "Generated default form configuration (contact.yml).\n";
+
+        // Scaffold Sample SPPReport Definition & Tutorial Comments
+        $reportContent = <<<REPORT
+# =====================================================================================
+# SPP Framework - Sample Declarative Report Definition: overview
+# =====================================================================================
+# Target Audience: Novice-First Tutorial
+#
+# Core Reporting Concepts:
+# 1. table: Primary table to introspect and query.
+# 2. columns: Target fields and aggregate functions (COUNT, SUM, AVG, MIN, MAX).
+# 3. filters: Boolean filter logic evaluated securely with parameterized queries.
+# 4. group_by: Dimension grouping for metrics and OLAP pivot tables.
+# 5. order_by: Default ordering column and direction.
+#
+# USAGE IN APPS:
+# - In Controller: return \$this->report('overview');
+# - In Blade: @sppreport('overview')
+# - Interactive Chart: @sppreport_chart('overview', ['type' => 'bar'])
+# - OLAP Pivot: @sppreport_pivot('overview')
+
+table: 'users'
+columns:
+  - field: 'id'
+    aggregate: ''
+    alias: 'ID'
+  - field: 'email'
+    aggregate: ''
+    alias: 'Email'
+  - field: 'created_at'
+    aggregate: 'COUNT'
+    alias: 'Signups'
+joins: []
+filters:
+  logic: 'AND'
+  conditions: []
+group_by:
+  - 'created_at'
+order_by:
+  field: 'created_at'
+  direction: 'DESC'
+limit: 50
+REPORT;
+        file_put_contents(SPP_APP_DIR . "/etc/apps/{$appName}/reports/overview.yml", $reportContent);
+        echo "Generated default report configuration (overview.yml).\n";
 
         // 2. Update global-settings.yml
         $settingsPath = SPP_APP_DIR . "/spp/etc/global-settings.yml";
@@ -175,7 +307,7 @@ WORKFLOW;
         }
 
         // 3. Generate events.yml
-        $this->buildFromStub('events_2', "src/{$appName}/etc/events.yml", ['appName' => $appName, 'APP_NAME' => $appName]);
+        $this->buildFromStub('events', "src/{$appName}/etc/events.yml", ['appName' => $appName, 'APP_NAME' => $appName]);
 
         // 4. Scaffold mode-specific files
         echo "\nScaffolding '{$appType}' mode...\n";
@@ -189,6 +321,17 @@ WORKFLOW;
             echo "\nRunning database migrations (App: {$appName} and modules)...\n";
             $migrateCmd = sprintf('php spp.php migrate --app=%s', escapeshellarg($appName));
             passthru($migrateCmd);
+        }
+
+        // 7. Auto-sync and generate __spp_file_props.yml manifests for all app directories
+        if (!class_exists('\SPPMod\SPPStorage\FilePropsManager')) {
+            require_once SPP_APP_DIR . '/spp/modules/spp/sppstorage/src/FilePropsManager.php';
+        }
+        echo "\nGenerating directory manifests (__spp_file_props.yml)...\n";
+        \SPPMod\SPPStorage\FilePropsManager::syncDirectory(SPP_APP_DIR . "/src/{$appName}", true);
+        \SPPMod\SPPStorage\FilePropsManager::syncDirectory(SPP_APP_DIR . "/etc/apps/{$appName}", true);
+        if (is_dir(SPP_APP_DIR . "/resources/{$appName}")) {
+            \SPPMod\SPPStorage\FilePropsManager::syncDirectory(SPP_APP_DIR . "/resources/{$appName}", true);
         }
 
         echo "\n✅ Application '{$appName}' created successfully!\n";
@@ -229,6 +372,7 @@ WORKFLOW;
                 $content = str_replace('{{APP_NAME}}', $appName, $content);
             }
             file_put_contents($path, $content);
+            $this->recordFileProps($path);
             echo "  ✓ " . $relativePath . "\n";
         }
     }
@@ -254,6 +398,35 @@ WORKFLOW;
             file_put_contents($pagesFile, Yaml::dump($config, 10, 2));
             echo "  ✓ {$displayPath}\n";
         }
+    }
+
+    // =========================================================================
+    //  BAREBONES MODE — Minimal Clean Starter with Novice Directions
+    // =========================================================================
+
+    private function scaffoldBarebonesMode(string $appName): void
+    {
+        echo "  ── Barebones Mode: Minimal Clean Starter with Novice Directions ──\n";
+
+        $this->writePagesYml($appName, [
+            'defaults' => [
+                'home' => 'home',
+                'pagedir' => "/src/{$appName}",
+            ],
+            'pages' => [
+                'home' => ['controller' => "\\App\\{$appName}\\Serv\\HomeController@index"],
+                'error/404' => ['url' => 'pages/errors/404.php'],
+                'error/500' => ['url' => 'pages/errors/500.php'],
+                'assets' => ['assets' => 'assets'],
+                'comp-assets' => ['assets' => 'comp'],
+            ],
+        ]);
+
+        $this->writeHomeController($appName);
+        $this->writeBladeLayout($appName);
+        $this->writeBarebonesBladeHome($appName);
+        $this->writeCustomErrorPages($appName);
+        $this->writeParikshakTests($appName);
     }
 
     // =========================================================================
@@ -580,6 +753,11 @@ WORKFLOW;
     private function writeBladeHome(string $appName): void
     {
         $this->buildFromStub('blade_15', "src/{$appName}/resources/views/home.blade.php", ['APP_NAME' => $appName]);
+    }
+
+    private function writeBarebonesBladeHome(string $appName): void
+    {
+        $this->buildFromStub('blade_barebones_home', "src/{$appName}/resources/views/home.blade.php", ['APP_NAME' => $appName]);
     }
 
     private function writeBladeAbout(string $appName): void

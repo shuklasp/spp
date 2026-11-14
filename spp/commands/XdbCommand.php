@@ -3,12 +3,12 @@ namespace SPP\CLI\Commands;
 
 /**
  * Class XdbCommand
- * Executes SQL or XPath queries on the XML database via CLI.
+ * Executes SQL, XPath, XQuery, or XQUF queries on the XML database via CLI.
  */
 class XdbCommand extends \SPP\CLI\Command
 {
     protected string $name = 'xdb:query';
-    protected string $description = 'Execute a SQL or XPath query on the XML database';
+    protected string $description = 'Execute a SQL, XPath, XQuery, or XQUF query on the XML database';
 
     public function isCLIOnly(): bool
     {
@@ -31,7 +31,7 @@ class XdbCommand extends \SPP\CLI\Command
             if ($isJson) {
                 echo json_encode(['success' => false, 'error' => 'Query string required.']);
             } else {
-                echo "Usage: php spp xdb:query \"SELECT * FROM db.table\" [--type=sql|xpath]\n";
+                echo "Usage: php spp xdb:query \"SELECT * FROM db.table\" [--type=sql|xpath|xquery|xquf]\n";
             }
             return;
         }
@@ -58,6 +58,12 @@ class XdbCommand extends \SPP\CLI\Command
             if ($type === 'xpath') {
                 if (!$isJson) echo "Executing XPath: $query\n";
                 $results = $xdb->queryX($query);
+            } elseif ($type === 'xquery') {
+                if (!$isJson) echo "Executing XQuery: $query\n";
+                $results = $xdb->queryXQuery($query);
+            } elseif ($type === 'xquf') {
+                if (!$isJson) echo "Executing XQUF Mutation: $query\n";
+                $results = $xdb->updateXQUF($query);
             } else {
                 if (!$isJson) echo "Executing SQL: $query\n";
                 $results = $xdb->querySQL($query);

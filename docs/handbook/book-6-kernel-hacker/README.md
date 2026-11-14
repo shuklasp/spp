@@ -16,6 +16,7 @@ This book is for readers who already understand the framework concepts and want 
 10. SPPLive Engine Selection Internals
 11. SPPUX Bootstrap and Asset Resolution Internals
 12. Source-Driven Documentation and Upgrade Auditing
+13. Manifest OS SQLite WAL Compilation and Sandboxing Internals
 
 ## Kernel Hacker rule
 

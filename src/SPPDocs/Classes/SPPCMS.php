@@ -1,5 +1,5 @@
 <?php
-namespace SPPDocs\classes;
+namespace App\SPPDocs\Classes;
 
 use SPP\App;
 use League\CommonMark\Environment\Environment;
@@ -271,9 +271,9 @@ class SPPCMSQuery
     }
 }
 
-if (!class_exists('\App\SPPDocs\Classes\SPPCMS', false)) {
-    class_alias('\SPPDocs\classes\SPPCMS', '\App\SPPDocs\Classes\SPPCMS');
+if (!class_exists('\SPPDocs\classes\SPPCMS', false)) {
+    class_alias('\App\SPPDocs\Classes\SPPCMS', '\SPPDocs\classes\SPPCMS');
 }
-if (!class_exists('\App\SPPDocs\Classes\SPPCMSQuery', false)) {
-    class_alias('\SPPDocs\classes\SPPCMSQuery', '\App\SPPDocs\Classes\SPPCMSQuery');
+if (!class_exists('\SPPDocs\classes\SPPCMSQuery', false)) {
+    class_alias('\App\SPPDocs\Classes\SPPCMSQuery', '\SPPDocs\classes\SPPCMSQuery');
 }

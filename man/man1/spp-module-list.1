@@ -1,16 +1,26 @@
-.TH SPP-module-list 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
+.TH "MODULE:LIST" 1 "October 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-spp-module-list \- Discovers and tabulates active kernel framework modules
+module:list \- Discovers and tabulates active and available modules across kernel and apps
 .SH SYNOPSIS
 .B php spp.php module:list
-[OPTIONS]
+[\fB--app=\fIAppName\fR] [\fB--filter=\fIkeyword\fR] [\fB--status=\fIactive|inactive\fR] [\fB--json\fR]
 .SH DESCRIPTION
-Discovers and tabulates active kernel framework modules
-.PP
+\fBmodule:list\fR scans all module directories (core, optional, contrib, and application-level)
+for declarative manifests (\fBmodule.yml\fR). It compiles a comprehensive catalog detailing module
+version, scope, category, operational status, and compulsory constraints.
 .SH OPTIONS
-No explicit options statically detected.
+.TP
+\fB--app=\fIAppName\fR
+Evaluate module status within a specific application context. Defaults to the active application.
+.TP
+\fB--filter=\fIkeyword\fR
+Case-insensitive search filter matching module name, title, or category.
+.TP
+\fB--status=\fIactive|inactive\fR
+Filters module output by operational state.
+.TP
+\fB--json\fR
+Outputs the catalog as formatted JSON for automated scripting or CI/CD pipelines.
 .SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Executes native PHP logic without major side-effects or external dependencies.
-.br
+Reads filesystem manifests, queries active configurations from \fBmodules.yml\fR, and reads
+\fBspp_modules\fR metadata without writing changes.

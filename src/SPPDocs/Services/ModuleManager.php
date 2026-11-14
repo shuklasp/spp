@@ -199,9 +199,10 @@ class ModuleManager
         foreach ($activeIds as $modId) {
             if (isset($available[$modId])) {
                 $mod = $available[$modId];
-                if (!empty($mod['init_file']) && file_exists($mod['init_file'])) {
+                $initFile = !empty($mod['init_file']) ? realpath($mod['init_file']) : false;
+                if ($initFile !== false && is_file($initFile)) {
                     try {
-                        $returned = require_once $mod['init_file'];
+                        $returned = require_once $initFile;
                         if (is_object($returned)) {
                             self::$loadedInstances[$projectId][$modId] = $returned;
                         }

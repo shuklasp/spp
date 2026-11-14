@@ -17,6 +17,11 @@ class ViewController extends \SPPMod\SPPView\ViewController
         $this->loadProjectConfig();
     }
 
+    public function views()
+    {
+        return $this->adminIndex();
+    }
+
     #[Route('/admin/views', method: 'GET')]
     public function adminIndex()
     {

@@ -16,7 +16,7 @@ trait XDB_Query
         }
         $stats[$normSql]++;
 
-        file_put_contents($statsPath, json_encode($stats, JSON_PRETTY_PRINT));
+        @file_put_contents($statsPath, json_encode($stats, JSON_PRETTY_PRINT));
 
         // Simple suggestion logic
         if ($stats[$normSql] > 100) {
@@ -78,6 +78,16 @@ trait XDB_Query
         }
 
         foreach ($pathsToScan as $segmentPath) {
+            if ($this->inTransaction && $segmentPath === $originalPath && $originalDoc && $originalXpath) {
+                $nodes = $originalXpath->query($xpathQuery);
+                if ($nodes) {
+                    foreach ($nodes as $node) {
+                        $allResults[] = $this->nodeToArray($node);
+                    }
+                }
+                continue;
+            }
+
             $this->filePath = $segmentPath;
             $doc = new \DOMDocument();
 

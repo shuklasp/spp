@@ -166,3 +166,42 @@ To ensure maximum performance and security without relying on external CDNs, SPP
 <script src="/spp/admin/js/htmx.min.js"></script>
 <script src="/spp/admin/js/turbo-streams.min.js"></script>
 ```
+
+---
+
+## Visual Workflow Designer & Quick-Start Architecture
+
+The SPP Dev Workbench (`sppdev/#workflows`) provides a native visual workflow and state machine designer. Designed with a novice-first philosophy, developers can create, inspect, and simulate complex lifecycle state machines without manual YAML authoring:
+
+### 1. The Three Fundamental Pillars of SPP Workflows
+
+Every workflow in SPP is constructed around three primary concepts:
+
+1. **States (Where the Entity Is)**:
+   - **Initial State (● Green)**: The entry state of a new record (e.g., `draft`, `requested`, `order_created`).
+   - **Intermediate States (■ Blue)**: Active processing stages (e.g., `in_review`, `payment_processed`, `warden_approved`).
+   - **Terminal States (○ Purple)**: Completed lifecycle endpoints with no outgoing transitions (e.g., `approved`, `fulfilled`, `closed`, `cancelled`).
+
+2. **Transitions (How the Entity Moves)**:
+   - Named actions or user-facing buttons (e.g., `submit`, `approve`, `reject`, `fulfill`) that transition records from one state to another.
+   - Transitions declare allowed origin `from` states and a single destination `to` state.
+
+3. **SLA Timeouts & Authorization Guards**:
+   - **SLA Timeouts**: Automated daemon triggers executed by `php spp.php workflow:process-timeouts`. If an entity remains in a given state beyond the defined seconds (e.g., `timeout: 86400`), the engine automatically triggers an escalation or auto-rejection transition.
+   - **Guards**: Callable permission or validation rules (e.g., `is_approver`, `is_warden`, `has_sufficient_credit`) that must evaluate to `true` before a transition can occur.
+
+### 2. On-Canvas Interactive Controls & Inspectors
+
+- **Quick Action Bar**:
+  - `[➕ Add State]`: Instantly generates a new state node on the graph.
+  - `[🔀 Add Transition]`: Quickly links states with origin and target definitions.
+  - `[⚡ Load Starter Template ▾]`: 1-click loading of production-grade state machines (Document Approval, Distributed Saga, SLA Escalation, Leave Request, School Gate Pass).
+- **Interactive Node Inspector**:
+  - Clicking any state node highlights it with an active neon border and opens the State Inspector drawer.
+  - Developers can customize the display label, set entry-point initial state, view incoming/outgoing paths, configure SLA timeout timers, or delete states.
+- **Interactive Transition Inspector**:
+  - Clicking any transition arrow or label pill opens the Transition Inspector drawer.
+  - Allows immediate tuning of button labels, origin checkboxes, destination state, and authorization guards.
+- **Real-Time Two-Way Synchronization**:
+  - Any modifications made in the **Visual Graph**, the form-based **Visual Builder**, or raw **Source (YAML)** automatically synchronize across all three tabs.
+

@@ -47,6 +47,16 @@ class MakeModelCommand extends BaseMakeCommand
             'namespace' => $namespace,
             'className' => $className,
             'tableName' => $tableName
+        ], [
+            'description' => "Domain Entity / Model: {$className}",
+            'usage' => "Active record model mapping to table '{$tableName}'",
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => [
+                'tags' => ['model', 'entity', strtolower($className)],
+                'table' => $tableName
+            ]
         ]);
 
         if ($success) {

@@ -77,17 +77,20 @@ When two documents cover the same feature, the teaching chapter is the entry poi
 
 ### Integration and security
 
-- [10 — Polyglot bridges and external applications](10-polyglot-and-external-applications.md)
+- [10 — Polyglot bridges, Multi-Language Application Hosting & Sovereign Service Mesh](10-polyglot-and-external-applications.md)
 - [10A — Security and runtime contracts](10-security-and-runtime-contracts.md)
 
 ### Reference and architecture
 
-- [16 — Database, SPPDB, and SPP XDB](16-database-and-storage.md)
+- [15 — Routing, Request Dispatch, Single & Multi-Domain Architecture](15-routing-and-request-dispatch.md)
+- [16 — Database, SPPDB, and Sovereign File Services](16-database-and-storage.md)
 - [17 — Authentication and authorization](17-authentication-and-authorization.md)
 - [18 — Cache, logging, workflow, and operations](18-cache-logging-workflow.md)
 - [19 — CLI and developer tooling](19-cli-and-developer-tooling.md)
 - [20 — Testing, debugging, and source-driven diagnosis](20-testing-and-debugging.md)
-- [21 — Enterprise architecture and deployment](21-enterprise-architecture-and-deployment.md)
+- [27 — Declarative Manifest OS and Directory Properties](27-manifest-os-and-file-properties.md)
+- [21 — Enterprise Architecture, Universal OS & Infrastructure Engine, Deployment Topologies](21-enterprise-architecture-and-deployment.md)
+- [72 — Sovereign App Store, Publisher Governance, and Bare-Metal Linux Operations](72-sovereign-store-user-governance-and-baremetal-telemetry.md)
 - [23 — Coming to SPP from other frameworks](23-coming-from-other-frameworks.md)
 
 ### Hands-on core tutorial — mandatory sequence
@@ -121,7 +124,7 @@ These are the source-oriented branches. They deliberately overlap with the refer
 - [48 — LiveComponent](48-tutorial-branch-livecomponent.md)
 - [49 — SPP Live Transports](49-tutorial-branch-spplive-transports.md)
 - [50 — SPPUX](50-tutorial-branch-sppux.md)
-- [51 — Polyglot and External Applications](51-tutorial-branch-polyglot-external.md)
+- [51 — Multi-Language Applications, Guest Daemons & Sovereign Service Mesh](51-tutorial-branch-polyglot-external.md)
 - [52 — Multiple Applications, Cron, and Workers](52-tutorial-branch-multiapp-cron-workers.md)
 - [53 — Enterprise Capstone](53-tutorial-enterprise-capstone.md)
 

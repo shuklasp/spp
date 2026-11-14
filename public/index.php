@@ -1,7 +1,20 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
+// Fast-path for deployment requests: avoid application auto-booting
+if (!empty($_GET['_sppdeploy']) || !empty($_POST['_sppdeploy']) || (isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], '/_sppdeploy/'))) {
+    if (!defined('SPP_NO_AUTO_BOOT')) {
+        define('SPP_NO_AUTO_BOOT', true);
+    }
+}
+
 require_once __DIR__ . '/../spp/sppinit.php';
+
+// Intercept Deployment Requests globally (bypasses any App and maintenance mode)
+if (class_exists('\SPPMod\SPPDeploy\SPPDeploy') && \SPPMod\SPPDeploy\SPPDeploy::isDeployRequest()) {
+    \SPPMod\SPPDeploy\SPPDeploy::handle();
+    return;
+}
 
 // 1. Context Sync: Ensure 'q' is relative to the detected application base
 if (file_exists(__DIR__ . '/../.maintenance')) {
@@ -59,15 +72,40 @@ if (file_exists(__DIR__ . '/../.maintenance')) {
 </html>';
     exit;
 }
-$q = $_GET['q'] ?? '';
+$uriPath = '';
+if (!empty($_SERVER['REQUEST_URI'])) {
+    $uriPart = explode('?', $_SERVER['REQUEST_URI'])[0];
+    if (defined('APP_BASE_URI') && APP_BASE_URI !== '' && APP_BASE_URI !== '/') {
+        $basePrefix = rtrim(APP_BASE_URI, '/');
+        if (stripos($uriPart, $basePrefix) === 0) {
+            $uriPart = substr($uriPart, strlen($basePrefix));
+        }
+    }
+    $uriPart = trim($uriPart, '/');
+    if ($uriPart !== '' && stripos($uriPart, 'index.php') === false) {
+        $uriPath = $uriPart;
+    }
+}
+
+$rawQ = $_GET['q'] ?? '';
+if ($uriPath !== '') {
+    if ($rawQ !== '' && $rawQ !== $uriPath && !isset($_GET['query'])) {
+        $_GET['query'] = $rawQ;
+    }
+    $q = $uriPath;
+} else {
+    $q = $rawQ;
+}
+
 $context = \SPP\Scheduler::getContext();
 if ($context !== '') {
     $baseUrl = trim(\SPP\App::getAppConf('base_url') ?: '/' . $context, '/');
     $qPath = trim($q, '/');
-    if ($baseUrl !== '' && (str_starts_with($qPath, $baseUrl . '/') || $qPath === $baseUrl)) {
-        $_GET['q'] = ltrim(substr($qPath, strlen($baseUrl)), '/');
+    if ($baseUrl !== '' && (stripos($qPath, $baseUrl . '/') === 0 || strcasecmp($qPath, $baseUrl) === 0)) {
+        $q = ltrim(substr($qPath, strlen($baseUrl)), '/');
     }
 }
+$_GET['q'] = $q;
 
 try {
     \SPP\Core\MiddlewareKernel::run(function ($request) {
@@ -86,12 +124,6 @@ try {
 
         // Intercept native Hot Module Replacement (HMR) / Live-Reload state check requests
         $svc = $_GET['__svc'] ?? $_POST['__svc'] ?? '';
-
-        // Intercept Deployment Requests globally (bypasses any App)
-        if (class_exists('\SPPMod\SPPDeploy\SPPDeploy') && \SPPMod\SPPDeploy\SPPDeploy::isDeployRequest()) {
-            \SPPMod\SPPDeploy\SPPDeploy::handle();
-            return;
-        }
 
         if (\SPP\Module::isEnabled('sppapi') && class_exists('\SPPMod\SPPAPI\SPPAPI') && \SPPMod\SPPAPI\SPPAPI::isApiRequest()) {
             \SPPMod\SPPAPI\SPPAPI::handle();
@@ -118,55 +150,18 @@ try {
             return;
         }
 
-        // SPP DX: AutoApiRouter injection for generic headless REST APIs
+        // Modular RouteServiceProvider dispatching (OAuth, SCIM, AssetRouter, AutoApiRouter)
         $qPath = $_GET['q'] ?? '';
-
-        // Route SCIM API endpoints
-        if (str_starts_with($qPath, 'scim/v2/')) {
-            require_once SPP_BASE_DIR . '/modules/spp/sppauth/class.scim_handler.php';
-            $handler = new \SPPMod\SPPAuth\SCIMHandler();
-            $endpoint = substr($qPath, 8); // remove 'scim/v2/'
-            $parts = explode('/', $endpoint);
-            $resource = $parts[0] ?? '';
-            $payload = json_decode(file_get_contents('php://input'), true) ?: [];
-            if (isset($parts[1])) {
-                $payload['id'] = $parts[1]; // pass ID in payload for updates
+        if (!class_exists('\\SPP\\Core\\Routing\\RouteDispatcher')) {
+            $dispatcherFile = SPP_BASE_DIR . '/core/routing/RouteDispatcher.php';
+            if (file_exists($dispatcherFile)) {
+                require_once $dispatcherFile;
             }
-            $handler->handleRequest($_SERVER['REQUEST_METHOD'], $resource, $payload);
-            return;
         }
-
-        // Route OAuth 2.0 endpoints
-        if (str_starts_with($qPath, 'oauth/')) {
-            require_once SPP_BASE_DIR . '/modules/spp/sppauth/class.oauth_server.php';
-            $server = new \SPPMod\SPPAuth\OAuthServer();
-            if ($qPath === 'oauth/authorize') {
-                $clientId = $_GET['client_id'] ?? '';
-                $redirectUri = $_GET['redirect_uri'] ?? '';
-                $state = $_GET['state'] ?? '';
-                $server->authorize($clientId, $redirectUri, $state);
+        if (class_exists('\\SPP\\Core\\Routing\\RouteDispatcher')) {
+            if (\SPP\Core\Routing\RouteDispatcher::dispatch($qPath, $_SERVER['REQUEST_METHOD'] ?? 'GET')) {
                 return;
             }
-            if ($qPath === 'oauth/token') {
-                $clientId = $_POST['client_id'] ?? '';
-                $clientSecret = $_POST['client_secret'] ?? '';
-                $code = $_POST['code'] ?? '';
-                $server->issueToken($clientId, $clientSecret, $code);
-                return;
-            }
-        }
-
-        // Route asset requests
-        if (str_starts_with($qPath, 'sppasset/')) {
-            require_once SPP_BASE_DIR . '/core/AssetRouter.php';
-            \SPP\Core\AssetRouter::handle($qPath);
-            return;
-        }
-
-        if (str_starts_with($qPath, 'api/v1/')) {
-            require_once SPP_BASE_DIR . '/core/AutoApiRouter.php';
-            \SPP\Core\AutoApiRouter::handle();
-            return;
         }
 
         $activeProc = \SPP\Scheduler::getActiveProc();

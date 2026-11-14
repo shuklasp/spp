@@ -27,6 +27,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         'PublicDesc',
         'InternalName',
         'Version',
+        'Author',
         'InstallScript',
         'UninstallScript',
         'ModuleGroup',
@@ -50,6 +51,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         'PublicName',
         'PublicDesc',
         'InternalName',
+        'Author',
         'InstallScript',
         'UninstallScript',
         'ModuleDir',
@@ -81,6 +83,12 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      * @var string
      */
     public string $ModuleCategory = '';
+
+    /**
+     * Module author
+     * @var string
+     */
+    public string $Author = '';
 
     /**
      * In-memory cache for configuration values to prevent duplicate XML I/O parsing.
@@ -173,6 +181,15 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         }
     }
 
+    public static function safeParseYaml(string $file): array
+    {
+        $raw = @file_get_contents($file);
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+        return (array)Yaml::parse($raw);
+    }
+
     /**
      * Read module definition from YAML manifest.
      *
@@ -185,7 +202,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     private function readYaml(string $file): void
     {
-        $parsed = Yaml::parseFile($file);
+        $parsed = self::safeParseYaml($file);
 
         // YAML structure might vary; support a couple legacy-friendly shapes.
         // Typical expected shapes:
@@ -246,8 +263,19 @@ class Module extends \SPP\SPPObject implements ModuleInterface
 
         foreach ($arr as $key => $val) {
             switch (strtolower($key)) {
-                case 'name':
+                case 'id':
                     $this->InternalName = (string) $val;
+                    break;
+                case 'name':
+                    if (empty($this->InternalName)) {
+                        $this->InternalName = (string) $val;
+                    }
+                    if (empty($this->PublicName)) {
+                        $this->PublicName = (string) $val;
+                    }
+                    break;
+                case 'author':
+                    $this->Author = (string) $val;
                     break;
                 case 'version':
                     $this->Version = (string) $val;
@@ -273,6 +301,8 @@ class Module extends \SPP\SPPObject implements ModuleInterface
                     break;
                 case 'pubdesc':
                 case 'publicdesc':
+                case 'desc':
+                case 'description':
                     $this->PublicDesc = (string) $val;
                     break;
                 case 'config':
@@ -319,6 +349,11 @@ class Module extends \SPP\SPPObject implements ModuleInterface
                     break;
                 case 'assets':
                     $this->Assets = (array) $val;
+                    break;
+                case 'provider':
+                case 'service_provider':
+                case 'serviceprovider':
+                    $this->ServiceProvider = (string) $val;
                     break;
                 case 'type':
                     $this->_attributes['type'] = (string) $val;
@@ -372,11 +407,71 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         }
 
         try {
-            $data = Yaml::parseFile($path);
+            $data = self::safeParseYaml($path);
             return $data[$root][$key] ?? $default;
         } catch (\Exception $e) {
             return $default;
         }
+    }
+
+    /**
+     * Return dependencies as a flat, indexed array of strings.
+     * Handles string lists, YAML dictionaries, Composer version maps, and nested arrays.
+     *
+     * @return array<string>
+     */
+    public function getNormalizedDependencies(): array
+    {
+        $deps = $this->Dependencies ?? [];
+        if (is_string($deps)) {
+            $parts = explode(',', $deps);
+            $normalized = [];
+            foreach ($parts as $p) {
+                $p = trim($p);
+                if ($p !== '') $normalized[] = $p;
+            }
+            return array_values(array_unique($normalized));
+        }
+        if (!is_array($deps)) {
+            return [];
+        }
+        $normalized = [];
+        foreach ($deps as $key => $val) {
+            if (is_array($val)) {
+                foreach ($val as $subVal) {
+                    if (is_string($subVal) || is_numeric($subVal)) {
+                        $normalized[] = (string) $subVal;
+                    }
+                }
+            } elseif (is_string($val) || is_numeric($val)) {
+                if (is_string($key) && !is_numeric($key)) {
+                    $normalized[] = "{$key} ({$val})";
+                } else {
+                    $normalized[] = (string) $val;
+                }
+            } elseif (is_string($key) && !is_numeric($key)) {
+                $normalized[] = $key;
+            }
+        }
+        return array_values(array_unique($normalized));
+    }
+
+    /**
+     * Return dependency module names only (stripping version numbers or decorators).
+     *
+     * @return array<string>
+     */
+    public function getDependencyNames(): array
+    {
+        $names = [];
+        foreach ($this->getNormalizedDependencies() as $dep) {
+            $name = trim(explode('(', $dep)[0]);
+            $name = trim(explode(' ', $name)[0]);
+            if ($name !== '') {
+                $names[] = $name;
+            }
+        }
+        return array_values(array_unique($names));
     }
 
     /**
@@ -414,13 +509,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
 
     /**
      * Gets a config variable for the module.
-     *
-     * Resolution order (highest to lowest priority):
-     *  1. In-memory cache
-     *  2. Canonical per-app YAML: spp/etc/apps/<app>/modsconf/<modname>/config.yml
-     *  3. Module's own bundled config (module.xml → <config> tag)
-     *  4. Legacy YAML: etc/settings/modules/<modname>/config.yml
-     *  5. Legacy XML: modsconf/<modname>/config.xml
+     * Delegates to \SPP\Core\ModuleConfigManager.
      *
      * @param string $varname
      * @param string $modname
@@ -428,114 +517,14 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      * @return mixed
      * @throws \SPP\SPPException
      */
-    public static function getConfig(string $varname, string $modname, ?string $appname = null): mixed
+    public static function getConfig(string $varname, string $modname, ?string $appname = null, mixed $default = false): mixed
     {
-        // Sanitize varname and modname against injection & traversal
-        $varname = str_replace(["'", '"'], '', $varname);
-        $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
-        $appname = $appname ? preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname) : \SPP\Scheduler::getContext();
-        $cacheKey = $appname . '::' . $modname . '::' . $varname;
-
-        if (isset(self::$configCache[$cacheKey])) {
-            return self::$configCache[$cacheKey];
-        }
-
-        // --- Layer 1: Check isolated per-app YAML config (Modern TOP priority) ---
-        if ($appname) {
-            $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
-            $isolatedConf = $modsConfDir . SPP_DS . $modname . SPP_DS . 'config.yml';
-            if (file_exists($isolatedConf)) {
-                $yamlData = Yaml::parseFile($isolatedConf);
-                $val = $yamlData['variables'][$varname] ?? ($yamlData[$varname] ?? null);
-                if ($val !== null) {
-                    $result = $val;
-                    self::$configCache[$cacheKey] = $result;
-                    return $result;
-                }
-            }
-        }
-
-        // --- Layer 1.1: Fallback to 'default' isolated config if context is not 'default' ---
-        if ($appname && $appname !== 'default') {
-            $defaultModsConfDir = self::getEffectiveModsConfDir($modname, 'default');
-            $defaultConf = $defaultModsConfDir . SPP_DS . $modname . SPP_DS . 'config.yml';
-            if (file_exists($defaultConf)) {
-                $yamlData = Yaml::parseFile($defaultConf);
-                $val = $yamlData['variables'][$varname] ?? ($yamlData[$varname] ?? null);
-                if ($val !== null) {
-                    self::$configCache[$cacheKey] = $val;
-                    return $val;
-                }
-            }
-        }
-
-        // --- Layer 2: Try /etc/<appname>/modsconf/config.yml (Global App Config) ---
-        $appname = $appname ?: \SPP\Scheduler::getContext();
-        if ($appname) {
-            $appGlobalConf = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf' . SPP_DS . 'config.yml';
-            if (file_exists($appGlobalConf)) {
-                $appYaml = Yaml::parseFile($appGlobalConf);
-                if (isset($appYaml[$modname]['variables'][$varname])) {
-                    $val = $appYaml[$modname]['variables'][$varname];
-                    self::$configCache[$cacheKey] = $val;
-                    return $val;
-                } elseif (isset($appYaml[$modname][$varname])) {
-                    $val = $appYaml[$modname][$varname];
-                    self::$configCache[$cacheKey] = $val;
-                    return $val;
-                }
-            }
-        }
-
-        // --- Layer 3: Global system service fallback (<modname>.yml) ---
-        $globalServiceConf = SPP_ETC_DIR . SPP_DS . $modname . '.yml';
-        if (file_exists($globalServiceConf)) {
-            $serviceYaml = Yaml::parseFile($globalServiceConf);
-            $val = $serviceYaml['variables'][$varname] ?? ($serviceYaml[$varname] ?? null);
-            if ($val !== null) {
-                $result = $val;
-                self::$configCache[$cacheKey] = $result;
-                return $result;
-            }
-        }
-
-        // --- Layer 4: Try module's own bundled config (from manifest <config> tag) ---
-        $modpath = \SPP\Registry::get('__mods=>' . $modname);
-        if ($modpath !== false) {
-            $manifestFile = $modpath . SPP_DS . 'module.yml';
-            if (file_exists($manifestFile)) {
-                $yml = Yaml::parseFile($manifestFile);
-                $configRelPath = $yml['module']['config'] ?? null;
-                if ($configRelPath) {
-                    $cfgFile = $modpath . SPP_DS . $configRelPath;
-                    if (file_exists($cfgFile)) {
-                        $cfgData = Yaml::parseFile($cfgFile);
-                        $val = $cfgData['variables'][$varname] ?? ($cfgData[$varname] ?? null);
-                        if ($val !== null) {
-                            self::$configCache[$cacheKey] = $val;
-                            return $val;
-                        }
-                    }
-                }
-            }
-        }
-
-        $result = false;
-        // --- Layer 5: Manifest Declarations (Final Fallback) ---
-        $mod = \SPP\Registry::get('__modobj=>' . $modname);
-        if ($mod) {
-            $declared = $mod->ConfigVariables ?? [];
-            if (in_array($varname, $declared) || isset($declared[$varname])) {
-                $result = (string) ($declared[$varname] ?? "");
-            }
-        }
-
-        self::$configCache[$cacheKey] = $result;
-        return $result;
+        return \SPP\Core\ModuleConfigManager::getConfig($varname, $modname, $appname, $default);
     }
 
     /**
      * Retrieves the entire configuration array for a module in a specific app.
+     * Delegates to \SPP\Core\ModuleConfigManager.
      *
      * @param string $modname
      * @param string|null $appname
@@ -543,21 +532,12 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     public static function getAppConfig(string $modname, ?string $appname = null): array
     {
-        $yamlConfFile = self::getExpectedConfigPath($modname, $appname);
-        if (file_exists($yamlConfFile)) {
-            try {
-                $data = Yaml::parseFile($yamlConfFile);
-                if (is_array($data)) {
-                    return $data['variables'] ?? $data;
-                }
-            } catch (\Exception $e) {
-            }
-        }
-        return [];
+        return \SPP\Core\ModuleConfigManager::getAppConfig($modname, $appname);
     }
 
     /**
      * Persists a bulk configuration array for a module.
+     * Delegates to \SPP\Core\ModuleConfigManager.
      *
      * @param string $modname
      * @param string $appname
@@ -566,78 +546,23 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     public static function saveAppConfig(string $modname, string $appname, array $config): bool
     {
-        $yamlConfFile = self::getExpectedConfigPath($modname, $appname);
-        $dir = dirname($yamlConfFile);
-        if (!is_dir($dir)) {
-            if (!mkdir($dir, 0755, true)) {
-                return false;
-            }
-        }
-
-        $data = ['variables' => $config];
-        $content = Yaml::dump($data, 4, 4);
-        return file_put_contents($yamlConfFile, $content) !== false;
+        return \SPP\Core\ModuleConfigManager::saveAppConfig($modname, $appname, $config);
     }
 
     /**
-     * Sets a config variable for the module, persisting it to the canonical
-     * per-app YAML config file: spp/etc/apps/<app>/modsconf/<modname>/config.yml
-     *
-     * Creates the directory and file if they do not yet exist.
-     * Invalidates the in-memory cache entry so subsequent getConfig() reads
-     * reflect the new value immediately.
+     * Sets a config variable for the module.
+     * Delegates to \SPP\Core\ModuleConfigManager.
      *
      * @param string $varname Config variable name
      * @param mixed  $value   Value to store (will be cast to string in YAML)
      * @param string $modname Module internal name
+     * @param string|null $appname
      * @return void
      * @throws \SPP\SPPException
      */
     public static function setConfig(string $varname, mixed $value, string $modname, ?string $appname = null): void
     {
-        $varname = str_replace(["'", '"'], '', $varname);
-        $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
-
-        // Register schema from manifest before validation
-        try {
-            $mod = self::getModule($modname);
-            $settingsDef = $mod->getSettingsDefinition();
-            if (!empty($settingsDef)) {
-                \SPP\SPPConfig::registerSchema("mod:{$modname}", $settingsDef);
-            }
-        } catch (\Exception $e) {
-        }
-
-        // Perform semantic validation
-        \SPP\SPPConfig::validate($varname, $value, "mod:{$modname}");
-
-        $yamlConfFile = self::getExpectedConfigPath($modname, $appname);
-
-        // Load existing data or start fresh
-        $yamlData = [];
-        if (file_exists($yamlConfFile)) {
-            $yamlData = Yaml::parseFile($yamlConfFile) ?? [];
-        } else {
-            $dir = dirname($yamlConfFile);
-            if (!is_dir($dir)) {
-                if (!mkdir($dir, 0755, true)) {
-                    throw new \SPP\SPPException("Failed to create config directory: {$dir}");
-                }
-            }
-        }
-
-        // Store under the 'variables' key to match the getConfig() read convention
-        if (!isset($yamlData['variables']) || !is_array($yamlData['variables'])) {
-            $yamlData['variables'] = [];
-        }
-        $yamlData['variables'][$varname] = $value;
-
-        file_put_contents($yamlConfFile, Yaml::dump($yamlData, 4, 4));
-
-        // Invalidate cache so next getConfig() reflects the new value
-        $context = $appname ? preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname) : \SPP\Scheduler::getContext();
-        $cacheKey = $context . '::' . $modname . '::' . $varname;
-        self::$configCache[$cacheKey] = (string) $value;
+        \SPP\Core\ModuleConfigManager::setConfig($varname, $value, $modname, $appname);
     }
 
     /**
@@ -656,6 +581,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
 
     /**
      * Returns the expected path for a module's YAML configuration file.
+     * Delegates to \SPP\Core\ModuleConfigManager.
      *
      * @param string $modname
      * @param string|null $appname
@@ -663,16 +589,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     public static function getExpectedConfigPath(string $modname, ?string $appname = null): string
     {
-        $ctx = $appname ?? \SPP\Scheduler::getContext();
-        try {
-            $app = \SPP\App::getApp($ctx);
-            $baseDir = $app->getModsConfDir();
-            return $app->resolvePath($modname . "/config.yml", $baseDir);
-        } catch (\Exception $e) {
-            // Fallback to legacy structure if App cannot be fully initialized
-            $path = SPP_APP_DIR . "/etc/apps/$ctx/modsconf/$modname/config.yml";
-            return str_replace('\\', '/', $path);
-        }
+        return \SPP\Core\ModuleConfigManager::getExpectedConfigPath($modname, $appname);
     }
 
     /**
@@ -705,8 +622,11 @@ class Module extends \SPP\SPPObject implements ModuleInterface
     {
         $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
         $modpath = \SPP\Registry::get('__mods=>' . $modname);
-        if ($modpath === false) {
-            throw new \SPP\SPPException("Module not registered: {$modname}");
+        if ($modpath === false || empty($modpath)) {
+            $modpath = self::getModuleDir($modname);
+            if (!$modpath) {
+                throw new \SPP\SPPException("Module not registered: {$modname}");
+            }
         }
 
         $manifest = $modpath . SPP_DS . 'module.yml';
@@ -728,12 +648,38 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     public static function scanModules(): array
     {
-        return SPPFS::findFile('module.yml', SPP_MODULES_DIR);
+        $manifests = [];
+        foreach (self::listAvailableModules(\SPP\Scheduler::getContext()) as $info) {
+            $manifests[] = $info['file'];
+        }
+        return $manifests;
     }
 
     public function getPath(): string
     {
         return $this->ModPath;
+    }
+
+    /**
+     * Resolves the root directory path of a module.
+     *
+     * @param string $modname Internal name of the module
+     * @return string|null
+     */
+    public static function getModuleDir(string $modname): ?string
+    {
+        $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
+        $path = \SPP\Registry::get('__mods=>' . $modname);
+        if ($path && is_string($path) && is_dir($path)) {
+            return $path;
+        }
+
+        $manifest = self::findManifestPath($modname, 'system');
+        if (!$manifest) {
+            $manifest = self::findManifestPath($modname, 'user');
+        }
+
+        return $manifest ? dirname($manifest) : null;
     }
 
     /**
@@ -834,7 +780,17 @@ class Module extends \SPP\SPPObject implements ModuleInterface
             }
         } else {
             // User/App modules
-            $userDir = \SPP\App::getApp($appname)->getModDir() . SPP_DS . $modname;
+            $app = \SPP\App::getInstance($appname);
+            if ($app !== null) {
+                $userDir = $app->getModDir() . SPP_DS . $modname;
+            } else {
+                $modPath = \SPP\App::getAppConf('modules_path', $appname) ?: 'modules';
+                $srcPath = \SPP\App::getAppConf('src_path', $appname);
+                $base = ($srcPath !== null && $srcPath !== '')
+                    ? (SPP_APP_DIR . SPP_DS . ltrim(str_replace('\\', '/', $srcPath), '/'))
+                    : (SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $appname);
+                $userDir = $base . SPP_DS . trim(str_replace('\\', '/', $modPath), '/') . SPP_DS . $modname;
+            }
             if (is_dir($userDir)) {
                 foreach ($possible as $m) {
                     if (file_exists($userDir . SPP_DS . $m)) {
@@ -887,54 +843,63 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         $loadedContexts[$appname] = true;
 
         // --- Phase 1: Try Compiled Cache (High Performance) ---
-        if (!defined('SPP_DEBUG') || !SPP_DEBUG) {
-            $cacheFile = \SPP\Core\ModuleCompiler::getCachePath($appname);
-            if (file_exists($cacheFile)) {
-                $compiled = require $cacheFile;
-                if (is_array($compiled)) {
-                    $meta = $compiled['__meta'] ?? ['manifest_mtime' => 0];
-                    unset($compiled['__meta']);
+        $cacheFile = \SPP\Core\ModuleCompiler::getCachePath($appname);
+        if (file_exists($cacheFile)) {
+            $compiled = require $cacheFile;
+            if (is_array($compiled)) {
+                $meta = $compiled['__meta'] ?? ['manifest_mtime' => 0];
+                unset($compiled['__meta']);
 
-                    // Verify cache validity by checking timestamps
-                    $isValid = true;
-                    $registries = self::getRegistryFiles($appname);
-                    $manifests = [];
-                    foreach ($registries as $r) {
-                        $manifests[] = $r['file'];
+                // Verify cache validity by checking timestamps and environment root
+                $isValid = true;
+                $currentAppDir = defined('SPP_APP_DIR') ? str_replace('\\', '/', SPP_APP_DIR) : '';
+                $cachedAppDir = isset($meta['app_dir']) ? str_replace('\\', '/', (string)$meta['app_dir']) : null;
+                if ($cachedAppDir !== null && $currentAppDir !== '' && $cachedAppDir !== $currentAppDir) {
+                    $isValid = false;
+                }
+
+                $registries = self::getRegistryFiles($appname);
+                $manifests = [];
+                foreach ($registries as $r) {
+                    $manifests[] = $r['file'];
+                }
+                foreach ($manifests as $m) {
+                    if (@file_exists($m) && @filemtime($m) > $meta['manifest_mtime']) {
+                        $isValid = false; break;
                     }
-                    foreach ($manifests as $m) {
-                        if (file_exists($m) && filemtime($m) > $meta['manifest_mtime']) {
+                }
+
+                if ($isValid) {
+                    foreach ($compiled as $name => &$data) {
+                        $data['path'] = self::resolveCachedModPath($data['path']);
+                        $modManifest = $data['path'] . SPP_DS . 'module.yml';
+                        if (!@file_exists($modManifest)) $modManifest = $data['path'] . SPP_DS . 'module.xml';
+                        if (@file_exists($modManifest) && @filemtime($modManifest) > $meta['manifest_mtime']) {
                             $isValid = false; break;
                         }
                     }
+                    unset($data);
+                }
 
-                    if ($isValid) {
-                        foreach ($compiled as $name => $data) {
-                            $modManifest = $data['path'] . SPP_DS . 'module.yml';
-                            if (!file_exists($modManifest)) $modManifest = $data['path'] . SPP_DS . 'module.xml';
-                            if (file_exists($modManifest) && filemtime($modManifest) > $meta['manifest_mtime']) {
-                                $isValid = false; break;
-                            }
-                        }
+                if ($isValid) {
+                    foreach ($compiled as $name => $data) {
+                        self::initFromCache($name, $data);
                     }
-
-                    if ($isValid) {
-                        foreach ($compiled as $name => $data) {
-                            self::initFromCache($name, $data);
-                        }
-                        self::$allModulesLoaded = true;
-                        return;
-                    }
+                    self::$allModulesLoaded = true;
+                    return;
                 }
             }
         }
 
-        // --- Phase 2: Runtime Topological Boot (Debug Mode) ---
+        // --- Phase 2: Runtime Topological Boot ---
         // If not using the compiled cache, we rely on the compiler dynamically
         // to discover and topologically sort modules to ensure dependencies are honored.
         $compiler = new \SPP\Core\ModuleCompiler($appname);
         try {
             $registry = $compiler->compileToArray();
+            // Automatically persist compiled cache so subsequent requests are instant
+            $compiler->writeCache($registry);
+
             foreach ($registry as $name => $data) {
                 if ($name === '__meta') continue;
                 self::initFromCache($name, $data);
@@ -948,11 +913,55 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         self::$allModulesLoaded = true;
     }
 
+    private static function resolveCachedModPath(string $path): string
+    {
+        $appDir = defined('SPP_APP_DIR') ? str_replace('\\', '/', SPP_APP_DIR) : '';
+        $baseDir = defined('SPP_BASE_DIR') ? str_replace('\\', '/', SPP_BASE_DIR) : '';
+        $norm = str_replace('\\', '/', $path);
+
+        // Portable relative path (e.g. "./spp/modules/...")
+        if (str_starts_with($norm, './')) {
+            $resolved = SPP_APP_DIR . SPP_DS . str_replace('/', SPP_DS, substr($norm, 2));
+            if (@file_exists($resolved)) {
+                return $resolved;
+            }
+        }
+
+        // If path belongs to current app dir or base dir, verify directly
+        if (($appDir !== '' && str_starts_with($norm, $appDir)) || ($baseDir !== '' && str_starts_with($norm, $baseDir))) {
+            if (@file_exists($path)) {
+                return $path;
+            }
+        }
+
+        // Handle re-basing for relocated workspaces across platforms / servers
+        if (str_contains($norm, '/spp/modules/')) {
+            $sub = substr($norm, strpos($norm, '/spp/modules/') + strlen('/spp/modules/'));
+            $alt = (defined('SPP_MODULES_DIR') ? SPP_MODULES_DIR : (SPP_BASE_DIR . '/modules')) . SPP_DS . str_replace('/', SPP_DS, $sub);
+            if (@file_exists($alt)) {
+                return $alt;
+            }
+        } elseif (str_contains($norm, '/modules/')) {
+            $sub = substr($norm, strpos($norm, '/modules/') + strlen('/modules/'));
+            $alt = SPP_APP_DIR . SPP_DS . 'modules' . SPP_DS . str_replace('/', SPP_DS, $sub);
+            if (@file_exists($alt)) {
+                return $alt;
+            }
+        }
+
+        if (@file_exists($path)) {
+            return $path;
+        }
+
+        return $path;
+    }
+
     /**
      * Rapid initialization of a module from compiled cache data.
      */
     private static function initFromCache(string $name, array $data): void
     {
+        $data['path'] = self::resolveCachedModPath($data['path']);
         \SPP\Registry::register('__mods=>' . $name, $data['path']);
 
         $manifestPath = $data['path'] . SPP_DS . 'module.yml';
@@ -979,12 +988,35 @@ class Module extends \SPP\SPPObject implements ModuleInterface
             $module->registerServices($data['services']);
         }
 
+        if (!empty($data['routes'])) {
+            $module->Routes = (array) $data['routes'];
+        }
+
         foreach ($data['includes'] as $file) {
             require_once $data['path'] . SPP_DS . $file;
         }
 
         if (!empty($data['has_modinit'])) {
             require_once $data['path'] . SPP_DS . 'modinit.php';
+        }
+
+        // Boot Service Provider if declared
+        $providerClass = $data['provider'] ?? ($module->ServiceProvider ?? null);
+        if ($providerClass) {
+            if (!class_exists($providerClass)) {
+                $basename = substr(strrchr($providerClass, "\\"), 1) ?: $providerClass;
+                $possibleFile = $data['path'] . SPP_DS . 'src' . SPP_DS . $basename . '.php';
+                if (file_exists($possibleFile)) {
+                    require_once $possibleFile;
+                }
+            }
+            if (class_exists($providerClass)) {
+                $provider = new $providerClass();
+                if ($provider instanceof \SPP\Core\Interfaces\ServiceProviderInterface) {
+                    $provider->register();
+                    $provider->boot();
+                }
+            }
         }
     }
 
@@ -1012,7 +1044,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
                 $mods = self::$manifestFileCache[$file];
             } else {
                 if ($ext === 'yml' || $ext === 'yaml') {
-                    $parsed = Yaml::parseFile($file);
+                    $parsed = self::safeParseYaml($file);
                     $mods = $parsed['modules'] ?? [];
                     self::$manifestFileCache[$file] = $mods;
                 }
@@ -1128,7 +1160,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 
         if ($ext === 'yml' || $ext === 'yaml') {
-            $data = Yaml::parseFile($file);
+            $data = self::safeParseYaml($file);
             if (!isset($data['modules']) || !is_array($data['modules'])) {
                 return;
             }
@@ -1260,7 +1292,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
                 'status' => $status
             ];
 
-            $data = file_exists($preferred) ? Yaml::parseFile($preferred) : ['modules' => []];
+            $data = file_exists($preferred) ? self::safeParseYaml($preferred) : ['modules' => []];
             if (!isset($data['modules']) || !is_array($data['modules'])) {
                 $data['modules'] = [];
             }
@@ -1319,127 +1351,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     public static function ensureConfigForApp(string $modname, string $appname): ?string
     {
-        $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
-        $appname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname);
-        if ($modname === '' || $appname === '') {
-            return null;
-        }
-
-        $module = self::resolveModuleObject($modname, $appname);
-        if (!$module instanceof \SPP\Module) {
-            return null;
-        }
-
-        $defaults = self::extractConfigDefaults($module);
-        if (empty($defaults)) {
-            return null;
-        }
-
-        $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
-
-        $configDir = $modsConfDir . SPP_DS . $modname;
-        $configFile = $configDir . SPP_DS . 'config.yml';
-
-        if (!is_dir($configDir)) {
-            mkdir($configDir, 0755, true);
-        }
-
-        $data = [];
-        if (file_exists($configFile)) {
-            $parsed = Yaml::parseFile($configFile);
-            $data = is_array($parsed) ? $parsed : [];
-        }
-
-        if (!isset($data['variables']) || !is_array($data['variables'])) {
-            $legacyValues = $data;
-            $data = ['variables' => []];
-            foreach ($legacyValues as $key => $value) {
-                if ($key !== 'variables' && is_string($key)) {
-                    $data['variables'][$key] = $value;
-                }
-            }
-        }
-
-        $changed = !file_exists($configFile);
-        foreach ($defaults as $key => $value) {
-            if (!array_key_exists($key, $data['variables'])) {
-                $data['variables'][$key] = $value;
-                $changed = true;
-            }
-        }
-
-        if ($changed) {
-            file_put_contents($configFile, Yaml::dump($data, 4, 4));
-        }
-
-        foreach (array_keys($defaults) as $key) {
-            unset(self::$configCache[$appname . '::' . $modname . '::' . $key]);
-        }
-
-        return $configFile;
-    }
-
-    /**
-     * Builds default config variables from module.yml declarations.
-     *
-     * @param \SPP\Module $module
-     * @return array<string,mixed>
-     */
-    private static function extractConfigDefaults(\SPP\Module $module): array
-    {
-        $defaults = [];
-
-        foreach ((array) ($module->ConfigVariables ?? []) as $key => $value) {
-            if (is_int($key) || ctype_digit((string) $key)) {
-                $defaults[(string) $value] = '';
-            } else {
-                $defaults[(string) $key] = $value;
-            }
-        }
-
-        foreach ((array) ($module->Settings ?? []) as $key => $definition) {
-            if (!is_array($definition)) {
-                if (!array_key_exists((string) $key, $defaults)) {
-                    $defaults[(string) $key] = $definition;
-                }
-                continue;
-            }
-
-            $defaults[(string) $key] = array_key_exists('default', $definition)
-                ? $definition['default']
-                : ($defaults[(string) $key] ?? '');
-        }
-
-        return $defaults;
-    }
-
-    /**
-     * Resolves a module object even when it is not already active in the registry.
-     */
-    private static function resolveModuleObject(string $modname, string $appname): ?\SPP\Module
-    {
-        $registered = \SPP\Registry::get('__modobj=>' . $modname);
-        if ($registered instanceof \SPP\Module) {
-            return $registered;
-        }
-
-        $manifest = self::findManifestPath($modname, 'system', $appname);
-        if (!$manifest) {
-            $manifest = self::findManifestPath($modname, 'user', $appname);
-        }
-
-        if (!$manifest) {
-            return null;
-        }
-
-        $module = new \SPP\Module($manifest);
-        if (strpos(realpath($manifest), realpath(SPP_MODULES_DIR)) === 0) {
-            $module->ModuleType = 'system';
-        } else {
-            $module->ModuleType = 'user';
-        }
-
-        return $module;
+        return \SPP\Core\ModuleConfigManager::ensureConfigForApp($modname, $appname);
     }
 
     /**
@@ -1568,7 +1480,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     private static function toggleInYaml(string $file, string $modname, string $status): bool
     {
-        $parsed = Yaml::parseFile($file);
+        $parsed = self::safeParseYaml($file);
         if (!isset($parsed['modules']) || !is_array($parsed['modules'])) {
             return false;
         }
@@ -1599,264 +1511,44 @@ class Module extends \SPP\SPPObject implements ModuleInterface
 
     /**
      * Returns all config variables for a module as an associative array.
-     *
-     * Resolution order:
-     *  1. Canonical per-app YAML config
-     *  2. Module's bundled config (XML)
-     *  3. Legacy YAML in app settings
-     *  4. Legacy XML modsconf
+     * Delegates to \SPP\Core\ModuleConfigManager.
      *
      * @param string $modname Module internal name
      * @return array ['variables' => [...], 'source' => string]
      */
     public static function getAllConfig(string $modname): array
     {
-        $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
-        $appname = \SPP\Scheduler::getContext();
-
-        // 1. Start with per-app logic (Strict Separation)
-        $res = self::getAllConfigForApp($modname, $appname);
-        $variables = $res['variables'] ?? [];
-        $source = $res['source'] ?? '';
-
-        if (!empty($variables)) {
-            return ['variables' => $variables, 'source' => $source];
-        }
-
-        // 2. Module's bundled config XML (Fallback)
-        $modpath = \SPP\Registry::get('__mods=>' . $modname);
-        if ($modpath !== false) {
-            $modManifest = $modpath . SPP_DS . 'module.xml';
-            if (file_exists($modManifest)) {
-                $xml = simplexml_load_file($modManifest);
-                if ($xml !== false) {
-                    $arr = (array) ($xml->xpath('/module')[0] ?? []);
-                    if (!empty($arr['config'])) {
-                        $cfgFile = $modpath . SPP_DS . $arr['config'];
-                        if (file_exists($cfgFile)) {
-                            $ext = strtolower(pathinfo($cfgFile, PATHINFO_EXTENSION));
-                            if ($ext === 'yml' || $ext === 'yaml') {
-                                $cfgData = Yaml::parseFile($cfgFile);
-                                $variables = $cfgData['variables'] ?? $cfgData ?? [];
-                            } else {
-                                $cfgXml = simplexml_load_file($cfgFile);
-                                if ($cfgXml !== false) {
-                                    $varNodes = $cfgXml->xpath('/config/variables/variable');
-                                    foreach ($varNodes as $vn) {
-                                        $variables[(string) $vn->name] = (string) $vn->value;
-                                    }
-                                }
-                            }
-                            $source = $cfgFile;
-                            return ['variables' => $variables, 'source' => $source];
-                        }
-                    }
-                }
-            }
-        }
-
-        // 3. Legacy YAML in app settings
-        if (defined('SPP_APP_DIR')) {
-            $legacyYaml = SPP_APP_DIR . SPP_DS . 'etc' . SPP_DS . 'settings' . SPP_DS . 'modules' . SPP_DS . $modname . SPP_DS . 'config.yml';
-            if (file_exists($legacyYaml)) {
-                $yamlData = Yaml::parseFile($legacyYaml);
-                $variables = $yamlData['variables'] ?? $yamlData ?? [];
-                $source = $legacyYaml;
-                return ['variables' => $variables, 'source' => $source];
-            }
-        }
-
-        // 4. Legacy XML modsconf
-        try {
-            $proc = \SPP\Scheduler::getActiveProc();
-            $confXmlFile = $proc->getModsConfDir() . SPP_DS . $modname . SPP_DS . 'config.xml';
-            if (file_exists($confXmlFile)) {
-                $cfgXml = simplexml_load_file($confXmlFile);
-                if ($cfgXml !== false) {
-                    $varNodes = $cfgXml->xpath('/config/variables/variable');
-                    foreach ($varNodes as $vn) {
-                        $variables[(string) $vn->name] = (string) $vn->value;
-                    }
-                }
-                $source = $confXmlFile;
-            }
-        } catch (\Throwable $e) {
-        }
-
-        return ['variables' => $variables, 'source' => $source];
+        return \SPP\Core\ModuleConfigManager::getAllConfig($modname);
     }
 
     /**
      * Returns the raw content of a module's config file for direct editing.
+     * Delegates to \SPP\Core\ModuleConfigManager.
      *
      * @param string $modname Module internal name
      * @return array ['content' => string, 'path' => string, 'format' => string]
      */
     public static function getRawConfig(string $modname): array
     {
-        $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
-
-        // Search for config file in priority order
-        $candidates = [];
-
-        // 1. Canonical per-app YAML
-        try {
-            $proc = \SPP\Scheduler::getActiveProc();
-            $candidates[] = $proc->getModsConfDir() . SPP_DS . $modname . SPP_DS . 'config.yml';
-        } catch (\Throwable $e) {
-        }
-
-        // 2. Module's bundled config (resolve from module.xml)
-        $modpath = \SPP\Registry::get('__mods=>' . $modname);
-        if ($modpath !== false) {
-            $modManifest = $modpath . SPP_DS . 'module.xml';
-            if (file_exists($modManifest)) {
-                $xml = simplexml_load_file($modManifest);
-                if ($xml !== false) {
-                    $arr = (array) ($xml->xpath('/module')[0] ?? []);
-                    if (!empty($arr['config'])) {
-                        $candidates[] = $modpath . SPP_DS . $arr['config'];
-                    }
-                }
-            }
-        }
-
-        // 3. Legacy paths
-        try {
-            $proc = \SPP\Scheduler::getActiveProc();
-            $candidates[] = $proc->getModsConfDir() . SPP_DS . $modname . SPP_DS . 'config.xml';
-        } catch (\Throwable $e) {
-        }
-
-        if (defined('SPP_APP_DIR')) {
-            $candidates[] = SPP_APP_DIR . SPP_DS . 'etc' . SPP_DS . 'settings' . SPP_DS . 'modules' . SPP_DS . $modname . SPP_DS . 'config.yml';
-        }
-
-        foreach ($candidates as $path) {
-            if (file_exists($path)) {
-                return [
-                    'content' => file_get_contents($path),
-                    'path' => $path,
-                    'format' => strtolower(pathinfo($path, PATHINFO_EXTENSION)),
-                ];
-            }
-        }
-
-        return ['content' => '', 'path' => '', 'format' => 'yml'];
+        return \SPP\Core\ModuleConfigManager::getRawConfig($modname);
     }
 
     /**
      * Returns all config variables for a module within a specific app context.
-     * Bypasses the Scheduler — works with direct path resolution.
+     * Delegates to \SPP\Core\ModuleConfigManager.
      *
      * @param string $modname Module internal name
-     * @param string $appname Application name (e.g. 'default', 'demo', 'sppadmin')
+     * @param string $appname Application name
      * @return array ['variables' => [...], 'source' => string]
      */
     public static function getAllConfigForApp(string $modname, string $appname): array
     {
-        $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
-        $appname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname);
-        $variables = [];
-        $source = '';
-
-        $modObj = self::resolveModuleObject($modname, $appname);
-        $type = ($modObj instanceof \SPP\Module) ? $modObj->ModuleType : 'system';
-
-        $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
-
-        if ($modsConfDir !== '') {
-            // 1. Canonical per-app YAML
-            $yamlConfFile = $modsConfDir . SPP_DS . $modname . SPP_DS . 'config.yml';
-            if (file_exists($yamlConfFile)) {
-                $yamlData = Yaml::parseFile($yamlConfFile);
-                $variables = $yamlData['variables'] ?? $yamlData ?? [];
-                $source = $yamlConfFile;
-                return ['variables' => $variables, 'source' => $source];
-            }
-
-            // 2. Canonical per-app XML
-            $xmlConfFile = $modsConfDir . SPP_DS . $modname . SPP_DS . 'config.xml';
-            if (file_exists($xmlConfFile)) {
-                $cfgXml = simplexml_load_file($xmlConfFile);
-                if ($cfgXml !== false) {
-                    $varNodes = $cfgXml->xpath('/config/variables/variable');
-                    foreach ($varNodes as $vn) {
-                        $variables[(string) $vn->name] = (string) $vn->value;
-                    }
-                }
-                $source = $xmlConfFile;
-                return ['variables' => $variables, 'source' => $source];
-            }
-        }
-
-        // 3. Module's bundled config (from manifest)
-        $modpath = ($modObj instanceof \SPP\Module) ? $modObj->ModPath : \SPP\Registry::get('__mods=>' . $modname);
-        if ($modpath !== false) {
-            $manifestFiles = [$modpath . SPP_DS . 'module.yml', $modpath . SPP_DS . 'module.xml'];
-            foreach ($manifestFiles as $modManifest) {
-                if (file_exists($modManifest)) {
-                    $ext = strtolower(pathinfo($modManifest, PATHINFO_EXTENSION));
-                    $configRelPath = null;
-                    if ($ext === 'yml' || $ext === 'yaml') {
-                        $yml = Yaml::parseFile($modManifest);
-                        $configRelPath = $yml['module']['config'] ?? null;
-                    } else {
-                        $xml = simplexml_load_file($modManifest);
-                        if ($xml !== false) {
-                            $arr = (array) ($xml->xpath('/module')[0] ?? []);
-                            $configRelPath = $arr['config'] ?? null;
-                        }
-                    }
-
-                    if ($configRelPath) {
-                        $cfgFile = $modpath . SPP_DS . $configRelPath;
-                        if (file_exists($cfgFile)) {
-                            $cfgExt = strtolower(pathinfo($cfgFile, PATHINFO_EXTENSION));
-                            if ($cfgExt === 'yml' || $cfgExt === 'yaml') {
-                                $cfgData = Yaml::parseFile($cfgFile);
-                                $foundVars = $cfgData['variables'] ?? $cfgData ?? [];
-                                $variables = array_merge($variables, $foundVars);
-                                $source = $cfgFile;
-                            } else {
-                                $cfgXml2 = simplexml_load_file($cfgFile);
-                                if ($cfgXml2 !== false) {
-                                    $varNodes = $cfgXml2->xpath('/config/variables/variable');
-                                    foreach ($varNodes as $vn) {
-                                        $variables[(string) $vn->name] = (string) $vn->value;
-                                    }
-                                    $source = $cfgFile;
-                                }
-                            }
-                        }
-                    }
-                    if (!empty($variables)) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        // 4. Manifest Declarations (Merged with actual values)
-        if ($modObj instanceof \SPP\Module) {
-            $declared = $modObj->ConfigVariables ?? [];
-            if (!empty($declared)) {
-                $merged = [];
-                foreach ($declared as $k => $v) {
-                    $key = is_numeric($k) ? (string) $v : (string) $k;
-                    $merged[$key] = "";
-                }
-                // Merge any actually found variables over the defaults
-                return ['variables' => array_merge($merged, $variables), 'source' => ($source ?: 'manifest')];
-            }
-        }
-
-        return ['variables' => $variables, 'source' => $source];
+        return \SPP\Core\ModuleConfigManager::getAllConfigForApp($modname, $appname);
     }
 
     /**
      * Returns raw config file content for a module within a specific app context.
-     * Bypasses the Scheduler — works with direct path resolution.
+     * Delegates to \SPP\Core\ModuleConfigManager.
      *
      * @param string $modname Module internal name
      * @param string $appname Application name
@@ -1864,115 +1556,22 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     public static function getRawConfigForApp(string $modname, string $appname): array
     {
-        $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
-        $appname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname);
-
-        $modObj = self::resolveModuleObject($modname, $appname);
-        $type = ($modObj instanceof \SPP\Module) ? $modObj->ModuleType : 'system';
-
-        $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
-
-        if ($modsConfDir === '') {
-            return ['content' => '', 'path' => '', 'format' => 'yml'];
-        }
-
-        $candidates = [];
-
-        // 1. Per-app YAML
-        $candidates[] = $modsConfDir . SPP_DS . $modname . SPP_DS . 'config.yml';
-        // 2. Per-app XML
-        $candidates[] = $modsConfDir . SPP_DS . $modname . SPP_DS . 'config.xml';
-
-        // 3. Module's bundled config
-        $modpath = ($modObj instanceof \SPP\Module) ? $modObj->ModPath : \SPP\Registry::get('__mods=>' . $modname);
-        if ($modpath !== false) {
-            foreach (['module.yml', 'module.yaml', 'module.xml'] as $manifestName) {
-                $modManifest = $modpath . SPP_DS . $manifestName;
-                if (!file_exists($modManifest)) {
-                    continue;
-                }
-                $ext = strtolower(pathinfo($modManifest, PATHINFO_EXTENSION));
-                if ($ext === 'yml' || $ext === 'yaml') {
-                    $manifest = Yaml::parseFile($modManifest);
-                    if (!empty($manifest['module']['config'])) {
-                        $candidates[] = $modpath . SPP_DS . $manifest['module']['config'];
-                    }
-                } else {
-                    $xml = simplexml_load_file($modManifest);
-                    if ($xml !== false) {
-                        $arr = (array) ($xml->xpath('/module')[0] ?? []);
-                        if (!empty($arr['config'])) {
-                            $candidates[] = $modpath . SPP_DS . $arr['config'];
-                        }
-                    }
-                }
-            }
-        }
-
-        foreach ($candidates as $path) {
-            if (file_exists($path)) {
-                return [
-                    'content' => file_get_contents($path),
-                    'path' => $path,
-                    'format' => strtolower(pathinfo($path, PATHINFO_EXTENSION)),
-                ];
-            }
-        }
-
-        return ['content' => '', 'path' => '', 'format' => 'yml'];
+        return \SPP\Core\ModuleConfigManager::getRawConfigForApp($modname, $appname);
     }
 
     /**
      * Saves a config variable for a module within a specific app context.
-     * Bypasses the Scheduler.
+     * Delegates to \SPP\Core\ModuleConfigManager.
      *
      * @param string $varname Variable name
      * @param mixed  $value   Value
      * @param string $modname Module internal name
      * @param string $appname Application name
+     * @return void
      */
     public static function setConfigForApp(string $varname, mixed $value, string $modname, string $appname): void
     {
-        $varname = str_replace(["'", '"'], '', $varname);
-        $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
-        $appname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname);
-
-        $modObj = self::resolveModuleObject($modname, $appname);
-        $type = ($modObj instanceof \SPP\Module) ? $modObj->ModuleType : 'system';
-
-        $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
-
-        $yamlConfFile = $modsConfDir . SPP_DS . $modname . SPP_DS . 'config.yml';
-
-        $yamlData = [];
-        if (file_exists($yamlConfFile)) {
-            $yamlData = Yaml::parseFile($yamlConfFile) ?? [];
-        } else {
-            $dir = dirname($yamlConfFile);
-            if (!is_dir($dir)) {
-                if (!mkdir($dir, 0755, true)) {
-                    throw new \SPP\SPPException("Failed to create config directory: {$dir}");
-                }
-            }
-        }
-
-        if (!isset($yamlData['variables']) || !is_array($yamlData['variables'])) {
-            $legacyValues = $yamlData;
-            $yamlData = ['variables' => []];
-            foreach ($legacyValues as $key => $existingValue) {
-                if ($key !== 'variables' && is_string($key)) {
-                    $yamlData['variables'][$key] = $existingValue;
-                }
-            }
-        }
-        $yamlData['variables'][$varname] = $value;
-
-        file_put_contents($yamlConfFile, Yaml::dump($yamlData, 4, 4));
-
-        // Invalidate cache
-        $appname = $appname ? preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname) : \SPP\Scheduler::getContext();
-        $cacheKey = $appname . '::' . $modname . '::' . $varname;
-        self::$configCache[$cacheKey] = (string) $value;
+        \SPP\Core\ModuleConfigManager::setConfigForApp($varname, $value, $modname, $appname);
     }
 
     /**
@@ -2312,52 +1911,12 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     public static function setAllConfigForApp(array $variables, string $modname, string $appname): void
     {
-        $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
-        $appname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname);
-
-        $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
-        $yamlConfFile = $modsConfDir . SPP_DS . $modname . SPP_DS . 'config.yml';
-
-        $yamlData = [];
-        if (file_exists($yamlConfFile)) {
-            $yamlData = Yaml::parseFile($yamlConfFile) ?? [];
-        } else {
-            $dir = dirname($yamlConfFile);
-            if (!is_dir($dir)) {
-                if (!mkdir($dir, 0755, true)) {
-                    throw new \SPP\SPPException("Failed to create config directory: {$dir}");
-                }
-            }
-        }
-
-        if (!isset($yamlData['variables']) || !is_array($yamlData['variables'])) {
-            $legacyValues = $yamlData;
-            $yamlData = ['variables' => []];
-            foreach ($legacyValues as $key => $existingValue) {
-                if ($key !== 'variables' && is_string($key)) {
-                    $yamlData['variables'][$key] = $existingValue;
-                }
-            }
-        }
-
-        foreach ($variables as $varname => $value) {
-            $varname = str_replace(["'", '"'], '', $varname);
-            $yamlData['variables'][$varname] = $value;
-
-            // Invalidate cache for each variable
-            $context = $appname ? preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname) : \SPP\Scheduler::getContext();
-            $cacheKey = $context . '::' . $modname . '::' . $varname;
-            self::$configCache[$cacheKey] = (string) $value;
-        }
-
-        file_put_contents($yamlConfFile, Yaml::dump($yamlData, 4, 4));
-        $logFile = (defined('SPP_BASE_DIR') ? SPP_BASE_DIR : __DIR__) . '/../var/logs/api_save.log';
-        error_log("[" . date('Y-m-d H:i:s') . "] MODULE DEBUG: setAllConfigForApp saved to $yamlConfFile. Vars: " . count($variables) . "\n", 3, $logFile);
+        \SPP\Core\ModuleConfigManager::setAllConfigForApp($variables, $modname, $appname);
     }
 
     /**
      * Resolves the appropriate modsconf directory for a module based on context and type.
-     * This is the CENTRAL AUTHORITY for all module configuration paths.
+     * Delegates to \SPP\Core\ModuleConfigManager.
      *
      * @param string $modname Module internal name
      * @param string $appname Application name
@@ -2365,25 +1924,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     public static function getEffectiveModsConfDir(string $modname, string $appname): string
     {
-        $appname = $appname ?: \SPP\Scheduler::getContext();
-        $app = \SPP\App::getApp($appname);
-
-        // 1. Primary: The application's own etc/modsconf (Contained within app)
-        $appModsConf = $app->getModsConfDir();
-        if (is_dir($appModsConf . SPP_DS . $modname)) {
-            return $appModsConf;
-        }
-
-        // 2. Secondary: Global system path for framework-internal apps (Fallback)
-        // Path: spp/etc/apps/<appname>/modsconf/
-        $systemAppModsConf = SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modsconf';
-        if (is_dir($systemAppModsConf . SPP_DS . $modname)) {
-            return $systemAppModsConf;
-        }
-
-        // 3. Fallback: Default to the application's config directory
-        // Even if the module subfolder doesn't exist yet, we prefer the app's etc/modsconf for new configs.
-        return $appModsConf;
+        return \SPP\Core\ModuleConfigManager::getEffectiveModsConfDir($modname, $appname);
     }
 
     /**
@@ -2400,10 +1941,10 @@ class Module extends \SPP\SPPObject implements ModuleInterface
             return $registries;
         }
 
-        $app = \SPP\App::getApp($appname);
+        $modsConfDir = self::resolveAppModsConfDir($appname);
         $candidates = [
             // 1. App-Specific (Owned by the app)
-            ['path' => $app->getModsConfDir() . SPP_DS . 'modules', 'type' => 'user'],
+            ['path' => $modsConfDir . SPP_DS . 'modules', 'type' => 'user'],
             // 2. Framework Override (Owned by framework, for this app)
             ['path' => SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modules', 'type' => 'system'],
             // 3. Global Framework Defaults
@@ -2421,6 +1962,53 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         return $registries;
     }
 
+    public static function resolveAppModsConfDir(string $appname): string
+    {
+        $app = \SPP\App::getInstance($appname);
+        if ($app !== null) {
+            return $app->getModsConfDir();
+        }
+
+        $modsConfPath = \SPP\App::getAppConf('modsconf_path', $appname);
+        if ($modsConfPath !== null && $modsConfPath !== '') {
+            return str_starts_with($modsConfPath, '/') || str_contains($modsConfPath, ':')
+                ? $modsConfPath
+                : SPP_APP_DIR . SPP_DS . ltrim(str_replace('\\', '/', $modsConfPath), '/');
+        }
+
+        $etcPath = \SPP\App::getAppConf('etc_path', $appname);
+        if ($etcPath !== null && $etcPath !== '') {
+            $base = str_starts_with($etcPath, '/') || str_contains($etcPath, ':')
+                ? $etcPath
+                : SPP_APP_DIR . SPP_DS . ltrim(str_replace('\\', '/', $etcPath), '/');
+            return rtrim($base, '/\\') . SPP_DS . 'modsconf';
+        }
+
+        $srcPath = \SPP\App::getAppConf('src_path', $appname);
+        if ($srcPath !== null && $srcPath !== '') {
+            $base = str_starts_with($srcPath, '/') || str_contains($srcPath, ':')
+                ? $srcPath
+                : SPP_APP_DIR . SPP_DS . ltrim(str_replace('\\', '/', $srcPath), '/');
+            $candidate = rtrim($base, '/\\') . SPP_DS . 'etc' . SPP_DS . 'modsconf';
+            if (is_dir($candidate)) {
+                return $candidate;
+            }
+        }
+
+        $candidates = [
+            APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf',
+            SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $appname . SPP_DS . 'etc' . SPP_DS . 'modsconf',
+            SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modsconf'
+        ];
+        foreach ($candidates as $c) {
+            if (is_dir($c)) {
+                return $c;
+            }
+        }
+
+        return APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf';
+    }
+
     /**
      * Returns an array of directories that may contain loosely coupled user modules for an app.
      *
@@ -2432,12 +2020,17 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         if ($appname === '' || $appname === 'default') {
             return [];
         }
-        $app = \SPP\App::getApp($appname);
+        $app = \SPP\App::getInstance($appname);
+        if ($app !== null) {
+            return [$app->getAppSrcDir() . SPP_DS . 'modules'];
+        }
 
-        $dirs = [];
-        $dirs[] = $app->getAppSrcDir() . SPP_DS . 'modules';
+        $srcPath = \SPP\App::getAppConf('src_path', $appname);
+        $srcDir = ($srcPath !== null && $srcPath !== '')
+            ? (SPP_APP_DIR . SPP_DS . ltrim(str_replace('\\', '/', $srcPath), '/'))
+            : (SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $appname);
 
-        return $dirs;
+        return [$srcDir . SPP_DS . 'modules'];
     }
 
     /**
@@ -2450,27 +2043,49 @@ class Module extends \SPP\SPPObject implements ModuleInterface
     {
         $manifests = [];
 
-        // 1. Discover System Modules
-        $sysManifests = array_merge(
-            \SPP\SPPFS::findFile('module.yml', SPP_MODULES_DIR) ?: [],
-            \SPP\SPPFS::findFile('module.xml', SPP_MODULES_DIR) ?: []
-        );
-        foreach ($sysManifests as $f) {
-            $name = basename(dirname($f));
-            if (!isset($manifests[$name])) {
-                $manifests[$name] = ['file' => $f, 'type' => 'system'];
+        // 1. Discover System Modules via targeted scope scan (avoids slow deep recursion)
+        $scopes = ['spp', 'optional', 'contrib'];
+        foreach ($scopes as $scope) {
+            $scopeDir = SPP_MODULES_DIR . SPP_DS . $scope;
+            if (!is_dir($scopeDir)) continue;
+            $mods = @scandir($scopeDir) ?: [];
+            foreach ($mods as $m) {
+                if ($m === '.' || $m === '..') continue;
+                $modDir = $scopeDir . SPP_DS . $m;
+                if (!is_dir($modDir)) continue;
+                if (file_exists($modDir . SPP_DS . 'module.yml')) {
+                    $manifests[$m] = ['file' => $modDir . SPP_DS . 'module.yml', 'type' => 'system'];
+                } elseif (file_exists($modDir . SPP_DS . 'module.xml')) {
+                    $manifests[$m] = ['file' => $modDir . SPP_DS . 'module.xml', 'type' => 'system'];
+                }
+            }
+        }
+        // Direct root scan for non-scoped system modules
+        $mods = @scandir(SPP_MODULES_DIR) ?: [];
+        foreach ($mods as $m) {
+            if ($m === '.' || $m === '..' || in_array($m, $scopes, true)) continue;
+            $modDir = SPP_MODULES_DIR . SPP_DS . $m;
+            if (!is_dir($modDir)) continue;
+            if (file_exists($modDir . SPP_DS . 'module.yml')) {
+                $manifests[$m] = ['file' => $modDir . SPP_DS . 'module.yml', 'type' => 'system'];
+            } elseif (file_exists($modDir . SPP_DS . 'module.xml')) {
+                $manifests[$m] = ['file' => $modDir . SPP_DS . 'module.xml', 'type' => 'system'];
             }
         }
 
-        // 2. Discover User/App Modules
+        // 2. Discover User/App Modules via targeted app directory scan
         foreach (self::getAppModuleDirs($appname) as $dir) {
-            $userManifests = array_merge(
-                \SPP\SPPFS::findFile('module.yml', $dir) ?: [],
-                \SPP\SPPFS::findFile('module.xml', $dir) ?: []
-            );
-            foreach ($userManifests as $f) {
-                $name = basename(dirname($f));
-                $manifests[$name] = ['file' => $f, 'type' => 'user'];
+            if (!is_dir($dir)) continue;
+            $mods = @scandir($dir) ?: [];
+            foreach ($mods as $m) {
+                if ($m === '.' || $m === '..') continue;
+                $modDir = $dir . SPP_DS . $m;
+                if (!is_dir($modDir)) continue;
+                if (file_exists($modDir . SPP_DS . 'module.yml')) {
+                    $manifests[$m] = ['file' => $modDir . SPP_DS . 'module.yml', 'type' => 'user'];
+                } elseif (file_exists($modDir . SPP_DS . 'module.xml')) {
+                    $manifests[$m] = ['file' => $modDir . SPP_DS . 'module.xml', 'type' => 'user'];
+                }
             }
         }
 
@@ -2494,7 +2109,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
                     'active' => $status === 'active',
                     'type' => $info['type'],
                     'path' => $mod->ModPath,
-                    'dependencies' => (array) ($mod->Dependencies ?? []),
+                    'dependencies' => $mod->getNormalizedDependencies(),
                     'module_group' => $mod->ModuleGroup ?: 'General',
                     'module_category' => $category,
                     'has_config' => (!empty($mod->ConfigVariables) || !empty($mod->Settings)),
@@ -2525,7 +2140,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
 
             $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
             if ($ext === 'yml' || $ext === 'yaml') {
-                $data = \Symfony\Component\Yaml\Yaml::parseFile($file);
+                $data = self::safeParseYaml($file);
                 $mods = $data['modules'] ?? [];
                 foreach ($mods as $m) {
                     $mArr = (array) $m;

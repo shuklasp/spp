@@ -24,4 +24,9 @@ if (class_exists('\\SPP\\CLI\\CommandManager')) {
         require_once __DIR__ . '/commands/VerifyZeroDowntimeCommand.php';
     }
     \SPP\CLI\CommandManager::registerCommand(new \SPPMod\SPPDB\Commands\VerifyZeroDowntimeCommand());
+
+    if (!class_exists('\\SPPMod\\SPPDB\\Commands\\SlowQueryAdvisorCommand')) {
+        require_once __DIR__ . '/commands/SlowQueryAdvisorCommand.php';
+    }
+    \SPP\CLI\CommandManager::registerCommand(new \SPPMod\SPPDB\Commands\SlowQueryAdvisorCommand());
 }

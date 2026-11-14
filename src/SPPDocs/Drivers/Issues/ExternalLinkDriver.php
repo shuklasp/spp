@@ -47,7 +47,7 @@ class ExternalLinkDriver implements IssueTrackerDriverInterface
 
     public function createIssue(array $data): array
     {
-        return ['error' => 'Managed externally at ' . $this->baseUrl];
+        throw new \BadMethodCallException('ExternalLinkDriver does not support local issue creation. Managed externally at ' . $this->baseUrl);
     }
 
     public function updateIssue(string $issueId, array $data): bool

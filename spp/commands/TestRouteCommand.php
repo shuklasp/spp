@@ -15,7 +15,7 @@ class TestRouteCommand extends Command
 
     public function execute(array $args): void
     {
-        $appname = 'Samvaad';
+        $appname = \SPP\Scheduler::getContext() ?: 'default';
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--app=')) {
                 $appname = substr($arg, 6);

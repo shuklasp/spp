@@ -35,6 +35,13 @@ class MakeLiveComponentCommand extends BaseMakeCommand
         $success = $this->buildFromStub('livecomponent', $targetPath, [
             'namespace' => $namespace,
             'className' => $className
+        ], [
+            'description' => "Live reactive component class for {$className}",
+            'usage' => "Provides server-driven reactivity via wire:click and state hydration",
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['live', 'reactive', strtolower($className)]]
         ]);
 
         $viewDir = ($app === 'default') ? SPP_APP_DIR . '/resources/views/partials' : SPP_APP_DIR . "/src/{$app}/resources/views/partials";
@@ -42,6 +49,13 @@ class MakeLiveComponentCommand extends BaseMakeCommand
         
         $partialSuccess = $this->buildFromStub('livecomponent_partial', $partialPath, [
             'className' => $className
+        ], [
+            'description' => "Live component HTML partial template for {$className}",
+            'usage' => "Rendered by LiveComponent base class",
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['live', 'partial', strtolower($className)], 'engine' => 'html']
         ]);
 
         if ($success) {

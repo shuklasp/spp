@@ -10,11 +10,28 @@ namespace SPPMod\SPPQueue;
  */
 class SppQueue
 {
+    private static ?object $fake = null;
+
+    public static function setFake(?object $fake): void
+    {
+        self::$fake = $fake;
+    }
+
+    public static function getFake(): ?object
+    {
+        return self::$fake;
+    }
+
     /**
      * Push a new task onto the queue.
      */
     public static function push(string $jobClass, array $data = []): void
     {
+        if (self::$fake !== null && method_exists(self::$fake, 'recordPush')) {
+            self::$fake->recordPush($jobClass, $data);
+            return;
+        }
+
         $payload = json_encode([
             'job' => $jobClass,
             'data' => $data,

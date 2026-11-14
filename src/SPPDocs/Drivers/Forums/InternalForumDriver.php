@@ -63,4 +63,79 @@ class InternalForumDriver implements ForumDriverInterface
         }
         return $threads;
     }
+
+    public function getThread(string $threadId): ?array
+    {
+        $file = $this->forumsDir . '/' . $threadId . '.json';
+        if (!file_exists($file)) return null;
+        $thread = json_decode(file_get_contents($file), true);
+        return is_array($thread) ? $thread : null;
+    }
+
+    public function createThread(string $categoryId, array $threadData): ?array
+    {
+        if (!is_dir($this->forumsDir)) {
+            @mkdir($this->forumsDir, 0777, true);
+        }
+        $id = $threadData['id'] ?? ('thread_' . time() . '_' . bin2hex(random_bytes(4)));
+        $threadData['id'] = $id;
+        $threadData['category_id'] = $categoryId;
+        $threadData['created_at'] = $threadData['created_at'] ?? time();
+        $threadData['updated_at'] = time();
+        $threadData['replies'] = $threadData['replies'] ?? [];
+        $file = $this->forumsDir . '/' . $id . '.json';
+        file_put_contents($file, json_encode($threadData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        return $threadData;
+    }
+
+    public function postReply(string $threadId, array $replyData): ?array
+    {
+        $file = $this->forumsDir . '/' . $threadId . '.json';
+        if (!file_exists($file)) return null;
+        $thread = json_decode(file_get_contents($file), true);
+        if (!$thread) return null;
+
+        $replyId = $replyData['id'] ?? ('reply_' . time() . '_' . bin2hex(random_bytes(3)));
+        $replyData['id'] = $replyId;
+        $replyData['created_at'] = $replyData['created_at'] ?? time();
+        $replyData['reactions'] = [];
+        $thread['replies'][] = $replyData;
+        $thread['updated_at'] = time();
+        file_put_contents($file, json_encode($thread, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        return $replyData;
+    }
+
+    public function markSolution(string $threadId, string $replyId): bool
+    {
+        $file = $this->forumsDir . '/' . $threadId . '.json';
+        if (!file_exists($file)) return false;
+        $thread = json_decode(file_get_contents($file), true);
+        if (!$thread) return false;
+
+        $thread['solution_reply_id'] = $replyId;
+        $thread['updated_at'] = time();
+        return (bool) file_put_contents($file, json_encode($thread, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    }
+
+    public function addReaction(string $threadId, string $replyId, string $userId, string $reaction): bool
+    {
+        $file = $this->forumsDir . '/' . $threadId . '.json';
+        if (!file_exists($file)) return false;
+        $thread = json_decode(file_get_contents($file), true);
+        if (!$thread) return false;
+
+        foreach ($thread['replies'] as &$reply) {
+            if (($reply['id'] ?? '') === $replyId) {
+                if (!isset($reply['reactions'][$reaction])) {
+                    $reply['reactions'][$reaction] = [];
+                }
+                if (!in_array($userId, $reply['reactions'][$reaction])) {
+                    $reply['reactions'][$reaction][] = $userId;
+                }
+                break;
+            }
+        }
+        $thread['updated_at'] = time();
+        return (bool) file_put_contents($file, json_encode($thread, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    }
 }

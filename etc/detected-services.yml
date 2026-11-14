@@ -114,3 +114,19 @@ services:
     name: load_view
     script: spp/admin/services/General.php
     method: live_load_view
+  -
+    name: list_workflows
+    script: spp/admin/services/Workflows.php
+    method: live_list_workflows
+  -
+    name: save_workflow
+    script: spp/admin/services/Workflows.php
+    method: live_save_workflow
+  -
+    name: delete_workflow
+    script: spp/admin/services/Workflows.php
+    method: live_delete_workflow
+  -
+    name: get_workflow_graph
+    script: spp/admin/services/Workflows.php
+    method: live_get_workflow_graph

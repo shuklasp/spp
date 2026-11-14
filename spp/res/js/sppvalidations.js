@@ -475,3 +475,404 @@ function validateIsbn(errId, msg, fieldId) {
     _clearSppError(errId);
     return true;
 }
+
+function validateCustomRule(errId, msg, fieldId, clientRule) {
+    const field = document.getElementById(fieldId) || document.getElementsByName(fieldId)[0];
+    if (!field) return true;
+
+    const val = field.value !== undefined ? String(field.value) : '';
+    let ruleObj = clientRule;
+    if (typeof clientRule === 'string') {
+        try { ruleObj = JSON.parse(clientRule); } catch (e) { ruleObj = {}; }
+    }
+
+    if (ruleObj.required && val.trim() === '') {
+        _showSppError(errId, msg || ruleObj['data-msg'] || 'This field is required.');
+        field.classList.add('errorclass');
+        return false;
+    }
+
+    if (val.trim() !== '') {
+        if (ruleObj.minlength && val.length < ruleObj.minlength) {
+            _showSppError(errId, msg || ruleObj['data-msg'] || `Must be at least ${ruleObj.minlength} characters.`);
+            field.classList.add('errorclass');
+            return false;
+        }
+
+        if (ruleObj.maxlength && val.length > ruleObj.maxlength) {
+            _showSppError(errId, msg || ruleObj['data-msg'] || `Must not exceed ${ruleObj.maxlength} characters.`);
+            field.classList.add('errorclass');
+            return false;
+        }
+
+        if (ruleObj.pattern) {
+            const regex = new RegExp(ruleObj.pattern);
+            if (!regex.test(val)) {
+                _showSppError(errId, msg || ruleObj['data-msg'] || 'Invalid format.');
+                field.classList.add('errorclass');
+                return false;
+            }
+        }
+
+        const customRuleName = ruleObj['data-rule'];
+        if (customRuleName && typeof window !== 'undefined' && window.SPPValidator) {
+            if (!window.SPPValidator.validate(customRuleName, val, ruleObj, field)) {
+                _showSppError(errId, msg || ruleObj['data-msg'] || 'Invalid value.');
+                field.classList.add('errorclass');
+                return false;
+            }
+        }
+    }
+
+    _clearSppError(errId);
+    field.classList.remove('errorclass');
+    return true;
+}
+
+const SPPValidator = {
+    _rules: {},
+
+    register(name, fn) {
+        this._rules[name.toLowerCase()] = fn;
+    },
+
+    has(name) {
+        return !!this._rules[name.toLowerCase()];
+    },
+
+    validate(name, value, params = {}, el = null) {
+        const fn = this._rules[name.toLowerCase()];
+        if (typeof fn === 'function') {
+            return fn(value, params, el);
+        }
+        return true;
+    },
+
+    getRules() {
+        return this._rules;
+    },
+
+    /**
+     * Attach validators declared in a Form YAML to an HTML form on the page.
+     * Matches fields by name or id, applying client constraints, live checks, and submit guards.
+     */
+    async bindForm(formElementOrId, schema = null) {
+        const form = typeof formElementOrId === 'string' 
+            ? document.getElementById(formElementOrId) || document.querySelector(`form[data-spp-form="${formElementOrId}"]`) || document.querySelector(`form[name="${formElementOrId}"]`)
+            : formElementOrId;
+        if (!form || !(form instanceof HTMLFormElement)) return null;
+
+        const formId = form.getAttribute('data-spp-form') || form.id || form.getAttribute('name');
+        if (!formId) return null;
+
+        if (form.__spp_validation_bound) return form;
+        form.__spp_validation_bound = true;
+
+        // 1. Resolve schema from script tag if pre-rendered
+        let formSchema = schema;
+        if (!formSchema) {
+            const scriptEl = document.getElementById(`spp-form-schema-${formId}`);
+            if (scriptEl && scriptEl.textContent) {
+                try { formSchema = JSON.parse(scriptEl.textContent); } catch (e) {}
+            }
+        }
+
+        // 2. Fallback to API if not present in DOM
+        if (!formSchema && typeof fetch === 'function') {
+            try {
+                const apiEndpoint = window.SPP_API_ENDPOINT || 'api.php';
+                const fd = new FormData();
+                fd.append('action', 'get_form_validators');
+                fd.append('form_id', formId);
+                const app = form.getAttribute('data-spp-app') || (typeof window !== 'undefined' && window.admin?.selectedApp) || (typeof window !== 'undefined' && window.SPP_ACTIVE_APP) || '';
+                if (app) fd.append('appname', app);
+                const res = await fetch(apiEndpoint, { method: 'POST', body: fd });
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        formSchema = json.data;
+                    }
+                }
+            } catch (e) {
+                console.warn(`[SPPValidator] Could not fetch schema for form '${formId}':`, e);
+            }
+        }
+
+        if (!formSchema || !formSchema.fields) return form;
+
+        const fields = formSchema.fields;
+
+        function setFieldError(fieldEl, errorMsg) {
+            let errContainer = form.querySelector(`#err_${fieldEl.id || fieldEl.name}`) ||
+                               form.querySelector(`.spp-field-error[data-for="${fieldEl.name}"]`) ||
+                               form.querySelector(`.spp-field-error[data-for="${fieldEl.id}"]`);
+
+            if (errorMsg) {
+                fieldEl.classList.add('errorclass', 'is-invalid');
+                fieldEl.setAttribute('aria-invalid', 'true');
+                if (!errContainer) {
+                    errContainer = document.createElement('div');
+                    errContainer.className = 'spp-field-error';
+                    errContainer.setAttribute('data-for', fieldEl.name || fieldEl.id);
+                    errContainer.style.cssText = 'color: #ef4444; font-size: 0.78rem; margin-top: 4px; font-weight: 500; display: flex; align-items: center; gap: 4px;';
+                    if (fieldEl.nextSibling) {
+                        fieldEl.parentNode.insertBefore(errContainer, fieldEl.nextSibling);
+                    } else {
+                        fieldEl.parentNode.appendChild(errContainer);
+                    }
+                }
+                const safeMsg = String(errorMsg).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                errContainer.innerHTML = `<span>⚠️</span> <span>${safeMsg}</span>`;
+                errContainer.style.display = 'flex';
+            } else {
+                fieldEl.classList.remove('errorclass', 'is-invalid');
+                fieldEl.removeAttribute('aria-invalid');
+                if (errContainer) {
+                    errContainer.innerHTML = '';
+                    errContainer.style.display = 'none';
+                }
+            }
+        }
+
+        function validateField(fieldEl, fieldDef) {
+            const val = fieldEl.value !== undefined ? String(fieldEl.value).trim() : '';
+            const cr = fieldDef.client_rule || {};
+            const label = fieldDef.label || fieldEl.name || 'Field';
+
+            if (cr.required && val === '') {
+                const msg = (cr['data-msg'] || `${label} is required.`).replace(':attribute', label);
+                setFieldError(fieldEl, msg);
+                return false;
+            }
+
+            if (val !== '') {
+                if (cr.minlength && val.length < cr.minlength) {
+                    const msg = `${label} must be at least ${cr.minlength} characters.`;
+                    setFieldError(fieldEl, msg);
+                    return false;
+                }
+                if (cr.maxlength && val.length > cr.maxlength) {
+                    const msg = `${label} must not exceed ${cr.maxlength} characters.`;
+                    setFieldError(fieldEl, msg);
+                    return false;
+                }
+                if (cr.pattern) {
+                    const regex = new RegExp(cr.pattern);
+                    if (!regex.test(val)) {
+                        const msg = (cr['data-msg'] || `${label} format is invalid.`).replace(':attribute', label);
+                        setFieldError(fieldEl, msg);
+                        return false;
+                    }
+                }
+                const customRuleName = cr['data-rule'];
+                if (customRuleName && SPPValidator.has(customRuleName)) {
+                    if (!SPPValidator.validate(customRuleName, val, cr, fieldEl)) {
+                        const msg = (cr['data-msg'] || `${label} is invalid.`).replace(':attribute', label);
+                        setFieldError(fieldEl, msg);
+                        return false;
+                    }
+                }
+            }
+
+            setFieldError(fieldEl, null);
+            return true;
+        }
+
+        // 1. Initial entity hydration (if editing)
+        if (formSchema.initial && typeof formSchema.initial === 'object') {
+            for (const [key, val] of Object.entries(formSchema.initial)) {
+                const fieldEl = form.querySelector(`[name="${key}"]`) || form.querySelector(`#${key}`);
+                if (fieldEl && (fieldEl.value === '' || fieldEl.value === undefined)) {
+                    if (fieldEl.type === 'checkbox') {
+                        fieldEl.checked = Boolean(val);
+                    } else if (fieldEl.type === 'radio') {
+                        const radio = form.querySelector(`[name="${key}"][value="${val}"]`);
+                        if (radio) radio.checked = true;
+                    } else {
+                        fieldEl.value = val;
+                    }
+                }
+            }
+        }
+
+        // 2. Old input hydration (after validation redirect)
+        if (formSchema.old && typeof formSchema.old === 'object') {
+            for (const [key, val] of Object.entries(formSchema.old)) {
+                const fieldEl = form.querySelector(`[name="${key}"]`) || form.querySelector(`#${key}`);
+                if (fieldEl) {
+                    if (fieldEl.type === 'checkbox') {
+                        fieldEl.checked = Boolean(val);
+                    } else if (fieldEl.type === 'radio') {
+                        const radio = form.querySelector(`[name="${key}"][value="${val}"]`);
+                        if (radio) radio.checked = true;
+                    } else {
+                        fieldEl.value = val;
+                    }
+                }
+            }
+        }
+
+        // 3. Server errors display (after validation redirect)
+        if (formSchema.errors && typeof formSchema.errors === 'object') {
+            for (const [key, msgs] of Object.entries(formSchema.errors)) {
+                const fieldEl = form.querySelector(`[name="${key}"]`) || form.querySelector(`#${key}`);
+                if (fieldEl) {
+                    const msg = Array.isArray(msgs) ? msgs[0] : String(msgs);
+                    setFieldError(fieldEl, msg);
+                }
+            }
+        }
+
+        // Attach listeners and HTML5 attributes to inputs
+        for (const [fieldName, fieldDef] of Object.entries(fields)) {
+            const fieldEl = form.querySelector(`[name="${fieldName}"]`) || 
+                            form.querySelector(`#${fieldName}`) || 
+                            form.querySelector(`[data-field="${fieldName}"]`);
+            if (!fieldEl) continue;
+
+            const cr = fieldDef.client_rule || {};
+            if (cr.required) fieldEl.required = true;
+            if (cr.pattern) fieldEl.pattern = cr.pattern;
+            if (cr.minlength) fieldEl.minLength = cr.minlength;
+            if (cr.maxlength) fieldEl.maxLength = cr.maxlength;
+            if (cr['data-rule']) fieldEl.setAttribute('data-spp-rule', cr['data-rule']);
+            if (cr['data-msg']) fieldEl.setAttribute('data-msg', cr['data-msg']);
+
+            fieldEl.addEventListener('input', () => validateField(fieldEl, fieldDef));
+            fieldEl.addEventListener('blur', () => validateField(fieldEl, fieldDef));
+
+            const rawRules = fieldDef.validation || fieldDef.rules || fieldDef.rule || '';
+            const isRemote = (typeof rawRules === 'string' && (rawRules.includes('unique') || rawRules.includes('exists') || rawRules.includes('remote'))) || fieldEl.hasAttribute('data-spp-remote');
+
+            if (isRemote) {
+                let debounceTimer = null;
+                const checkRemote = async () => {
+                    if (!validateField(fieldEl, fieldDef)) return;
+                    const val = fieldEl.value !== undefined ? String(fieldEl.value).trim() : '';
+                    if (!val) return;
+                    try {
+                        const app = form.getAttribute('data-spp-app') || (typeof window !== 'undefined' && window.admin?.selectedApp) || (typeof window !== 'undefined' && window.SPP_ACTIVE_APP) || '';
+                        const apiEndpoint = window.SPP_API_ENDPOINT || 'api.php';
+                        const fd = new FormData();
+                        fd.append('action', 'validate_field');
+                        fd.append('field', fieldName);
+                        fd.append('value', val);
+                        fd.append('form_id', formId);
+                        if (rawRules) fd.append('rules', rawRules);
+                        if (app) fd.append('appname', app);
+
+                        const res = await fetch(apiEndpoint, { method: 'POST', body: fd });
+                        if (res.ok) {
+                            const json = await res.json();
+                            if (json && json.valid === false) {
+                                const msg = json.message || `${fieldDef.label || fieldName} is invalid.`;
+                                setFieldError(fieldEl, msg);
+                                fieldEl.__spp_remote_valid = false;
+                            } else if (json && json.valid === true) {
+                                fieldEl.__spp_remote_valid = true;
+                            }
+                        }
+                    } catch (e) {
+                        // Silent catch on network blip
+                    }
+                };
+
+                fieldEl.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(checkRemote, 400);
+                });
+                fieldEl.addEventListener('blur', () => {
+                    clearTimeout(debounceTimer);
+                    checkRemote();
+                });
+            }
+        }
+
+        form.sppValidate = () => {
+            let isValid = true;
+            for (const [fieldName, fieldDef] of Object.entries(fields)) {
+                const fieldEl = form.querySelector(`[name="${fieldName}"]`) || 
+                                form.querySelector(`#${fieldName}`) || 
+                                form.querySelector(`[data-field="${fieldName}"]`);
+                if (!fieldEl) continue;
+                if (!validateField(fieldEl, fieldDef)) isValid = false;
+            }
+            return isValid;
+        };
+
+        form.sppReset = () => {
+            for (const fieldName of Object.keys(fields)) {
+                const fieldEl = form.querySelector(`[name="${fieldName}"]`) || 
+                                form.querySelector(`#${fieldName}`) || 
+                                form.querySelector(`[data-field="${fieldName}"]`);
+                if (fieldEl) setFieldError(fieldEl, null);
+            }
+            form.reset();
+        };
+
+        // Intercept form submit
+        form.addEventListener('submit', (e) => {
+            let firstInvalid = null;
+            let isValid = true;
+
+            for (const [fieldName, fieldDef] of Object.entries(fields)) {
+                const fieldEl = form.querySelector(`[name="${fieldName}"]`) || 
+                                form.querySelector(`#${fieldName}`) || 
+                                form.querySelector(`[data-field="${fieldName}"]`);
+                if (!fieldEl) continue;
+
+                const passed = validateField(fieldEl, fieldDef);
+                if (!passed) {
+                    isValid = false;
+                    if (!firstInvalid) firstInvalid = fieldEl;
+                }
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                if (firstInvalid && typeof firstInvalid.focus === 'function') {
+                    firstInvalid.focus();
+                }
+                form.dispatchEvent(new CustomEvent('spp:form:invalid', { detail: { formId, schema: formSchema } }));
+            }
+        });
+
+        return form;
+    },
+
+    /**
+     * Auto-discover and bind all forms in the document container.
+     */
+    autoBindAllForms(container = document) {
+        if (!container || typeof container.querySelectorAll !== 'function') return;
+
+        // 1. All forms with data-spp-form
+        container.querySelectorAll('form[data-spp-form]').forEach(form => {
+            this.bindForm(form);
+        });
+
+        // 2. All forms with matching schema scripts in the DOM
+        container.querySelectorAll('script[type="application/json"][id^="spp-form-schema-"]').forEach(scriptEl => {
+            const formId = scriptEl.id.replace('spp-form-schema-', '');
+            const form = container.querySelector(`form#${formId}`) || container.querySelector(`form[name="${formId}"]`);
+            if (form) {
+                this.bindForm(form);
+            }
+        });
+    }
+};
+
+if (typeof window !== 'undefined') {
+    window.SPPValidator = SPPValidator;
+    window.validateCustomRule = validateCustomRule;
+
+    if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => SPPValidator.autoBindAllForms());
+        } else {
+            setTimeout(() => SPPValidator.autoBindAllForms(), 50);
+        }
+    }
+}
+

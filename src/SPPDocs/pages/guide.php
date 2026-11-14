@@ -11,7 +11,7 @@
  *
  * HOW THIS PAGE WORKS:
  *   - This is a "native PHP page" rendered by the SPP view layer
- *   - It is mapped in etc/apps/SPPDocs/pages.yml as:
+ *   - It is mapped in src/SPPDocs/etc/pages.yml as:
  *       guide:
  *         url: pages/guide.php
  *   - SPP automatically injects theme CSS/JS around it (augmentation)
@@ -54,10 +54,10 @@ if (class_exists('\SPPMod\Drishyam\SPPUX')) {
         <!-- SECTION 2: App Structure -->
         <!-- ================================================================ -->
         <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">2. App Structure</h2>
-        <p style="color:#475569; line-height:1.8;">Every SPP app has two main directories: <code>etc/apps/SPPDocs/</code> for configuration, and <code>src/SPPDocs/</code> for source code.</p>
+        <p style="color:#475569; line-height:1.8;">Every SPP app has two main directories: <code>src/SPPDocs/etc/</code> for configuration, and <code>src/SPPDocs/</code> for source code.</p>
         <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 your-project/
-├── etc/apps/SPPDocs/         # ── CONFIGURATION ──
+├── src/SPPDocs/etc/         # ── CONFIGURATION ──
 │   ├── pages.yml                  # Route definitions (URL → controller/page)
 │   ├── forms/                     # YAML form definitions
 │   │   └── contact.yml            # Contact form fields + validation
@@ -103,11 +103,11 @@ your-project/
         <!-- SECTION 3: Routing -->
         <!-- ================================================================ -->
         <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">3. Routing</h2>
-        <p style="color:#475569; line-height:1.8;">Routes are defined in <code>etc/apps/SPPDocs/pages.yml</code>. SPP supports five route types:</p>
+        <p style="color:#475569; line-height:1.8;">Routes are defined in <code>src/SPPDocs/etc/pages.yml</code>. SPP supports five route types:</p>
 
         <h3 style="color:#475569; margin-top:1.5rem;">3a. pages.yml Route Types</h3>
         <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
-# ── etc/apps/SPPDocs/pages.yml ──
+# ── src/SPPDocs/etc/pages.yml ──
 
 defaults:
   home: home                              # Default page when no route matches
@@ -392,7 +392,7 @@ events:
         <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">8. Services (PHP&harr;JS Bridge)</h2>
         <p style="color:#475569; line-height:1.8;">Services let JavaScript call PHP functions without writing API endpoints. Define in <code>etc/services.yml</code>.</p>
         <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
-# ── etc/apps/SPPDocs/services.yml ──
+# ── src/SPPDocs/etc/services.yml ──
 services:
   - name: "task.create"
     script: "src/SPPDocs/serv/task_create.php"
@@ -495,7 +495,7 @@ class AuthGuard
     }
 }
 
-// ── etc/apps/SPPDocs/middleware.yml (global pipeline) ──
+// ── src/SPPDocs/etc/middleware.yml (global pipeline) ──
 middleware:
   global:
     - \App\SPPDocs\Middleware\CorsMiddleware
@@ -571,7 +571,7 @@ $db-&gt;table('tasks')-&gt;where('id', 42)-&gt;update(['status' =&gt; 'done']);
         <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">12. YAML Forms</h2>
         <p style="color:#475569; line-height:1.8;">Define forms in YAML, and SPP handles rendering, validation, and processing automatically.</p>
         <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
-# ── etc/apps/SPPDocs/forms/contact.yml ──
+# ── src/SPPDocs/etc/forms/contact.yml ──
 id: contact
 public_name: "Contact Form"
 success_message: "Thank you! Your message has been received."
@@ -915,10 +915,10 @@ apps:
     table_prefix: SPPDocs_
     type: mixed
     shared_group: core
-    etc_path: etc/apps/SPPDocs
+    etc_path: src/SPPDocs/etc
     src_path: src/SPPDocs
 
-# ── etc/apps/SPPDocs/config.yml ── (app-specific)
+# ── src/SPPDocs/etc/config.yml ── (app-specific)
 app:
   name: "SPPDocs"
   debug: true                    # SPP_DEBUG mode
@@ -982,8 +982,8 @@ Log::critical('Database connection lost');
                 <li><b>Edit a Blade view</b> &mdash; Modify <code>resources/SPPDocs/views/home.blade.php</code></li>
                 <li><b>Create an entity</b> &mdash; Run <code>php spp.php make:entity --app=SPPDocs Task</code></li>
                 <li><b>Run migrations</b> &mdash; Run <code>php spp.php migrate --app=SPPDocs</code></li>
-                <li><b>Add a new route</b> &mdash; Edit <code>etc/apps/SPPDocs/pages.yml</code></li>
-                <li><b>Create a YAML form</b> &mdash; Add a new file in <code>etc/apps/SPPDocs/forms/</code></li>
+                <li><b>Add a new route</b> &mdash; Edit <code>src/SPPDocs/etc/pages.yml</code></li>
+                <li><b>Create a YAML form</b> &mdash; Add a new file in <code>src/SPPDocs/etc/forms/</code></li>
                 <li><b>Build a component</b> &mdash; Create a JS file in <code>src/SPPDocs/comp/</code></li>
                 <li><b>Write tests</b> &mdash; Add tests in <code>src/SPPDocs/tests/</code></li>
                 <li><b>Run tests</b> &mdash; <code>php spp.php test:run --app=SPPDocs</code></li>
@@ -994,7 +994,7 @@ Log::critical('Database connection lost');
 
         <div style="margin-top:2rem; padding:1.5rem; background:#eff6ff; border-radius:10px; text-align:center;">
             <p style="color:#3b82f6; font-weight:600; margin:0;">Tip: Delete this guide page once you are comfortable with the framework!</p>
-            <p style="color:#64748b; font-size:0.85rem; margin:0.5rem 0 0;">Remove the <code>'guide'</code> route from <code>etc/apps/SPPDocs/pages.yml</code> and delete this file.</p>
+            <p style="color:#64748b; font-size:0.85rem; margin:0.5rem 0 0;">Remove the <code>'guide'</code> route from <code>src/SPPDocs/etc/pages.yml</code> and delete this file.</p>
         </div>
 
     </div>

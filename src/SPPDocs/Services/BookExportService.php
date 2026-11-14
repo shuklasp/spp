@@ -71,7 +71,9 @@ class BookExportService
                 }
             }
 
-            $rendered = (string)$converter->convert($body);
+            // Strip leading '# ' to prevent duplicate heading with book-chapter-title in export/book
+            $bodyForRender = preg_replace('/^#\s+.+$/m', '', $body, 1);
+            $rendered = (string)$converter->convert($bodyForRender);
 
             // Enhance callout alerts in HTML
             $rendered = preg_replace(
@@ -79,6 +81,20 @@ class BookExportService
                 '<div class="sppdocs-callout sppdocs-callout-$1"><div class="callout-title">$1</div><div class="callout-body">$2</div></div>',
                 $rendered
             );
+
+            // Enhance local images in HTML content
+            $rendered = preg_replace_callback('/<img([^>]+)src=["\']([^"\']+)["\']([^>]*)>/i', function ($m) use ($docsDir) {
+                $attrs1 = $m[1];
+                $src = $m[2];
+                $attrs2 = $m[3];
+                if (!preg_match('#^https?://#i', $src) && !str_starts_with($src, 'data:')) {
+                    $resolved = self::resolveLogo($src, $docsDir);
+                    if ($resolved) {
+                        return '<img' . $attrs1 . 'src="' . $resolved . '"' . $attrs2 . '>';
+                    }
+                }
+                return $m[0];
+            }, $rendered);
 
             $chapterSlug = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $item['file']);
             $chapterTitle = $item['title'] ?: ($headings[0]['title'] ?? ucfirst(basename($item['file'])));
@@ -109,7 +125,7 @@ class BookExportService
             'title' => $project['title'] ?? ucfirst($projectId),
             'motto' => $project['motto'] ?? ($project['description'] ?? 'Technical Documentation'),
             'version' => $version,
-            'logo' => $project['logo'] ?? '',
+            'logo' => self::resolveLogo($project['logo'] ?? ''),
             'generated_at' => date('F j, Y'),
             'toc' => $toc,
             'chapters' => $chapters,
@@ -215,5 +231,59 @@ class BookExportService
         }
 
         return $ordered;
+    }
+
+    public static function resolveLogo(?string $rawLogo, ?string $contextDir = null): string
+    {
+        if (empty($rawLogo)) {
+            return '';
+        }
+        if (str_starts_with($rawLogo, 'data:')) {
+            return $rawLogo;
+        }
+
+        $baseDir = defined('APP_BASE_DIR') ? APP_BASE_DIR : (defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : getcwd());
+        $clean = ltrim(str_replace('\\', '/', $rawLogo), '/');
+
+        $candidatePaths = [];
+        if ($contextDir && is_dir($contextDir)) {
+            $candidatePaths[] = rtrim($contextDir, '/\\') . '/' . $clean;
+        }
+        $candidatePaths[] = $baseDir . '/' . $clean;
+        $candidatePaths[] = $baseDir . '/src/SPPDocs/' . $clean;
+
+        if (str_starts_with($clean, 'sppdocs/assets/')) {
+            $candidatePaths[] = $baseDir . '/src/SPPDocs/' . substr($clean, strlen('sppdocs/'));
+        }
+        if (str_starts_with($clean, 'assets/')) {
+            $candidatePaths[] = $baseDir . '/src/SPPDocs/' . $clean;
+            $candidatePaths[] = $baseDir . '/res/spp/images/' . substr($clean, strlen('assets/'));
+        }
+
+        foreach ($candidatePaths as $path) {
+            if (file_exists($path) && is_file($path)) {
+                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                $mime = match($ext) {
+                    'png' => 'image/png',
+                    'svg' => 'image/svg+xml',
+                    'gif' => 'image/gif',
+                    default => 'image/jpeg'
+                };
+                $data = @file_get_contents($path);
+                if ($data !== false) {
+                    return 'data:' . $mime . ';base64,' . base64_encode($data);
+                }
+            }
+        }
+
+        if (preg_match('#^https?://#i', $rawLogo)) {
+            return $rawLogo;
+        }
+
+        $baseUrl = class_exists('\\SPP\\App') ? \SPP\App::getBaseUrl() : '';
+        if (str_starts_with($clean, 'sppdocs/assets/')) {
+            $clean = substr($clean, strlen('sppdocs/'));
+        }
+        return rtrim($baseUrl, '/') . '/' . $clean;
     }
 }

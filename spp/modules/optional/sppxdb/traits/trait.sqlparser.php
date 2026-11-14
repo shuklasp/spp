@@ -2,6 +2,8 @@
 
 namespace SPPMod\SPPXDB;
 
+use Exception;
+
 trait XDB_Sqlparser
 {
     /**
@@ -34,6 +36,11 @@ trait XDB_Sqlparser
         $sql = trim($sql);
         $sql = rtrim($sql, ';');
         $this->trackQuery($sql);
+
+        // -- COMMON TABLE EXPRESSIONS (WITH ... AS (...) SELECT ...) --
+        if (preg_match('/^WITH\s+/i', $sql)) {
+            return $this->executeCteQuery($sql, $params);
+        }
 
         // -- SET OPERATIONS (UNION / UNION ALL) --
         if (preg_match('/\s+UNION\s+(ALL\s+)?/i', $sql)) {
@@ -115,16 +122,17 @@ trait XDB_Sqlparser
 
         // -- Derived Table Subqueries in FROM --
         // Pattern: SELECT ... FROM (SELECT ...) [AS] alias [WHERE ...]
-        if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s*\(\s*(SELECT.*?)\s*\)\s*(?:AS\s+)?([a-zA-Z0-9_]+)(?:\s+WHERE\s+(.+?))?(?:\s+GROUP\s+BY\s+([a-zA-Z0-9_]+))?(?:\s+ORDER\s+BY\s+(.+?))?(?:\s+LIMIT\s+(\d+))?(?:\s+OFFSET\s+(\d+))?$/is', $sql, $m)) {
+        if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s*\(\s*(SELECT.*?)\s*\)\s*(?:AS\s+)?([a-zA-Z0-9_]+)(?:\s+WHERE\s+(.+?))?(?:\s+GROUP\s+BY\s+([a-zA-Z0-9_]+))?(?:\s+HAVING\s+(.+?))?(?:\s+ORDER\s+BY\s+(.+?))?(?:\s+LIMIT\s+(\d+))?(?:\s+OFFSET\s+(\d+))?$/is', $sql, $m)) {
             $isDistinct = !empty($m[1]);
             $fields     = trim($m[2]);
             $innerSql   = trim($m[3]);
             $alias      = trim($m[4]);
             $where      = isset($m[5]) ? trim($m[5]) : null;
             $groupBy    = isset($m[6]) ? trim($m[6]) : null;
-            $orderByStr = isset($m[7]) ? trim($m[7]) : null;
-            $limit      = isset($m[8]) ? (int)$m[8] : null;
-            $offset     = isset($m[9]) ? (int)$m[9] : null;
+            $having     = isset($m[7]) ? trim($m[7]) : null;
+            $orderByStr = isset($m[8]) ? trim($m[8]) : null;
+            $limit      = isset($m[9]) ? (int)$m[9] : null;
+            $offset     = isset($m[10]) ? (int)$m[10] : null;
 
             // 1. Run the inner query
             $results = $this->querySQL($innerSql, $params);
@@ -134,8 +142,8 @@ trait XDB_Sqlparser
 
             // 2. Perform WHERE filtering on PHP array using evaluateExpression
             if ($where) {
-                $results = array_filter($results, function ($row) use ($where) {
-                    return (bool)$this->evaluateExpression($where, $row);
+                $results = array_filter($results, function ($row) use ($where, $params) {
+                    return (bool)$this->evaluateExpression($where, $row, $params);
                 });
             }
 
@@ -188,12 +196,14 @@ trait XDB_Sqlparser
                 foreach ($grouped as $key => $rows) {
                     $item = [$groupBy => $key];
                     foreach ($fieldArray as $f) {
-                        if (preg_match('/^(COUNT|SUM|AVG|MIN|MAX)\s*\(\s*(.*?)\s*\)$/i', $f, $aggMatches)) {
+                        if (preg_match('/^(COUNT|SUM|AVG|MIN|MAX)\s*\(\s*(.*?)\s*\)(?:\s+AS\s+([a-zA-Z0-9_]+))?$/i', $f, $aggMatches)) {
                             $func = strtoupper($aggMatches[1]);
                             $afield = trim($aggMatches[2]);
+                            $alias = !empty($aggMatches[3]) ? $aggMatches[3] : $f;
+                            $rawAgg = "{$func}({$afield})";
 
                             if ($func === 'COUNT') {
-                                $item[$f] = count($rows);
+                                $val = count($rows);
                             } else {
                                 $vals = [];
                                 foreach ($rows as $r) {
@@ -214,8 +224,10 @@ trait XDB_Sqlparser
                                             break;
                                     }
                                 }
-                                $item[$f] = $val;
                             }
+                            $item[$alias] = $val;
+                            $item[$f] = $val;
+                            $item[$rawAgg] = $val;
                         } elseif ($f !== $groupBy && $f !== '*') {
                             $item[$f] = $rows[0][$f] ?? null;
                         }
@@ -223,7 +235,21 @@ trait XDB_Sqlparser
                     $finalResults[] = $item;
                 }
                 $results = $finalResults;
+
+                // HAVING clause evaluation
+                if ($having) {
+                    $filteredGrouped = [];
+                    foreach ($results as $row) {
+                        if ($this->evaluateHavingCondition($having, $row, $params)) {
+                            $filteredGrouped[] = $row;
+                        }
+                    }
+                    $results = $filteredGrouped;
+                }
             } elseif ($fields !== '*') {
+                // Apply window functions if any OVER (...) specified
+                $this->applyWindowFunctions($results, $fieldArray);
+
                 // 5. Outer Field projection
                 $filteredResults = [];
                 foreach ($results as $row) {
@@ -232,14 +258,16 @@ trait XDB_Sqlparser
                         if (preg_match('/^(.*?)\s+AS\s+([a-zA-Z0-9_]+)$/i', $f, $aliasMatch)) {
                             $expr = trim($aliasMatch[1]);
                             $al = trim($aliasMatch[2]);
-                            $filteredRow[$al] = $this->evaluateExpression($expr, $row);
+                            $filteredRow[$al] = $row[$al] ?? $this->evaluateExpression($expr, $row, $params);
                         } else {
-                            $filteredRow[$f] = $this->evaluateExpression($f, $row);
+                            $filteredRow[$f] = $row[$f] ?? $this->evaluateExpression($f, $row, $params);
                         }
                     }
                     $filteredResults[] = $filteredRow;
                 }
                 $results = $filteredResults;
+            } else {
+                $this->applyWindowFunctions($results, $fieldArray);
             }
 
             // 6. DISTINCT
@@ -289,7 +317,7 @@ trait XDB_Sqlparser
         }
 
         // -- SELECT with successive JOIN chains --
-        if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s+([a-zA-Z0-9_\.]+)(?:\s+([a-zA-Z0-9_]+))?\s+((?:(?:INNER|LEFT)\s+)?JOIN\s+.*)$/is', $sql, $m)) {
+        if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s+([a-zA-Z0-9_\.]+)(?:\s+(?!INNER|LEFT|RIGHT|FULL|CROSS|JOIN\b)([a-zA-Z0-9_]+))?\s+((?:(?:INNER|LEFT|RIGHT|FULL\s+OUTER|FULL|CROSS)\s+)?JOIN\s+.*)$/is', $sql, $m)) {
             $isDistinct = !empty($m[1]);
             $fields     = trim($m[2]);
             $baseTable  = trim($m[3]);
@@ -311,13 +339,17 @@ trait XDB_Sqlparser
             }
 
             // Parse successive joins
-            // Pattern to match each JOIN segment: (INNER|LEFT) JOIN table [alias] ON on1 = on2
-            preg_match_all('/(?:(INNER|LEFT)\s+)?JOIN\s+([a-zA-Z0-9_\.]+)(?:\s+([a-zA-Z0-9_]+))?\s+ON\s+([a-zA-Z0-9_\.\`]+)\s*=\s*([a-zA-Z0-9_\.\`]+)/i', $joinsStr, $joinMatches, PREG_SET_ORDER);
+            // Pattern to match each JOIN segment: (INNER|LEFT|RIGHT|FULL|CROSS) JOIN table [alias] [ON on1 = on2]
+            preg_match_all('/(?:(INNER|LEFT|RIGHT|FULL\s+OUTER|FULL|CROSS)\s+)?JOIN\s+([a-zA-Z0-9_\.]+)(?:\s+(?!ON\b)([a-zA-Z0-9_]+))?(?:\s+ON\s+([a-zA-Z0-9_\.\`]+)\s*=\s*([a-zA-Z0-9_\.\`]+))?/i', $joinsStr, $joinMatches, PREG_SET_ORDER);
 
             if (!empty($joinMatches)) {
-                // 1. Load base table rows
-                $this->resolveTablePath($baseTable);
-                $results = $this->queryX("//row");
+                // 1. Load base table rows (check virtual tables first)
+                if ($this->hasVirtualTable($baseTable)) {
+                    $results = $this->getVirtualTable($baseTable);
+                } else {
+                    $this->resolveTablePath($baseTable);
+                    $results = $this->queryX("//row");
+                }
 
                 // Prefix columns of the base table with "baseTable." and "baseAlias."
                 $prefixedResults = [];
@@ -334,57 +366,124 @@ trait XDB_Sqlparser
                 }
                 $results = $prefixedResults;
 
-                // 2. Process joins sequentially
+                // 2. Process joins sequentially using O(N + M) Hash Join
                 foreach ($joinMatches as $jm) {
-                    $joinType = !empty($jm[1]) ? strtoupper(trim($jm[1])) : 'INNER';
+                    $rawJoin = !empty($jm[1]) ? strtoupper(trim($jm[1])) : 'INNER';
+                    $joinType = 'INNER';
+                    if (strpos($rawJoin, 'FULL') !== false) {
+                        $joinType = 'FULL';
+                    } elseif (strpos($rawJoin, 'LEFT') !== false) {
+                        $joinType = 'LEFT';
+                    } elseif (strpos($rawJoin, 'RIGHT') !== false) {
+                        $joinType = 'RIGHT';
+                    } elseif (strpos($rawJoin, 'CROSS') !== false) {
+                        $joinType = 'CROSS';
+                    }
+
                     $joinTable = trim($jm[2]);
                     $joinAlias = !empty($jm[3]) ? trim($jm[3]) : $joinTable;
-                    $on1 = trim($jm[4], '` ');
-                    $on2 = trim($jm[5], '` ');
+                    $on1 = isset($jm[4]) ? trim($jm[4], '` ') : null;
+                    $on2 = isset($jm[5]) ? trim($jm[5], '` ') : null;
 
-                    // Load join table rows
-                    $subXdb = new self($this->dbName, $joinTable);
-                    $joinRows = $subXdb->querySQL("SELECT * FROM $joinTable");
-                    if (!is_array($joinRows)) {
-                        $joinRows = [];
+                    // Load join table rows (virtual or physical)
+                    if ($this->hasVirtualTable($joinTable)) {
+                        $joinRows = $this->getVirtualTable($joinTable);
+                    } else {
+                        $subXdb = new self($this->dbName, $joinTable);
+                        $joinRows = $subXdb->querySQL("SELECT * FROM $joinTable");
+                        if (!is_array($joinRows)) {
+                            $joinRows = [];
+                        }
+                    }
+
+                    $col1 = $on1 ? (strpos($on1, '.') !== false ? explode('.', $on1)[1] : $on1) : null;
+                    $col2 = $on2 ? (strpos($on2, '.') !== false ? explode('.', $on2)[1] : $on2) : null;
+
+                    // Build Hash Table on join table (col2)
+                    $hashTable2 = [];
+                    foreach ($joinRows as $idx2 => $origR2) {
+                        $r2Pref = [];
+                        foreach ($origR2 as $k => $v) {
+                            $r2Pref[$joinTable . '.' . $k] = $v;
+                            $r2Pref[$joinAlias . '.' . $k] = $v;
+                            if (!isset($r2Pref[$k])) {
+                                $r2Pref[$k] = $v;
+                            }
+                        }
+                        if ($col2 !== null) {
+                            $val2 = $r2Pref[$on2] ?? ($r2Pref[$col2] ?? ($r2Pref['@' . $col2] ?? null));
+                            if ($val2 !== null) {
+                                $hashTable2[(string)$val2][] = ['idx' => $idx2, 'row' => $r2Pref];
+                            }
+                        }
                     }
 
                     $nextResults = [];
-                    foreach ($results as $r1) {
-                        $matchFound = false;
-                        foreach ($joinRows as $origR2) {
-                            $r2 = [];
-                            foreach ($origR2 as $k => $v) {
-                                $r2[$joinTable . '.' . $k] = $v;
-                                $r2[$joinAlias . '.' . $k] = $v;
-                                if (!isset($r2[$k])) {
-                                    $r2[$k] = $v;
-                                }
-                            }
+                    $matchedTable2Indices = [];
 
-                            $v1 = $r1[$on1] ?? ($r1[strpos($on1, '.') !== false ? explode('.', $on1)[1] : $on1] ?? null);
-                            $v2 = $r2[$on2] ?? ($r2[strpos($on2, '.') !== false ? explode('.', $on2)[1] : $on2] ?? null);
-
-                            if ($v1 !== null && $v1 == $v2) {
+                    if ($joinType === 'CROSS' || ($on1 === null && $on2 === null)) {
+                        foreach ($results as $r1) {
+                            foreach ($joinRows as $origR2) {
                                 $combined = $r1;
-                                foreach ($r2 as $k => $v) {
+                                foreach ($origR2 as $k => $v) {
+                                    $combined[$joinTable . '.' . $k] = $v;
+                                    $combined[$joinAlias . '.' . $k] = $v;
                                     if (!isset($combined[$k])) {
                                         $combined[$k] = $v;
                                     }
                                 }
                                 $nextResults[] = $combined;
-                                $matchFound = true;
+                            }
+                        }
+                    } else {
+                        foreach ($results as $r1) {
+                            $val1 = $r1[$on1] ?? ($r1[$col1] ?? ($r1['@' . $col1] ?? null));
+                            $matches = ($val1 !== null && isset($hashTable2[(string)$val1])) ? $hashTable2[(string)$val1] : [];
+
+                            if (!empty($matches)) {
+                                foreach ($matches as $match) {
+                                    $matchedTable2Indices[$match['idx']] = true;
+                                    $combined = $r1;
+                                    foreach ($match['row'] as $k => $v) {
+                                        if (!isset($combined[$k])) {
+                                            $combined[$k] = $v;
+                                        }
+                                    }
+                                    $nextResults[] = $combined;
+                                }
+                            } elseif ($joinType === 'LEFT' || $joinType === 'FULL') {
+                                $combined = $r1;
+                                $sample = $joinRows[0] ?? [];
+                                foreach ($sample as $k => $v) {
+                                    $combined[$joinTable . '.' . $k] = null;
+                                    $combined[$joinAlias . '.' . $k] = null;
+                                    if (!isset($combined[$k])) {
+                                        $combined[$k] = null;
+                                    }
+                                }
+                                $nextResults[] = $combined;
                             }
                         }
 
-                        if (!$matchFound && $joinType === 'LEFT') {
-                            $combined = $r1;
-                            $sample = $joinRows[0] ?? [];
-                            foreach ($sample as $k => $v) {
-                                $combined[$joinTable . '.' . $k] = null;
-                                $combined[$joinAlias . '.' . $k] = null;
+                        // Right or Full outer join: append unmatched right rows
+                        if ($joinType === 'RIGHT' || $joinType === 'FULL') {
+                            $sample1 = $results[0] ?? [];
+                            foreach ($joinRows as $idx2 => $origR2) {
+                                if (!isset($matchedTable2Indices[$idx2])) {
+                                    $combined = [];
+                                    foreach ($sample1 as $k => $v) {
+                                        $combined[$k] = null;
+                                    }
+                                    foreach ($origR2 as $k => $v) {
+                                        $combined[$joinTable . '.' . $k] = $v;
+                                        $combined[$joinAlias . '.' . $k] = $v;
+                                        if (!isset($combined[$k]) || $combined[$k] === null) {
+                                            $combined[$k] = $v;
+                                        }
+                                    }
+                                    $nextResults[] = $combined;
+                                }
                             }
-                            $nextResults[] = $combined;
                         }
                     }
                     $results = $nextResults;
@@ -392,8 +491,8 @@ trait XDB_Sqlparser
 
                 // 3. Filter using WHERE
                 if ($where) {
-                    $results = array_filter($results, function ($row) use ($where) {
-                        return (bool)$this->evaluateExpression($where, $row);
+                    $results = array_filter($results, function ($row) use ($where, $params) {
+                        return (bool)$this->evaluateExpression($where, $row, $params);
                     });
                 }
 
@@ -407,10 +506,10 @@ trait XDB_Sqlparser
                             if (preg_match('/^(.*?)\s+AS\s+([a-zA-Z0-9_]+)$/i', $f, $aliasMatch)) {
                                 $expr = trim($aliasMatch[1]);
                                 $al = trim($aliasMatch[2]);
-                                $filteredRow[$al] = $row[$expr] ?? ($row[$this->evaluateExpression($expr, $row)] ?? null);
+                                $filteredRow[$al] = $row[$expr] ?? ($this->evaluateExpression($expr, $row, $params));
                             } else {
                                 $bareField = strpos($f, '.') !== false ? explode('.', $f)[1] : $f;
-                                $val = $row[$f] ?? ($row[$this->evaluateExpression($f, $row)] ?? null);
+                                $val = $row[$f] ?? ($row[$bareField] ?? $this->evaluateExpression($f, $row, $params));
                                 $filteredRow[$f] = $val;
                                 $filteredRow[$bareField] = $val;
                             }
@@ -530,6 +629,22 @@ trait XDB_Sqlparser
         }
 
         // -- Transaction Lifecycle --
+        // SAVEPOINT name
+        if (preg_match('/^SAVEPOINT\s+([a-zA-Z0-9_]+)/i', $sql, $m)) {
+            $this->createSavepoint(trim($m[1]));
+            return true;
+        }
+
+        // ROLLBACK TO [SAVEPOINT] name
+        if (preg_match('/^ROLLBACK\s+TO\s+(?:SAVEPOINT\s+)?([a-zA-Z0-9_]+)/i', $sql, $m)) {
+            return $this->rollbackToSavepoint(trim($m[1]));
+        }
+
+        // RELEASE [SAVEPOINT] name
+        if (preg_match('/^RELEASE\s+(?:SAVEPOINT\s+)?([a-zA-Z0-9_]+)/i', $sql, $m)) {
+            return $this->releaseSavepoint(trim($m[1]));
+        }
+
         // START TRANSACTION or BEGIN
         if (preg_match('/^(?:START\s+TRANSACTION|BEGIN)/i', $sql)) {
             $this->beginTransaction();
@@ -821,71 +936,160 @@ trait XDB_Sqlparser
         }
 
         // -- SELECT with JOIN --
-        if (preg_match('/^SELECT\s+(.+?)\s+FROM\s+([a-zA-Z0-9_\.]+)\s+((?:INNER|LEFT)\s+)?JOIN\s+([a-zA-Z0-9_\.]+)\s+ON\s+([a-zA-Z0-9_\.]+)\s*=\s*([a-zA-Z0-9_\.]+)(?:\s+WHERE\s+(.+?))?$/i', $sql, $matches)) {
-            $fields    = trim($matches[1]);
-            $table1    = trim($matches[2]);
-            $joinType  = !empty($matches[3]) ? strtoupper(trim($matches[3])) : 'INNER';
-            $table2    = trim($matches[4]);
-            $on1       = trim($matches[5]);
-            $on2       = trim($matches[6]);
-            $where     = isset($matches[7]) ? trim($matches[7]) : null;
+        if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s+([a-zA-Z0-9_\.]+)(?:\s+(?!INNER|LEFT|RIGHT|FULL|CROSS|JOIN\b)([a-zA-Z0-9_]+))?\s+((?:INNER|LEFT|RIGHT|FULL\s+OUTER|FULL|CROSS)\s+)?JOIN\s+([a-zA-Z0-9_\.]+)(?:\s+(?!ON\b)([a-zA-Z0-9_]+))?(?:\s+ON\s+([a-zA-Z0-9_\.\`]+)\s*=\s*([a-zA-Z0-9_\.\`]+))?(?:\s+WHERE\s+(.+?))?(?:\s+ORDER\s+BY\s+(.+?))?(?:\s+LIMIT\s+(\d+))?(?:\s+OFFSET\s+(\d+))?$/is', $sql, $matches)) {
+            $isDistinct = !empty($matches[1]);
+            $fields    = trim($matches[2]);
+            $table1    = trim($matches[3]);
+            $alias1    = !empty($matches[4]) ? trim($matches[4]) : $table1;
+            $rawJoin   = !empty($matches[5]) ? strtoupper(trim($matches[5])) : 'INNER';
+            $joinType  = 'INNER';
+            if (strpos($rawJoin, 'FULL') !== false) {
+                $joinType = 'FULL';
+            } elseif (strpos($rawJoin, 'LEFT') !== false) {
+                $joinType = 'LEFT';
+            } elseif (strpos($rawJoin, 'RIGHT') !== false) {
+                $joinType = 'RIGHT';
+            } elseif (strpos($rawJoin, 'CROSS') !== false) {
+                $joinType = 'CROSS';
+            }
 
-            // Load Table 1
-            $this->resolveTablePath($table1);
-            $rows1 = $this->queryX("//row");
+            $table2    = trim($matches[6]);
+            $alias2    = !empty($matches[7]) ? trim($matches[7]) : $table2;
+            $on1       = isset($matches[8]) ? trim($matches[8], '` ') : null;
+            $on2       = isset($matches[9]) ? trim($matches[9], '` ') : null;
+            $where     = isset($matches[10]) ? trim($matches[10]) : null;
+            $orderByStr = isset($matches[11]) ? trim($matches[11]) : null;
+            $limit     = isset($matches[12]) ? (int)$matches[12] : null;
+            $offset    = isset($matches[13]) ? (int)$matches[13] : null;
 
-            // Load Table 2
-            $this->resolveTablePath($table2);
-            $rows2 = $this->queryX("//row");
+            // Load Table 1 (Virtual or Physical)
+            if ($this->hasVirtualTable($table1)) {
+                $rows1 = $this->getVirtualTable($table1);
+            } else {
+                $this->resolveTablePath($table1);
+                $rows1 = $this->queryX("//row");
+            }
+
+            // Load Table 2 (Virtual or Physical)
+            if ($this->hasVirtualTable($table2)) {
+                $rows2 = $this->getVirtualTable($table2);
+            } else {
+                $this->resolveTablePath($table2);
+                $rows2 = $this->queryX("//row");
+            }
 
             $getCol = function ($fullName) {
                 return strpos($fullName, '.') !== false ? explode('.', $fullName)[1] : $fullName;
             };
 
-            $col1 = $getCol($on1);
-            $col2 = $getCol($on2);
+            $col1 = $on1 ? $getCol($on1) : null;
+            $col2 = $on2 ? $getCol($on2) : null;
 
-            $results = [];
-            foreach ($rows1 as $r1) {
-                $matchFound = false;
-                foreach ($rows2 as $r2) {
-                    $v1 = $r1[$col1] ?? ($r1['@'.$col1] ?? null);
-                    $v2 = $r2[$col2] ?? ($r2['@'.$col2] ?? null);
-
-                    if ($v1 !== null && $v1 == $v2) {
-                        $combined = [];
-                        foreach ($r1 as $k => $v) {
-                            $combined[$table1 . '.' . $k] = $v;
-                        }
-                        foreach ($r2 as $k => $v) {
-                            $combined[$table2 . '.' . $k] = $v;
-                        }
-                        $results[] = $combined;
-                        $matchFound = true;
+            // Build Hash Index for Table 2 on $col2 (O(M))
+            $hashTable2 = [];
+            foreach ($rows2 as $idx2 => $r2) {
+                if ($col2 !== null) {
+                    $v2 = $r2[$col2] ?? ($r2['@' . $col2] ?? null);
+                    if ($v2 !== null) {
+                        $hashTable2[(string)$v2][] = ['idx' => $idx2, 'row' => $r2];
                     }
-                }
-
-                if (!$matchFound && $joinType === 'LEFT') {
-                    $combined = [];
-                    foreach ($r1 as $k => $v) {
-                        $combined[$table1 . '.' . $k] = $v;
-                    }
-                    // Fill right table with nulls (derived from columns of first row)
-                    $sample = $rows2[0] ?? [];
-                    foreach ($sample as $k => $v) {
-                        $combined[$table2 . '.' . $k] = null;
-                    }
-                    $results[] = $combined;
                 }
             }
 
-            // WHERE filtering on combined results
+            $results = [];
+            $matchedTable2Indices = [];
+
+            if ($joinType === 'CROSS' || ($on1 === null && $on2 === null)) {
+                foreach ($rows1 as $r1) {
+                    foreach ($rows2 as $r2) {
+                        $combined = [];
+                        foreach ($r1 as $k => $v) {
+                            $combined[$table1 . '.' . $k] = $v;
+                            $combined[$alias1 . '.' . $k] = $v;
+                            $combined[$k] = $v;
+                        }
+                        foreach ($r2 as $k => $v) {
+                            $combined[$table2 . '.' . $k] = $v;
+                            $combined[$alias2 . '.' . $k] = $v;
+                            if (!isset($combined[$k])) {
+                                $combined[$k] = $v;
+                            }
+                        }
+                        $results[] = $combined;
+                    }
+                }
+            } else {
+                // Probe Table 1 against Hash Index (O(N))
+                foreach ($rows1 as $r1) {
+                    $v1 = $r1[$col1] ?? ($r1['@' . $col1] ?? null);
+                    $matchedEntries = ($v1 !== null && isset($hashTable2[(string)$v1])) ? $hashTable2[(string)$v1] : [];
+
+                    if (!empty($matchedEntries)) {
+                        foreach ($matchedEntries as $entry) {
+                            $matchedTable2Indices[$entry['idx']] = true;
+                            $r2 = $entry['row'];
+                            $combined = [];
+                            foreach ($r1 as $k => $v) {
+                                $combined[$table1 . '.' . $k] = $v;
+                                $combined[$alias1 . '.' . $k] = $v;
+                                $combined[$k] = $v;
+                            }
+                            foreach ($r2 as $k => $v) {
+                                $combined[$table2 . '.' . $k] = $v;
+                                $combined[$alias2 . '.' . $k] = $v;
+                                if (!isset($combined[$k])) {
+                                    $combined[$k] = $v;
+                                }
+                            }
+                            $results[] = $combined;
+                        }
+                    } elseif ($joinType === 'LEFT' || $joinType === 'FULL') {
+                        $combined = [];
+                        foreach ($r1 as $k => $v) {
+                            $combined[$table1 . '.' . $k] = $v;
+                            $combined[$alias1 . '.' . $k] = $v;
+                            $combined[$k] = $v;
+                        }
+                        $sample = $rows2[0] ?? [];
+                        foreach ($sample as $k => $v) {
+                            $combined[$table2 . '.' . $k] = null;
+                            $combined[$alias2 . '.' . $k] = null;
+                            if (!isset($combined[$k])) {
+                                $combined[$k] = null;
+                            }
+                        }
+                        $results[] = $combined;
+                    }
+                }
+
+                // Append unmatched Table 2 rows for RIGHT or FULL OUTER joins
+                if ($joinType === 'RIGHT' || $joinType === 'FULL') {
+                    $sample1 = $rows1[0] ?? [];
+                    foreach ($rows2 as $idx2 => $r2) {
+                        if (!isset($matchedTable2Indices[$idx2])) {
+                            $combined = [];
+                            foreach ($sample1 as $k => $v) {
+                                $combined[$table1 . '.' . $k] = null;
+                                $combined[$alias1 . '.' . $k] = null;
+                                $combined[$k] = null;
+                            }
+                            foreach ($r2 as $k => $v) {
+                                $combined[$table2 . '.' . $k] = $v;
+                                $combined[$alias2 . '.' . $k] = $v;
+                                if (!isset($combined[$k]) || $combined[$k] === null) {
+                                    $combined[$k] = $v;
+                                }
+                            }
+                            $results[] = $combined;
+                        }
+                    }
+                }
+            }
+
+            // WHERE filtering on combined results with parameter binding
             if ($where) {
-                // Simplified WHERE for joined results (PHP side)
-                // This is a bit limited compared to XPath but works for basic cases
-                $results = array_filter($results, function ($row) use ($where) {
-                    // Logic to evaluate WHERE in PHP
-                    return true; // TODO: Implement robust PHP-side evaluator
+                $results = array_filter($results, function ($row) use ($where, $params) {
+                    return (bool)$this->evaluateExpression($where, $row, $params);
                 });
             }
 
@@ -896,11 +1100,63 @@ trait XDB_Sqlparser
                 foreach ($results as $row) {
                     $filteredRow = [];
                     foreach ($fieldArray as $f) {
-                        $filteredRow[$f] = $row[$f] ?? null;
+                        if (preg_match('/^(.*?)\s+AS\s+([a-zA-Z0-9_]+)$/i', $f, $aliasMatch)) {
+                            $expr = trim($aliasMatch[1]);
+                            $al = trim($aliasMatch[2]);
+                            $filteredRow[$al] = $row[$expr] ?? ($this->evaluateExpression($expr, $row, $params));
+                        } else {
+                            $bareField = strpos($f, '.') !== false ? explode('.', $f)[1] : $f;
+                            $val = $row[$f] ?? ($row[$bareField] ?? $this->evaluateExpression($f, $row, $params));
+                            $filteredRow[$f] = $val;
+                            $filteredRow[$bareField] = $val;
+                        }
                     }
                     $filteredResults[] = $filteredRow;
                 }
                 $results = $filteredResults;
+            }
+
+            // DISTINCT
+            if ($isDistinct) {
+                $seen = [];
+                $uniqueResults = [];
+                foreach ($results as $row) {
+                    $key = serialize($row);
+                    if (!isset($seen[$key])) {
+                        $seen[$key] = true;
+                        $uniqueResults[] = $row;
+                    }
+                }
+                $results = $uniqueResults;
+            }
+
+            // ORDER BY
+            if ($orderByStr) {
+                $parts = explode(',', $orderByStr);
+                usort($results, function ($a, $b) use ($parts) {
+                    foreach ($parts as $part) {
+                        $tokens = preg_split('/\s+/', trim($part));
+                        $col = trim($tokens[0]);
+                        $dir = isset($tokens[1]) ? strtoupper(trim($tokens[1])) : 'ASC';
+
+                        $valA = $a[$col] ?? null;
+                        $valB = $b[$col] ?? null;
+
+                        if ($valA != $valB) {
+                            if (is_numeric($valA) && is_numeric($valB)) {
+                                return $dir === 'ASC' ? ($valA - $valB) : ($valB - $valA);
+                            }
+                            return $dir === 'ASC' ? strcmp((string)$valA, (string)$valB) : strcmp((string)$valB, (string)$valA);
+                        }
+                    }
+                    return 0;
+                });
+            }
+
+            // LIMIT / OFFSET
+            if ($offset !== null || $limit !== null) {
+                $offset = $offset ?? 0;
+                $results = array_slice($results, $offset, $limit);
             }
 
             return $results;
@@ -908,22 +1164,45 @@ trait XDB_Sqlparser
 
 
 
-        // -- SELECT (with optional ORDER BY / LIMIT) --
-        if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s+([a-zA-Z0-9_\.]+)(?:\s+WHERE\s+(.+?))?(?:\s+GROUP\s+BY\s+([a-zA-Z0-9_]+))?(?:\s+ORDER\s+BY\s+(.+?))?(?:\s+LIMIT\s+(\d+))?(?:\s+OFFSET\s+(\d+))?$/i', $sql, $matches)) {
+        // -- SELECT (with optional GROUP BY / HAVING / ORDER BY / LIMIT) --
+        if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s+([a-zA-Z0-9_\.]+)(?:\s+WHERE\s+(.+?))?(?:\s+GROUP\s+BY\s+([a-zA-Z0-9_]+))?(?:\s+HAVING\s+(.+?))?(?:\s+ORDER\s+BY\s+(.+?))?(?:\s+LIMIT\s+(\d+))?(?:\s+OFFSET\s+(\d+))?$/i', $sql, $matches)) {
             $isDistinct = !empty($matches[1]);
             $fields    = trim($matches[2]);
             $tablePath = trim($matches[3]);
             $where     = isset($matches[4]) ? trim($matches[4]) : null;
             $groupBy   = isset($matches[5]) ? trim($matches[5]) : null;
-            $orderByStr = isset($matches[6]) ? trim($matches[6]) : null;
-            $limit     = isset($matches[7]) ? (int) $matches[7] : null;
-            $offset    = isset($matches[8]) ? (int) $matches[8] : null;
+            $having    = isset($matches[6]) ? trim($matches[6]) : null;
+            $orderByStr = isset($matches[7]) ? trim($matches[7]) : null;
+            $limit     = isset($matches[8]) ? (int) $matches[8] : null;
+            $offset    = isset($matches[9]) ? (int) $matches[9] : null;
 
-            $this->resolveTablePath($tablePath);
+            // Load results from Virtual Table (e.g. CTE) or Physical Table
+            if ($this->hasVirtualTable($tablePath)) {
+                $results = $this->getVirtualTable($tablePath);
+                if ($where) {
+                    $results = array_filter($results, function ($row) use ($where, $params) {
+                        return (bool)$this->evaluateExpression($where, $row, $params);
+                    });
+                }
+            } else {
+                $this->resolveTablePath($tablePath);
 
-            $xpath = "//row";
-            if ($where) {
-                $xpath .= "[" . $this->translateWhereToXPath($where, $params) . "]";
+                $xpath = "//row";
+                if ($where) {
+                    if (preg_match('/\b(?:EXISTS|NOT\s+EXISTS)\b/i', $where)) {
+                        $results = $this->queryX($xpath);
+                        $results = array_filter($results, function ($row) use ($where, $params) {
+                            return (bool)$this->evaluateExpression($where, $row, $params);
+                        });
+                        $xpath = null;
+                    } else {
+                        $xpath .= "[" . $this->translateWhereToXPath($where, $params) . "]";
+                    }
+                }
+
+                if ($xpath !== null) {
+                    $results = $this->queryX($xpath);
+                }
             }
 
             // Extended Aggregates (Global): COUNT, SUM, AVG, MIN, MAX (if no GROUP BY)
@@ -931,7 +1210,6 @@ trait XDB_Sqlparser
                 $func = strtoupper($aggMatches[1]);
                 $field = trim($aggMatches[2]);
                 $alias = !empty($aggMatches[3]) ? $aggMatches[3] : $fields;
-                $results = $this->queryX($xpath);
 
                 if ($func === 'COUNT') {
                     return [[$alias => count($results)]];
@@ -962,8 +1240,7 @@ trait XDB_Sqlparser
                 return [[$alias => $val]];
             }
 
-            $results = $this->queryX($xpath);
-            $results = array_merge($results, $remoteData);
+            $results = array_merge($results, $remoteData ?? []);
             $fieldArray = [];
             $depth = 0;
             $inQuote = false;
@@ -1012,12 +1289,14 @@ trait XDB_Sqlparser
                 foreach ($grouped as $key => $rows) {
                     $item = [$groupBy => $key];
                     foreach ($fieldArray as $f) {
-                        if (preg_match('/^(COUNT|SUM|AVG|MIN|MAX)\s*\(\s*(.*?)\s*\)$/i', $f, $aggMatches)) {
+                        if (preg_match('/^(COUNT|SUM|AVG|MIN|MAX)\s*\(\s*(.*?)\s*\)(?:\s+AS\s+([a-zA-Z0-9_]+))?$/i', $f, $aggMatches)) {
                             $func = strtoupper($aggMatches[1]);
                             $afield = trim($aggMatches[2]);
+                            $alias = !empty($aggMatches[3]) ? $aggMatches[3] : $f;
+                            $rawAgg = "{$func}({$afield})";
 
                             if ($func === 'COUNT') {
-                                $item[$f] = count($rows);
+                                $val = count($rows);
                             } else {
                                 $vals = [];
                                 foreach ($rows as $r) {
@@ -1038,8 +1317,10 @@ trait XDB_Sqlparser
                                             break;
                                     }
                                 }
-                                $item[$f] = $val;
                             }
+                            $item[$alias] = $val;
+                            $item[$f] = $val;
+                            $item[$rawAgg] = $val;
                         } elseif ($f !== $groupBy && $f !== '*') {
                             $item[$f] = $rows[0][$f] ?? null;
                         }
@@ -1047,7 +1328,21 @@ trait XDB_Sqlparser
                     $finalResults[] = $item;
                 }
                 $results = $finalResults;
+
+                // HAVING clause evaluation
+                if ($having) {
+                    $filteredGrouped = [];
+                    foreach ($results as $row) {
+                        if ($this->evaluateHavingCondition($having, $row, $params)) {
+                            $filteredGrouped[] = $row;
+                        }
+                    }
+                    $results = $filteredGrouped;
+                }
             } elseif ($fields !== '*') {
+                // Apply window functions if any OVER (...) specified
+                $this->applyWindowFunctions($results, $fieldArray);
+
                 // Field projection (Non-grouped)
                 $filteredResults = [];
                 foreach ($results as $row) {
@@ -1056,14 +1351,16 @@ trait XDB_Sqlparser
                         if (preg_match('/^(.*?)\s+AS\s+([a-zA-Z0-9_]+)$/i', $f, $aliasMatch)) {
                             $expr = trim($aliasMatch[1]);
                             $alias = trim($aliasMatch[2]);
-                            $filteredRow[$alias] = $this->evaluateExpression($expr, $row);
+                            $filteredRow[$alias] = $row[$alias] ?? $this->evaluateExpression($expr, $row, $params);
                         } else {
-                            $filteredRow[$f] = $this->evaluateExpression($f, $row);
+                            $filteredRow[$f] = $row[$f] ?? $this->evaluateExpression($f, $row, $params);
                         }
                     }
                     $filteredResults[] = $filteredRow;
                 }
                 $results = $filteredResults;
+            } else {
+                $this->applyWindowFunctions($results, $fieldArray);
             }
 
             // DISTINCT
@@ -1132,16 +1429,18 @@ trait XDB_Sqlparser
             return $results;
         }
 
-        // -- INSERT --
-        if (preg_match('/^INSERT\s+INTO\s+([a-zA-Z0-9_\.]+)\s*(?:\((.+?)\))?\s*VALUES\s*(.+)$/is', $sql, $matches)) {
-            $tablePath = trim($matches[1]);
-            $hasCols = !empty($matches[2]);
-            $valuesPart = trim($matches[3]);
+        // -- INSERT / REPLACE / UPSERT --
+        if (preg_match('/^(?:INSERT\s+(?:OR\s+(REPLACE|IGNORE)\s+)?INTO|REPLACE\s+INTO)\s+([a-zA-Z0-9_\.]+)\s*(?:\((.+?)\))?\s*VALUES\s*(.+?)(?:\s+ON\s+DUPLICATE\s+KEY\s+UPDATE\s+(.+))?$/is', $sql, $matches)) {
+            $upsertMode = !empty($matches[1]) ? strtoupper(trim($matches[1])) : (stripos($sql, 'REPLACE') === 0 ? 'REPLACE' : null);
+            $tablePath = trim($matches[2]);
+            $hasCols = !empty($matches[3]);
+            $valuesPart = trim($matches[4]);
+            $onDuplicateClause = !empty($matches[5]) ? trim($matches[5]) : null;
 
             $this->resolveTablePath($tablePath);
 
             if ($hasCols) {
-                $fields = array_map('trim', explode(',', $matches[2]));
+                $fields = array_map('trim', explode(',', $matches[3]));
             } else {
                 $fields = $this->getTableColumns($this->tableName);
             }
@@ -1186,8 +1485,36 @@ trait XDB_Sqlparser
                         }
                         $data[$f] = $val;
                     }
-                    $this->insert($data);
-                    $lastId = $this->lastInsertId;
+
+                    // Check for existing row if id is present
+                    $existingRow = null;
+                    if (isset($data['id'])) {
+                        $existingNodes = $this->xpath->query("//row[@id='{$data['id']}' or id='{$data['id']}']");
+                        if ($existingNodes && $existingNodes->length > 0) {
+                            $existingRow = $this->nodeToArray($existingNodes->item(0));
+                        }
+                    }
+
+                    if ($existingRow !== null) {
+                        if ($upsertMode === 'IGNORE') {
+                            // Skip insertion
+                            continue;
+                        } elseif ($upsertMode === 'REPLACE') {
+                            $this->delete("id = '{$data['id']}'");
+                            $this->insert($data);
+                            $lastId = $this->lastInsertId;
+                        } elseif ($onDuplicateClause !== null) {
+                            $updates = $this->parseOnDuplicateAssignments($onDuplicateClause, $existingRow, $data, $params);
+                            $this->update($updates, "id = '{$data['id']}'");
+                            $lastId = $data['id'];
+                        } else {
+                            $this->insert($data);
+                            $lastId = $this->lastInsertId;
+                        }
+                    } else {
+                        $this->insert($data);
+                        $lastId = $this->lastInsertId;
+                    }
                 }
                 $this->commit();
             } catch (Exception $e) {
@@ -1321,8 +1648,11 @@ trait XDB_Sqlparser
     {
         $translated = $where;
 
-        // Handle id field: id = '1' -> @id = '1'
-        $translated = preg_replace('/\bid\b(\s*[=<>!]+|(\s+IN\s*\(.*?\)|\s+LIKE\s+.*?))/i', '@id$1', $translated);
+        // Strip table or alias prefix from column references e.g. "orders.user_id" -> "user_id"
+        $translated = preg_replace('/\b[a-zA-Z0-9_]+\.([a-zA-Z0-9_]+)\b/', '$1', $translated);
+
+        // Handle id field: id = '1' -> @id = '1' (do not double @ if already @id)
+        $translated = preg_replace('/(?<!@)\bid\b(\s*[=<>!]+|(\s+IN\s*\(.*?\)|\s+LIKE\s+.*?))/i', '@id$1', $translated);
 
         // Handle positional parameters (?)
         $paramIndex = 0;
@@ -1360,16 +1690,15 @@ trait XDB_Sqlparser
         }, $translated);
 
         // Handle IN: field IN ('val1', 'val2')
-        $translated = preg_replace_callback('/([a-zA-Z0-9_]+)\s+IN\s*\((.+?)\)/i', function ($m) {
+        $translated = preg_replace_callback('/([a-zA-Z0-9_@]+)\s+IN\s*\((.+?)\)/i', function ($m) {
             $field = $m[1];
             $vals = explode(',', $m[2]);
             
             // Optimization for massive IN clauses to prevent XPath parser crash (O(N*M) -> O(N))
             if (count($vals) > 50) {
                 $cleanVals = array_map(function($v) { return trim($v, "'\" "); }, $vals);
-                // Use a rare delimiter to prevent partial matches
-                $joined = '|||' . implode('|||', $cleanVals) . '|||';
-                return "contains('$joined', concat('|||', $field, '|||'))";
+                $escapedJoined = addslashes(implode('|||', $cleanVals));
+                return "contains('|||" . $escapedJoined . "|||', concat('|||', $field, '|||'))";
             }
             
             $orParts = [];
@@ -1390,11 +1719,349 @@ trait XDB_Sqlparser
         $translated = str_replace('<>', '!=', $translated);
 
         // Range optimization: x > 5 -> number(x) > 5
-        $translated = preg_replace('/([a-zA-Z0-9_]+)\s*(>=|>|<=|<)\s*([0-9\.]+)/', 'number($1) $2 $3', $translated);
+        $translated = preg_replace('/([a-zA-Z0-9_@]+)\s*(>=|>|<=|<)\s*([0-9\.]+)/', 'number($1) $2 $3', $translated);
         $translated = preg_replace('/\s+AND\s+/i', ' and ', $translated);
         $translated = preg_replace('/\s+OR\s+/i', ' or ', $translated);
 
         return $translated;
     }
 
+    /**
+     * Executes a Common Table Expression (CTE) query.
+     */
+    protected function executeCteQuery(string $sql, array $params = []): mixed
+    {
+        $pattern = '/^WITH\s+(?:RECURSIVE\s+)?/i';
+        if (!preg_match($pattern, $sql, $m)) {
+            throw new Exception("Invalid CTE syntax: missing WITH clause.");
+        }
+        $offset = strlen($m[0]);
+        $len = strlen($sql);
+        $ctes = [];
+
+        while ($offset < $len) {
+            if (!preg_match('/\G\s*([a-zA-Z0-9_]+)\s+AS\s*\(/i', $sql, $cm, 0, $offset)) {
+                break;
+            }
+            $cteName = $cm[1];
+            $innerStart = $offset + strlen($cm[0]);
+
+            // Find matching closing parenthesis
+            $depth = 1;
+            $inQuote = false;
+            $quoteChar = '';
+            $i = $innerStart;
+            while ($i < $len && $depth > 0) {
+                $char = $sql[$i];
+                if (($char === "'" || $char === '"') && ($i === 0 || $sql[$i - 1] !== '\\')) {
+                    if ($inQuote && $char === $quoteChar) {
+                        $inQuote = false;
+                    } elseif (!$inQuote) {
+                        $inQuote = true;
+                        $quoteChar = $char;
+                    }
+                }
+                if (!$inQuote) {
+                    if ($char === '(') {
+                        $depth++;
+                    } elseif ($char === ')') {
+                        $depth--;
+                    }
+                }
+                $i++;
+            }
+
+            if ($depth !== 0) {
+                throw new Exception("Unclosed parenthesis in CTE definition for '{$cteName}'");
+            }
+
+            $innerSql = trim(substr($sql, $innerStart, $i - 1 - $innerStart));
+            $ctes[$cteName] = $innerSql;
+            $offset = $i;
+
+            // Check if another CTE follows
+            if (preg_match('/\G\s*,\s*/', $sql, $commaMatch, 0, $offset)) {
+                $offset += strlen($commaMatch[0]);
+            } else {
+                break;
+            }
+        }
+
+        $mainSql = trim(substr($sql, $offset));
+        if (empty($mainSql)) {
+            throw new Exception("CTE query missing main statement after CTE definitions.");
+        }
+
+        $registeredCtes = [];
+        try {
+            foreach ($ctes as $name => $cteSql) {
+                $cteResults = $this->querySQL($cteSql, $params);
+                if (!is_array($cteResults)) {
+                    $cteResults = [];
+                }
+                $this->setVirtualTable($name, $cteResults);
+                $registeredCtes[] = $name;
+            }
+
+            return $this->querySQL($mainSql, $params);
+        } finally {
+            foreach ($registeredCtes as $name) {
+                $this->removeVirtualTable($name);
+            }
+        }
+    }
+
+    /**
+     * Evaluates a HAVING condition on an aggregated row.
+     */
+    protected function evaluateHavingCondition(string $having, array $row, array $params = []): bool
+    {
+        $cond = $having;
+        foreach ($row as $k => $v) {
+            if ($v === null) continue;
+            $strV = (string)$v;
+            if (strcasecmp($k, 'COUNT(*)') === 0 || strcasecmp($k, 'count') === 0 || strcasecmp($k, 'cnt') === 0) {
+                $cond = preg_replace('/COUNT\s*\(\s*\*\s*\)/i', $strV, $cond);
+            }
+            if (preg_match('/^(COUNT|SUM|AVG|MIN|MAX)\s*\(\s*(.*?)\s*\)$/i', $k, $m)) {
+                $pattern = '/' . preg_quote($m[1], '/') . '\s*\(\s*' . preg_quote($m[2], '/') . '\s*\)/i';
+                $cond = preg_replace($pattern, $strV, $cond);
+            }
+        }
+        return (bool)$this->evaluateExpression($cond, $row, $params);
+    }
+
+    /**
+     * Applies ANSI window functions (ROW_NUMBER, RANK, DENSE_RANK, SUM OVER, AVG OVER, LAG, LEAD, etc.)
+     */
+    protected function applyWindowFunctions(array &$results, array $fieldArray): void
+    {
+        if (empty($results)) {
+            return;
+        }
+
+        foreach ($fieldArray as $fieldExpr) {
+            if (!preg_match('/^(.*?)\s+OVER\s*\((.*?)\)(?:\s+AS\s+([a-zA-Z0-9_]+))?$/is', trim($fieldExpr), $wm)) {
+                continue;
+            }
+
+            $funcExpr = trim($wm[1]);
+            $overSpec = trim($wm[2]);
+            $alias = !empty($wm[3]) ? $wm[3] : $fieldExpr;
+
+            // Parse PARTITION BY
+            $partitionCols = [];
+            if (preg_match('/PARTITION\s+BY\s+(.+?)(?=\s+ORDER\s+BY|$)/i', $overSpec, $pm)) {
+                $partitionCols = array_map('trim', explode(',', $pm[1]));
+            }
+
+            // Parse ORDER BY
+            $orderCols = [];
+            if (preg_match('/ORDER\s+BY\s+(.+)$/i', $overSpec, $om)) {
+                $orderParts = explode(',', $om[1]);
+                foreach ($orderParts as $op) {
+                    $tokens = preg_split('/\s+/', trim($op));
+                    $orderCols[] = [
+                        'col' => trim($tokens[0]),
+                        'dir' => isset($tokens[1]) ? strtoupper(trim($tokens[1])) : 'ASC'
+                    ];
+                }
+            }
+
+            // Bucket results into partitions
+            $partitions = [];
+            foreach ($results as $originalIdx => $row) {
+                $pKey = '';
+                if (!empty($partitionCols)) {
+                    $keyParts = [];
+                    foreach ($partitionCols as $pCol) {
+                        $keyParts[] = (string)($row[$pCol] ?? 'NULL');
+                    }
+                    $pKey = implode('|||', $keyParts);
+                } else {
+                    $pKey = '__GLOBAL__';
+                }
+                $partitions[$pKey][] = ['origIdx' => $originalIdx, 'row' => $row];
+            }
+
+            $funcName = 'ROW_NUMBER';
+            $funcArg = null;
+            if (preg_match('/^([a-zA-Z0-9_]+)(?:\s*\((.*?)\))?$/is', $funcExpr, $fm)) {
+                $funcName = strtoupper($fm[1]);
+                $funcArg = isset($fm[2]) ? trim($fm[2]) : null;
+            }
+
+            // Evaluate window function per partition
+            foreach ($partitions as $pKey => $pItems) {
+                if (!empty($orderCols)) {
+                    usort($pItems, function ($a, $b) use ($orderCols) {
+                        foreach ($orderCols as $oc) {
+                            $c = $oc['col'];
+                            $dir = $oc['dir'];
+                            $valA = $a['row'][$c] ?? null;
+                            $valB = $b['row'][$c] ?? null;
+                            if ($valA != $valB) {
+                                if (is_numeric($valA) && is_numeric($valB)) {
+                                    return $dir === 'DESC' ? ($valB - $valA) : ($valA - $valB);
+                                }
+                                return $dir === 'DESC' ? strcmp((string)$valB, (string)$valA) : strcmp((string)$valA, (string)$valB);
+                            }
+                        }
+                        return 0;
+                    });
+                }
+
+                $rowCount = count($pItems);
+                $runningSum = 0;
+                $runningCount = 0;
+                $denseRank = 1;
+
+                for ($pos = 0; $pos < $rowCount; $pos++) {
+                    $item = $pItems[$pos];
+                    $r = $item['row'];
+                    $computedVal = null;
+
+                    switch ($funcName) {
+                        case 'ROW_NUMBER':
+                            $computedVal = $pos + 1;
+                            break;
+
+                        case 'RANK':
+                            if ($pos === 0) {
+                                $computedVal = 1;
+                            } else {
+                                $prevRow = $pItems[$pos - 1]['row'];
+                                $isTie = true;
+                                foreach ($orderCols as $oc) {
+                                    $c = $oc['col'];
+                                    if (($r[$c] ?? null) != ($prevRow[$c] ?? null)) {
+                                        $isTie = false;
+                                        break;
+                                    }
+                                }
+                                $computedVal = $isTie ? ($results[$pItems[$pos - 1]['origIdx']][$alias] ?? $pos) : ($pos + 1);
+                            }
+                            break;
+
+                        case 'DENSE_RANK':
+                            if ($pos === 0) {
+                                $denseRank = 1;
+                            } else {
+                                $prevRow = $pItems[$pos - 1]['row'];
+                                $isTie = true;
+                                foreach ($orderCols as $oc) {
+                                    $c = $oc['col'];
+                                    if (($r[$c] ?? null) != ($prevRow[$c] ?? null)) {
+                                        $isTie = false;
+                                        break;
+                                    }
+                                }
+                                if (!$isTie) {
+                                    $denseRank++;
+                                }
+                            }
+                            $computedVal = $denseRank;
+                            break;
+
+                        case 'SUM':
+                            $val = isset($r[$funcArg]) && is_numeric($r[$funcArg]) ? (float)$r[$funcArg] : 0;
+                            if (!empty($orderCols)) {
+                                $runningSum += $val;
+                                $computedVal = $runningSum;
+                            } else {
+                                if ($pos === 0) {
+                                    $tot = 0;
+                                    foreach ($pItems as $pi) {
+                                        if (isset($pi['row'][$funcArg]) && is_numeric($pi['row'][$funcArg])) {
+                                            $tot += (float)$pi['row'][$funcArg];
+                                        }
+                                    }
+                                    $runningSum = $tot;
+                                }
+                                $computedVal = $runningSum;
+                            }
+                            break;
+
+                        case 'AVG':
+                            $val = isset($r[$funcArg]) && is_numeric($r[$funcArg]) ? (float)$r[$funcArg] : 0;
+                            if (!empty($orderCols)) {
+                                $runningSum += $val;
+                                $runningCount++;
+                                $computedVal = $runningCount > 0 ? ($runningSum / $runningCount) : 0;
+                            } else {
+                                if ($pos === 0) {
+                                    $tot = 0;
+                                    $cnt = 0;
+                                    foreach ($pItems as $pi) {
+                                        if (isset($pi['row'][$funcArg]) && is_numeric($pi['row'][$funcArg])) {
+                                            $tot += (float)$pi['row'][$funcArg];
+                                            $cnt++;
+                                        }
+                                    }
+                                    $runningSum = $cnt > 0 ? ($tot / $cnt) : 0;
+                                }
+                                $computedVal = $runningSum;
+                            }
+                            break;
+
+                        case 'COUNT':
+                            if (!empty($orderCols)) {
+                                $computedVal = $pos + 1;
+                            } else {
+                                $computedVal = $rowCount;
+                            }
+                            break;
+
+                        case 'LAG':
+                            $lagParts = array_map('trim', explode(',', (string)$funcArg));
+                            $colName = $lagParts[0];
+                            $lagOffset = isset($lagParts[1]) ? (int)$lagParts[1] : 1;
+                            $defaultVal = isset($lagParts[2]) ? trim($lagParts[2], "'\"") : null;
+                            $targetPos = $pos - $lagOffset;
+                            $computedVal = ($targetPos >= 0) ? ($pItems[$targetPos]['row'][$colName] ?? $defaultVal) : $defaultVal;
+                            break;
+
+                        case 'LEAD':
+                            $leadParts = array_map('trim', explode(',', (string)$funcArg));
+                            $colName = $leadParts[0];
+                            $leadOffset = isset($leadParts[1]) ? (int)$leadParts[1] : 1;
+                            $defaultVal = isset($leadParts[2]) ? trim($leadParts[2], "'\"") : null;
+                            $targetPos = $pos + $leadOffset;
+                            $computedVal = ($targetPos < $rowCount) ? ($pItems[$targetPos]['row'][$colName] ?? $defaultVal) : $defaultVal;
+                            break;
+
+                        default:
+                            $computedVal = null;
+                    }
+
+                    $origIdx = $item['origIdx'];
+                    $results[$origIdx][$alias] = $computedVal;
+                    $results[$origIdx][$fieldExpr] = $computedVal;
+                }
+            }
+        }
+    }
+
+    /**
+     * Parses ON DUPLICATE KEY UPDATE assignments.
+     */
+    protected function parseOnDuplicateAssignments(string $clause, array $existingRow, array $newData, array $params = []): array
+    {
+        $updates = [];
+        $parts = explode(',', $clause);
+        foreach ($parts as $part) {
+            if (preg_match('/([a-zA-Z0-9_]+)\s*=\s*(.+)/', trim($part), $m)) {
+                $col = trim($m[1]);
+                $valExpr = trim($m[2]);
+
+                if (preg_match('/VALUES\s*\(\s*([a-zA-Z0-9_]+)\s*\)/i', $valExpr, $vm)) {
+                    $targetCol = $vm[1];
+                    $valExpr = str_replace($vm[0], isset($newData[$targetCol]) ? (is_numeric($newData[$targetCol]) ? $newData[$targetCol] : "'" . addslashes((string)$newData[$targetCol]) . "'") : 'NULL', $valExpr);
+                }
+
+                $updates[$col] = $this->evaluateExpression($valExpr, $existingRow, $params);
+            }
+        }
+        return $updates;
+    }
 }

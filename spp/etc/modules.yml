@@ -50,7 +50,7 @@ modules:
             - sppcore
     -
         name: sppqueue
-        path: spp/sppqueue
+        path: optional/sppqueue
         status: active
         deps:
             - sppdb
@@ -72,11 +72,11 @@ modules:
         status: active
     -
         name: parikshak
-        path: spp/parikshak
+        path: optional/parikshak
         status: active
     -
         name: sppai
-        path: spp/sppai
+        path: optional/sppai
         status: active
     -
         name: lekhni
@@ -84,11 +84,11 @@ modules:
         status: active
     -
         name: sppxdb
-        path: spp/sppxdb
+        path: optional/sppxdb
         status: active
     -
         name: sppdeploy
-        path: spp/sppdeploy
+        path: optional/sppdeploy
         status: active
     -
         name: sppsecurity
@@ -96,9 +96,34 @@ modules:
         status: active
     -
         name: sppdoc
-        path: spp/sppdoc
+        path: optional/sppdoc
         status: active
     -
         name: spprouter
         path: spp/spprouter
         status: active
+    -
+        name: sppshield
+        path: optional/sppshield
+        status: active
+    -
+        name: sppmetrics
+        path: optional/sppmetrics
+        status: active
+    -
+        name: sppserver
+        path: optional/sppserver
+        status: active
+    -
+        name: sppapps
+        path: optional/sppapps
+        status: active
+    -
+        name: sppruntime
+        path: optional/sppruntime
+        status: active
+    -
+        name: sppreseller
+        path: optional/sppreseller
+        status: active
+

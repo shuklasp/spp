@@ -6,7 +6,9 @@ class PolyglotBridgeFactory
 {
     public static function getBridge(string $lang): PolyglotBridgeInterface
     {
-        switch (strtolower($lang)) {
+        $normalized = strtolower($lang);
+
+        switch ($normalized) {
             case 'java':
                 return new JavaBridge();
             case 'dotnet':
@@ -15,8 +17,13 @@ class PolyglotBridgeFactory
                 return new GoBridge();
             case 'compiler':
                 return new CompilerBridge();
-            default:
-                return new DefaultBridge();
         }
+
+        // Check if dynamic driver exists in LanguageRegistry (e.g. rust, zig, ruby, elixir, custom DSLs)
+        if (LanguageRegistry::getDriver($normalized) !== null) {
+            return new UniversalDynamicBridge($normalized);
+        }
+
+        return new DefaultBridge();
     }
 }

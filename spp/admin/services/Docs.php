@@ -4,19 +4,34 @@ function live_get_codebase_structure($la, $p)
 {
     try {
         if (!class_exists('\\SPPMod\\SPPDoc\\DocParser')) {
-            $parserPath = SPP_APP_DIR . '/spp/modules/spp/sppdoc/src/DocParser.php';
-            if (file_exists($parserPath)) {
-                require_once $parserPath;
-            } else {
+            $baseDir = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : (defined('SPP_APP_DIR') ? SPP_APP_DIR . '/spp' : dirname(__DIR__, 2));
+            $appDir = defined('SPP_APP_DIR') ? SPP_APP_DIR : dirname(__DIR__, 2);
+            $candidates = [
+                $baseDir . '/modules/optional/sppdoc/src/DocParser.php',
+                $baseDir . '/modules/spp/sppdoc/src/DocParser.php',
+                $appDir . '/spp/modules/optional/sppdoc/src/DocParser.php',
+                $appDir . '/spp/modules/spp/sppdoc/src/DocParser.php'
+            ];
+            foreach ($candidates as $candidate) {
+                if (file_exists($candidate)) {
+                    require_once $candidate;
+                    break;
+                }
+            }
+            if (!class_exists('\\SPPMod\\SPPDoc\\DocParser')) {
                 return $la->setStatus('error')->notify('sppdoc module not found.');
             }
         }
 
+        ob_start();
         $data = \SPPMod\SPPDoc\DocParser::parseCodebase();
+        ob_end_clean();
         $la->setData($data);
     } catch (\Throwable $e) {
-        file_put_contents(SPP_APP_DIR . '/tmp_docs_error.txt', $e->getMessage() . "\n" . $e->getTraceAsString());
-        throw $e;
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        return $la->setStatus('error')->notify('Error parsing codebase: ' . $e->getMessage());
     }
 }
 

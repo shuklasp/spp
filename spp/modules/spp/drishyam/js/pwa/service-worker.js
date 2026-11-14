@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spp-pwa-cache-v1';
+const CACHE_NAME = 'spp-pwa-cache-v2';
 const OFFLINE_URL = '/offline.html'; 
 
 // Install Event: Cache core static assets flawlessly naturally
@@ -52,7 +52,12 @@ self.addEventListener('fetch', (event) => {
                 }
                 
                 // Optional physical offline HTML fallback
-                return caches.match(OFFLINE_URL);
+                return caches.match(OFFLINE_URL).then((res) => {
+                    return res || new Response('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Offline</title></head><body style="font-family:sans-serif;padding:2rem;text-align:center;"><h2>Offline</h2><p>Application is currently offline.</p></body></html>', {
+                        status: 503,
+                        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+                    });
+                });
             });
         })
     );

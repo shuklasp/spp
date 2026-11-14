@@ -45,7 +45,7 @@ class BlockManager extends \SPPMod\SPPView\BlockManager
                             'type' => 'taxonomy_tree',
                             'vocab' => 'categories',
                             'weight' => 10,
-                            'visibility' => ['paths' => ['*'], 'roles' => ['*']],
+                            'visibility' => ['paths' => ['docs*'], 'roles' => ['*']],
                         ]
                     ]
                 ]
@@ -82,6 +82,16 @@ class BlockManager extends \SPPMod\SPPView\BlockManager
     {
         $visibility = $block['visibility'] ?? [];
         $currentPath = trim($context['current_path'] ?? ($context['path'] ?? ''), '/');
+        
+        // Normalize currentPath by stripping APP_BASE_URI prefix if present
+        if (defined('APP_BASE_URI') && APP_BASE_URI !== '') {
+            $basePrefix = trim(APP_BASE_URI, '/');
+            if ($basePrefix !== '' && (str_starts_with($currentPath, $basePrefix . '/') || $currentPath === $basePrefix)) {
+                $currentPath = trim(substr($currentPath, strlen($basePrefix)), '/');
+            }
+        }
+        $currentPath = trim(parse_url($currentPath, PHP_URL_PATH) ?? '', '/');
+
         $currentUser = $context['user'] ?? ($_SESSION['sppdocs_user'] ?? 'guest');
         $projectId = $context['project_id'] ?? 'spp';
 

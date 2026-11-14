@@ -27,6 +27,16 @@ class ArgParser
         
         $isFirst = true;
         
+        $normalized = [];
+        foreach ($argv as $key => $val) {
+            if (is_string($key)) {
+                $result['options'][$key] = $val;
+            } else {
+                $normalized[] = $val;
+            }
+        }
+        $argv = $normalized;
+
         for ($i = 0; $i < count($argv); $i++) {
             $arg = $argv[$i];
 

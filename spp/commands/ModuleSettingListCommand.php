@@ -50,7 +50,7 @@ class ModuleSettingListCommand extends \SPP\CLI\Command
             }
             
             echo "\nSettings for module: \033[1m{$modname}\033[0m\n";
-            printTable(['Key', 'Type', 'Current Value', 'Default'], $rows);
+            $this->table(['Key', 'Type', 'Current Value', 'Default'], $rows);
 
         } catch (\Exception $e) {
             echo "\033[31m[ERROR]\033[0m " . $e->getMessage() . "\n";

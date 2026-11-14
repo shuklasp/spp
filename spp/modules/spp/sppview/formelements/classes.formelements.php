@@ -89,6 +89,15 @@ class SPPViewForm_Input_Button extends SPPViewForm_Input
     }
 }
 
+class SPPViewForm_Input_Hidden extends SPPViewForm_Input
+{
+    public function __construct($ename)
+    {
+        parent::__construct($ename, 'hidden');
+        $this->setGrouped(false);
+    }
+}
+
 class SPPViewForm_TextArea extends SPPViewForm_Element
 {
     public function __construct($ename)
@@ -321,7 +330,7 @@ class SPPViewForm_File extends SPPViewForm_Input
     public function renderRaw(): string
     {
         ViewPage::addJsIncludeFile('res/js/sppfile.js');
-        return parent::getHTML();
+        return parent::renderRaw();
     }
 }
 
@@ -825,3 +834,127 @@ class SPPDualList extends SPPViewForm_DualList
 class SPPPortability extends SPPViewForm_Portability
 {
 }
+
+class SPPViewForm_Honeypot extends SPPViewForm_Element
+{
+    public function __construct(string $ename = 'sp_hp_trap')
+    {
+        parent::__construct($ename);
+        $this->setGrouped(false);
+    }
+
+    public function renderRaw(): string
+    {
+        $name = $this->getAttribute('name') ?: 'sp_hp_trap';
+        $id = $this->getAttribute('id') ?: 'sp_hp_' . uniqid();
+        return '<div style="opacity: 0; position: absolute; top: 0; left: -9999px; height: 0; width: 0; z-index: -1; overflow: hidden;" aria-hidden="true" tabindex="-1">'
+            . '<label for="' . $id . '">Do not fill this field</label>'
+            . '<input type="text" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '" id="' . $id . '" value="" autocomplete="off" tabindex="-1">'
+            . '</div>';
+    }
+}
+
+class SPPHoneypot extends SPPViewForm_Honeypot
+{
+}
+
+class SPPViewForm_WorkflowActions extends SPPViewForm_Element
+{
+    private array $transitions = [];
+    private string $currentState = '';
+    private bool $showComment = false;
+
+    public function __construct(string $ename = '_workflow_actions', array $transitions = [], string $currentState = '', bool $showComment = false)
+    {
+        parent::__construct($ename);
+        $this->transitions = $transitions;
+        $this->currentState = $currentState;
+        $this->showComment = $showComment;
+        $this->setGrouped(false);
+    }
+
+    public function setTransitions(array $transitions): self
+    {
+        $this->transitions = $transitions;
+        return $this;
+    }
+
+    public function getTransitions(): array
+    {
+        return $this->transitions;
+    }
+
+    public function setCurrentState(string $state): self
+    {
+        $this->currentState = $state;
+        return $this;
+    }
+
+    public function getCurrentState(): string
+    {
+        return $this->currentState;
+    }
+
+    public function renderRaw(): string
+    {
+        if (empty($this->transitions) && empty($this->currentState)) {
+            return '';
+        }
+
+        $html = '<div class="spp-workflow-action-bar" style="margin-top: 24px; padding: 18px 20px; border-top: 1px solid var(--sppux-glass-border, rgba(0,0,0,0.1)); background: var(--sppux-glass-bg, rgba(248, 250, 252, 0.5)); border-radius: 12px; display: flex; flex-direction: column; gap: 14px;">';
+        
+        // Status header
+        if (!empty($this->currentState)) {
+            $html .= '<div style="display: flex; align-items: center; justify-content: space-between;">';
+            $html .= '<span style="font-size: 0.85rem; font-weight: 600; color: var(--sppux-text-dim, #64748b);">Workflow Lifecycle</span>';
+            $html .= '<span style="background: rgba(99, 102, 241, 0.1); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Current: ' . htmlspecialchars($this->currentState) . '</span>';
+            $html .= '</div>';
+        }
+
+        // Comment input if requested
+        if ($this->showComment) {
+            $html .= '<div style="display: flex; flex-direction: column; gap: 4px;">';
+            $html .= '<label style="font-size: 0.8rem; font-weight: 600; color: var(--sppux-text, #334155);">Transition Comment / Note</label>';
+            $html .= '<input type="text" name="_workflow_comment" placeholder="Optional audit explanation..." style="padding: 8px 12px; border: 1px solid var(--sppux-glass-border, #cbd5e1); border-radius: 8px; font-size: 0.85rem; background: var(--sppux-bg, #fff); color: var(--sppux-text, #0f172a);">';
+            $html .= '</div>';
+        }
+
+        // Action buttons
+        $html .= '<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">';
+        foreach ($this->transitions as $t) {
+            $name = htmlspecialchars($t['name'] ?? '');
+            $label = htmlspecialchars($t['label'] ?? ucfirst(str_replace('_', ' ', $name)));
+            $cls = $t['class'] ?? 'btn-primary';
+            
+            $btnBg = '#6366f1';
+            $btnColor = '#ffffff';
+            if ($cls === 'btn-success') {
+                $btnBg = '#10b981';
+            } elseif ($cls === 'btn-danger') {
+                $btnBg = '#ef4444';
+            } elseif ($cls === 'btn-secondary') {
+                $btnBg = '#64748b';
+            }
+
+            $html .= '<button type="submit" name="_workflow_transition" value="' . $name . '" class="spp-btn-workflow ' . htmlspecialchars($cls) . '" style="background: ' . $btnBg . '; color: ' . $btnColor . '; border: none; padding: 9px 18px; border-radius: 9px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: opacity 0.2s;">';
+            $html .= $label;
+            $html .= '</button>';
+        }
+        $html .= '</div>';
+        $html .= '</div>';
+
+        return $html;
+    }
+}
+
+class SPPWorkflowActions extends SPPViewForm_WorkflowActions
+{
+}
+
+class SPPHidden extends SPPViewForm_Input_Hidden
+{
+}
+
+class_alias('\\SPPMod\\SPPView\\SPPViewForm_Input_Hidden', '\\SPPMod\\SPPView\\SPPViewForm_Hidden');
+class_alias('\\SPPMod\\SPPView\\SPPViewForm_Input_Hidden', '\\SPPHidden');
+class_alias('\\SPPMod\\SPPView\\SPPViewForm_Input_Hidden', '\\SPPViewForm_Hidden');

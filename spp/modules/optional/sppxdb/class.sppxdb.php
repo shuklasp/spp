@@ -17,6 +17,23 @@ class SPP_XDB
     use XDB_Observer;
 
     protected $adapter;
+    protected $maxRowsPerSegment = 5000;
+
+    public function __set($name, $value)
+    {
+        $this->$name = $value;
+        if ($this->adapter && property_exists($this->adapter, $name)) {
+            $this->adapter->$name = $value;
+        }
+    }
+
+    public function __get($name)
+    {
+        if (isset($this->$name)) {
+            return $this->$name;
+        }
+        return $this->adapter->$name ?? null;
+    }
 
     public static $queryLog = [];
     public static $logQueries = false;
@@ -57,6 +74,118 @@ class SPP_XDB
         return new QueryBuilder($this, $table);
     }
 
+    /**
+     * Executes a native W3C XQuery 3.1 / XPath 3.1 expression.
+     */
+    public function queryXQuery(string $xquery, array $vars = []): array
+    {
+        return method_exists($this->adapter, 'queryXQuery') ? $this->adapter->queryXQuery($xquery, $vars) : [];
+    }
+
+    /**
+     * Executes an in-place XQuery Update Facility (XQUF) mutation.
+     */
+    public function updateXQUF(string $xquf): bool
+    {
+        return method_exists($this->adapter, 'updateXQUF') ? $this->adapter->updateXQUF($xquf) : false;
+    }
+
+    /**
+     * Retrieves the Pre/Post/Level Native Tree Engine.
+     */
+    public function getTreeEngine(): ?\SPPMod\SPPXDB\Tree\XdbTreeEngine
+    {
+        return method_exists($this->adapter, 'getTreeEngine') ? $this->adapter->getTreeEngine() : null;
+    }
+
+    /**
+     * Retrieves the MVCC Transaction Manager.
+     */
+    public function getMvccManager(): ?\SPPMod\SPPXDB\Concurrency\MVCCManager
+    {
+        return method_exists($this->adapter, 'getMvccManager') ? $this->adapter->getMvccManager() : null;
+    }
+
+    /**
+     * Queries arbitrary JSON using XPath/XQuery syntax.
+     */
+    public function queryJson($json, string $xquery): array
+    {
+        return method_exists($this->adapter, 'queryJson') ? $this->adapter->queryJson($json, $xquery) : [];
+    }
+
+    /**
+     * Retrieves or initializes the VectorIndex for this table.
+     */
+    public function getVectorIndex(?int $dimension = null): ?\SPPMod\SPPXDB\Index\VectorIndex
+    {
+        return method_exists($this->adapter, 'getVectorIndex') ? $this->adapter->getVectorIndex($dimension) : null;
+    }
+
+    /**
+     * Executes a holistic TwigStack join over the current table.
+     */
+    public function twigJoin(string $rootTag, array $branches = [], bool $isChildOnly = false): array
+    {
+        return method_exists($this->adapter, 'twigJoin') ? $this->adapter->twigJoin($rootTag, $branches, $isChildOnly) : [];
+    }
+
+    /**
+     * Zero-Copy Flat Buffer Engine (.xbam) accessor.
+     */
+    public function xbam(): ?\SPPMod\SPPXDB\Storage\XbamEngine
+    {
+        return method_exists($this->adapter, 'xbam') ? $this->adapter->xbam() : null;
+    }
+
+    /**
+     * MarkLogic-style Universal Inverted Index accessor.
+     */
+    public function universalIndex(): ?\SPPMod\SPPXDB\Index\UniversalIndex
+    {
+        return method_exists($this->adapter, 'universalIndex') ? $this->adapter->universalIndex() : null;
+    }
+
+    /**
+     * Native AI RAG Subsystem accessor.
+     */
+    public function rag(?callable $embeddingGenerator = null): ?\SPPMod\SPPXDB\AI\RagEngine
+    {
+        return method_exists($this->adapter, 'rag') ? $this->adapter->rag($embeddingGenerator) : null;
+    }
+
+    /**
+     * SQL:2011 / XTDB-style Bi-Temporal Time Travel Engine accessor.
+     */
+    public function temporal(): ?\SPPMod\SPPXDB\Temporal\BiTemporalEngine
+    {
+        return method_exists($this->adapter, 'temporal') ? $this->adapter->temporal() : null;
+    }
+
+    /**
+     * Cryptographic Merkle DAG Ledger accessor.
+     */
+    public function merkle(): ?\SPPMod\SPPXDB\Temporal\MerkleLedger
+    {
+        return method_exists($this->adapter, 'merkle') ? $this->adapter->merkle() : null;
+    }
+
+    /**
+     * Reactive Live Query Manager accessor (Hotwire Turbo Streams & SSE).
+     */
+    public function live(): ?\SPPMod\SPPXDB\Reactive\LiveQueryManager
+    {
+        return method_exists($this->adapter, 'live') ? $this->adapter->live() : null;
+    }
+
+    /**
+     * Subscribes to live reactive mutations.
+     */
+    public function subscribeLive($criteria, string $targetDomId, string $action = 'replace', ?string $template = null): ?\SPPMod\SPPXDB\Reactive\LiveSubscription
+    {
+        return method_exists($this->adapter, 'subscribeLive') ? $this->adapter->subscribeLive($criteria, $targetDomId, $action, $template) : null;
+    }
+
     public function __call($name, $args)
     {
         $cacheEnabled = false;
@@ -92,7 +221,7 @@ class SPP_XDB
         }
 
         // Intercept QueryBuilder fluent methods
-        $qbMethods = ['where', 'whereIn', 'whereLike', 'orderBy', 'limit', 'offset', 'get', 'first', 'count', 'select', 'distinct', 'with', 'withTrashed', 'onlyTrashed', 'asObject'];
+        $qbMethods = ['where', 'whereIn', 'whereLike', 'orderBy', 'limit', 'offset', 'get', 'first', 'count', 'select', 'distinct', 'with', 'withTrashed', 'onlyTrashed', 'asObject', 'whereXPath', 'whereXQuery', 'xquery', 'xquf'];
         if (in_array($name, $qbMethods)) {
             $qb = new QueryBuilder($this, $tableName);
             return call_user_func_array([$qb, $name], $args);

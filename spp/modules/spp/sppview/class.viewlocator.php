@@ -69,8 +69,9 @@ class ViewLocator
      * @param string $app Name of the application context
      * @return string|null Absolute path to the view file or null if not found
      */
-    public static function locate(string $view, string $app): ?string
+    public static function locate(string $view, string $app = ''): ?string
     {
+        $app = $app ?: (\SPP\Scheduler::getContext() ?: 'default');
         self::loadCache();
 
         $cacheKey = $app . '.' . $view;
@@ -99,48 +100,65 @@ class ViewLocator
         $hasExtension = preg_match('/\.(php|html|js|blade\.php)$/i', $view);
         $extensions = $hasExtension ? [''] : ['.blade.php', '.php', '.html', '.js'];
 
+        $viewCandidates = [$view];
+        if (!$hasExtension && str_contains($view, '.')) {
+            $viewCandidates[] = str_replace('.', '/', $view);
+        }
+        if (str_contains($view, '_')) {
+            $viewCandidates[] = str_replace('_', '-', $view);
+        }
+        if (str_contains($view, '-')) {
+            $viewCandidates[] = str_replace('-', '_', $view);
+        }
+
         $viewFiles = [];
         $theme = class_exists('\\SPP\\SPPConfig') ? (\SPP\SPPConfig::get('app:theme') ?? \SPP\SPPConfig::get('app.theme') ?? \SPP\SPPConfig::get('theme') ?? 'default') : 'default';
 
-        foreach ($extensions as $ext) {
-            foreach (self::$customPaths as $customPath) {
-                $viewFiles[] = $customPath . "/{$app}/views/{$view}{$ext}";
-                $viewFiles[] = $customPath . "/{$app}/comp/{$view}{$ext}";
-                $viewFiles[] = $customPath . "/{$app}/pages/{$view}{$ext}";
-                $viewFiles[] = $customPath . "/{$app}/partials/{$view}{$ext}";
-                $viewFiles[] = $customPath . "/{$app}/streams/{$view}{$ext}";
-                $viewFiles[] = $customPath . "/{$view}{$ext}";
-            }
+        foreach ($viewCandidates as $vCandidate) {
+            foreach ($extensions as $ext) {
+                foreach (self::$customPaths as $customPath) {
+                    $viewFiles[] = $customPath . "/{$app}/views/{$vCandidate}{$ext}";
+                    $viewFiles[] = $customPath . "/{$app}/comp/{$vCandidate}{$ext}";
+                    $viewFiles[] = $customPath . "/{$app}/pages/{$vCandidate}{$ext}";
+                    $viewFiles[] = $customPath . "/{$app}/partials/{$vCandidate}{$ext}";
+                    $viewFiles[] = $customPath . "/{$app}/streams/{$vCandidate}{$ext}";
+                    $viewFiles[] = $customPath . "/{$vCandidate}{$ext}";
+                }
 
-            if (defined('SPP_APP_DIR')) {
-                $viewFiles = array_merge($viewFiles, [
-                    SPP_APP_DIR . "/{$view}{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/pages/" . basename($view) . "{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/views/" . basename($view) . "{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/partials/" . basename($view) . "{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/streams/" . basename($view) . "{$ext}",
-                    SPP_APP_DIR . "/themes/{$theme}/{$app}/views/{$view}{$ext}",
-                    SPP_APP_DIR . "/themes/{$theme}/{$app}/partials/{$view}{$ext}",
-                    SPP_APP_DIR . "/themes/{$theme}/{$app}/streams/{$view}{$ext}",
-                    SPP_APP_DIR . "/themes/{$theme}/views/{$view}{$ext}",
-                    SPP_APP_DIR . "/themes/{$theme}/partials/{$view}{$ext}",
-                    SPP_APP_DIR . "/themes/{$theme}/streams/{$view}{$ext}",
-                    SPP_APP_DIR . "/resources/{$app}/views/{$view}{$ext}",
-                    SPP_APP_DIR . "/resources/{$app}/partials/{$view}{$ext}",
-                    SPP_APP_DIR . "/resources/{$app}/streams/{$view}{$ext}",
-                    SPP_APP_DIR . "/spp/etc/apps/{$app}/views/{$view}{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/views/{$view}{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/comp/{$view}{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/pages/{$view}{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/partials/{$view}{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/streams/{$view}{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/resources/views/{$view}{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/resources/views/partials/{$view}{$ext}",
-                    SPP_APP_DIR . "/src/{$app}/resources/views/streams/{$view}{$ext}",
-                    SPP_APP_DIR . "/resources/views/{$view}{$ext}",
-                    SPP_APP_DIR . "/resources/partials/{$view}{$ext}",
-                    SPP_APP_DIR . "/resources/streams/{$view}{$ext}",
-                ]);
+                if (defined('SPP_APP_DIR')) {
+                    $viewFiles = array_merge($viewFiles, [
+                        // 1. Canonical application view hierarchy (Fast-path resolution)
+                        SPP_APP_DIR . "/src/{$app}/resources/views/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/src/{$app}/resources/views/partials/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/src/{$app}/resources/views/streams/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/src/{$app}/resources/views/layouts/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/src/{$app}/views/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/src/{$app}/partials/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/src/{$app}/streams/{$vCandidate}{$ext}",
+
+                        // 2. Direct path & Theme overrides
+                        SPP_APP_DIR . "/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/themes/{$theme}/{$app}/views/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/themes/{$theme}/{$app}/partials/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/themes/{$theme}/{$app}/streams/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/themes/{$theme}/views/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/themes/{$theme}/partials/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/themes/{$theme}/streams/{$vCandidate}{$ext}",
+
+                        // 3. Shared resources & fallback paths
+                        SPP_APP_DIR . "/resources/{$app}/views/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/resources/{$app}/partials/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/resources/{$app}/streams/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/resources/views/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/resources/partials/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/resources/streams/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/spp/etc/apps/{$app}/views/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/src/{$app}/comp/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/src/{$app}/pages/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/spp/modules/spp/sppview/resources/views/{$vCandidate}{$ext}",
+                        SPP_APP_DIR . "/spp/modules/spp/sppview/partials/{$vCandidate}{$ext}",
+                    ]);
+                }
             }
         }
 

@@ -4,7 +4,7 @@ use SPP\CLI\Command;
 
 class PolyglotStatusCommand extends Command {
     protected string $name = 'polyglot:status';
-    protected string $description = 'Checks the runtime environment for polyglot language binaries';
+    protected string $description = 'Checks runtime environment and activation status for polyglot language drivers';
     
     public function isCLIOnly(): bool
     {
@@ -12,35 +12,45 @@ class PolyglotStatusCommand extends Command {
     }
 
     public function execute(array $args): void {
-        echo "Checking Polyglot runtime environment...\n\n";
+        $isJson = isset($args['json']) || in_array('--json', $args, true);
         
-        $binaries = [
-            'Python 3' => 'python --version',
-            'Node.js' => 'node --version',
-            'Go' => 'go version',
-            'Ruby' => 'ruby --version',
-            'Rust' => 'rustc --version'
-        ];
+        $runtimes = class_exists('\\SPP\\Core\\Polyglot\\LanguageRegistry')
+            ? \SPP\Core\Polyglot\LanguageRegistry::discoverRuntimes()
+            : [];
 
-        echo "+--------------+---------+------------------------------------------+\n";
-        echo "| Language     | Status  | Version Info                             |\n";
-        echo "+--------------+---------+------------------------------------------+\n";
+        if ($isJson) {
+            echo json_encode([
+                'success' => true,
+                'count' => count($runtimes),
+                'runtimes' => $runtimes
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
+            return;
+        }
+
+        echo "Checking Polyglot runtime environment across active LanguageRegistry drivers...\n\n";
+
+        echo "+-------------------+----------+---------+--------------------------------------------------+\n";
+        echo "| Language          | State    | Runtime | Discovered Path / Version                        |\n";
+        echo "+-------------------+----------+---------+--------------------------------------------------+\n";
         
-        foreach ($binaries as $lang => $cmd) {
-            $output = [];
-            $returnVar = 0;
-            exec($cmd . ' 2>&1', $output, $returnVar);
+        foreach ($runtimes as $id => $info) {
+            $name = $info['name'] ?? ucfirst($id);
+            $category = $info['category'] ?? 'interpreted';
+            $enabled = $info['enabled'] ?? true;
+            $state = $enabled ? "ENABLED" : "DISABLED";
             
-            if ($returnVar === 0 && !empty($output)) {
+            if ($category === 'dsl') {
                 $status = "OK";
-                $version = substr(implode(" ", $output), 0, 40);
+                $detail = "In-Process Sandboxed Engine";
             } else {
-                $status = "MISSING";
-                $version = "Not found in PATH";
+                $hasPath = !empty($info['path']);
+                $status = $hasPath ? "OK" : "MISSING";
+                $ver = $hasPath ? ($info['version'] ?? 'Discovered') : "Not found in PATH";
+                $detail = substr($ver . ($hasPath ? " (" . basename($info['path']) . ")" : ""), 0, 48);
             }
             
-            echo "| " . str_pad($lang, 12) . " | " . str_pad($status, 7) . " | " . str_pad($version, 40) . " |\n";
+            echo "| " . str_pad($name, 17) . " | " . str_pad($state, 8) . " | " . str_pad($status, 7) . " | " . str_pad($detail, 48) . " |\n";
         }
-        echo "+--------------+---------+------------------------------------------+\n";
+        echo "+-------------------+----------+---------+--------------------------------------------------+\n";
     }
 }

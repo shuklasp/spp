@@ -36,87 +36,220 @@
     <main class="main-content">
         <article class="content-container">
             <h1>06. Forms & Validation</h1>
-            <p>SPP provides a powerful form system that handles server-side processing, automated client-side validation mapping, and data binding.</p>
+            <p>SPP provides an enterprise-grade form and validation system designed around a single core invariant: <strong>write your validation logic once, and validate everywhere</strong>. A unified 4-way validation pipeline bridges <strong>Server-Side PHP</strong>, <strong>Browser Native HTML5</strong>, <strong>SPP-UX Client JS</strong>, and <strong>Drishyam LiveComponents</strong>.</p>
             
             <hr>
 
-            <h2>The Fluent Builder API (Modern Approach)</h2>
-            <p>The recommended way to build forms programmatically in SPP is using the new Fluent Builder API via <span class="accent">class.form.php</span>. This allows you to construct complex, validated forms entirely in PHP with a clean, chainable syntax.</p>
+            <h2>1. Quickstart: The Fluent Builder API</h2>
+            <p>Build validated forms programmatically in PHP with a clean, chainable syntax via <code>Form</code>:</p>
             <pre><code>use SPPMod\SPPView\Form;
 
-$form = Form::create('login_form', '/login')
+$form = Form::create('registration_form', '/register')
     ->addText('username', 'Username', ['required' => true, 'min' => 3])
-    ->addPassword('password', 'Password', ['required' => true])
-    ->addSubmit('login_btn', 'Login')
+    ->addEmail('email', 'Email Address', ['required' => true])
+    ->addPassword('password', 'Password', ['required' => true, 'min' => 8])
+    ->addSubmit('submit_btn', 'Create Account')
     ->build();
 
 echo $form->render();</code></pre>
 
             <hr>
 
-            <h2>Defining Forms in YAML</h2>
-            <p>You can also define forms declaratively using YAML. The <span class="accent">ViewFormBuilder::fromArray</span> method can parse these definitions into complete <code>ViewForm</code> objects.</p>
-            <pre><code># forms/login.yml
-name: login_form
-action: /login.php
-method: POST
-controls:
-  - name: username
+            <h2>2. Declarative Form Definitions in YAML</h2>
+            <p>In SPP, forms can be defined declaratively in YAML under <code>etc/apps/&lt;AppName&gt;/forms/&lt;name&gt;.yml</code>:</p>
+            <pre><code># etc/apps/school1/forms/student_enrollment.yml
+form:
+  name: student_enrollment_form
+  title: "Student Enrollment"
+  action: "/students/enroll"
+  method: post
+  id: "student_enrollment_form"
+
+fields:
+  student_name:
     type: text
-    label: Username
-    required: true
-    min: 3
-  - name: password
-    type: password
-    label: Password
-    required: true
-  - name: login_btn
+    label: "Full Name"
+    rules: "required|min:3|max:100"
+    col: 6
+
+  email:
+    type: email
+    label: "Parent Email"
+    rules: "required|email"
+    col: 6
+
+  admission_code:
+    type: text
+    label: "Admission Code"
+    rules: "required|admission_no"
+    col: 6
+
+  parent_pan:
+    type: text
+    label: "Parent PAN Card"
+    rules: "required|pan"
+    col: 6
+
+  submit_btn:
     type: submit
-    value: Login</code></pre>
-            <p>To render this:</p>
-            <pre><code>$config = \SPPMod\SPPView\ViewFormBuilder::loadConfig('forms/login.yml');
-$form = \SPPMod\SPPView\ViewFormBuilder::fromArray($config);
+    value: "Enroll Student"
+    class: "btn btn-primary"</code></pre>
+            <p>To render the YAML form in your controller:</p>
+            <pre><code>use SPPMod\SPPView\ViewFormBuilder;
+
+$form = ViewFormBuilder::fromYaml('forms/student_enrollment.yml');
 echo $form->render();</code></pre>
 
             <hr>
 
-            <h2>Native HTML5 Validation Mapping</h2>
-            <p>When you define validation rules (whether via Fluent Builder or YAML), SPP automatically translates them into native HTML5 attributes (<code>required</code>, <code>minlength</code>, <code>pattern</code>, etc.).</p>
-            <p>For example, assigning a rule like <code>aadhaar</code> or <code>pan</code> will natively inject the correct regex into the <code>&lt;input pattern="..."&gt;</code> attribute. This guarantees zero-JS, instant client-side validation while still enforcing the identical rules on the backend upon submission.</p>
-            <p>For complex logic that cannot be represented via simple attributes, validators dynamically inject lightweight JS (<code>getClientScript()</code>) to automatically execute on form submission.</p>
+            <h2>3. Universal Custom Validators (Rule)</h2>
+            <p>Extend <code>\SPPMod\SPPView\Validation\Rule</code> to author custom validators that automatically execute on both PHP backend and browser frontend:</p>
+            <pre><code>namespace App\School1\Rules;
+
+use SPPMod\SPPView\Validation\Rule;
+
+class AdmissionNoRule extends Rule
+{
+    public function __construct(protected string $pattern = '^[A-Z]{3}-[0-9]{4}-[A-Z]{2}$') {}
+
+    public function passes(string $attribute, mixed $value, array $data = []): bool
+    {
+        if ($value === null || $value === '') return true;
+        return (bool)preg_match('/' . $this->pattern . '/', (string)$value);
+    }
+
+    public function message(string $attribute): string
+    {
+        return ucfirst($attribute) . " must follow the format ABC-YYYY-XX.";
+    }
+
+    public function clientRule(string $attribute): array
+    {
+        return [
+            'pattern' => $this->pattern,
+            'minlength' => 11,
+            'maxlength' => 11,
+            'data-rule' => 'admission_no',
+            'data-msg' => $this->message($attribute),
+        ];
+    }
+}</code></pre>
 
             <hr>
 
-            <h2>Direct Entity Data Binding</h2>
-            <p>SPP Forms provide a direct data binding layer to map forms to your database entities using <code>SPPEntity</code>.</p>
-            
-            <h3>Hydrating Forms (Read)</h3>
-            <p>Use <code>bind()</code> to automatically populate form inputs with values from an existing database entity:</p>
-            <pre><code>$user = new UserEntity(123); // Load user
-$form->bind($user); 
-// Now all &lt;input&gt; elements will have their "value" attributes pre-filled</code></pre>
+            <h2>4. Declarative YAML Validator Registration (validators.yml)</h2>
+            <p>Register validators declaratively in <code>etc/apps/&lt;AppName&gt;/validators.yml</code> with zero PHP bootstrapping:</p>
+            <pre><code># etc/apps/school1/validators.yml
+validators:
+  admission_no:
+    pattern: '^[A-Z]{3}-[0-9]{4}-[A-Z]{2}$'
+    message: 'Admission number must follow format ABC-YYYY-XX.'
+    minlength: 11
+    maxlength: 11
+    data-rule: 'admission_no'
 
-            <h3>Hydrating Entities (Write)</h3>
-            <p>When a form is submitted, use <code>fill()</code> to automatically pull <code>$_POST</code> data and populate the entity:</p>
-            <pre><code>$user = clone $userEntity;
-$form->fill($user); // Fills properties from $_POST
+  curriculum_track:
+    in: ['cbse', 'icse', 'state', 'ib']
+    message: 'Curriculum track must be cbse, icse, state, or ib.'
+
+  exam_score:
+    range: [0, 100]
+    message: 'Score must be between 0 and 100.'</code></pre>
+
+            <hr>
+
+            <h2>5. Built-in Universal & Country-Specific ID Validators</h2>
+            <p>SPP comes pre-equipped with high-performance validators for Indian and global ID standards:</p>
+            <ul>
+                <li><code>pan</code>: Indian Income Tax PAN Card (10 chars, regex format: <code>[A-Z]{5}[0-9]{4}[A-Z]{1}</code>)</li>
+                <li><code>aadhaar</code>: 12-Digit UIDAI Aadhaar Number</li>
+                <li><code>gstin</code>: 15-Digit Goods & Services Tax ID</li>
+                <li><code>ifsc</code>: Bank IFSC Routing Code</li>
+                <li><code>pincode</code>: 6-Digit Indian Postal Code</li>
+                <li><code>indmobile</code>: 10-Digit Mobile Number (starts with 6-9)</li>
+                <li><code>passwordstrength</code>: Enterprise Security Password</li>
+                <li><code>creditcard</code>: Luhn Check Credit Card Number</li>
+            </ul>
+
+            <hr>
+
+            <h2>6. Direct Entity Data Binding</h2>
+            <p>Hydrate forms and entities bidirectionally with active record models:</p>
+            <pre><code>// Hydrate form from database:
+$student = Student::find(42);
+$form->bind($student);
+echo $form->render();
+
+// Process form submission:
+$student = new Student();
+$form->fill($student);
 if ($form->isValid()) {
-    $user->save();
+    $student->save();
+} else {
+    $errors = $form->getErrors();
 }</code></pre>
 
             <hr>
 
-            <h2>Server-side Processing</h2>
-            <p>To handle a form submission in your PHP controller:</p>
-            <pre><code>if (\SPPMod\SPPView\ViewPage::processForms()) {
-    // This is called automatically when a form is submitted
-}
+            <h2>7. CLI Scaffolding Tools</h2>
+            <p>Generate production-ready forms and validation rules with native CLI commands:</p>
+            <pre><code># Scaffold a YAML form definition:
+php spp.php make:form StudentRegistration --app=school1
 
-function login_form_submitted() {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    // ... authentication logic
+# Scaffold a custom validator rule class and auto-register in validators.yml:
+php spp.php make:rule AdmissionCode --app=school1 --pattern="^[A-Z]{3}-[0-9]{4}$" --min=8 --max=8</code></pre>
+
+            <hr>
+
+            <h2>8. SPP Developer Studio (<code>sppdev</code>) Form & Validation Studio</h2>
+            <p>For visual and low-code workflows, SPP integrates a complete <strong>Form &amp; Validation Studio</strong> inside <code>sppdev</code> (accessible at <code>/sppdev</code>):</p>
+            <ul>
+                <li><strong>Visual Drag &amp; Drop Form Builder</strong>: Dedicated palette elements for <strong>PAN Card</strong> (<code>pan</code>), <strong>Aadhaar Card</strong> (<code>aadhaar</code>), <strong>GSTIN</strong> (<code>gstin</code>), <strong>IFSC Code</strong> (<code>ifsc</code>), and <strong>PIN Code</strong> (<code>pincode</code>).</li>
+                <li><strong>Validation Inspector (Tab 4)</strong>: One-click toggles for standard rules and built-in enterprise IDs, dynamic application custom rule checkboxes from <code>validators.yml</code>, min/max length constraints, and a quick-action <em>+ New Custom Rule</em> button.</li>
+                <li><strong>Custom Validators &amp; Rule Studio</strong>: Comprehensive suite tab displaying all registered rules, metrics, an interactive <strong>Live Rule Tester</strong> for typing test values and getting real-time regex feedback, and a visual rule generator to scaffold new PHP Rule classes and update <code>validators.yml</code> without touching code.</li>
+                <li><strong>1-Click Code Studio Deep-Linking</strong>: Saving a rule with a PHP class or clicking <code>💻 Code</code> on any rule card instantly opens <strong>Code Studio</strong> (<code>#coder?file=...</code>) with that class file focused and ready for editing.</li>
+            </ul>
+
+            <hr>
+
+            <h2>9. Plain HTML Forms with YAML ID Binding (<code>@sppform_bind</code>)</h2>
+            <p>Write pure, bespoke HTML templates and bind your declarative Form YAML schema with a single Blade directive:</p>
+            <pre><code>&lt;!-- In your Blade view: --&gt;
+&lt;form id="student_enrollment_form" method="POST" action="/students/enroll" @sppform_bind('student_enrollment')&gt;
+    &lt;div class="mb-3"&gt;
+        &lt;label for="first_name"&gt;First Name&lt;/label&gt;
+        &lt;input type="text" id="first_name" name="first_name" class="form-control" placeholder="Aarav"&gt;
+    &lt;/div&gt;
+
+    &lt;div class="mb-3"&gt;
+        &lt;label for="email"&gt;Parent Email&lt;/label&gt;
+        &lt;input type="email" id="email" name="email" class="form-control" placeholder="parent@example.com"&gt;
+    &lt;/div&gt;
+
+    &lt;button type="submit" class="btn btn-primary"&gt;Submit Application&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+            <p>In your <code>ViewController</code>, validate the request in one line:</p>
+            <pre><code>public function enroll()
+{
+    $validation = $this->validateForm('student_enrollment');
+    if ($validation->fails()) {
+        return $this->json(['errors' => $validation->errors()], 422);
+    }
+
+    // Process valid submission...
 }</code></pre>
+
+            <hr>
+
+            <h2>10. Visual Forms &amp; Rule Studio in Drishyam Studio (<code>#pages</code>)</h2>
+            <p>Within <strong>Drishyam Studio</strong> (<code>/sppdev/#pages</code>), manage forms visually on the live WYSIWYG canvas:</p>
+            <ul>
+                <li><strong>📝 Forms Palette Tab</strong>: Inspect all YAML Form Manifests and registered Validator Rules side-by-side with canvas components.</li>
+                <li><strong>➕ Insert Form</strong>: 1-click synthesis of semantic HTML forms directly onto the canvas with <code>@sppform_bind(...)</code> pre-configured.</li>
+                <li><strong>🔗 Bind Form</strong>: Select any <code>&lt;form&gt;</code> on the canvas and bind it to a YAML manifest in 1 click.</li>
+                <li><strong>WYSIWYG Inspector</strong>: Instant dropdowns to select Form YAML schemas for forms, and quick-attach validator rules to any selected input element.</li>
+            </ul>
 
             <footer class="footer-nav">
                 <a href="05_routing_and_views.html" class="nav-button">

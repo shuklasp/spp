@@ -46,6 +46,23 @@ class FeatureManager
     ];
 
     /**
+     * Map of features to their autonomous providing packages.
+     */
+    private static array $featurePackageMap = [
+        'issues'       => 'pm',
+        'milestones'   => 'pm',
+        'pm_dashboard' => 'pm',
+        'forums'       => 'social',
+        'social'       => 'social',
+        'views'        => 'cms',
+        'taxonomy'     => 'cms',
+        'blocks'       => 'cms',
+        'modules'      => 'cms',
+        'schemas'      => 'cms',
+        'lms'          => 'lms',
+    ];
+
+    /**
      * Get the full catalog of modular features organized by tier.
      */
     public static function getFeatureCatalog(): array
@@ -321,6 +338,15 @@ class FeatureManager
         return dirname(__DIR__) . '/etc/feature_presets.yml';
     }
 
+    public static function safeParseYaml(string $file): array
+    {
+        $raw = @file_get_contents($file);
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+        return (array)Yaml::parse($raw);
+    }
+
     /**
      * Retrieve all saved custom presets.
      */
@@ -328,7 +354,7 @@ class FeatureManager
     {
         $file = self::getPresetsFile();
         if (file_exists($file)) {
-            $data = Yaml::parseFile($file) ?: [];
+            $data = self::safeParseYaml($file) ?: [];
             return is_array($data) ? $data : [];
         }
         return [];
@@ -395,7 +421,7 @@ class FeatureManager
         if (self::$globalConfig === null) {
             $file = __DIR__ . '/../etc/sppdocs.yml';
             if (file_exists($file)) {
-                self::$globalConfig = Yaml::parseFile($file) ?: [];
+                self::$globalConfig = self::safeParseYaml($file) ?: [];
             } else {
                 self::$globalConfig = [];
             }
@@ -408,6 +434,16 @@ class FeatureManager
      */
     public static function isEnabled(string $feature, ?array $project = null): bool
     {
+        // 0. Check package-level enablement if feature belongs to an autonomous package
+        if ($project && isset(self::$featurePackageMap[$feature])) {
+            $pkg = self::$featurePackageMap[$feature];
+            if (class_exists(\App\SPPDocs\Core\PackageKernel::class)) {
+                if (!\App\SPPDocs\Core\PackageKernel::isPackageEnabledForProject($pkg, $project)) {
+                    return false;
+                }
+            }
+        }
+
         // 1. Check project-level override first
         if ($project && isset($project['features'][$feature])) {
             $conf = $project['features'][$feature];
@@ -427,6 +463,11 @@ class FeatureManager
         $global = self::getGlobalConfig();
         if (isset($global['features'][$feature])) {
             $conf = $global['features'][$feature];
+            if (is_bool($conf)) return $conf;
+            if (is_array($conf)) return !empty($conf['enabled']);
+        }
+        if (isset($global['default_features'][$feature])) {
+            $conf = $global['default_features'][$feature];
             if (is_bool($conf)) return $conf;
             if (is_array($conf)) return !empty($conf['enabled']);
         }
@@ -557,6 +598,11 @@ class FeatureManager
      */
     public static function getNavigationItems(array $project, string $projectId): array
     {
+        if (class_exists(MenuRegistry::class)) {
+            $username = $_SESSION['sppdocs_user'] ?? null;
+            return MenuRegistry::getSidebarNavigation($project, $projectId, $username);
+        }
+
         $items = [];
 
         // 1. Documentation

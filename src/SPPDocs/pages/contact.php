@@ -1,7 +1,7 @@
 <?php
 /**
  * Contact Page — Demonstrates YAML-driven forms in native PHP
- * The form is defined in etc/apps/SPPDocs/forms/contact.yml
+ * The form is defined in src/SPPDocs/etc/forms/contact.yml
  */
 if (class_exists('\SPPMod\Drishyam\SPPUX')) {
     \SPPMod\Drishyam\SPPUX::boot();
@@ -11,7 +11,7 @@ if (class_exists('\SPPMod\Drishyam\SPPUX')) {
     <div style="background: #fff; border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;">
         <span style="display:inline-block; background:#e0e7ff; color:#4f46e5; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:700; margin-bottom:1rem;">YAML FORM</span>
         <h1 style="margin: 0 0 0.5rem;">Contact Us</h1>
-        <p style="color: #64748b;">This form is powered by the SPP YAML form engine. Definition: <code>etc/apps/SPPDocs/forms/contact.yml</code></p>
+        <p style="color: #64748b;">This form is powered by the SPP YAML form engine. Definition: <code>src/SPPDocs/etc/forms/contact.yml</code></p>
 
         <form method="POST" style="margin-top: 2rem;">
             <input type="hidden" name="spp_form_id" value="contact">

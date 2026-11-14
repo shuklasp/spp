@@ -1,4 +1,7 @@
 {
-    "SELECT * FROM users WHERE username = ? AND deleted_at IS NULL": 24,
-    "SELECT * FROM users WHERE deleted_at IS NULL": 40
+    "SELECT * FROM users WHERE username = ? AND deleted_at IS NULL": 30,
+    "SELECT * FROM users WHERE deleted_at IS NULL": 56,
+    "SHOW TABLES": 2,
+    "SELECT * FROM users LIMIT ?": 2,
+    "SELECT * FROM users": 4
 }

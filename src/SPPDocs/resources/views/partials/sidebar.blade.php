@@ -1,13 +1,12 @@
-<div style="margin-bottom: 1.5rem; position: relative;">
+<div class="sidebar-search-box" style="margin-bottom: 1.25rem; position: relative;">
     <input type="search" 
            name="query" 
-           placeholder="Search docs..." 
-           hx-get="{{ \SPP\App::getBaseUrl() }}/search?project={{ $project_id }}"
+           placeholder="Filter docs..." 
+           hx-get="{{ \SPP\App::getBaseUrl() }}/search?project={{ $project_id ?? '' }}"
            hx-trigger="keyup changed delay:300ms, search"
            hx-target="#search-results"
-           style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--vp-c-divider); background: var(--vp-c-bg); color: var(--vp-c-text-1);">
-    
-    <div id="search-results" style="position: absolute; top: 100%; left: 0; right: 0; background: var(--vp-c-bg); border: 1px solid var(--vp-c-divider); border-top: none; z-index: 100; max-height: 300px; overflow-y: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+           style="width: 100%; padding: 0.45rem 0.65rem; font-size: 0.85rem; border-radius: 6px; border: 1px solid var(--vp-c-divider); background: var(--vp-c-bg-soft, #f8f9fa); color: var(--vp-c-text-1); box-sizing: border-box; outline: none;">
+    <div id="search-results" style="position: absolute; top: 100%; left: 0; right: 0; background: var(--vp-c-bg); border: 1px solid var(--vp-c-divider); border-top: none; z-index: 100; max-height: 280px; overflow-y: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-radius: 0 0 6px 6px;">
     </div>
 </div>
 
@@ -17,11 +16,22 @@
     </div>
 @endif
 
+@if(!empty($project['package_name']))
+    <div class="sidebar-pkg-card" style="margin-bottom: 1.25rem; padding: 0.75rem; background: var(--vp-c-bg-soft, rgba(249, 115, 22, 0.08)); border: 1px solid rgba(249, 115, 22, 0.25); border-radius: 8px;">
+        <div style="font-size: 0.75rem; text-transform: uppercase; color: #f97316; font-weight: 700; margin-bottom: 4px;">📦 SatyaLab Store Package</div>
+        <a href="{{ \SPP\App::getBaseUrl('store') }}/package/{{ urlencode($project['package_name']) }}" style="font-size: 0.88rem; font-weight: 600; text-decoration: none; color: var(--vp-c-text-1); display: block; margin-bottom: 6px;">
+            {{ $project['package_name'] }} ↗
+        </a>
+        <div style="font-size: 0.75rem; font-family: monospace; background: rgba(0,0,0,0.2); padding: 3px 6px; border-radius: 4px; color: var(--vp-c-text-2); user-select: all;">
+            php spp.php pkg:install {{ $project['package_name'] }}
+        </div>
+    </div>
+@endif
+
 @php
-    $navItems = \App\SPPDocs\Services\FeatureManager::getNavigationItems($project ?? [], $project_id ?? '');
     $sidebarUser = $_SESSION['sppdocs_user'] ?? null;
-    $sidebarIsGlobalAdmin = $sidebarUser ? \App\SPPDocs\Services\PermissionManager::isGlobalAdmin($sidebarUser) : false;
-    $sidebarIsProjectAdmin = ($sidebarUser && !empty($project_id)) ? \App\SPPDocs\Services\PermissionManager::isProjectAdmin($project_id, $sidebarUser) : false;
+    $navItems = \App\SPPDocs\Services\MenuRegistry::getSidebarNavigation($project ?? [], $project_id ?? '', $sidebarUser);
+    $adminNav = \App\SPPDocs\Services\MenuRegistry::getSidebarAdminNavigation($project ?? [], $project_id ?? '', $sidebarUser);
 @endphp
 @if(!empty($navItems) || (isset($project['links']) && is_array($project['links'])))
     <div style="margin-bottom: 1.5rem;">
@@ -66,39 +76,24 @@
     </div>
 @endif
 
-@if($sidebarIsGlobalAdmin || $sidebarIsProjectAdmin)
+@if(!empty($adminNav['project']) || !empty($adminNav['global']))
     <div style="margin-bottom: 1.5rem;" hx-boost="false">
         <h2>Administration</h2>
         <ul>
-            @if($sidebarIsProjectAdmin && !empty($project_id))
-                <li><a href="@url('admin/project/' . $project_id)">⚙️ Project Settings</a></li>
-                @if(\App\SPPDocs\Services\FeatureManager::isEnabled('views', $project ?? []))
-                    <li><a href="@url('admin/views?project=' . $project_id)">🔍 Views Studio</a></li>
-                @endif
-                @if(\App\SPPDocs\Services\FeatureManager::isEnabled('taxonomy', $project ?? []))
-                    <li><a href="@url('admin/taxonomy?project=' . $project_id)">🏷️ Taxonomy Manager</a></li>
-                @endif
-                @if(\App\SPPDocs\Services\FeatureManager::isEnabled('modules', $project ?? []))
-                    <li><a href="@url('admin/modules?project=' . $project_id)">🧩 Module Manager</a></li>
-                @endif
-                @if(\App\SPPDocs\Services\FeatureManager::isEnabled('blocks', $project ?? []))
-                    <li><a href="@url('admin/blocks?project=' . $project_id)">🧱 Block Placements</a></li>
-                @endif
-                @if(\App\SPPDocs\Services\FeatureManager::isEnabled('schemas', $project ?? []))
-                    <li><a href="@url('admin/schemas?project=' . $project_id)">📐 Content Type Schemas</a></li>
-                @endif
-                @if(\App\SPPDocs\Services\FeatureManager::isEnabled('media', $project ?? []))
-                    <li><a href="@url('admin/media?project=' . $project_id)">🖼️ Media &amp; Image Styles</a></li>
-                @endif
-                @if(\App\SPPDocs\Services\FeatureManager::isEnabled('lms', $project ?? []))
-                    <li><a href="@url('admin/lms?project=' . $project_id)">🎓 Course Studio &amp; LMS</a></li>
-                @endif
-            @endif
-            @if($sidebarIsGlobalAdmin)
-                <li><a href="@url('admin' . (!empty($project_id) ? '?project=' . $project_id : ''))">👑 Global Console</a></li>
-                <li><a href="@url('admin/global-settings')">🌐 System Config</a></li>
-                <li><a href="@url('admin/users')">👥 User Directory</a></li>
-            @endif
+            @foreach($adminNav['project'] as $pAdminItem)
+                <li>
+                    <a href="{{ $pAdminItem['url'] }}" class="sidebar-link-flex">
+                        <span>{{ $pAdminItem['icon'] ?? '⚙️' }} {{ $pAdminItem['title'] }}</span>
+                    </a>
+                </li>
+            @endforeach
+            @foreach($adminNav['global'] as $gAdminItem)
+                <li>
+                    <a href="{{ $gAdminItem['url'] }}" class="sidebar-link-flex">
+                        <span>{{ $gAdminItem['icon'] ?? '👑' }} {{ $gAdminItem['title'] }}</span>
+                    </a>
+                </li>
+            @endforeach
         </ul>
     </div>
 @endif
@@ -119,34 +114,12 @@
     </div>
 @endif
 
-@php
-    $sidebarData = $project['sidebar'] ?? null;
-    if (empty($sidebarData) && !empty($project['pages_dir'])) {
-        $pDir = $project['pages_dir'];
-        if (!str_starts_with($pDir, '/') && !str_contains($pDir, ':\\')) {
-            $pDir = dirname(SPP_BASE_DIR) . '/' . $pDir;
-        }
-        $sidebarData = \App\SPPDocs\Services\DocNavigationService::buildSidebar($pDir);
-    }
-@endphp
-
-@if(!empty($sidebarData))
-    @foreach($sidebarData as $category => $links)
-        <h2>{{ $category }}</h2>
-        <ul hx-target="#doc-content" hx-swap="innerHTML" hx-push-url="true">
-            @foreach($links as $link)
-                @foreach($link as $title => $path)
-                    <li>
-                        <a href="{{ \SPP\App::getBaseUrl() }}/docs/{{ $project_id }}/{{ $version }}/{{ $path }}"
-                           class="{{ (isset($current_path) && $current_path === $path) ? 'active' : '' }}">
-                            {{ $title }}
-                        </a>
-                    </li>
-                @endforeach
-            @endforeach
-        </ul>
-    @endforeach
-@else
-    <p style="font-size: 0.85rem; color: var(--vp-c-text-3);">No documentation pages found.</p>
-@endif
+<div id="spp-sidebar-chapters">
+    @spppartial('partials/sidebar_chapters.blade.php', [
+        'project' => $project,
+        'project_id' => $project_id,
+        'version' => $version,
+        'current_path' => $current_path ?? null
+    ])
+</div>
 

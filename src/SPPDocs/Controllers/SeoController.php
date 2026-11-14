@@ -299,4 +299,55 @@ SVG;
         }
         return $docsDir;
     }
+
+    /**
+     * Interactive SEO & Readability Analyzer studio.
+     */
+    #[Route('/lekhak/seo/analyzer', method: 'GET')]
+    #[Route('/lekhak/seo/analyzer', method: 'POST')]
+    public function analyzer()
+    {
+        $this->ensureSession();
+
+        $title = $_POST['title'] ?? ($_GET['title'] ?? 'Lekhak Documentation & Content Architecture');
+        $desc = $_POST['description'] ?? ($_GET['description'] ?? 'Learn how to construct modular publishing engines with dynamic query views, zero inline HTML, and active record models.');
+        $keywordsRaw = $_POST['keywords'] ?? ($_GET['keywords'] ?? 'architecture, modular, publishing, engine, framework');
+        $body = $_POST['body'] ?? ($_GET['body'] ?? 'The SPP framework enables modular, high-performance web development. By compartmentalizing features into autonomous packages, teams can distribute customized profiles without leaking proprietary intellectual property. In this comprehensive guide, we explore architecture, active record patterns, zero inline HTML rendering, and dynamic query builders for enterprise publishing.');
+
+        $keywords = array_filter(array_map('trim', explode(',', $keywordsRaw)));
+
+        $metrics = \App\SPPDocs\Services\LekhakService::calculateSeoMetrics($body, $title, $desc, $keywords);
+
+        return $this->render('lekhak/seo_analyzer', [
+            'input'   => [
+                'title'       => $title,
+                'description' => $desc,
+                'keywords'    => $keywordsRaw,
+                'body'        => $body,
+            ],
+            'metrics' => $metrics,
+        ]);
+    }
+
+    /**
+     * API endpoint returning real-time SEO and readability JSON metrics.
+     */
+    #[Route('/lekhak/seo/analyze', method: 'POST')]
+    public function analyze()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+        $title = $input['title'] ?? '';
+        $desc = $input['description'] ?? '';
+        $keywordsRaw = $input['keywords'] ?? '';
+        $body = $input['body'] ?? '';
+
+        $keywords = is_array($keywordsRaw) ? $keywordsRaw : array_filter(array_map('trim', explode(',', $keywordsRaw)));
+
+        $metrics = \App\SPPDocs\Services\LekhakService::calculateSeoMetrics($body, $title, $desc, $keywords);
+
+        echo json_encode(['success' => true, 'metrics' => $metrics]);
+        exit;
+    }
 }

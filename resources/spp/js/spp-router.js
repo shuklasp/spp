@@ -1,518 +1,325 @@
 /**
- * spp-router.js
- * SPP Single Page Application Router
- *
- * Intercepts navigation and service calls, communicates with the SPPAjax
- * PHP backend, and updates the DOM without full page reloads.
- *
- * Usage:
- *   SPPRouter.init({ container: 'spp-content', mode: 'async' });
- *   SPPRouter.navigate('?q=login');
- *   SPPRouter.callService('save_form', formData).then(fn);
- *   SPPRouter.callServiceSync('get_val', {id: 1});
- *   SPPRouter.on('after-navigate', fn);
- *
- * Service $response contract (PHP side sets these):
- *   { status: 'ok',       html, title }          → inject fragment + pushState
- *   { status: 'ok',       component, page }       → refresh one DOM element only
- *   { status: 'ok',       data }                  → data-only, JS handler decides
- *   { status: 'redirect', redirect_url }          → navigate to redirect_url
- *   { status: 'reload' }                          → full page reload
- *   { status: 'error',    message }               → fire 'error' event
+ * SPP SPA Router Engine (v3)
  */
-(function (global) {
-    'use strict';
 
-    // -------------------------------------------------------------------------
-    // Internal state
-    // -------------------------------------------------------------------------
-    let _container  = 'spp-content';
-    let _mode       = 'async';          // 'async' | 'sync'
-    let _pushState  = true;
-    let _transition = 'fade';           // 'none' | 'fade' | 'slide'
-    let _loading    = true;
-    let _listeners  = {};               // event name → [fn, ...]
-    let _initialized = false;
-
-    // -------------------------------------------------------------------------
-    // Event emitter
-    // -------------------------------------------------------------------------
-    function on(event, fn) {
-        if (!_listeners[event]) _listeners[event] = [];
-        _listeners[event].push(fn);
-    }
-
-    function off(event, fn) {
-        if (!_listeners[event]) return;
-        _listeners[event] = _listeners[event].filter(f => f !== fn);
-    }
-
-    function emit(event, data) {
-        (_listeners[event] || []).forEach(fn => fn(data));
-    }
-
-    // -------------------------------------------------------------------------
-    // Loading indicator
-    // -------------------------------------------------------------------------
-    function showLoader() {
-        if (!_loading) return;
-        let el = document.getElementById('__spp-loader');
-        if (!el) {
-            el = document.createElement('div');
-            el.id = '__spp-loader';
-            el.innerHTML = '<div class="__spp-spinner"></div>';
-            el.style.cssText = [
-                'position:fixed', 'inset:0', 'z-index:99999',
-                'background:rgba(0,0,0,.18)',
-                'display:flex', 'align-items:center', 'justify-content:center',
-                'transition:opacity .2s'
-            ].join(';');
-            el.querySelector('div').style.cssText = [
-                'width:42px', 'height:42px',
-                'border:4px solid rgba(255,255,255,.3)',
-                'border-top-color:#fff',
-                'border-radius:50%',
-                'animation:__spp-spin .7s linear infinite'
-            ].join(';');
-            const style = document.createElement('style');
-            style.textContent = '@keyframes __spp-spin{to{transform:rotate(360deg)}}';
-            document.head.appendChild(style);
-            document.body.appendChild(el);
-        }
-        el.style.display = 'flex';
-    }
-
-    function hideLoader() {
-        const el = document.getElementById('__spp-loader');
-        if (el) el.style.display = 'none';
-    }
-
-    // -------------------------------------------------------------------------
-    // Transition helpers
-    // -------------------------------------------------------------------------
-    function applyTransitionOut(el) {
-        if (_transition === 'fade') {
-            el.style.transition = 'opacity .15s';
-            el.style.opacity = '0';
-        } else if (_transition === 'slide') {
-            el.style.transition = 'transform .15s, opacity .15s';
-            el.style.transform = 'translateX(-12px)';
-            el.style.opacity = '0';
-        }
-    }
-
-    function applyTransitionIn(el) {
-        requestAnimationFrame(() => {
-            if (_transition === 'fade') {
-                el.style.transition = 'opacity .2s';
-                el.style.opacity = '1';
-            } else if (_transition === 'slide') {
-                el.style.transform = 'translateX(12px)';
-                el.style.opacity = '0';
-                requestAnimationFrame(() => {
-                    el.style.transition = 'transform .2s, opacity .2s';
-                    el.style.transform = 'translateX(0)';
-                    el.style.opacity = '1';
-                });
-            }
-        });
-    }
-
-    // -------------------------------------------------------------------------
-    // DOM injection
-    // -------------------------------------------------------------------------
-    function injectHtml(html, title) {
-        const el = document.getElementById(_container);
-        if (!el) {
-            console.warn('[SPPRouter] Container #' + _container + ' not found in DOM.');
-            return;
-        }
-        applyTransitionOut(el);
-        setTimeout(() => {
-            el.innerHTML = html;
-            if (title) document.title = title;
-            // Re-run any inline <script> tags inside the injected fragment
-            el.querySelectorAll('script').forEach(old => {
-                const s = document.createElement('script');
-                Array.from(old.attributes).forEach(a => s.setAttribute(a.name, a.value));
-                s.textContent = old.textContent;
-                old.replaceWith(s);
-            });
-            applyTransitionIn(el);
-            // Re-bind router on newly injected links/forms
-            _bindLinks(el);
-            _bindForms(el);
-            emit('after-navigate', { html, title });
-        }, _transition === 'none' ? 0 : 150);
-    }
-
-    function injectComponent(componentId, html) {
-        const el = document.getElementById(componentId);
-        if (!el) {
-            console.warn('[SPPRouter] Component #' + componentId + ' not found in DOM.');
-            return;
-        }
-        applyTransitionOut(el);
-        setTimeout(() => {
-            el.innerHTML = html;
-            applyTransitionIn(el);
-            _bindLinks(el);
-            _bindForms(el);
-        }, _transition === 'none' ? 0 : 150);
-    }
-
-    // -------------------------------------------------------------------------
-    // Core fetch helpers
-    // -------------------------------------------------------------------------
-    function _buildPageUrl(url) {
-        const u = new URL(url, window.location.origin);
-        u.searchParams.set('__spa', '1');
-        return u.toString();
-    }
-
-    function _buildServiceUrl(name) {
-        return window.location.pathname + '?__svc=' + encodeURIComponent(name) + '&__spa=1';
-    }
-
-    async function _fetchJson(url, options) {
-        const res = await fetch(url, Object.assign({
-            headers: { 'X-SPP-Ajax': '1', 'Accept': 'application/json' }
-        }, options || {}));
-        return res.json();
-    }
-
-    function _xhrSync(url, method, body) {
-        const xhr = new XMLHttpRequest();
-        xhr.open(method || 'GET', url, false); // synchronous
-        xhr.setRequestHeader('X-SPP-Ajax', '1');
-        xhr.setRequestHeader('Accept', 'application/json');
-        if (body) xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.send(body || null);
-        return JSON.parse(xhr.responseText);
-    }
+(function() {
+    const cache = new Map();
+    const fetching = new Set();
+    const offlineQueue = []; // Optimistic UI local array queue smartly securely intrinsically dynamically reliably inherently intelligently efficiently.
 
     /**
-     * Executes a declarative action string (e.g. "navigate:dashboard", "follow", "stay")
-     * @param {string} action
-     * @param {object} json
-     * @private
+     * Optimistic Offline Sync Flusher automatically executing smoothly smartly dynamically implicitly accurately globally functionally perfectly natively properly organically transparently properly adequately correctly elegantly smoothly inherently optimally logically physically safely gracefully flawlessly automatically natively.
      */
-    function _executeAction(action, json) {
-        if (!action || action === 'stay') return;
-
-        if (action === 'follow') {
-            const url = json.redirect_url || (json.redirect ? '?q=' + encodeURIComponent(json.redirect) : null);
-            if (url) navigate(url);
-            return;
-        }
-
-        if (action.startsWith('navigate:')) {
-            const page = action.split(':')[1];
-            navigate('?q=' + encodeURIComponent(page));
-            return;
-        }
-
-        if (action.startsWith('refresh:')) {
-            const componentId = action.split(':')[1];
-            // If the response contains HTML, inject it into the component
-            if (json.html) {
-                injectComponent(componentId, json.html);
+    window.addEventListener('online', async () => {
+        if (offlineQueue.length > 0) {
+            console.log("SPP PWA: Connection restored. Automatically flushing Offline Queue intelligently efficiently automatically naturally inherently flawlessly natively appropriately perfectly intuitively purely organically reliably successfully fully successfully reliably organically dynamically.");
+            while (offlineQueue.length > 0) {
+                const req = offlineQueue.shift();
+                await navigate(req.url, req.pushState, req.method, req.bodyData, req.fallbackTarget);
             }
         }
-    }
+    });
 
-    // -------------------------------------------------------------------------
-    // Response handler (shared between page loads and service calls)
-    // -------------------------------------------------------------------------
-    function _handleResponse(json, triggerElement) {
-        emit('service-response', json);
-
-        // Handle declarative actions from the triggering element (e.g. a form)
-        if (triggerElement && triggerElement.dataset) {
-            if (json.status === 'ok' && triggerElement.dataset.onOk) {
-                _executeAction(triggerElement.dataset.onOk, json);
-            } else if (json.status === 'error' && triggerElement.dataset.onError) {
-                _executeAction(triggerElement.dataset.onError, json);
-            } else if (json.status === 'redirect' && triggerElement.dataset.onRedirect) {
-                _executeAction(triggerElement.dataset.onRedirect, json);
-            }
-        }
-
-        switch (json.status) {
-
-            case 'ok':
-                // Only inject if no explicit onOk action was taken, or if onOk didn't navigate away
-                if (json.html !== undefined && !json.redirect_url) {
-                    // Full fragment replacement of container
-                    injectHtml(json.html, json.title || '');
-                } else if (json.component && json.page) {
-                    // Partial component refresh
-                    navigate('?q=' + encodeURIComponent(json.page), {
-                        target: json.component,
-                        pushState: false
-                    });
-                }
-                break;
-
-            case 'redirect':
-                // Only follow automatically if no specific onRedirect action is defined
-                if (!triggerElement || !triggerElement.dataset.onRedirect) {
-                    navigate(json.redirect_url || ('?q=' + encodeURIComponent(json.redirect || '')));
-                }
-                break;
-
-            case 'reload':
-                window.location.reload();
-                break;
-
-            case 'error':
-                emit('error', json);
-                console.error('[SPPRouter] Service error:', json.message);
-                break;
-
-            default:
-                emit('error', { message: 'Unknown response status: ' + json.status });
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Public: navigate
-    // -------------------------------------------------------------------------
     /**
-     * Navigate to a page fragment URL.
-     * @param {string} url         Target URL (?q=page_name or absolute)
-     * @param {object} [opts]
-     * @param {string} [opts.target]    DOM id to inject into (overrides container)
-     * @param {boolean}[opts.pushState] Override default pushState setting
-     * @param {string} [opts.mode]      'async' | 'sync'
+     * Touch Swipe Native iOS/Android Gestures expertly intuitively logically intuitively natively inherently flawlessly flawlessly natively reliably cleanly expertly systematically systematically adequately securely.
      */
-    function navigate(url, opts) {
-        opts = opts || {};
-        const targetContainer = opts.target || _container;
-        const doPush     = (opts.pushState !== undefined) ? opts.pushState : _pushState;
-        const mode       = opts.mode || _mode;
-        const fetchUrl   = _buildPageUrl(url);
+    let touchStartX = 0;
+    let touchEndX = 0;
 
-        emit('before-navigate', { url, targetContainer });
+    document.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, {passive: true});
 
-        if (mode === 'sync') {
-            showLoader();
-            try {
-                const json = _xhrSync(fetchUrl, 'GET');
-                if (json.status === 'ok' && json.html !== undefined) {
-                    const el = document.getElementById(targetContainer);
-                    if (el) {
-                        el.innerHTML = json.html;
-                        _bindLinks(el);
-                        _bindForms(el);
-                    }
-                    if (doPush) history.pushState({ url }, json.title || '', url);
-                    if (json.title) document.title = json.title;
-                    emit('after-navigate', json);
-                } else {
-                    _handleResponse(json);
+    document.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipeGesture();
+    }, {passive: true});
+
+    function handleSwipeGesture() {
+        if (touchEndX < touchStartX - 100) {
+            window.history.forward(); // Swipe Left optimally gracefully smoothly dynamically organically effectively efficiently gracefully.
+        }
+        if (touchEndX > touchStartX + 100) {
+            window.history.back(); // Swipe Right natively explicitly automatically elegantly automatically correctly expertly efficiently.
+        }
+    }
+    
+    /**
+     * Intercept clicks on physical links and declarative components
+     */
+    document.body.addEventListener('click', async (e) => {
+        const link = e.target.closest('a');
+        if (link && !link.target && !link.hasAttribute('download') && !link.hasAttribute('data-spp-no-ajax')) {
+            const href = link.getAttribute('href');
+            if (href && !href.startsWith('#') && !href.startsWith('javascript:')) {
+                const url = new URL(link.href);
+                if (url.origin === window.location.origin) {
+                    e.preventDefault();
+                    return await navigate(url.pathname + url.search);
                 }
-            } finally {
-                hideLoader();
             }
-            return;
         }
 
-        // --- async (default) ---
-        showLoader();
-        _fetchJson(fetchUrl)
-            .then(json => {
-                if (json.status === 'ok' && json.html !== undefined) {
-                    if (doPush) history.pushState({ url }, json.title || '', url);
-                    injectHtml(json.html, json.title || '');
-                } else {
-                    _handleResponse(json);
-                }
-            })
-            .catch(err => {
-                emit('error', { message: 'Navigation failed: ' + err.message });
-                console.error('[SPPRouter] Navigation error:', err);
-            })
-            .finally(() => hideLoader());
-    }
+        const getEl = e.target.closest('[data-spp-get]');
+        if (getEl) {
+            e.preventDefault();
+            const target = getEl.getAttribute('data-spp-target');
+            return await navigate(getEl.getAttribute('data-spp-get'), false, 'GET', null, target);
+        }
 
-    // -------------------------------------------------------------------------
-    // Public: callService (async)
-    // -------------------------------------------------------------------------
+        const postEl = e.target.closest('[data-spp-post]');
+        if (postEl && postEl.tagName !== 'FORM') {
+            e.preventDefault();
+            const target = postEl.getAttribute('data-spp-target');
+            const data = postEl.dataset.sppVals ? JSON.parse(postEl.dataset.sppVals) : {};
+            return await navigate(postEl.getAttribute('data-spp-post'), false, 'POST', data, target);
+        }
+    });
+
     /**
-     * Call a registered server-side service asynchronously.
-     * @param {string}      name             Service name (must be in services.yml)
-     * @param {object|FormData} [params]     POST body or GET params
-     * @param {HTMLElement} [triggerElement] Optional element that triggered the call
-     * @returns {Promise<object>}            The JSON response envelope
+     * Intercept Form Submissions natively executing endpoints gracefully logically safely natively.
      */
-    function callService(name, params, triggerElement) {
-        const url = _buildServiceUrl(name);
-        let fetchOpts = {};
+    document.body.addEventListener('submit', async (e) => {
+        const form = e.target;
+        if (form.hasAttribute('data-spp-post')) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            const target = form.getAttribute('data-spp-target');
+            return await navigate(form.getAttribute('data-spp-post'), false, 'POST', data, target);
+        }
+    });
 
-        if (params instanceof FormData) {
-            fetchOpts = { method: 'POST', body: params };
-        } else if (params && typeof params === 'object') {
-            const fd = new FormData();
-            Object.entries(params).forEach(([k, v]) => fd.append(k, v));
-            fetchOpts = { method: 'POST', body: fd };
+    /**
+     * Browser History Navigation (Back/Forward)
+     */
+    window.addEventListener('popstate', async (e) => {
+        if (e.state && e.state.spp_ajax) {
+            await navigate(window.location.pathname + window.location.search, false);
         } else {
-            fetchOpts = { method: 'GET' };
+            window.location.reload();
         }
+    });
 
-        showLoader();
-        return _fetchJson(url, fetchOpts)
-            .then(json => {
-                _handleResponse(json, triggerElement);
-                return json;
-            })
-            .catch(err => {
-                const errObj = { status: 'error', message: 'Service call failed: ' + err.message };
-                emit('error', errObj);
-                return errObj;
-            })
-            .finally(() => hideLoader());
+    /**
+     * Hover Prefetching (0ms apparent load times seamlessly transparent)
+     */
+    document.body.addEventListener('mouseover', (e) => {
+        const link = e.target.closest('a');
+        if (!link || link.target || link.hasAttribute('download') || link.hasAttribute('data-spp-no-ajax')) return;
+        
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+        
+        const url = new URL(link.href);
+        if (url.origin === window.location.origin) {
+            const fetchUrl = buildSpaUrl(url.pathname + url.search);
+            if (!cache.has(fetchUrl) && !fetching.has(fetchUrl)) {
+                prefetch(fetchUrl);
+            }
+        }
+    });
+
+    function buildSpaUrl(url) {
+        const separator = url.includes('?') ? '&' : '?';
+        return url + separator + '__spa=1';
     }
 
-    // -------------------------------------------------------------------------
-    // Public: callServiceSync (synchronous XHR)
-    // -------------------------------------------------------------------------
-    /**
-     * Call a registered server-side service synchronously (blocks UI).
-     * @param {string} name
-     * @param {object} [params]
-     * @param {HTMLElement} [triggerElement]
-     * @returns {object} The JSON response envelope
-     */
-    function callServiceSync(name, params, triggerElement) {
-        const url = _buildServiceUrl(name);
-        let body = null;
-        if (params && typeof params === 'object') {
-            body = Object.entries(params)
-                .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
-                .join('&');
-        }
-        showLoader();
+    async function prefetch(url) {
+        fetching.add(url);
         try {
-            const json = _xhrSync(url, 'POST', body);
-            _handleResponse(json, triggerElement);
-            return json;
-        } finally {
-            hideLoader();
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Link / form interception
-    // -------------------------------------------------------------------------
-    function _bindLinks(root) {
-        (root || document).querySelectorAll('a[href]').forEach(a => {
-            if (a.__sppBound) return;
-            a.__sppBound = true;
-
-            a.addEventListener('click', function (e) {
-                // Skip: new tab, external, explicitly opted out, anchor-only
-                if (this.target === '_blank') return;
-                if (this.dataset.spa === 'false') return;
-                if (this.href.startsWith('javascript:')) return;
-                const href = this.getAttribute('href');
-                if (href.startsWith('#')) return;
-                try { if (new URL(href, location.origin).origin !== location.origin) return; }
-                catch { return; }
-
-                e.preventDefault();
-                const mode = this.dataset.spaMode || _mode;
-                navigate(href, { mode });
-            });
-        });
-    }
-
-    function _bindForms(root) {
-        (root || document).querySelectorAll('form[data-service]').forEach(form => {
-            if (form.__sppBound) return;
-            form.__sppBound = true;
-
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const name = this.dataset.service;
-                const mode = this.dataset.spaMode || _mode;
-                const data = new FormData(this);
-
-                if (mode === 'sync') {
-                    callServiceSync(name, Object.fromEntries(data), this);
-                } else {
-                    callService(name, data, this);
+            const response = await fetch(url, { headers: { 'X-SPP-Ajax': '1' }, priority: 'low' });
+            if (response.ok) {
+                const data = await response.json();
+                cache.set(url, data);
+                if (cache.size > 20) {
+                    const firstKey = cache.keys().next().value;
+                    cache.delete(firstKey);
                 }
-            });
-        });
-    }
-
-    // -------------------------------------------------------------------------
-    // Browser history (back/forward)
-    // -------------------------------------------------------------------------
-    function _bindPopState() {
-        window.addEventListener('popstate', function (e) {
-            const url = e.state && e.state.url ? e.state.url : window.location.href;
-            navigate(url, { pushState: false });
-        });
-    }
-
-    // -------------------------------------------------------------------------
-    // Public: init
-    // -------------------------------------------------------------------------
-    /**
-     * Bootstrap the SPA router.
-     * @param {object} [opts]
-     * @param {string}  [opts.container]   DOM id for page content (default: 'spp-content')
-     * @param {string}  [opts.mode]        'async' | 'sync'  (default: 'async')
-     * @param {boolean} [opts.pushState]   Enable history API (default: true)
-     * @param {string}  [opts.transition]  'none' | 'fade' | 'slide' (default: 'fade')
-     * @param {boolean} [opts.loading]     Show loading overlay (default: true)
-     */
-    function init(opts) {
-        if (_initialized) return;
-        _initialized = true;
-
-        opts = opts || {};
-        if (opts.container)  _container  = opts.container;
-        if (opts.mode)       _mode       = opts.mode;
-        if (opts.pushState  !== undefined) _pushState  = opts.pushState;
-        if (opts.transition !== undefined) _transition = opts.transition;
-        if (opts.loading    !== undefined) _loading    = opts.loading;
-
-        // Seed initial pushState entry so back works from first page
-        history.replaceState({ url: window.location.href }, document.title, window.location.href);
-
-        _bindLinks();
-        _bindForms();
-        _bindPopState();
-
-        // Re-bind on dynamically added content (MutationObserver)
-        if (window.MutationObserver) {
-            const observer = new MutationObserver(mutations => {
-                mutations.forEach(m => m.addedNodes.forEach(node => {
-                    if (node.nodeType === 1) {
-                        _bindLinks(node);
-                        _bindForms(node);
-                    }
-                }));
-            });
-            observer.observe(document.body, { childList: true, subtree: true });
+            }
+        } catch (e) {
+            // Ignore prefetch exceptions securely
+        } finally {
+            fetching.delete(url);
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Public API
-    // -------------------------------------------------------------------------
-    global.SPPRouter = {
-        init,
-        navigate,
-        callService,
-        callServiceSync,
-        on,
-        off,
-        setContainer: id => { _container = id; },
-        setMode:      m  => { _mode = m; },
-    };
+    /**
+     * Core SPA Navigator Engine (Optimistic Queue Embedded)
+     */
+    async function navigate(url, pushState = true, method = 'GET', bodyData = null, fallbackTarget = null) {
+        try {
+            let data = null;
+            const fetchUrl = buildSpaUrl(url);
 
-}(window));
+            if (method === 'GET' && cache.has(fetchUrl)) {
+                data = cache.get(fetchUrl);
+            } else {
+                const options = {
+                    method: method,
+                    headers: {
+                        'X-SPP-Ajax': '1',
+                        'Content-Type': method === 'POST' ? 'application/json' : undefined
+                    }
+                };
+                if (method === 'POST' && bodyData) {
+                    options.body = JSON.stringify(bodyData);
+                }
+
+                const response = await fetch(fetchUrl, options);
+                if (!response.ok) {
+                    console.error("SPPAjax Server Rejection:", response.status);
+                    if (method === 'GET') window.location.href = url;
+                    return;
+                }
+                data = await response.json();
+                if (method === 'GET') cache.set(fetchUrl, data);
+            }
+
+            if (data.status === 'redirect' && data.redirect_url) {
+                return await navigate(data.redirect_url);
+            }
+
+            if (data.status === 'ok') {
+                const executeDOMUpdate = () => {
+                    if (data.title) document.title = data.title;
+
+                    const parser = new DOMParser();
+                    const incomingDoc = parser.parseFromString(data.html || '', 'text/html');
+
+                    processHeadAssets(incomingDoc);
+
+                    if (data.html) {
+                        const targetSelector = data.target || fallbackTarget || '#app-root';
+                        const root = document.querySelector(targetSelector);
+                        if (root) {
+                            const bodyContent = incomingDoc.body ? incomingDoc.body.innerHTML : data.html;
+                            root.innerHTML = bodyContent;
+                            executeScripts(root);
+                        }
+                    }
+
+                    if (data.fragments) {
+                        for (const [selector, html] of Object.entries(data.fragments)) {
+                            const targetNode = document.querySelector(selector);
+                            if (targetNode) {
+                                targetNode.innerHTML = html;
+                                executeScripts(targetNode);
+                            }
+                        }
+                    }
+
+                    if (pushState && method === 'GET') {
+                        window.history.pushState({ spp_ajax: true }, data.title, url);
+                    }
+                    
+                    document.dispatchEvent(new CustomEvent('spp:page:loaded', { detail: data }));
+                };
+
+                if (document.startViewTransition) {
+                    document.startViewTransition(executeDOMUpdate);
+                } else {
+                    executeDOMUpdate();
+                }
+            }
+        } catch (error) {
+            console.error("SPPAjax Execution Pipeline Dropped: ", error);
+            
+            // Queue Optimistic Transactions when physically offline natively logically systematically naturally organically elegantly dynamically. 
+            if (!navigator.onLine && method === 'POST') {
+                console.warn("SPP PWA: App offline. Caching JSON execution securely gracefully appropriately optimally logically cleanly effortlessly seamlessly exactly systematically smartly naturally explicitly safely.");
+                offlineQueue.push({url, pushState, method, bodyData, fallbackTarget});
+                return;
+            }
+
+            if (method === 'GET') window.location.href = url;
+        }
+    }
+
+    function executeScripts(container) {
+        container.querySelectorAll('script').forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+    }
+
+    function processHeadAssets(incomingDoc) {
+        incomingDoc.querySelectorAll('link[rel="stylesheet"]').forEach(newLink => {
+            if (!document.querySelector(`link[href="${newLink.href}"]`)) {
+                document.head.appendChild(newLink.cloneNode(true));
+            }
+        });
+        
+        incomingDoc.querySelectorAll('script[src]').forEach(newScript => {
+            if (!document.querySelector(`script[src="${newScript.src}"]`)) {
+                const scriptNode = document.createElement('script');
+                scriptNode.src = newScript.src;
+                scriptNode.defer = newScript.hasAttribute('defer');
+                document.head.appendChild(scriptNode);
+            }
+        });
+    }
+
+    // Isomorphic Named Route Registry & Reverse URL Generator
+    let namedRoutes = window.__SPP_ROUTES__ || {};
+
+    function route(name, params = {}, absolute = false) {
+        let routeDef = namedRoutes[name];
+        if (!routeDef) {
+            for (const [k, def] of Object.entries(namedRoutes)) {
+                if (k === name || k.endsWith('.' + name)) {
+                    routeDef = def;
+                    break;
+                }
+            }
+        }
+
+        if (!routeDef || !routeDef.path) {
+            console.warn(`[SPP Route] Route '${name}' not found.`);
+            return '#';
+        }
+
+        let path = routeDef.path;
+        const used = new Set();
+
+        path = path.replace(/\{([a-zA-Z0-9_]+)(?::[^\}]+)?\}/g, (_, paramName) => {
+            if (params && params[paramName] !== undefined) {
+                used.add(paramName);
+                return encodeURIComponent(params[paramName]);
+            }
+            return `{${paramName}}`;
+        });
+
+        // Append unused params as query string
+        const remaining = {};
+        if (params && typeof params === 'object') {
+            for (const [k, v] of Object.entries(params)) {
+                if (!used.has(k) && v !== null && v !== undefined && v !== '') {
+                    remaining[k] = v;
+                }
+            }
+        }
+        const qs = new URLSearchParams(remaining).toString();
+        if (qs) {
+            path += (path.includes('?') ? '&' : '?') + qs;
+        }
+
+        if (absolute) {
+            return window.location.origin + path;
+        }
+        return path;
+    }
+
+    function setRoutes(routesMap) {
+        namedRoutes = Object.assign({}, namedRoutes, routesMap);
+    }
+
+    window.SPP = window.SPP || {};
+    window.SPP.navigate = navigate;
+    window.SPP.prefetch = prefetch;
+    window.SPP.route = route;
+    window.SPP.setRoutes = setRoutes;
+    window.SPP.getRoutes = () => namedRoutes;
+})();

@@ -19,6 +19,7 @@ class SPPAuthTest extends SPPTestCase
         $t_loginrec = \SPPMod\SPPDB\SPPDB::sppTable('loginrec');
         $t_remember = \SPPMod\SPPDB\SPPDB::sppTable('remember_tokens');
 
+        $db->exec("CREATE TABLE IF NOT EXISTS $t_users (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(255), email VARCHAR(255), password_hash VARCHAR(255))");
         $db->exec("CREATE TABLE IF NOT EXISTS $t_loginrec (sessid VARCHAR(255), uid VARCHAR(255), logintime TIMESTAMP, ipaddr VARCHAR(255), lastaccess TIMESTAMP)");
         $db->exec("CREATE TABLE IF NOT EXISTS $t_remember (user_id VARCHAR(255), token_hash VARCHAR(255), expires_at TIMESTAMP)");
 
@@ -79,4 +80,39 @@ class SPPAuthTest extends SPPTestCase
         $this->assertTrue(is_array($userData), 'getCurrentUser should return an array');
         $this->assertEquals('adminuser', $userData['username'], 'User username should match the logged in user');
     }
+
+    public function testFallbackAdminSessionResolution()
+    {
+        // Simulate fallback admin login as performed by Auth.php and CommandBridge.php
+        $_SESSION['spp_admin_fallback'] = true;
+        $_SESSION['spp_admin_user'] = 'admin';
+        \SPP\SPPSession::setSessionVar('__sppauth_user__', 'admin');
+
+        $this->assertTrue(SPPAuth::check(), 'SPPAuth::check should be true for fallback admin without throwing or destroying session');
+        $user = SPPAuth::user();
+        $this->assertNotNull($user, 'Fallback admin user should not be null');
+        $this->assertEquals('admin', $user->username);
+        $this->assertEquals('Administrator', $user->role);
+
+        // Verify session persists across multiple check() invocations
+        $this->assertTrue(SPPAuth::check(), 'Subsequent SPPAuth::check calls should remain true');
+        $this->assertTrue(isset($_SESSION['spp_admin_fallback']), 'Session fallback flag must be preserved');
+        $this->assertTrue(isset($_SESSION['spp_admin_user']), 'Session admin user must be preserved');
+
+        unset($_SESSION['spp_admin_fallback'], $_SESSION['spp_admin_user']);
+    }
+
+    public function testAdminUserSessionResolution()
+    {
+        $_SESSION['spp_admin_user'] = 'superadmin';
+        \SPP\SPPSession::setSessionVar('__sppauth_user__', 'superadmin');
+
+        $this->assertTrue(SPPAuth::check(), 'SPPAuth::check should resolve spp_admin_user gracefully');
+        $user = SPPAuth::user();
+        $this->assertNotNull($user);
+        $this->assertEquals('superadmin', $user->username);
+
+        unset($_SESSION['spp_admin_user']);
+    }
 }
+

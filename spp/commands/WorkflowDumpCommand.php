@@ -50,11 +50,28 @@ class WorkflowDumpCommand extends \SPP\CLI\Command
             $parsed = \Symfony\Component\Yaml\Yaml::parseFile($filePath);
             
             // If the user provided a key, find it inside the file
-            if ($workflowKey && isset($parsed[$workflowKey])) {
+            if ($workflowKey && isset($parsed[$workflowKey]) && is_array($parsed[$workflowKey])) {
                 $workflow = $parsed[$workflowKey];
+            } elseif (isset($parsed['states']) || isset($parsed['transitions'])) {
+                $workflow = $parsed;
+                if (!$workflowKey) {
+                    $workflowKey = $parsed['name'] ?? pathinfo($filePath, PATHINFO_FILENAME);
+                }
             } else {
-                // Just grab the first workflow in the file
-                $workflow = reset($parsed);
+                // Find first workflow definition array in the file
+                foreach ($parsed as $k => $val) {
+                    if (is_array($val) && (isset($val['states']) || isset($val['transitions']))) {
+                        $workflow = $val;
+                        if (!$workflowKey) {
+                            $workflowKey = (string)$k;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (!$workflowKey) {
+                $workflowKey = pathinfo($filePath, PATHINFO_FILENAME) ?: 'workflow';
             }
         } else {
             if (!$workflowKey) {
@@ -68,7 +85,7 @@ class WorkflowDumpCommand extends \SPP\CLI\Command
             $workflow = SPPWorkflowManager::getWorkflow($entityType, $bundle);
         }
 
-        if (!$workflow) {
+        if (!$workflow || !is_array($workflow)) {
             echo "Error: Workflow definition not found.\n";
             return;
         }
@@ -76,17 +93,28 @@ class WorkflowDumpCommand extends \SPP\CLI\Command
         echo "Dumping workflow '{$workflowKey}' in {$format} format:\n\n";
 
         if ($format === 'dot') {
-            $this->dumpDot($workflowKey, $workflow);
+            $this->dumpDot((string)$workflowKey, $workflow);
         } else {
-            $this->dumpMermaid($workflowKey, $workflow);
+            $this->dumpMermaid((string)$workflowKey, $workflow);
         }
     }
 
     protected function dumpMermaid(string $name, array $workflow): void
     {
+        $initialState = 'start';
+        if (isset($workflow['initial_state'])) {
+            $initialState = (string)$workflow['initial_state'];
+        } elseif (isset($workflow['states']) && is_array($workflow['states'])) {
+            if (array_is_list($workflow['states'])) {
+                $initialState = (string)($workflow['states'][0] ?? 'start');
+            } else {
+                $initialState = (string)(array_key_first($workflow['states']) ?? 'start');
+            }
+        }
+
         echo "```mermaid\n";
         echo "stateDiagram-v2\n";
-        echo "    [*] --> " . ($workflow['states'][0] ?? 'start') . "\n";
+        echo "    [*] --> " . $initialState . "\n";
 
         $transitions = $workflow['transitions'] ?? [];
         foreach ($transitions as $tName => $meta) {
@@ -102,7 +130,7 @@ class WorkflowDumpCommand extends \SPP\CLI\Command
 
     protected function dumpDot(string $name, array $workflow): void
     {
-        $cleanName = str_replace('.', '_', $name);
+        $cleanName = str_replace(['.', '-', ' '], '_', $name);
         echo "digraph {$cleanName} {\n";
         echo "    rankdir=LR;\n";
         echo "    node [shape = circle];\n";

@@ -83,6 +83,36 @@ test('app directory exists', function () {
 });
 
 test('pages.yml config exists', function () {
-    $file = SPP_APP_DIR . '/etc/apps/SPPDocs/pages.yml';
+    $file = SPP_APP_DIR . '/src/SPPDocs/etc/pages.yml';
     expect(file_exists($file))->toBeTrue();
+});
+
+// ── Project & Documentation Routing Tests ──
+
+test('project demo-app route resolves in SPPRouter', function () {
+    \SPP\Scheduler::setContext('SPPDocs');
+    $page = \SPPMod\SPPRouter\SPPRouter::getPage('project/demo-app');
+    expect(!empty($page))->toBeTrue();
+    expect($page['controller'])->toBe('\App\SPPDocs\Controllers\DocsController@project');
+    expect($page['named_params']['projectId'] ?? null)->toBe('demo-app');
+});
+
+test('project demo-app renders project portal view without errors', function () {
+    \SPP\Scheduler::setContext('SPPDocs');
+    $_GET['q'] = 'project/demo-app';
+    ob_start();
+    \SPPMod\SPPView\ViewRouter::showPage();
+    $html = ob_get_clean();
+    expect(strlen($html) > 0)->toBeTrue();
+    expect(str_contains($html, 'My Demo App'))->toBeTrue();
+});
+
+test('docs demo-app route resolves and renders markdown doc', function () {
+    \SPP\Scheduler::setContext('SPPDocs');
+    $_GET['q'] = 'docs/demo-app/v1/index';
+    ob_start();
+    \SPPMod\SPPView\ViewRouter::showPage();
+    $html = ob_get_clean();
+    expect(strlen($html) > 0)->toBeTrue();
+    expect(str_contains($html, 'Welcome to My Demo App'))->toBeTrue();
 });

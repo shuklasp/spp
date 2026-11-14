@@ -143,7 +143,7 @@ class MakeAppCommand extends BaseMakeCommand
         }
 
         // 3. Generate events.yml
-        $this->buildFromStub('events_2', "src/{$appName}/etc/events.yml", ['appName' => $appName, 'APP_NAME' => $appName]);
+        $this->buildFromStub('events', "src/{$appName}/etc/events.yml", ['appName' => $appName, 'APP_NAME' => $appName]);
 
         // 4. Scaffold mode-specific files
         echo "\nScaffolding '{$appType}' mode...\n";

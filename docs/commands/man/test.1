@@ -1,7 +1,63 @@
-.TH "test" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "TEST" 1 "October 2026" "SPP Framework" "SPP User Commands"
 .SH NAME
-test \- Run Parikshak Unit and Feature Tests
+test \- execute native Parikshak automated test suites or list registered tests
 .SH SYNOPSIS
 .B php spp.php test
+[\fB\-\-list\fR|\fB\-\-discover\fR]
+[\fB\-\-coverage\fR]
+[\fB\-\-teamcity\fR]
+[\fB\-\-parallel\fR[\fB=\fIN\fR]]
+[\fB\-\-watch\fR|\fB\-w\fR]
+[\fB\-\-update-snapshots\fR|\fB\-u\fR]
+[\fB\-\-bail\fR|\fB\-x\fR]
+[\fB\-\-failed\fR|\fB\-\-retry\fR]
+[\fB\-\-profile\fR]
+[\fB\-\-compact\fR|\fB\-c\fR]
+[\fB\-\-filter=\fINAME\fR]
 .SH DESCRIPTION
-Run Parikshak Unit and Feature Tests
+The \fBtest\fR command executes Parikshak automated unit and feature tests under an isolated in-memory SQLite database environment for the active application context. When invoked with \fB\-\-list\fR or \fB\-\-discover\fR, it performs static AST introspection to discover and display all test suites and test methods across the project.
+.SH OPTIONS
+.TP
+\fB\-\-list\fR, \fB\-\-discover\fR
+Discovers and lists all registered test suites, test file paths, and test method names without executing code.
+.TP
+\fB\-\-coverage\fR
+Enables code coverage metrics reporting using Xdebug or PCOV.
+.TP
+\fB\-\-teamcity\fR
+Emits real-time TeamCity service messages for PhpStorm, VS Code Test Explorer, and CI pipeline test trees.
+.TP
+\fB\-\-parallel\fR[\fB=\fIN\fR]
+Executes test suites concurrently across N worker processes (default: 4).
+.TP
+\fB\-\-watch\fR, \fB\-w\fR
+Enables continuous observation mode, re-running tests upon file modification.
+.TP
+\fB\-\-update-snapshots\fR, \fB\-u\fR
+Updates recorded snapshots to match current execution output.
+.TP
+\fB\-\-bail\fR, \fB\-x\fR
+Aborts test suite execution immediately upon encountering the first failure.
+.TP
+\fB\-\-failed\fR, \fB\-\-retry\fR
+Re-runs only the test suites or files that failed during the most recent test run.
+.TP
+\fB\-\-profile\fR
+Measures test execution times and reports the top slowest test cases.
+.TP
+\fB\-\-compact\fR, \fB\-c\fR
+Renders concise dot-progress output, printing detailed errors and diffs only on failure.
+.TP
+\fB\-\-filter=\fINAME\fR
+Restricts execution to matching test suites, files, or method names.
+.SH UNDER THE HOOD
+.IP \(bu 2
+Introspects test suites using \fB\\SPPMod\\Parikshak\\SPPTestRunner::discover()\fR.
+.IP \(bu 2
+Enforces isolated database testing using in-memory SQLite (\fBsqlite::memory:\fR).
+.IP \(bu 2
+Executes tests extending \fB\\SPPMod\\Parikshak\\SPPTestCase\fR or written in fluent DSL (\fBtest()\fR, \fBexpect()\fR).
+.IP \(bu 2
+Emits TeamCity event protocols when \fB\-\-teamcity\fR is specified.
+.IP \(bu 2
+Restores original database configuration upon test completion.

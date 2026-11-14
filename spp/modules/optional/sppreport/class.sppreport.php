@@ -539,6 +539,55 @@ class SPPReport
             yield $row;
         }
     }
+
+    /**
+     * Loads a report definition by name.
+     */
+    public static function load(string $reportName, ?string $appname = null): array
+    {
+        if (!class_exists('\\SPPMod\\SPPReport\\Repositories\\ReportRepository')) {
+            require_once __DIR__ . '/Repositories/ReportRepository.php';
+        }
+        $repo = new \SPPMod\SPPReport\Repositories\ReportRepository();
+        return $repo->load($reportName, $appname);
+    }
+
+    /**
+     * Executes a report by name with optional runtime filters and returns the dataset.
+     *
+     * @param string $reportName Name of the report definition
+     * @param array $runtimeFilters Map of field => value or array of filter conditions
+     * @param string|null $appname Context application name
+     * @return array ['data' => array, 'sql' => string, 'params' => array, 'config' => array]
+     */
+    public static function run(string $reportName, array $runtimeFilters = [], ?string $appname = null): array
+    {
+        $config = self::load($reportName, $appname);
+
+        // Merge runtime filters into config
+        if (!empty($runtimeFilters)) {
+            $config['filters'] = $config['filters'] ?? ['logic' => 'AND', 'conditions' => []];
+            if (!isset($config['filters']['conditions'])) {
+                $config['filters']['conditions'] = [];
+            }
+            foreach ($runtimeFilters as $k => $v) {
+                if (is_array($v) && isset($v['field'])) {
+                    $config['filters']['conditions'][] = $v;
+                } else {
+                    $config['filters']['conditions'][] = [
+                        'field' => $k,
+                        'operator' => '=',
+                        'value' => $v
+                    ];
+                }
+            }
+        }
+
+        $engine = new self();
+        $res = $engine->runReport($config);
+        $res['config'] = $config;
+        return $res;
+    }
 }
 
 if (!class_exists('\\SPPMod\\SPPReport\\W3CTraceContext')) {
@@ -551,4 +600,8 @@ if (!class_exists('\\SPPMod\\SPPReport\\MacroRegistry')) {
 
 if (!class_exists('\\SPPMod\\SPPReport\\GlobalScopeRegistry')) {
     require_once __DIR__ . '/GlobalScopeRegistry.php';
+}
+
+if (!class_exists('\\SPPMod\\SPPReport\\SPPReport') && class_exists('\\SPPReport')) {
+    class_alias('\\SPPReport', '\\SPPMod\\SPPReport\\SPPReport');
 }

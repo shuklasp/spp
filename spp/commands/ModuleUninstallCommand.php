@@ -25,9 +25,10 @@ class ModuleUninstallCommand extends Command
     public function execute(array $args): void
     {
         $moduleName = $this->getArgument($args, 0) ?? null;
+        $appName = $this->getOption($args, 'app');
 
         if (!$moduleName) {
-            echo "Usage: php spp.php module:uninstall <modulename>\n";
+            echo "Usage: php spp.php module:uninstall <modulename> [--app=AppName]\n";
             return;
         }
 
@@ -36,15 +37,20 @@ class ModuleUninstallCommand extends Command
             return;
         }
 
-        echo "🗑️ Uninstalling module '{$moduleName}'...\n";
+        if ($appName) {
+            \SPP\Scheduler::setContext($appName);
+        }
+
+        $context = $appName ?: (\SPP\Scheduler::getContext() ?: 'default');
+        echo "🗑️ Uninstalling module '{$moduleName}' for context [{$context}]...\n";
         try {
             $res = ModuleInstaller::uninstall($moduleName);
             if ($res) {
-                ModuleInstaller::setModuleStatus($moduleName, 'inactive');
+                ModuleInstaller::setModuleStatus($moduleName, 'inactive', $context);
                 echo "✅ Module successfully uninstalled and deactivated.\n";
             } else {
                 // Force deactivation even if uninstall fails gracefully
-                ModuleInstaller::setModuleStatus($moduleName, 'inactive');
+                ModuleInstaller::setModuleStatus($moduleName, 'inactive', $context);
                 echo "❌ Module uninstall failed or module not found, but it has been deactivated.\n";
             }
         } catch (\Exception $e) {

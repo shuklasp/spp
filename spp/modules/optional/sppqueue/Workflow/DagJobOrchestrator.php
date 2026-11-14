@@ -70,7 +70,7 @@ class DagJobOrchestrator
     {
         echo "\033[32mINFO:\033[0m Starting DAG Job Orchestration with Token-Bucket throttling (Capacity: {$bucketCapacity}, Rate: {$fillRate}/s)\n";
 
-        $completedCount = 0;
+        $completedCount = count(array_filter(self::$dagStorage, fn($n) => ($n['status'] ?? '') === 'completed'));
         $totalJobs = count(self::$dagStorage);
 
         while ($completedCount < $totalJobs) {
@@ -131,7 +131,8 @@ class DagJobOrchestrator
                     } catch (\Throwable $e) {
                         $node['status'] = 'failed';
                         echo "\033[31mERROR:\033[0m DAG Job `{$jobId}` failed: " . $e->getMessage() . "\n";
-                        return false; // Fast fail on DAG branch failure
+                        self::rollback($jobId);
+                        return false; // Fast fail on DAG branch failure with Saga rollback
                     }
                 }
             }
@@ -157,6 +158,130 @@ class DagJobOrchestrator
         return true;
     }
 
+    /** @var array<string, mixed> Saga compensating transactions */
+    private static array $compensations = [];
+
+    /**
+     * Discovers DAG jobs declared in manifests (__spp_file_props.yml) and loads them into the DAG.
+     */
+    public static function loadFromManifests(?string $appName = null, ?string $customStartDir = null): array
+    {
+        $baseDir = defined('SPP_APP_DIR') ? SPP_APP_DIR : dirname(__DIR__, 5);
+        $startDir = $customStartDir ?: ($appName ? ($baseDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $appName) : $baseDir);
+
+        $loaded = [];
+
+        $walker = function (string $dir) use (&$walker, $baseDir, $startDir, &$loaded) {
+            $manifestPath = $dir . DIRECTORY_SEPARATOR . '__spp_file_props.yml';
+            if (file_exists($manifestPath) && class_exists('\\Symfony\\Component\\Yaml\\Yaml')) {
+                $manifest = \Symfony\Component\Yaml\Yaml::parseFile($manifestPath) ?? [];
+                $files = $manifest['files'] ?? [];
+
+                foreach ($files as $fileName => $fileMeta) {
+                    $attrs = $fileMeta['attributes'] ?? [];
+                    $isJob = ($fileMeta['type'] ?? '') === 'job' || !empty($attrs['dag_job']) || !empty($attrs['queue']);
+
+                    if (!$isJob) {
+                        continue;
+                    }
+
+                    $filePath = $dir . DIRECTORY_SEPARATOR . $fileName;
+                    $jobId = (string)($attrs['job_id'] ?? pathinfo($fileName, PATHINFO_FILENAME));
+                    $deps = (array)($attrs['dependencies'] ?? ($attrs['depends_on'] ?? []));
+                    $data = (array)($attrs['data'] ?? []);
+                    $compensation = $attrs['compensation'] ?? ($attrs['compensations'] ?? null);
+
+                    $className = null;
+                    if (str_ends_with($fileName, '.php')) {
+                        if (file_exists($filePath)) {
+                            require_once $filePath;
+                        }
+                        $content = @file_get_contents($filePath, false, null, 0, 2048) ?: '';
+                        if (preg_match('/class\s+([a-zA-Z0-9_]+)/', $content, $m)) {
+                            $baseClass = $m[1];
+                            $ns = '';
+                            if (preg_match('/namespace\s+([^;]+);/', $content, $nsm)) {
+                                $ns = trim($nsm[1]) . '\\';
+                            }
+                            $className = $ns . $baseClass;
+                        }
+                    }
+
+                    $jobTarget = $className ?: $filePath;
+                    self::addJobNode($jobId, $jobTarget, $deps, $data);
+
+                    if ($compensation) {
+                        self::$compensations[$jobId] = $compensation;
+                    }
+
+                    $loaded[$jobId] = [
+                        'job_id' => $jobId,
+                        'file' => $fileName,
+                        'target' => $jobTarget,
+                        'dependencies' => $deps,
+                        'compensation' => $compensation
+                    ];
+                }
+            }
+
+            $entries = @scandir($dir) ?: [];
+            foreach ($entries as $e) {
+                if ($e === '.' || $e === '..' || $e === '.git' || $e === 'vendor' || $e === 'tmp' || $e === 'node_modules') {
+                    continue;
+                }
+                if ($e === 'var' && !str_starts_with(str_replace('\\', '/', $startDir), str_replace('\\', '/', $baseDir . '/var'))) {
+                    continue;
+                }
+                $sub = $dir . DIRECTORY_SEPARATOR . $e;
+                if (is_dir($sub)) {
+                    $walker($sub);
+                }
+            }
+        };
+
+        $walker($startDir);
+
+        return [
+            'success' => true,
+            'loaded_jobs' => count($loaded),
+            'jobs' => $loaded
+        ];
+    }
+
+    /**
+     * Executes Saga compensating transactions in reverse topological order for completed jobs.
+     */
+    public static function rollback(?string $failedJobId = null): array
+    {
+        $executedRollbacks = [];
+        $reversed = array_reverse(self::$dagStorage, true);
+
+        foreach ($reversed as $jobId => $node) {
+            if ($node['status'] === 'completed' && isset(self::$compensations[$jobId])) {
+                $comp = self::$compensations[$jobId];
+                echo "\033[33mWARN:\033[0m Rolling back completed job `{$jobId}` via Saga compensation...\n";
+
+                try {
+                    if (is_callable($comp)) {
+                        $comp($node['data']);
+                    } elseif (is_string($comp) && class_exists($comp)) {
+                        $inst = new $comp();
+                        if (method_exists($inst, 'compensate')) {
+                            $inst->compensate($node['data']);
+                        } elseif (method_exists($inst, 'rollback')) {
+                            $inst->rollback($node['data']);
+                        }
+                    }
+                    $executedRollbacks[] = $jobId;
+                } catch (\Throwable $e) {
+                    echo "\033[31mERROR:\033[0m Compensation for `{$jobId}` failed: " . $e->getMessage() . "\n";
+                }
+            }
+        }
+
+        return $executedRollbacks;
+    }
+
     /**
      * Get current DAG state.
      */
@@ -171,5 +296,6 @@ class DagJobOrchestrator
     public static function clearDag(): void
     {
         self::$dagStorage = [];
+        self::$compensations = [];
     }
 }

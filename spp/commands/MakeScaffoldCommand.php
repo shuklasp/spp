@@ -80,7 +80,16 @@ class MakeScaffoldCommand extends BaseMakeCommand
             $stub
         );
 
-        file_put_contents($targetDir . "/" . $controllerName . ".php", $content);
+        $controllerPath = $targetDir . "/" . $controllerName . ".php";
+        file_put_contents($controllerPath, $content);
+        $this->recordFileProps($controllerPath, [
+            'description' => "Scaffolded CRUD Controller for {$entityName}",
+            'usage' => "Handles web routes and HTMX partials for {$entityName}",
+            'stability' => 'stable',
+            'author' => 'SPP Scaffolder',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['scaffold', 'controller', strtolower($entityName)]]
+        ]);
         echo "OK\n";
 
         // 3. Generate Views (Skeleton & External Partials)
@@ -102,7 +111,16 @@ class MakeScaffoldCommand extends BaseMakeCommand
     <div id="stream-target-{$entityName}"></div>
 </div>
 INDEX;
-        file_put_contents($viewDir . "/index.php", $indexContent);
+        $indexPath = $viewDir . "/index.php";
+        file_put_contents($indexPath, $indexContent);
+        $this->recordFileProps($indexPath, [
+            'description' => "Index view skeleton for {$entityName}",
+            'usage' => "Container view rendering list targets and streams",
+            'stability' => 'stable',
+            'author' => 'SPP Scaffolder',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['view', strtolower($entityName)]]
+        ]);
 
         $partialContent = <<<PARTIAL
 <!-- External HTML Partial: {$entityName} Index -->
@@ -111,7 +129,16 @@ INDEX;
     <div class="partial-body"><p>This static HTML partial was rendered externally without inline HTML string literals in controllers.</p></div>
 </div>
 PARTIAL;
-        file_put_contents($partialDir . "/" . strtolower($entityName) . "_index.html", $partialContent);
+        $partialPath = $partialDir . "/" . strtolower($entityName) . "_index.html";
+        file_put_contents($partialPath, $partialContent);
+        $this->recordFileProps($partialPath, [
+            'description' => "External view partial template for {$entityName} index",
+            'usage' => "Rendered via ViewController::renderPartial()",
+            'stability' => 'stable',
+            'author' => 'SPP Scaffolder',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['partial', strtolower($entityName)], 'engine' => 'html']
+        ]);
 
         $streamContent = <<<STREAM
 <?php
@@ -127,7 +154,16 @@ PARTIAL;
     </template>
 </turbo-stream>
 STREAM;
-        file_put_contents($streamDir . "/" . strtolower($entityName) . "_update.php", $streamContent);
+        $streamPath = $streamDir . "/" . strtolower($entityName) . "_update.php";
+        file_put_contents($streamPath, $streamContent);
+        $this->recordFileProps($streamPath, [
+            'description' => "External Turbo Stream template for {$entityName} updates",
+            'usage' => "Streamed via ViewController::stream()",
+            'stability' => 'stable',
+            'author' => 'SPP Scaffolder',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['stream', 'turbo', strtolower($entityName)]]
+        ]);
         echo "OK\n";
 
         // 4. Generate Workflow Scaffolding & Tutorial Comments
@@ -170,10 +206,60 @@ STREAM;
       from: [active]
       to: archived
 WORKFLOW;
-        file_put_contents($workflowDir . "/" . strtolower($entityName) . ".yml", trim($workflowContent));
+        $workflowPath = $workflowDir . "/" . strtolower($entityName) . ".yml";
+        file_put_contents($workflowPath, trim($workflowContent));
+        $this->recordFileProps($workflowPath, [
+            'description' => "Automated lifecycle workflow definition for {$entityName}",
+            'usage' => "Orchestrates state machine transitions for {$entityName} entity",
+            'stability' => 'stable',
+            'author' => 'SPP Scaffolder',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['workflow', 'saga', strtolower($entityName)]]
+        ]);
+        // 5. Generate Entity Form & Report Scaffolding
+        echo "Generating Form & Report Definitions... ";
+        $formsDir = SPP_APP_DIR . "/etc/apps/" . $appname . "/forms";
+        $reportsDir = SPP_APP_DIR . "/etc/apps/" . $appname . "/reports";
+        if (!is_dir($formsDir)) mkdir($formsDir, 0777, true);
+        if (!is_dir($reportsDir)) mkdir($reportsDir, 0777, true);
+
+        $formYaml = [
+            'form' => [
+                'name' => strtolower($entityName),
+                'method' => 'post',
+                'action' => "/{$appname}/" . strtolower($entityName) . "/save"
+            ],
+            'elements' => [
+                'name' => [
+                    'type' => 'input',
+                    'label' => 'Name',
+                    'validations' => [
+                        ['type' => 'required', 'message' => 'Name is required']
+                    ]
+                ],
+                'submit' => [
+                    'type' => 'submit',
+                    'label' => 'Save ' . $entityName
+                ]
+            ]
+        ];
+        file_put_contents($formsDir . "/" . strtolower($entityName) . ".yml", \Symfony\Component\Yaml\Yaml::dump($formYaml, 8, 2));
+
+        $reportYaml = [
+            'table' => strtolower($entityName) . 's',
+            'columns' => [
+                ['field' => 'id', 'aggregate' => '', 'alias' => 'ID'],
+                ['field' => 'name', 'aggregate' => '', 'alias' => 'Name']
+            ],
+            'joins' => [],
+            'filters' => ['logic' => 'AND', 'conditions' => []],
+            'order_by' => ['field' => 'id', 'direction' => 'DESC'],
+            'limit' => 50
+        ];
+        file_put_contents($reportsDir . "/" . strtolower($entityName) . ".yml", \Symfony\Component\Yaml\Yaml::dump($reportYaml, 8, 2));
         echo "OK\n";
 
-        echo "\nSuccess: Full stack scaffold (with external partials, streams & workflows) for {$entityName} created in {$appname} context.\n";
+        echo "\nSuccess: Full stack scaffold (with external partials, streams, forms, reports & workflows) for {$entityName} created in {$appname} context.\n";
 
         // Final Sync hint
         $globalSettingsPath = SPP_ETC_DIR . '/global-settings.yml';

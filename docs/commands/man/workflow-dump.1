@@ -1,7 +1,20 @@
-.TH "workflow:dump" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "WORKFLOW-DUMP" 1 "October 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-workflow:dump \- Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
+workflow:dump \- Export and visualize an SPP workflow lifecycle definition as a graphical state diagram
 .SH SYNOPSIS
 .B php spp.php workflow:dump
+\fI<workflow_name>\fR [\fB\-\-format=\fImermaid|dot\fR] [\fB\-\-file=\fIoutput_file\fR]
 .SH DESCRIPTION
-Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
+The \fBworkflow:dump\fR command renders visual state graphs from SPP declarative YAML workflows and database state machines. It handles associative dictionaries, sequential lists, and parallel markings, generating clean diagrams ready for documentation and architecture audits.
+.SH OPTIONS
+.TP
+\fI<workflow_name>\fR
+The identifier of the workflow or entity bundle to render.
+.TP
+\fB\-\-format=\fI<mermaid|dot>\fR
+Diagram format. Supported options are \fBmermaid\fR (default) and \fBdot\fR.
+.TP
+\fB\-\-file=\fI<output_file>\fR
+Optional target path to write the generated graph file.
+.SH UNDER THE HOOD
+Resolves workflow models via \fBSPPWorkflowManager\fR, normalizes state definitions, and maps transitions to directed graph edges.

@@ -44,15 +44,15 @@ class MakeModuleCommand extends BaseMakeCommand
         
         switch ($scope) {
             case 'spp':
-                $modDir = SPP_BASE_DIR . '/modules/spp/' . $modName;
+                $modDir = SPP_MODULES_DIR . '/spp/' . $modName;
                 $namespace = 'SPPMod\\' . $className;
                 break;
             case 'optional':
-                $modDir = SPP_BASE_DIR . '/modules/optional/' . $modName;
+                $modDir = SPP_MODULES_DIR . '/optional/' . $modName;
                 $namespace = 'SPPMod\\' . $className;
                 break;
             case 'contrib':
-                $modDir = SPP_BASE_DIR . '/modules/contrib/' . $modName;
+                $modDir = SPP_MODULES_DIR . '/contrib/' . $modName;
                 $namespace = 'ContribMod\\' . $className;
                 break;
             case 'app':
@@ -60,11 +60,11 @@ class MakeModuleCommand extends BaseMakeCommand
                 // Ensure app name is properly formatted
                 $appNameUc = str_replace('_', '', ucwords($appName, '_'));
                 // Use the targeted app directory instead of the current active context
-                $targetAppDir = SPP_BASE_DIR . '/src/' . $appName;
+                $targetAppDir = SPP_APP_DIR . '/src/' . $appName;
                 if (!is_dir($targetAppDir)) {
                     $targetAppDir = SPP_APP_DIR; // fallback if standard structure is different
                 }
-                $modDir = $targetAppDir . '/src/modules/' . $modName;
+                $modDir = $targetAppDir . '/modules/' . $modName;
                 $namespace = 'AppMod\\' . $appNameUc . '\\' . $className;
                 break;
         }
@@ -88,20 +88,35 @@ module:
   publicname: '{$className} Module'
   publicdesc: 'A newly scaffolded module.'
   namespace: '{$namespace}'
+  provider: '{$namespace}\\{$className}ServiceProvider'
   dependencies:
     # List module dependencies here. Supports semantic versioning.
     # sppdb: ^2.0
     # sppauth: ^1.5
     spprouter: ^1.0
   includes:
-    # Legacy includes (Try to use src/ for PSR-4 autoloading instead)
+    # Legacy includes (Prefer src/ for PSR-4 autoloading instead)
   assets:
     # Defines aliases for public assets. Usage: /sppasset/{$modName}/main/style.css
     main: /public
 YAML;
         file_put_contents($modDir . '/module.yml', $yaml);
 
-        // 2. modinit.php
+        // 2. db.yml (Modern Modularity 2.0 Schema Definitions)
+        $dbYaml = <<<YAML
+# db.yml
+# Declarative database schema definitions for {$modName} module.
+# Synced automatically via ModuleInstaller and `php spp.php module:update {$modName}`.
+tables:
+  # {$modName}_items:
+  #   columns:
+  #     id: "INTEGER PRIMARY KEY AUTOINCREMENT"
+  #     name: "VARCHAR(255) NOT NULL"
+  #     created_at: "DATETIME DEFAULT CURRENT_TIMESTAMP"
+YAML;
+        file_put_contents($modDir . '/db.yml', $dbYaml);
+
+        // 3. modinit.php
         $modinit = <<<PHP
 <?php
 /**
@@ -120,7 +135,7 @@ YAML;
 PHP;
         file_put_contents($modDir . '/modinit.php', $modinit);
 
-        // 3. install.php
+        // 4. install.php
         $install = <<<PHP
 <?php
 /**
@@ -138,7 +153,7 @@ PHP;
 PHP;
         file_put_contents($modDir . '/install.php', $install);
 
-        // 4. uninstall.php
+        // 5. uninstall.php
         $uninstall = <<<PHP
 <?php
 /**
@@ -156,7 +171,7 @@ PHP;
 PHP;
         file_put_contents($modDir . '/uninstall.php', $uninstall);
 
-        // 5. events.yml
+        // 6. events.yml
         $events = <<<YAML
 # events.yml
 # 
@@ -174,30 +189,72 @@ PHP;
 YAML;
         file_put_contents($modDir . '/events.yml', $events);
 
-        // 6. Service Provider Stub
+        // 7. Service Provider Stub
         $serviceProvider = <<<PHP
 <?php
 
 namespace {$namespace};
 
+use SPP\\Core\\Interfaces\\ServiceProviderInterface;
+
 /**
  * {$className}ServiceProvider
  * 
- * Register your module's classes into the SPP Dependency Injection Container.
+ * Register and bootstrap your module's services into the SPP Dependency Injection Container.
  */
-class {$className}ServiceProvider
+class {$className}ServiceProvider implements ServiceProviderInterface
 {
-    public function register(\\SPP\\Core\\Container \$container): void
+    /**
+     * Register any application services into the container.
+     */
+    public function register(): void
     {
+        // \$container = \\SPP\\App::getContainer();
         // \$container->singleton(MyService::class, fn() => new MyService());
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        // Perform post-registration boot logic here
     }
 }
 PHP;
         file_put_contents($modDir . "/src/{$className}ServiceProvider.php", $serviceProvider);
 
+        // 8. Parikshak Test Suite Stub
+        $testStub = <<<PHP
+<?php
+
+namespace {$namespace}\\Tests;
+
+use SPPMod\\Parikshak\\SPPTestCase;
+use SPPMod\\Parikshak\\RefreshDatabase;
+
+/**
+ * Class {$className}Test
+ * Automated test suite for module {$modName}.
+ */
+class {$className}Test extends SPPTestCase
+{
+    use RefreshDatabase;
+
+    public function testModuleIsBootable(): void
+    {
+        \$module = \\SPP\\Module::getModule('{$modName}');
+        \$this->assertNotNull(\$module, "Module '{$modName}' must resolve from the SPP Registry.");
+        \$this->assertEquals('{$modName}', \$module->InternalName);
+    }
+}
+PHP;
+        file_put_contents($modDir . "/tests/{$className}Test.php", $testStub);
+
         echo "✅ Success: Module {$modName} scaffolded successfully at {$modDir}\n";
         echo "Namespace: {$namespace}\n";
         echo "Don't forget to enable it using: php spp.php module:enable {$modName}\n";
+        echo "Run its tests using: php spp.php test:module {$modName}\n";
     }
 
     public function renderAdminUI(): string

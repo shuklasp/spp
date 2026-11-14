@@ -3,10 +3,12 @@
 namespace SPP\CLI\Commands;
 
 use SPP\CLI\Command;
+use SPP\Core\ModuleInstaller;
+use SPP\Module;
 
 /**
  * Class ModuleUpdateCommand
- * Triggers the update hook on a module's ServiceProvider.
+ * Executes module upgrades, declarative schema synchronizations (db.yml), and lifecycle hooks.
  */
 class ModuleUpdateCommand extends Command
 {
@@ -17,10 +19,9 @@ class ModuleUpdateCommand extends Command
 
     public function getDescription(): string
     {
-        return 'Execute the update hook for a specific module';
+        return 'Execute database sync, migrations, and update hooks for a module or all modules';
     }
 
-    
     public function isCLIOnly(): bool
     {
         return true;
@@ -28,44 +29,66 @@ class ModuleUpdateCommand extends Command
 
     public function execute(array $args): void
     {
-        $moduleName = $this->getArgument($args, 0) ?? null;
-        if (!$moduleName) {
-            echo "Usage: php spp.php module:update <modulename> [--from=1.0] [--to=1.1]\n";
-            return;
-        }
+        $target = $this->getArgument($args, 0) ?? null;
+        $isAll = false;
+        $fromVersion = null;
+        $toVersion = null;
 
-        $fromVersion = 'unknown';
-        $toVersion = 'latest';
         foreach ($args as $arg) {
+            if ($arg === '--all') $isAll = true;
             if (str_starts_with($arg, '--from=')) $fromVersion = substr($arg, 7);
             if (str_starts_with($arg, '--to=')) $toVersion = substr($arg, 5);
         }
 
-        \SPP\Module::loadAllModules();
-        $module = \SPP\Module::getModule($moduleName);
-
-        if (!$module) {
-            echo "Error: Module '{$moduleName}' not found or is not active.\n";
+        if (!$target && !$isAll) {
+            echo "Usage: php spp.php module:update <modulename> [--from=1.0] [--to=1.1]\n";
+            echo "       php spp.php module:update --all\n";
             return;
         }
 
-        $provider = $module->ServiceProvider ?? null;
-
-        if (!$provider) {
-            echo "Module '{$moduleName}' does not have a ServiceProvider registered. Skipping update.\n";
-            return;
-        }
-
-        if (method_exists($provider, 'update')) {
-            echo "Executing update hook for module '{$moduleName}' (from: {$fromVersion}, to: {$toVersion})...\n";
-            try {
-                $provider->update($fromVersion, $toVersion);
-                echo "Success: Module updated.\n";
-            } catch (\Exception $e) {
-                echo "Error during module update: " . $e->getMessage() . "\n";
+        if ($target === 'all' || $isAll) {
+            echo "🔄 Updating and synchronizing all active modules...\n";
+            Module::loadAllModules();
+            $modules = \SPP\Registry::get('__mods') ?? [];
+            $count = 0;
+            foreach (array_keys($modules) as $modName) {
+                try {
+                    echo "  📦 Updating [{$modName}]... ";
+                    $res = ModuleInstaller::upgrade($modName);
+                    if ($res) {
+                        echo "✅ Updated.\n";
+                        $count++;
+                    } else {
+                        echo "⚠️  Skipped (aborted by module hook).\n";
+                    }
+                } catch (\Throwable $e) {
+                    echo "❌ Failed: " . $e->getMessage() . "\n";
+                }
             }
-        } else {
-            echo "Module '{$moduleName}' ServiceProvider does not implement an update() method. No action taken.\n";
+            echo "🎉 Finished updating {$count} module(s).\n";
+            return;
+        }
+
+        $moduleName = strtolower(preg_replace('/[^a-zA-Z0-9_\-]/', '', $target));
+        
+        try {
+            $module = Module::getModule($moduleName);
+        } catch (\Throwable $e) {
+            echo "❌ Error: Module '{$moduleName}' not found or could not be loaded: " . $e->getMessage() . "\n";
+            return;
+        }
+
+        echo "🔄 Updating module '{$moduleName}' (Version: {$module->Version})...\n";
+
+        try {
+            $success = ModuleInstaller::upgrade($moduleName);
+            if ($success) {
+                echo "✅ Success: Module '{$moduleName}' updated and database schema synchronized.\n";
+            } else {
+                echo "⚠️  Update aborted by module lifecycle hook.\n";
+            }
+        } catch (\Throwable $e) {
+            echo "❌ Error during module update: " . $e->getMessage() . "\n";
         }
     }
 }

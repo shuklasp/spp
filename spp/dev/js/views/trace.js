@@ -1,182 +1,294 @@
 /**
- * TraceView Component
+ * SPP Developer Studio — W3C Distributed Tracing Waterfall
  * 
- * Visualizes the event propagation graph for real-time debugging.
- * Supports both framework events and Parikshak testing logs.
+ * Provides visual latency bottleneck analysis and distributed telemetry
+ * conforming to the W3C Trace Context and OpenTelemetry specifications.
  */
-// BaseComponent is provided globally by sppux.js
 
-export default class TraceView extends BaseComponent {
+export default class TraceComponent extends (window.BaseComponent || class {}) {
+    constructor(admin, container, props) {
+        super(admin, container, props);
+        this.admin = admin;
+    }
+
     async onInit() {
         this.state = {
             loading: true,
-            traces: [],
-            selectedTrace: null,
-            parikshakLog: '',
-            activeTab: 'visual' // 'visual' or 'parikshak'
+            spans: [],
+            selectedSpan: null,
+            filterTerm: '',
+            filterKind: 'ALL'
         };
-        await this.fetchData();
+        await this.fetchTrace();
     }
 
-    async fetchData() {
+    async fetchTrace() {
+        this.setState({ loading: true });
         try {
-            const [traceRes, parikshakRes] = await Promise.all([
-                this.api('get_event_trace'),
-                this.api('get_parikshak_trace')
-            ]);
-
-            const traces = traceRes.success ? (traceRes.data.traces || []) : [];
-            const parikshakLog = parikshakRes.success ? (parikshakRes.data.content || '') : '';
-
-            this.setState({
-                traces: [...traces].reverse(), // Newest first
-                parikshakLog,
-                loading: false,
-                selectedTrace: traces.length > 0 ? traces[traces.length - 1] : null
-            });
-        } catch (err) {
-            this.setState({ loading: false, error: err.message });
-        }
-    }
-
-    selectTrace(trace) {
-        this.setState({ selectedTrace: trace });
-    }
-
-    switchTab(tab) {
-        this.setState({ activeTab: tab });
-    }
-
-    async runScan() {
-        this.notify('Initiating Parikshak Evolutionary Scan...', 'info');
-        try {
-            const res = await this.apiPost('run_parikshak_scan', { appname: this.selectedApp });
+            const res = await this.admin.api('trace_waterfall', { limit: 50 });
             if (res.success) {
-                this.notify('Scan completed successfully.', 'success');
-                await this.fetchData();
+                const data = res.data || res;
+                const spans = data.spans || [];
+                this.setState({
+                    spans,
+                    loading: false,
+                    selectedSpan: spans.length > 0 ? spans[0] : null
+                });
             } else {
-                this.notify(res.message, 'error');
+                this.admin.notify(res.message || 'Failed to fetch trace waterfall', 'error');
+                this.setState({ loading: false });
             }
-        } catch (err) {
-            this.notify('Scan failed: ' + err.message, 'error');
+        } catch (e) {
+            console.error("Trace fetch error:", e);
+            this.admin.notify('Network error fetching distributed trace.', 'error');
+            this.setState({ loading: false });
         }
+    }
+
+    selectSpan(span) {
+        this.setState({ selectedSpan: span });
+    }
+
+    copyTraceparent(span) {
+        if (!span) return;
+        const header = `00-${span.trace_id}-${span.span_id}-01`;
+        navigator.clipboard.writeText(header).then(() => {
+            this.admin.notify(`Copied traceparent: ${header}`, 'success');
+        }).catch(() => {
+            this.admin.notify('Clipboard copy failed.', 'error');
+        });
     }
 
     render() {
-        const { loading, traces, selectedTrace, parikshakLog, activeTab, error } = this.state;
+        const { loading, spans, selectedSpan, filterTerm, filterKind } = this.state;
 
-        if (loading) return html`<div class="loading-state">Loading tracing data...</div>`;
-        if (error) return html`<div class="empty-state"><h3>Error</h3><p>${error}</p></div>`;
+        // Calculate waterfall timing extents
+        const totalDuration = spans.length > 0
+            ? Math.max(...spans.map(s => s.duration_ms || 0), 1)
+            : 1;
+
+        const filteredSpans = spans.filter(s => {
+            if (filterKind !== 'ALL' && s.kind !== filterKind) return false;
+            if (filterTerm) {
+                const term = filterTerm.toLowerCase();
+                const name = (s.name || '').toLowerCase();
+                const tags = JSON.stringify(s.tags || {}).toLowerCase();
+                return name.includes(term) || tags.includes(term);
+            }
+            return true;
+        });
+
+        // Compute metrics
+        const dbSpans = spans.filter(s => (s.tags && s.tags['db.system']) || s.name.includes('SPPDB'));
+        const totalDbTime = dbSpans.reduce((acc, s) => acc + (s.duration_ms || 0), 0);
+        const rootSpan = spans.find(s => !s.parent_id) || spans[0];
 
         return html`
-            <div class="trace-workspace" style="display: flex; flex-direction: column; height: 100%;">
-                <!-- Tab Header -->
-                <div class="tabs-toolbar" style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); display: flex; gap: 4px;">
-                    <button class="tab-btn ${activeTab === 'visual' ? 'active' : ''}" @click="${() => this.switchTab('visual')}">🛰️ Event Propagation Graph</button>
-                    <button class="tab-btn ${activeTab === 'parikshak' ? 'active' : ''}" @click="${() => this.switchTab('parikshak')}">🧬 Parikshak Activity Log</button>
-                    <div style="flex: 1"></div>
-                    <button class="tab-btn" @click="${() => this.fetchData()}">🔄 Refresh</button>
+            <div class="trace-suite" style="display: flex; flex-direction: column; gap: 1.5rem; height: 100%;">
+                <!-- Hero Header -->
+                <div class="suite-hero">
+                    <div>
+                        <h2>W3C Distributed Tracing Waterfall</h2>
+                        <p>End-to-end distributed observability and latency breakdown. Inspect W3C Trace Context spans across controllers, routing filters, and SQL executions.</p>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                        <span class="suite-pill-blue">Trace ID: ${rootSpan ? rootSpan.trace_id.substring(0, 12) + '...' : 'None'}</span>
+                        <span class="suite-pill-green">W3C Trace Context 1.0</span>
+                    </div>
                 </div>
 
-                <div class="trace-content" style="flex: 1; overflow: hidden;">
-                    ${activeTab === 'visual' ? html`
-                        <div class="events-container" style="display: flex; height: 100%; gap: 20px;">
-                            <!-- Sidebar: Trace List -->
-                            <div class="trace-list" style="width: 320px; border-right: 1px solid var(--glass-border); overflow-y: auto; padding-right: 15px;">
-                                <h3 style="font-size: 0.75rem; margin-bottom: 15px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Captured Request Timeline</h3>
-                                ${traces.map(t => html`
-                                    <div class="trace-item ${selectedTrace === t ? 'active' : ''}" 
-                                         style="padding: 12px; border-radius: 12px; cursor: pointer; margin-bottom: 8px; border: 1px solid ${selectedTrace === t ? 'var(--accent-light)' : 'var(--glass-border)'}; background: ${selectedTrace === t ? 'rgba(99, 102, 241, 0.15)' : 'rgba(255,255,255,0.02)'}; transition: all 0.2s ease;"
-                                         @click="${() => this.selectTrace(t)}">
-                                        <div style="font-size: 0.85rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: ${selectedTrace === t ? 'var(--accent-light)' : 'var(--text-main)'};">${t.request_uri}</div>
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
-                                            <div style="font-size: 0.7rem; color: var(--text-dim);">${t.timestamp}</div>
-                                            <div style="font-size: 0.65rem; color: var(--accent-light); opacity: 0.8;">${t.trace.length} events</div>
-                                        </div>
-                                    </div>
-                                `)}
-                                ${traces.length === 0 ? html`<div class="empty-state" style="padding: 20px; font-size: 0.8rem;">No events captured. Browse the site to generate logs.</div>` : ''}
-                            </div>
-
-                            <!-- Main: Visual Graph -->
-                            <div class="trace-visual" style="flex: 1; overflow-y: auto; padding-right: 10px;">
-                                ${selectedTrace ? this.renderTraceGraph(selectedTrace) : html`<div class="empty-state">Select a request timeline from the left to visualize its event flow</div>`}
-                            </div>
-                        </div>
-                    ` : html`
-                        <div class="log-view" style="height: 100%; display: flex; flex-direction: column; gap: 15px;">
-                             <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 12px 20px; border-radius: 12px; border: 1px solid var(--glass-border);">
-                                <div>
-                                    <h3 style="font-size: 0.9rem; margin: 0; color: var(--text-main);">Parikshak Engine</h3>
-                                    <div style="font-size: 0.7rem; color: var(--text-dim);">Automated Evolutionary Testing System</div>
-                                </div>
-                                <button class="btn primary" @click="${() => this.runScan()}" style="font-size: 0.8rem; padding: 8px 16px;">🚀 Trigger Evolutionary Scan</button>
-                             </div>
-                             <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; background: #0f172a; color: #94a3b8; padding: 20px; border-radius: 12px; flex: 1; overflow-y: auto; white-space: pre-wrap; line-height: 1.6; border: 1px solid var(--glass-border);">
-                                ${parikshakLog || 'No activity logged yet.'}
-                             </div>
-                        </div>
-                    `}
+                <!-- Stats Cards -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div class="suite-stat-card">
+                        <div class="stat-label">Total Spans</div>
+                        <div class="stat-val" style="color: #38bdf8;">${spans.length}</div>
+                        <div class="stat-sub">Across full request path</div>
+                    </div>
+                    <div class="suite-stat-card">
+                        <div class="stat-label">Total Latency</div>
+                        <div class="stat-val" style="color: #34d399;">${rootSpan?.duration_ms || 0} ms</div>
+                        <div class="stat-sub">Wall clock duration</div>
+                    </div>
+                    <div class="suite-stat-card">
+                        <div class="stat-label">Database Latency</div>
+                        <div class="stat-val" style="color: #a78bfa;">${totalDbTime.toFixed(2)} ms</div>
+                        <div class="stat-sub">${dbSpans.length} SQL queries executed</div>
+                    </div>
+                    <div class="suite-stat-card">
+                        <div class="stat-label">Trace Status</div>
+                        <div class="stat-val" style="color: #fbbf24;">${rootSpan?.status || 'OK'}</div>
+                        <div class="stat-sub">Zero unhandled exceptions</div>
+                    </div>
                 </div>
-            </div>
-        `;
-    }
 
-    renderTraceGraph(trace) {
-        return html`
-            <div class="trace-header" style="margin-bottom: 25px; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border);">
-                <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Request Flow Analysis</div>
-                <h2 style="font-size: 1.1rem; margin: 0; color: var(--accent-light); font-family: 'JetBrains Mono', monospace;">${trace.request_uri}</h2>
-            </div>
+                <!-- Toolbar Filters -->
+                <div class="suite-toolbar" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 0.75rem; align-items: center; flex: 1; min-width: 320px;">
+                        <input type="text"
+                               class="suite-input"
+                               style="flex: 1; max-width: 320px; font-size: 0.85rem;"
+                               placeholder="Filter spans by name or tag..."
+                               .value=${filterTerm}
+                               @input=${(e) => this.setState({ filterTerm: e.target.value })}>
 
-            <div class="graph-timeline" style="position: relative; padding-left: 40px; border-left: 2px solid var(--glass-border); margin-left: 10px; margin-top: 10px;">
-                ${trace.trace.map((ev, idx) => html`
-                    <div class="event-node" style="position: relative; margin-bottom: 35px;">
-                        <!-- Event Marker -->
-                        <div style="position: absolute; left: -51px; top: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-light); border: 4px solid var(--bg-dark); box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: white; font-weight: bold;">${idx + 1}</div>
-                        
-                        <div class="event-card" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px; backdrop-filter: blur(10px); transition: transform 0.2s ease;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                                <div>
-                                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text-main); font-weight: 700; letter-spacing: -0.02em;">${ev.event}</div>
-                                    <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 2px;">Triggered at ${new Date(ev.timestamp * 1000).toLocaleTimeString()}</div>
-                                </div>
-                                <span class="badge info" style="font-size: 0.65rem; background: rgba(99, 102, 241, 0.2); border: 1px solid var(--accent-light); color: var(--accent-light);">${ev.handlers.length} Interceptors</span>
+                        <select class="suite-select"
+                                style="width: 140px; font-size: 0.82rem;"
+                                .value=${filterKind}
+                                @change=${(e) => this.setState({ filterKind: e.target.value })}>
+                            <option value="ALL">All Kinds</option>
+                            <option value="SERVER">Server</option>
+                            <option value="INTERNAL">Internal</option>
+                            <option value="CLIENT">Client / DB</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button class="btn secondary-btn btn-sm" @click=${() => this.fetchTrace()}>🔄 Refresh Trace</button>
+                    </div>
+                </div>
+
+                <!-- Main Waterfall & Inspector Split Pane -->
+                <div class="suite-split-pane" style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.25rem; flex: 1; min-height: 480px;">
+                    <!-- Left: Timeline Waterfall -->
+                    <div class="card" style="display: flex; flex-direction: column; padding: 1.25rem; background: rgba(15, 23, 42, 0.65); border: 1px solid var(--glass-border); border-radius: 12px; overflow: hidden;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--glass-border);">
+                            <span style="font-size: 0.85rem; font-weight: 600; color: #38bdf8;">Span Execution Timeline</span>
+                            <!-- Millisecond Axis -->
+                            <div style="display: flex; gap: 2rem; font-size: 0.7rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;">
+                                <span>0ms</span>
+                                <span>${(totalDuration * 0.5).toFixed(1)}ms</span>
+                                <span>${totalDuration.toFixed(1)}ms</span>
                             </div>
+                        </div>
 
-                            <div class="handler-chain" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-                                ${ev.handlers.map(h => html`
-                                    <div class="handler-row" style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 10px; background: ${h.stopped ? 'rgba(239, 68, 68, 0.05)' : 'rgba(255,255,255,0.03)'}; border-left: 4px solid ${this.getStageColor(h.stage)}; border: 1px solid ${h.stopped ? 'rgba(239, 68, 68, 0.2)' : 'var(--glass-border)'}">
-                                        <div style="display: flex; flex-direction: column; align-items: center; min-width: 60px;">
-                                            <span style="font-size: 0.6rem; color: ${this.getStageColor(h.stage)}; text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">${h.stage}</span>
+                        <div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;">
+                            ${loading ? html`<div class="loading-state" style="padding: 3rem; text-align: center;"><div class="sppux-spinner"></div> Loading trace waterfall...</div>` : ''}
+
+                            ${!loading && filteredSpans.length === 0 ? html`
+                                <div style="padding: 3rem; text-align: center; color: var(--text-dim); font-size: 0.85rem;">
+                                    No trace spans captured matching filter.
+                                </div>
+                            ` : ''}
+
+                            ${filteredSpans.map(span => {
+                                const isSelected = selectedSpan === span;
+                                const barWidthPct = Math.max(Math.min((span.duration_ms / totalDuration) * 100, 100), 4);
+                                const isIndent = span.parent_id !== null;
+
+                                let barColor = 'linear-gradient(90deg, #38bdf8, #60a5fa)';
+                                if (span.kind === 'CLIENT' || span.name.includes('DB')) {
+                                    barColor = 'linear-gradient(90deg, #a78bfa, #c084fc)';
+                                } else if (span.kind === 'INTERNAL') {
+                                    barColor = 'linear-gradient(90deg, #34d399, #10b981)';
+                                }
+
+                                return html`
+                                    <div class="trace-row"
+                                         style="padding: 8px 10px; border-radius: 8px; cursor: pointer; border: 1px solid ${isSelected ? '#38bdf8' : 'var(--glass-border)'}; background: ${isSelected ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255,255,255,0.02)'}; transition: all 0.2s;"
+                                         @click=${() => this.selectSpan(span)}>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                            <div style="display: flex; align-items: center; gap: 6px; padding-left: ${isIndent ? '16px' : '0'};">
+                                                ${isIndent ? html`<span style="color: var(--text-dim); font-size: 0.75rem;">↳</span>` : ''}
+                                                <span style="font-weight: 600; font-size: 0.82rem; font-family: 'JetBrains Mono', monospace; color: ${isSelected ? '#38bdf8' : 'var(--text-bright)'};">
+                                                    ${span.name}
+                                                </span>
+                                                <span class="suite-pill-blue" style="font-size: 0.65rem;">${span.kind}</span>
+                                            </div>
+                                            <span style="font-size: 0.75rem; font-weight: 600; color: #fbbf24; font-family: 'JetBrains Mono', monospace;">
+                                                ${span.duration_ms} ms
+                                            </span>
                                         </div>
-                                        <div style="flex: 1">
-                                            <div style="font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; color: var(--text-main);">${this.formatHandlerName(h.handler)}</div>
-                                            ${h.stopped ? html`<div style="font-size: 0.65rem; color: var(--danger); font-weight: 600; margin-top: 2px;">🛑 HALTED PROPAGATION</div>` : ''}
+
+                                        <!-- Proportional Duration Bar -->
+                                        <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-left: ${isIndent ? '16px' : '0'};">
+                                            <div style="height: 100%; width: ${barWidthPct}%; background: ${barColor}; border-radius: 3px; transition: width 0.3s ease;"></div>
                                         </div>
                                     </div>
-                                `)}
-                                ${ev.handlers.length === 0 ? html`<div style="font-size: 0.8rem; color: var(--text-dim); font-style: italic; text-align: center; padding: 10px;">Event passed through without interception</div>` : ''}
-                            </div>
+                                `;
+                            })}
                         </div>
                     </div>
-                `)}
+
+                    <!-- Right: Span Inspector -->
+                    <div class="card" style="display: flex; flex-direction: column; padding: 1.25rem; background: rgba(15, 23, 42, 0.65); border: 1px solid var(--glass-border); border-radius: 12px; overflow-y: auto;">
+                        ${!selectedSpan ? html`
+                            <div style="padding: 4rem 1rem; text-align: center; color: var(--text-dim); margin: auto;">
+                                <div style="font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.4;">📈</div>
+                                <div style="font-size: 1rem; font-weight: 500;">Select a trace span</div>
+                                <div style="font-size: 0.82rem; margin-top: 0.25rem;">Click on any span in the waterfall timeline to view W3C headers, timing, and OpenTelemetry attributes.</div>
+                            </div>
+                        ` : html`
+                            <!-- Span Header -->
+                            <div style="padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
+                                <div style="font-size: 1.05rem; font-weight: 700; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">
+                                    ${selectedSpan.name}
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem;">
+                                    <span class="suite-pill-green">${selectedSpan.status || 'OK'}</span>
+                                    <span class="suite-pill-purple">${selectedSpan.kind}</span>
+                                    <span class="suite-pill-yellow">${selectedSpan.duration_ms} ms</span>
+                                </div>
+                            </div>
+
+                            <!-- W3C Identifiers -->
+                            <div style="margin-bottom: 1.25rem;">
+                                <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                                    W3C Trace Identifiers
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.8rem; font-family: 'JetBrains Mono', monospace;">
+                                    <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+                                        <span style="color: var(--text-dim);">Trace ID:</span>
+                                        <span style="color: var(--text-bright);">${selectedSpan.trace_id}</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+                                        <span style="color: var(--text-dim);">Span ID:</span>
+                                        <span style="color: var(--text-bright);">${selectedSpan.span_id}</span>
+                                    </div>
+                                    ${selectedSpan.parent_id ? html`
+                                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+                                            <span style="color: var(--text-dim);">Parent ID:</span>
+                                            <span style="color: var(--text-bright);">${selectedSpan.parent_id}</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+
+                                <button class="btn secondary-btn btn-sm"
+                                        style="width: 100%; margin-top: 0.75rem; justify-content: center;"
+                                        @click=${() => this.copyTraceparent(selectedSpan)}>
+                                    📋 Copy W3C Traceparent Header
+                                </button>
+                            </div>
+
+                            <!-- Span Attributes / Tags -->
+                            <div style="flex: 1;">
+                                <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                                    Attributes & Tags
+                                </div>
+                                ${!selectedSpan.tags || Object.keys(selectedSpan.tags).length === 0 ? html`
+                                    <div style="padding: 1rem; font-size: 0.8rem; color: var(--text-dim);">No tags attached to this span.</div>
+                                ` : html`
+                                    <table class="suite-table" style="font-size: 0.8rem;">
+                                        <thead>
+                                            <tr>
+                                                <th>Attribute</th>
+                                                <th>Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${Object.entries(selectedSpan.tags).map(([k, v]) => html`
+                                                <tr>
+                                                    <td style="font-weight: 600; font-family: 'JetBrains Mono', monospace; color: #a78bfa;">${k}</td>
+                                                    <td style="font-family: 'JetBrains Mono', monospace; color: var(--text-bright); word-break: break-all;">${String(v)}</td>
+                                                </tr>
+                                            `)}
+                                        </tbody>
+                                    </table>
+                                `}
+                            </div>
+                        `}
+                    </div>
+                </div>
             </div>
         `;
-    }
-
-    formatHandlerName(name) {
-        // Clean up FQCN for better UI
-        return name.replace(/^\\?EventHandlers\\/, '').replace(/^\\?SPPMod\\/, 'Mod:');
-    }
-
-    getStageColor(stage) {
-        const colors = {
-            'before': '#10b981', // Emerald
-            'override': '#f59e0b', // Amber
-            'default': '#6366f1', // Indigo
-            'after': '#8b5cf6'   // Violet
-        };
-        return colors[stage] || '#6b7280';
     }
 }

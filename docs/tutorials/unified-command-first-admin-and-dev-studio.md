@@ -669,3 +669,114 @@ In the Developer Studio's **Routing & Endpoints** workspace (`#routing`), develo
   - `● Active / Instantiated`: Currently resolved in memory.
   - `○ Deferred / Lazy`: Bound in the container registry, awaiting first resolution.
 
+---
+
+### 8. Real-Time Streaming Web Terminal (`#terminal`)
+
+#### Foundational Concept
+The **Web Terminal** (`#terminal`, implemented in `spp/dev/js/views/terminal.js` and `spp/admin/js/views/terminal.js`) provides an in-browser console that mirrors a native operating system terminal while remaining fully sandboxed and integrated with the SPP framework. Developers and system administrators can execute polyglot CLI utilities, SPP framework commands (`php spp.php ...`), git operations, Composer packages, and operating system diagnostics directly from their browser without requiring SSH keys or remote desktop sessions.
+
+#### The Problem: Command Latency & Process Deadlocks
+In early iterations of the web terminal, developers observed long delays between command submission and terminal output ("a big time gap between command passing and response"). In-depth profiling revealed four distinct bottlenecks:
+
+1. **Anonymous Pipe Buffer Deadlocks**:
+   On Windows, the kernel pipe buffer allocated to `proc_open()` is strictly limited to 4 KB. When commands generated large payloads (e.g. `git status -s` returning 136 KB or `php spp.php route:list` returning 25 KB), the child process filled the OS buffer and permanently deadlocked waiting for stdout to be drained, while PHP blocked waiting for process termination.
+2. **Windows Shell Initialization Overhead**:
+   Invoking `powershell.exe -NoProfile ...` for arbitrary commands incurred a 700ms–1,200ms cold start per command due to .NET runtime and assembly loading.
+3. **Unscoped Workspace Scanning**:
+   Executing global reflection commands such as `php spp.php route:list` or `php spp.php test` without specifying an application context forced the framework to reflect and inspect all 20+ applications in the workspace directory, taking up to 18–40 seconds.
+4. **Synchronous Batch Buffering & Zero Perceived Feedback**:
+   The frontend previously performed a blocking HTTP request without active status indicators or progress updates. The browser screen remained completely static until the command exited, giving the impression that the interface had frozen.
+5. **Service Worker Hash Fragment Rejection**:
+   Navigating directly to `#terminal` caused service worker fetch events to reject with `TypeError: Failed to convert value to 'Response'` because `caches.match()` was queried with URL hash fragments.
+
+#### The Architecture: Zero-Latency Real-Time Streaming
+To resolve these bottlenecks and provide instantaneous feedback, the execution pipeline was overhauled across three layers:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Developer (Browser)
+    participant Term as TerminalView (terminal.js)
+    participant SW as Sovereign Service Worker
+    participant API as api.php
+    participant Bridge as CommandBridge.php
+    participant Proc as Subprocess (cmd.exe / bash)
+
+    Dev->>Term: Press Enter on command ("php spp.php sys:status")
+    Term->>Term: Append "$ cmd" + Start live ticker (80ms interval: [Running (0.1s)])
+    Term->>API: POST /api.php?action=run_command_stream (Bypasses SW cache)
+    API->>Bridge: CommandBridge::streamShellCommand(cmd, appContext)
+    Bridge->>Bridge: Translate Unix aliases (ls -> dir /b, pwd -> cd, cat -> type)
+    Bridge->>Bridge: Auto-scope app flag (--app=SPPDocs) if missing
+    Bridge->>Bridge: Close session lock + Clean output buffers
+    Bridge->>Proc: proc_open() with temp file redirection (bypassing 4KB pipe deadlock)
+    loop Every 30ms polling while process runs
+        Proc-->>Bridge: Appends output chunks to temporary file
+        Bridge-->>API: SSE chunk event: event: chunk\ndata: {"chunk":"..."}
+        API-->>Term: ReadableStream delivers text chunk
+        Term->>Dev: Stream chunk rendered immediately into terminal window + Auto-scroll
+    end
+    Proc-->>Bridge: Process exits with exit code 0
+    Bridge-->>API: SSE completion event: event: done\ndata: {"success":true,"exit_code":0,...}
+    API-->>Term: Final done event received
+    Term->>Term: Stop ticker + Log "[Process exited with code 0 in 0.4s]" + Focus input
+```
+
+#### Key Technical Enhancements
+
+1. **Temporary File Redirection (Eliminating Pipe Deadlocks)**:
+   Instead of piping stdout and stderr through memory-limited kernel pipes (`['pipe', 'w']`), `CommandBridge::runShellCommand()` allocates isolated temporary file descriptors (`sys_get_temp_dir()`). The child process streams output directly to disk with zero buffer size restrictions, completely eliminating deadlocks even on megabyte-scale command logs.
+
+2. **cmd.exe Fast-Path & Unix Alias Normalization**:
+   On Windows, commands are routed through `cmd.exe /d /c` (which boots in 10ms–15ms) rather than PowerShell (900ms+). Common Unix utilities are automatically translated:
+   - `ls` $\rightarrow$ `dir /b`
+   - `ls -la` / `ll` $\rightarrow$ `dir`
+   - `pwd` $\rightarrow$ `cd`
+   - `cat <file>` $\rightarrow$ `type <file>`
+   - `which <cmd>` $\rightarrow$ `where <cmd>`
+
+3. **Intelligent Application Context Auto-Scoping**:
+   When the user runs reflection-heavy commands (`php spp.php route:list`, `php spp.php test`, `php spp.php module:doctor`), `CommandBridge` detects the active Workbench app context (`$appContext`) and automatically appends `--app={$appContext}` if not explicitly specified. This drops command runtimes from **18.0 seconds down to 2.6 seconds** (an 85% latency reduction).
+
+4. **Server-Sent Events (SSE) Real-Time Chunk Streaming**:
+   The `run_command_stream` endpoint uses SSE (`text/event-stream; charset=utf-8`) with chunked delivery:
+   - PHP session file locks are released immediately (`session_write_close()`) so concurrent requests in other tabs are never blocked.
+   - Output buffering is flushed (`ob_end_clean()`) and `X-Accel-Buffering: no` is transmitted to prevent reverse proxy delays.
+   - Chunks are emitted as JSON payloads: `event: chunk\ndata: {"chunk": "..."}\n\n`.
+
+5. **Instantaneous UI Ticker & Live Chunk Rendering**:
+   Upon pressing Enter:
+   - A live execution badge `⏳ [Running (0.0s)]` appears immediately with an active spinning badge.
+   - An interval timer updates the badge every 80ms (`0.1s`, `0.2s`, `0.3s`), providing immediate visual confirmation that the command is active.
+   - `fetch()` consumes the SSE response via `ReadableStream` (`getReader()`), appending chunks into the terminal view in real time.
+   - If streaming is unavailable or blocked by network policies, the terminal automatically falls back to the batch API (`run_command`).
+
+6. **Service Worker Fragile Cache Immunity**:
+   In `spp/dev/spp-dev-sw.js`:
+   - POST requests bypass the service worker entirely (`event.request.method !== 'GET'`).
+   - GET navigation requests strip hash fragments (`url.hash`) from cache keys.
+   - Guaranteed fallback `Response` objects (HTTP 503 offline screen or cached App Shell) are returned in all branches, preventing unhandled promise rejections.
+
+#### Novice Step-by-Step Tutorial: Using the Web Terminal
+
+1. **Launch the Terminal**:
+   - Open your browser to `http://localhost/school1/sppdev/#terminal` (or `sppadmin/#terminal`).
+   - Note the prompt line at the bottom: `spp@SPPDocs:~$`, which dynamically reflects the currently active application context.
+
+2. **Execute System Diagnostics**:
+   - Type `php spp.php sys:status` and press **Enter**.
+   - Notice that the timer badge `[Running (0.1s)]` appears instantly.
+   - System memory, runtime extensions, and database connections stream live into the console window.
+   - Upon completion, the console displays: `[Process exited with code 0 in 0.3s]`.
+
+3. **Run Quick Actions via the Header Toolbar**:
+   - Click **🧪 Test** to run Parikshak automated tests scoped to the active application.
+   - Click **🌿 Git** to inspect dirty working tree files via `git status -s`.
+   - Click **🛤️ Routes** to view application endpoints.
+   - Click **🧹 Clear** (or type `clear` / `cls`) to purge the terminal buffer.
+
+4. **Navigate Command History**:
+   - Press the **Up Arrow ($\uparrow$)** to recall previously executed commands.
+   - Press the **Down Arrow ($\downarrow$)** to cycle forward through command history.
+

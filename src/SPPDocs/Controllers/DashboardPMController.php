@@ -30,18 +30,18 @@ class DashboardPMController extends \SPPMod\SPPView\ViewController
         $issuesDir = $this->getIssuesDir($project);
         $this->ensureSession();
 
-        $allIssues = $this->loadAllIssues($issuesDir);
+        $allIssues = $this->loadAllIssues($issuesDir, $project);
         $milestones = $this->loadMilestones($issuesDir);
         $teams = $this->loadTeams($issuesDir);
 
         // --- Stats ---
         $topLevel = array_filter($allIssues, fn($i) => empty($i['parent_id']));
-        $openCount = count(array_filter($topLevel, fn($i) => ($i['status'] ?? 'open') === 'open'));
-        $closedCount = count(array_filter($topLevel, fn($i) => ($i['status'] ?? 'open') === 'closed' || ($i['status'] ?? '') === 'done'));
+        $openCount = count(array_filter($topLevel, fn($i) => !in_array(($i['status'] ?? 'open'), ['closed', 'done', 'resolved', 'archived'])));
+        $closedCount = count(array_filter($topLevel, fn($i) => in_array(($i['status'] ?? 'open'), ['closed', 'done', 'resolved'])));
         $overdueCount = 0;
         $today = time();
         foreach ($topLevel as $i) {
-            if (($i['status'] ?? 'open') === 'open' && !empty($i['due_date'])) {
+            if (!in_array(($i['status'] ?? 'open'), ['closed', 'done', 'resolved', 'archived']) && !empty($i['due_date'])) {
                 $dueTs = is_numeric($i['due_date']) ? $i['due_date'] : strtotime($i['due_date']);
                 if ($dueTs && $dueTs < $today) $overdueCount++;
             }
@@ -57,7 +57,7 @@ class DashboardPMController extends \SPPMod\SPPView\ViewController
         // --- Workload per Assignee ---
         $workload = [];
         foreach ($allIssues as $i) {
-            if (($i['status'] ?? 'open') !== 'open') continue;
+            if (in_array(($i['status'] ?? 'open'), ['closed', 'done', 'resolved', 'archived'])) continue;
             foreach ($i['assignees'] ?? [] as $a) {
                 $workload[$a] = ($workload[$a] ?? 0) + 1;
             }
@@ -72,7 +72,7 @@ class DashboardPMController extends \SPPMod\SPPView\ViewController
             $label = date('M j', $weekStart);
             $count = 0;
             foreach ($allIssues as $i) {
-                if (($i['status'] ?? 'open') === 'closed' || ($i['status'] ?? '') === 'done') {
+                if (in_array(($i['status'] ?? 'open'), ['closed', 'done', 'resolved'])) {
                     $closedAt = $i['updated_at'] ?? $i['created_at'] ?? 0;
                     if ($closedAt >= $weekStart && $closedAt < $weekEnd) $count++;
                 }
@@ -103,7 +103,7 @@ class DashboardPMController extends \SPPMod\SPPView\ViewController
         // --- Priority Distribution ---
         $byPriority = ['critical' => 0, 'high' => 0, 'medium' => 0, 'low' => 0];
         foreach ($topLevel as $i) {
-            if (($i['status'] ?? 'open') !== 'open') continue;
+            if (in_array(($i['status'] ?? 'open'), ['closed', 'done', 'resolved', 'archived'])) continue;
             $p = $i['priority'] ?? 'medium';
             $byPriority[$p] = ($byPriority[$p] ?? 0) + 1;
         }
@@ -135,7 +135,7 @@ class DashboardPMController extends \SPPMod\SPPView\ViewController
         $issuesDir = $this->getIssuesDir($project);
         $this->ensureSession();
 
-        $allIssues = $this->loadAllIssues($issuesDir);
+        $allIssues = $this->loadAllIssues($issuesDir, $project);
         $milestones = $this->loadMilestones($issuesDir);
 
         // Gather epics and milestones with dates for the roadmap
@@ -145,7 +145,7 @@ class DashboardPMController extends \SPPMod\SPPView\ViewController
             if (empty($ms['start_date']) && empty($ms['end_date'])) continue;
             $linked = array_filter($allIssues, fn($i) => ($i['milestone_id'] ?? null) === $msId);
             $total = count($linked);
-            $closed = count(array_filter($linked, fn($i) => ($i['status'] ?? 'open') === 'closed' || ($i['status'] ?? '') === 'done'));
+            $closed = count(array_filter($linked, fn($i) => in_array(($i['status'] ?? 'open'), ['closed', 'done', 'resolved'])));
             $roadmapItems[] = [
                 'id' => $msId, 'type' => 'milestone', 'title' => $ms['title'],
                 'start' => $ms['start_date'] ?? $ms['end_date'],
@@ -163,7 +163,7 @@ class DashboardPMController extends \SPPMod\SPPView\ViewController
             // Epic children progress
             $children = array_filter($allIssues, fn($c) => ($c['epic_id'] ?? null) === $i['id']);
             $total = count($children);
-            $closed = count(array_filter($children, fn($c) => ($c['status'] ?? 'open') === 'closed'));
+            $closed = count(array_filter($children, fn($c) => in_array(($c['status'] ?? 'open'), ['closed', 'done', 'resolved'])));
             $roadmapItems[] = [
                 'id' => $i['id'], 'type' => 'epic', 'title' => $i['title'],
                 'start' => $start, 'end' => $end,

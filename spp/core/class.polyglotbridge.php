@@ -63,14 +63,30 @@ class PolyglotBridge extends \SPP\SPPObject
         if (!is_dir($frameworkLibDir)) {
             @mkdir($frameworkLibDir, 0777, true);
         }
+        $configPath = $sharedDir . SPP_DS . 'bridge_config.json';
+        if (file_exists($configPath) && (file_exists($frameworkLibDir . SPP_DS . 'dispatch.py') || file_exists($frameworkLibDir . SPP_DS . 'spp_polyglot_python.py'))) {
+            return ['success' => true, 'log' => ['Bridge already initialized.'], 'config' => []];
+        }
+
         self::generateDispatchers($frameworkLibDir);
         $log[] = "Language dispatchers updated in " . $frameworkLibDir;
 
         // 4. Export Configuration
         $config = self::exportConfig($sharedDir, $runtimes);
-        $log[] = "Bridge configuration exported to " . $sharedDir . SPP_DS . 'bridge_config.json';
+        $log[] = "Bridge configuration exported to " . $configPath;
 
         return ['success' => true, 'log' => $log, 'config' => $config];
+    }
+
+    /**
+     * Executes a shell command safely, guarding against disable_functions in php.ini.
+     */
+    public static function safeExec(string $cmd): ?string
+    {
+        if (!function_exists('shell_exec')) {
+            return null;
+        }
+        return @\shell_exec($cmd);
     }
 
     /**
@@ -90,6 +106,10 @@ class PolyglotBridge extends \SPP\SPPObject
             'compiler' => ['name' => 'C++ Compiler', 'path' => '', 'version' => '']
         ];
 
+        if (!function_exists('shell_exec')) {
+            return $runtimes;
+        }
+
         $isWindows = PHP_OS_FAMILY === 'Windows';
 
         // Python (Prefer python3 on Linux/Unix)
@@ -98,7 +118,7 @@ class PolyglotBridge extends \SPP\SPPObject
             $path = self::findBinary($bin);
             if ($path) {
                 $runtimes['python']['path'] = $path;
-                $runtimes['python']['version'] = trim(@shell_exec("\"$path\" --version 2>&1") ?: 'Unknown');
+                $runtimes['python']['version'] = trim((string)self::safeExec("\"$path\" --version 2>&1") ?: 'Unknown');
                 break;
             }
         }
@@ -107,7 +127,7 @@ class PolyglotBridge extends \SPP\SPPObject
         $perlPath = self::findBinary('perl');
         if ($perlPath) {
             $runtimes['perl']['path'] = $perlPath;
-            $ver = @shell_exec("\"$perlPath\" -v 2>&1");
+            $ver = (string)self::safeExec("\"$perlPath\" -v 2>&1");
             if (preg_match('/v(\d+\.\d+\.\d+)/', $ver, $m)) {
                 $runtimes['perl']['version'] = $m[1];
             }
@@ -117,7 +137,7 @@ class PolyglotBridge extends \SPP\SPPObject
         $javaPath = self::findBinary('java');
         if ($javaPath) {
             $runtimes['java']['path'] = $javaPath;
-            $ver = @shell_exec("\"$javaPath\" -version 2>&1");
+            $ver = (string)self::safeExec("\"$javaPath\" -version 2>&1");
             if (preg_match('/version "([^"]+)"/i', $ver, $m)) {
                 $runtimes['java']['version'] = $m[1];
             } elseif (preg_match('/openjdk version "([^"]+)"/i', $ver, $m)) {
@@ -129,7 +149,7 @@ class PolyglotBridge extends \SPP\SPPObject
         $dotnetPath = self::findBinary('dotnet');
         if ($dotnetPath) {
             $runtimes['dotnet']['path'] = $dotnetPath;
-            $ver = @shell_exec("\"$dotnetPath\" --version 2>&1");
+            $ver = (string)self::safeExec("\"$dotnetPath\" --version 2>&1");
             if ($ver && !str_contains($ver, 'is not recognized')) {
                 $runtimes['dotnet']['version'] = trim($ver);
             }
@@ -139,7 +159,7 @@ class PolyglotBridge extends \SPP\SPPObject
         $goPath = self::findBinary('go');
         if ($goPath) {
             $runtimes['go']['path'] = $goPath;
-            $ver = @shell_exec("\"$goPath\" version 2>&1");
+            $ver = (string)self::safeExec("\"$goPath\" version 2>&1");
             if (preg_match('/go(\d+\.\d+\.\d+)/', $ver, $m)) {
                 $runtimes['go']['version'] = $m[1];
             }
@@ -151,7 +171,7 @@ class PolyglotBridge extends \SPP\SPPObject
             $path = self::findBinary($bin);
             if ($path) {
                 $runtimes['node']['path'] = $path;
-                $ver = @shell_exec("\"$path\" --version 2>&1");
+                $ver = (string)self::safeExec("\"$path\" --version 2>&1");
                 if ($ver) {
                     $runtimes['node']['version'] = trim($ver);
                 }
@@ -206,11 +226,24 @@ class PolyglotBridge extends \SPP\SPPObject
         }
 
         if ($runtimes['compiler']['path']) {
-            $id = @shell_exec("\"{$runtimes['compiler']['path']}\"" . ($isWindows ? " 2>&1" : " --version 2>&1"));
+            $id = (string)self::safeExec("\"{$runtimes['compiler']['path']}\"" . ($isWindows ? " 2>&1" : " --version 2>&1"));
             if (preg_match('/(Version|(\d+\.\d+\.\d+)) ([\d\.]+)/', $id, $m)) {
                 $runtimes['compiler']['version'] = $m[3] ?? $m[2] ?? 'Unknown';
             } elseif (preg_match('/(\d+\.\d+\.\d+)/', $id, $m)) {
                 $runtimes['compiler']['version'] = $m[1];
+            }
+        }
+
+        if (class_exists('\\SPP\\Core\\Polyglot\\LanguageRegistry')) {
+            $dynamicRuntimes = \SPP\Core\Polyglot\LanguageRegistry::discoverRuntimes();
+            foreach ($dynamicRuntimes as $id => $info) {
+                if (!isset($runtimes[$id]) || empty($runtimes[$id]['path'])) {
+                    $runtimes[$id] = [
+                        'name' => $info['name'],
+                        'path' => $info['path'],
+                        'version' => $info['version']
+                    ];
+                }
             }
         }
 
@@ -224,8 +257,11 @@ class PolyglotBridge extends \SPP\SPPObject
      */
     private static function findBinary(string $name): string
     {
+        if (!function_exists('shell_exec')) {
+            return '';
+        }
         $cmd = PHP_OS_FAMILY === 'Windows' ? "where {$name} 2>&1" : "which {$name} 2>&1";
-        $out = @shell_exec($cmd);
+        $out = self::safeExec($cmd);
         if ($out && !str_contains($out, "not found") && !str_contains($out, "Could not find")) {
             return trim(explode("\n", $out)[0]);
         }
@@ -260,9 +296,11 @@ class PolyglotBridge extends \SPP\SPPObject
         $cmd = "php \"{$sppCli}\" polyglot:async \"{$argsJson}\"";
 
         if (PHP_OS_FAMILY === 'Windows') {
-            pclose(popen("start /B cmd /c \"{$cmd} > NUL 2>&1\"", "r"));
+            if (function_exists('popen')) {
+                pclose(popen("start /B cmd /c \"{$cmd} > NUL 2>&1\"", "r"));
+            }
         } else {
-            shell_exec("{$cmd} > /dev/null 2>&1 &");
+            self::safeExec("{$cmd} > /dev/null 2>&1 &");
         }
     }
 
@@ -274,6 +312,25 @@ class PolyglotBridge extends \SPP\SPPObject
     public static function call(string $lang, string $module, string $func, array $args = [], bool $daemon = false): array
     {
         $lang = strtolower($lang);
+
+        // --- DSL & IN-PROCESS EVALUATION ---
+        if (class_exists('\\SPP\\Core\\Polyglot\\LanguageRegistry')) {
+            $driver = \SPP\Core\Polyglot\LanguageRegistry::getDriver($lang);
+            if ($driver && ($driver['category'] ?? '') === 'dsl') {
+                $engineClass = $driver['dsl_engine'] ?? '\\SPP\\Core\\Polyglot\\DSL\\FormulaLanguage';
+                if (class_exists($engineClass)) {
+                    $engine = new $engineClass();
+                    try {
+                        $dslResult = $engine->executeFile($module, $args);
+                        return ['success' => true, 'data' => $dslResult];
+                    } catch (\Throwable $e) {
+                        return ['success' => false, 'error' => "DSL Execution Error: " . $e->getMessage()];
+                    }
+                }
+            }
+        }
+        // --- END DSL EVALUATION ---
+
         $sharedDir = \SPP\Module::getConfig('shared_dir', 'bridge') ?: 'var/shared';
 
         // Fallback to relative if the configured absolute path does not exist
@@ -302,7 +359,7 @@ class PolyglotBridge extends \SPP\SPPObject
             if (!file_exists($portFile)) {
                 $sppCli = realpath(SPP_BASE_DIR . '/spp.php');
                 $spawnCmd = "php \"{$sppCli}\" polyglot:worker start \"{$module}\" \"{$lang}\"";
-                $spawnOut = shell_exec($spawnCmd); // This blocks for up to 5s to wait for port file
+                $spawnOut = (string)self::safeExec($spawnCmd); // This blocks for up to 5s to wait for port file
                 error_log("Daemon Mode: Auto-spawn output: " . trim($spawnOut));
             }
 
@@ -392,11 +449,19 @@ class PolyglotBridge extends \SPP\SPPObject
                 $compileCmd = "\"{$compiler}\" \"{$module}\" -o \"{$outputExe}\" 2>&1";
             }
 
-            $cOut = @shell_exec($compileCmd);
+            $cOut = (string)self::safeExec($compileCmd);
             if (!file_exists($outputExe)) {
                 return ['success' => false, 'error' => "Compilation failed: " . $cOut];
             }
             $command = "\"{$outputExe}\"";
+        } elseif (class_exists('\\SPP\\Core\\Polyglot\\LanguageRegistry') && \SPP\Core\Polyglot\LanguageRegistry::getDriver($lang) !== null) {
+            $bridge = \SPP\Core\Polyglot\PolyglotBridgeFactory::getBridge($lang);
+            $runtimeInfo = $runtimes[$lang] ?? ['path' => $binary, 'name' => $lang];
+            $prep = $bridge->prepare($module, $func, $args, $runtimeInfo, $sharedDir);
+            if ($prep !== null && isset($prep['success']) && !$prep['success']) {
+                return $prep;
+            }
+            $command = $bridge->getCommand($module, $func, $args, $runtimeInfo, $sharedDir);
         } else {
             $ext = ($lang === 'python' ? 'py' : ($lang === 'perl' ? 'pl' : ($lang === 'node' ? 'js' : '')));
             $frameworkLibDir = SPP_BASE_DIR . SPP_DS . 'lib' . SPP_DS . 'polyglot';

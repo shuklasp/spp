@@ -90,15 +90,35 @@ class ViewForm extends ViewTag
         $val->attachTo($elem, $event, $msg);
     }
 
+    public function getData(): array
+    {
+        $data = [];
+        foreach ($this->elements as $id => $elem) {
+            $name = $elem->getAttribute('name') ?: $id;
+            $cleanName = rtrim($name, '[]');
+            $type = strtolower((string)$elem->getAttribute('type'));
+            if ($cleanName && !str_starts_with($cleanName, '_workflow') && $type !== 'submit' && $type !== 'button') {
+                $data[$cleanName] = $elem->getAttribute('value');
+            }
+        }
+        return $data;
+    }
+
     public function doValidation()
     {
+        self::$valstatus = true;
+        $bound = $this->getData();
+        $data = !empty($_POST) ? array_merge($bound, $_POST) : $bound;
+
         foreach ($this->validators as $val) {
-            $valRes = $val->validateAll();
+            $val->setSilent(true);
+            $valRes = $val->validateAll($data);
             $isValid = is_object($valRes) && method_exists($valRes, 'isValid') ? $valRes->isValid() : (bool) $valRes;
             if (self::$valstatus === true) {
                 self::$valstatus = $isValid;
             }
         }
+        return self::$valstatus;
     }
 
     public static function isValidated()
@@ -313,6 +333,24 @@ class ViewForm extends ViewTag
         return ob_get_clean();
     }
 
+    public function render(?string $theme = null): string
+    {
+        if ($theme) {
+            $this->setTheme($theme);
+        }
+        return $this->getHTML();
+    }
+
+    public static function fromYaml(string $yamlOrPath, ?string $appname = null): ViewForm
+    {
+        return Form::fromYaml($yamlOrPath, $appname);
+    }
+
+    public static function load(string $name, ?string $appname = null): ?ViewForm
+    {
+        return Forms::get($name, $appname);
+    }
+
     private $entityInstance;
 
     public function setEntityClass($class)
@@ -341,23 +379,63 @@ class ViewForm extends ViewTag
     }
 
     /**
-     * Binds an entity to the form by setting values of its elements.
+     * Binds an entity, data model, array, or object to the form by setting values of its elements.
+     *
+     * @param mixed $entity
      */
-    public function bind(\SPPMod\SPPDB\SPPEntity $entity)
+    public function bind($entity)
     {
+        if ($entity instanceof \SPPMod\SPPDB\SPPEntity) {
+            $this->setEntityInstance($entity);
+            $this->setEntityClass(get_class($entity));
+        }
+
         foreach ($this->elements as $id => $elem) {
             $name = $elem->getAttribute('name') ?: $id;
             $attrName = rtrim($name, '[]');
 
-            if ($entity->attributeExists($attrName)) {
-                $value = $entity->get($attrName);
+            $value = null;
+            $hasValue = false;
 
-                // Special handling for many-to-many role IDs if applicable
-                if ($attrName === 'role_ids' && method_exists($entity, 'getRoles')) {
-                    $value = $entity->getRoles();
+            if ($entity instanceof \SPPMod\SPPDB\SPPEntity) {
+                if ($entity->attributeExists($attrName)) {
+                    $value = $entity->get($attrName);
+                    if ($attrName === 'role_ids' && method_exists($entity, 'getRoles')) {
+                        $value = $entity->getRoles();
+                    }
+                    $hasValue = true;
                 }
+            } elseif (is_array($entity)) {
+                if (array_key_exists($attrName, $entity)) {
+                    $value = $entity[$attrName];
+                    $hasValue = true;
+                }
+            } elseif (is_object($entity)) {
+                if (isset($entity->$attrName) || property_exists($entity, $attrName)) {
+                    $value = $entity->$attrName;
+                    $hasValue = true;
+                } elseif (method_exists($entity, 'get' . ucfirst($attrName))) {
+                    $getter = 'get' . ucfirst($attrName);
+                    $value = $entity->$getter();
+                    $hasValue = true;
+                }
+            }
 
+            if ($hasValue) {
                 $elem->setAttribute('value', $value);
+            }
+
+            // Dynamically update workflow action buttons if present
+            if ($elem instanceof SPPViewForm_WorkflowActions && is_object($entity)) {
+                $currentState = method_exists($entity, 'getWorkflowState')
+                    ? (is_array($entity->getWorkflowState()) ? ($entity->getWorkflowState()[0] ?? 'draft') : $entity->getWorkflowState())
+                    : ($entity->status ?? 'draft');
+                $elem->setCurrentState($currentState);
+                if (method_exists($entity, 'getAvailableTransitions')) {
+                    $elem->setTransitions($entity->getAvailableTransitions());
+                } elseif (class_exists('\\SPPMod\\SPPWorkflow\\SPPWorkflowManager')) {
+                    $elem->setTransitions(\SPPMod\SPPWorkflow\SPPWorkflowManager::getAvailableTransitions($entity));
+                }
             }
         }
     }

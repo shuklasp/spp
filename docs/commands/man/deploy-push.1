@@ -1,7 +1,104 @@
-.TH "deploy:push" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH SPP-DEPLOY-PUSH 1 "November 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-deploy:push \- Push the local project state to a remote SPP target server
+deploy-push \- Push local project modifications and migrations to a remote SPP target server
 .SH SYNOPSIS
 .B php spp.php deploy:push
+[\fItarget\fR]
+[\fB\-\-domain=\fIdomain\fR]
+[\fB\-\-domains=\fId1,d2\fR]
+[\fB\-\-app=\fIname\fR]
+[\fB\-\-apps=\fIa1,a2\fR]
+[\fB\-\-global\-apps\fR]
+[\fB\-\-framework\-only\fR]
+[\fB\-\-no\-framework\fR]
+[\fB\-\-key=\fItoken\fR]
+[\fB\-\-artifact=\fIpath\fR]
+[\fB\-\-dry-run\fR]
+[\fB\-\-no-db\fR]
+[\fB\-\-no-files\fR]
+[\fB\-\-force\fR]
 .SH DESCRIPTION
-Push the local project state to a remote SPP target server
+.B deploy:push
+synchronizes the local project state with a remote SPP deployment target using differential
+state comparison. The command executes live 6-stage telemetry progress indicators reporting target
+health, workspace scanning, differential calculations, payload packaging, transmission, and
+remote server hook execution. It natively supports multi-directory topology routing, allowing
+framework files, domain applications, and global applications to be synchronized simultaneously
+across heterogeneous destination webroots.
+.SH OPTIONS
+.TP
+.I target
+The name of the target server configured in \fB.sppdeploy.yml\fR (e.g., \fIproduction\fR, \fIstaging\fR).
+.TP
+.BI \-\-domain= domain
+Scope deployment to a specific domain directory (e.g. \fIdomains/example.com\fR) and its live webroot.
+.TP
+.BI \-\-domains= d1,d2
+Comma-separated list of domains to deploy.
+.TP
+.BI \-\-app= name
+Scope deployment to a specific application (resolves both global apps in \fIsrc/\fR and domain apps in \fIdomains/<domain>/src/\fR).
+.TP
+.BI \-\-apps= a1,a2
+Comma-separated list of applications to deploy.
+.TP
+.BR \-\-global\-apps
+Scope deployment to all global applications residing in \fIsrc/\fR and \fIapps/\fR.
+.TP
+.BR \-\-framework\-only
+Deploy strictly the framework core (\fIspp/\fR, \fIpublic/\fR, root entrypoints) to the framework directory.
+.TP
+.BR \-\-no\-framework
+Exclude framework core files when deploying scoped applications or domains.
+.TP
+.BI \-\-key= token
+Authentication secret token override for authenticating with the target deployment receiver.
+.TP
+.BI \-\-artifact= path
+Specify custom location for the compiled differential archive artifact.
+.TP
+.BR \-\-dry-run
+Perform differential calculation and display files to create, update, and delete without transferring changes.
+.TP
+.BR \-\-no-db
+Skip database schema scanning, comparison, and migration.
+.TP
+.BR \-\-no-files
+Skip filesystem file scanning and synchronization, executing only schema updates and post-deploy hooks.
+.TP
+.BI \-\-exclude-files= p1,p2
+Exclude specific files or glob patterns from deployment push (e.g., \fI*.local.yml\fR, \fIdata/*.sqlite\fR).
+.TP
+.BR \-\-exclude-data
+Exclude all SQLite database files and database schema synchronizations from live push.
+.TP
+.BI \-\-exclude-tables= t1,t2
+Exclude specific database tables from remote schema synchronization (e.g., \fItest_*\fR).
+.TP
+.BR \-\-silent
+Suppress verbose deployment output and display only a concise one-line status summary.
+.TP
+.BR \-\-quiet ", " \-q
+Quiet mode: suppress all output except critical errors.
+.TP
+.BR \-\-force
+Proceed with deployment even when pre-flight checks report non-fatal warnings or version drift.
+.SH UNDER THE HOOD
+.IP 1. 4
+Validates connectivity, PHP runtime versions, database status, and ext-zip availability on the remote target.
+.IP 2. 4
+Acquires a distributed deployment lock on the target server to prevent concurrent deploy collisions.
+.IP 3. 4
+Scans the local workspace using \fBProjectScanner\fR and \fBDbScanner\fR to compute SHA-256 state vectors.
+.IP 4. 4
+Dispatches local state signatures to the remote receiver to calculate differential deltas.
+.IP 5. 4
+Assembles differential updates into an encrypted deployment archive via \fBZipArchive\fR.
+.IP 6. 4
+Streams the archive to the remote deployment receiver, where updates are extracted, backups are created, and migrations execute.
+.IP 7. 4
+Releases the distributed deployment lock and logs comprehensive audit records.
+.SH SEE ALSO
+.BR spp-app-bundle (1),
+.BR spp-deploy-diff (1),
+.BR spp-deploy-rollback (1)

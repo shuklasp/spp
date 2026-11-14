@@ -73,6 +73,8 @@ Many frameworks can provide each individual item below. The interesting SPP prop
 | Polyglot integration | IPC/bridges/external applications | Application boundaries can extend beyond one PHP process. |
 | Multiple applications | Application/context architecture | Several applications can participate in a larger SPP deployment model. |
 | AI | SPPAI | AI integration is represented as a framework branch rather than merely an external snippet. |
+| Manifest OS & Governance | `__spp_file_props.yml` per directory | Filesystem substrate enforces capability sandboxing, static taint tracking, SSR policies, multi-DB routing, AST self-healing, and CycloneDX/SPDX SBOM generation. |
+| Sovereign Store & Host Operations | Integrated App Store, Publisher Governance, and `/admin/server` Bare-Metal Telemetry | Eliminates cPanel and external SaaS dependencies on AlmaLinux 9 nodes with 0 MB idle daemon overhead. |
 | CLI | Broad commands and interactive SPP mode | The developer can work with framework concepts from the command environment. |
 
 This table is a **positioning map**, not a claim that competing frameworks lack any of these features.
@@ -281,27 +283,39 @@ The exact command syntax must always be verified against the current CLI impleme
 
 ---
 
-## 9. Polyglot and external-application boundaries
+## 9. Polyglot, Multi-Language Hosting and Sovereign Service Mesh
 
 Calling an external API is common in modern applications. The more interesting question is whether the framework provides a coherent model for applications that cross process or language boundaries.
 
-SPP's polyglot/IPC material should therefore be understood as an architectural boundary:
+SPP's multi-language architecture provides an autonomous hosting and service mesh environment:
 
 ```text
-SPP application
-      │
- ┌────┼─────────────┐
- │    │             │
-API  IPC       external app
- │    │             │
- └────┼─────────────┘
-      │
- another runtime/language
+               Client Request
+                     │
+         ┌───────────▼───────────┐
+         │ SPP Ingress Gateway   │
+         │ (SubpathVirtualizer)  │
+         └───────────┬───────────┘
+                     │
+    ┌────────────────┼────────────────┐
+    │                │                │
+    ▼                ▼                ▼
+Native SPP      Python FastAPI    Node.js / Express
+(PHP Blade/Twig) (Supervised)      (Supervised)
+Route: /        Route: /ai        Route: /chat
+    ▲                ▲                ▲
+    └────────────────┴────────────────┘
+            \SPP\Mesh & Event Bus
 ```
 
-This makes SPP potentially useful in systems where PHP is one participant rather than the entire system.
+What makes SPP distinct from other frameworks in this domain:
+1. **Subpath Route Directory Virtualization**: Non-PHP applications (Python, Node.js, Go) run under public subpaths (e.g. `/ai`) as if they were running on their own dedicated root, with automated `Location:` redirect rewriting, cookie scoping, and HTML `<base>` injection.
+2. **Autonomous Cross-Platform Process Supervision**: `AppSupervisor` manages daemons across Windows, Linux, and macOS without requiring Docker, PM2, or Supervisord, allocating dynamic loopback ports from `10000–20000`.
+3. **Ambient Sensing & Zero-Touch SSO**: Guest apps receive authenticated user claims signed with HMAC-SHA256, enabling instant Single Sign-On.
+4. **Mutual Inter-App Service Mesh (`\SPP\Mesh`)**: Native PHP code invokes guest microservices directly via `\SPP\Mesh::call($appId, $endpoint, $payload)`, with automated on-demand daemon bootstrapping.
+5. **Unified Developer Studio (`/sppdev#apps` & `/sppdev#mesh`)**: Developers supervise daemons, inspect live logs, and test RPC endpoints from a single pane of glass without hopping interfaces.
 
-It does **not** automatically mean that SPP provides transparent distributed execution. That stronger claim requires specific source/test evidence.
+All of these capabilities are verified end-to-end through automated Parikshak test suites (`tests/core/test.multi_language_app_mesh.php`).
 
 ---
 

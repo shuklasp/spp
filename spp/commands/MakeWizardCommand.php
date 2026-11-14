@@ -85,6 +85,14 @@ class MakeWizardCommand extends BaseMakeCommand
                 }
                 $content .= "</div>\n";
                 file_put_contents($partialPath, $content);
+                $this->recordFileProps($partialPath, [
+                    'description' => "Wizard step partial: {$workflowName} {$step}",
+                    'usage' => "Rendered by WizardController step {$step}",
+                    'stability' => 'stable',
+                    'author' => 'SPP Developer',
+                    'review_date' => date('Y-m-d'),
+                    'attributes' => ['tags' => ['wizard', 'partial', $workflowName, $step], 'engine' => 'html']
+                ]);
                 echo "Success: Wizard partial created at {$partialPath}\n";
             }
         }

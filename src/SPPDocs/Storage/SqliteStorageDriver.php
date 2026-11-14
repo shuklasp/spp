@@ -68,10 +68,9 @@ class SqliteStorageDriver implements IssueStorageInterface
         ");
     }
 
-    public function loadAll(array $filters = [], int $limit = 0, int $offset = 0): array
+    private function buildWhereClause(array $filters): array
     {
-        $pdo = $this->getPdo();
-        $sql = "SELECT id, number, title, status, type, priority, milestone_id, parent_id, assignees, labels, due_date, created_at, updated_at FROM issues WHERE 1=1";
+        $sql = "";
         $params = [];
 
         if (isset($filters['status']) && $filters['status'] !== 'all') {
@@ -101,6 +100,23 @@ class SqliteStorageDriver implements IssueStorageInterface
             $sql .= " AND (title LIKE :q OR id LIKE :q OR CAST(number AS TEXT) LIKE :q)";
             $params[':q'] = '%' . $filters['q'] . '%';
         }
+        if (!empty($filters['assignee'])) {
+            $sql .= " AND (assignees LIKE :assignee_pattern)";
+            $params[':assignee_pattern'] = '%"' . $filters['assignee'] . '"%';
+        }
+        if (!empty($filters['label'])) {
+            $sql .= " AND (labels LIKE :label_pattern)";
+            $params[':label_pattern'] = '%"' . $filters['label'] . '"%';
+        }
+
+        return [$sql, $params];
+    }
+
+    public function loadAll(array $filters = [], int $limit = 0, int $offset = 0): array
+    {
+        $pdo = $this->getPdo();
+        [$whereSql, $params] = $this->buildWhereClause($filters);
+        $sql = "SELECT id, number, title, status, type, priority, milestone_id, parent_id, assignees, labels, due_date, created_at, updated_at FROM issues WHERE 1=1" . $whereSql;
 
         $sql .= " ORDER BY created_at DESC";
 
@@ -118,15 +134,6 @@ class SqliteStorageDriver implements IssueStorageInterface
             $row['assignees'] = json_decode($row['assignees'] ?? '[]', true) ?: [];
             $row['labels'] = json_decode($row['labels'] ?? '[]', true) ?: [];
             $row['number'] = (int) $row['number'];
-
-            // Post-filtering for array fields (assignee, label)
-            if (!empty($filters['assignee']) && !in_array($filters['assignee'], $row['assignees'])) {
-                continue;
-            }
-            if (!empty($filters['label']) && !in_array($filters['label'], $row['labels'])) {
-                continue;
-            }
-
             $issues[] = $row;
         }
 
@@ -226,28 +233,8 @@ class SqliteStorageDriver implements IssueStorageInterface
     public function count(array $filters = []): int
     {
         $pdo = $this->getPdo();
-        $sql = "SELECT COUNT(*) as total FROM issues WHERE 1=1";
-        $params = [];
-
-        if (isset($filters['status']) && $filters['status'] !== 'all') {
-            $sql .= " AND status = :status";
-            $params[':status'] = $filters['status'];
-        }
-        if (!empty($filters['type'])) {
-            $sql .= " AND type = :type";
-            $params[':type'] = $filters['type'];
-        }
-        if (!empty($filters['priority'])) {
-            $sql .= " AND priority = :priority";
-            $params[':priority'] = $filters['priority'];
-        }
-        if (!empty($filters['milestone_id'])) {
-            $sql .= " AND milestone_id = :milestone_id";
-            $params[':milestone_id'] = $filters['milestone_id'];
-        }
-        if (isset($filters['is_root']) && $filters['is_root']) {
-            $sql .= " AND (parent_id IS NULL OR parent_id = '')";
-        }
+        [$whereSql, $params] = $this->buildWhereClause($filters);
+        $sql = "SELECT COUNT(*) as total FROM issues WHERE 1=1" . $whereSql;
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);

@@ -96,12 +96,19 @@ trait XDB_Core
 
     /**
      * Connects to a specific XML "table" in the current database.
+     * Supports both connect($table) and connect($database, $table).
      *
      * @param string $table
+     * @param string|null $tableArg2
      * @return $this
      */
-    public function connect($table)
+    public function connect($table, $tableArg2 = null)
     {
+        if ($tableArg2 !== null) {
+            $this->selectDatabase($table);
+            $table = $tableArg2;
+        }
+
         if (!preg_match('/^[a-zA-Z0-9_.\-]+$/', $table)) {
             throw new Exception("Invalid table name");
         }
@@ -111,6 +118,7 @@ trait XDB_Core
         }
 
         $this->tableName = $table;
+        $this->treeEngine = null;
         $this->filePath = $this->dataDir . '/' . $table . '.xml';
 
         // Find all segments

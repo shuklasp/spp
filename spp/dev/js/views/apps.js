@@ -12,16 +12,67 @@ export default class AppsView extends BaseComponent {
         const savedToggles = localStorage.getItem('spp_admin_apps_expanded');
         const expandedArray = savedToggles ? JSON.parse(savedToggles) : [];
 
+        // Detect tab from hash query param if provided (e.g., #apps?tab=lifecycle or legacy #lifecycle)
+        const hash = location.hash;
+        let initialTab = localStorage.getItem('spp_admin_apps_tab') || 'apps';
+        if (hash.includes('tab=lifecycle') || hash.includes('#lifecycle')) initialTab = 'lifecycle';
+        else if (hash.includes('tab=modules') || hash.includes('#modules')) initialTab = 'modules';
+        else if (hash.includes('tab=mesh') || hash.includes('#mesh')) initialTab = 'mesh';
+
         this.state = {
             loading: true,
             apps: [],
+            devMode: true,
+            profile: 'dev',
+            appFilterType: localStorage.getItem('spp_admin_apps_filter') || 'all',
             modules: [],
             sharedGroups: {},
-            activeTab: localStorage.getItem('spp_admin_apps_tab') || 'apps',
+            foreignApps: [],
+            foreignServices: [],
+            activeTab: initialTab,
             expandedPaths: new Set(expandedArray),
             modFilter: localStorage.getItem('spp_admin_mod_filter') || 'all',
             scaffoldOutput: '',
-            scaffolding: false
+            scaffolding: false,
+            // Multi-Language Service Mesh & Supervisor state
+            meshOperating: false,
+            meshLogApp: null,
+            meshLogLines: '',
+            meshLogLoading: false,
+            meshRpcApp: '',
+            meshRpcEndpoint: '',
+            meshRpcMethod: 'POST',
+            meshRpcPayload: '{\n  \n}',
+            meshRpcResult: null,
+            meshRpcExecuting: false,
+            meshFilterTerm: '',
+            meshEventName: '',
+            meshEventPayload: '{\n  "action": "test",\n  "timestamp": 1234567890\n}',
+            meshEventResult: null,
+            meshEventDispatching: false,
+            // cPanel Importer state
+            cpanelArchives: [],
+            cpanelLoadingArchives: false,
+            cpanelArchivePath: '',
+            cpanelTargetApp: '',
+            cpanelOverwrite: false,
+            cpanelSkipDb: false,
+            cpanelSkipEmail: false,
+            cpanelSkipFiles: false,
+            cpanelSkipDns: false,
+            cpanelInspection: null,
+            cpanelInspecting: false,
+            cpanelImporting: false,
+            cpanelImportResult: null,
+            // App Uninstaller & Backups state
+            backups: [],
+            backupInventory: null,
+            loadingBackups: false,
+            // Domain-scoped application state
+            domains: [],
+            selectedDomain: localStorage.getItem('spp_admin_selected_domain') || 'all',
+            domainAppsData: null,
+            loadingDomainApps: false
         };
     }
 
@@ -29,23 +80,44 @@ export default class AppsView extends BaseComponent {
         await this.loadData();
     }
 
+    async onContextChange(newApp) {
+        await this.loadData();
+        this.update();
+    }
+
     async loadData(retryCount = 0) {
         this.setState({ loading: true, error: null });
         try {
-            const [appsRes, modsRes] = await Promise.all([
-                this.api.listApps(),
-                this.api('list_modules')
+            const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+            const [appsRes, modsRes, domsRes] = await Promise.all([
+                apiCall('list_apps'),
+                apiCall('list_modules'),
+                apiCall('domains_list').catch(() => ({ success: false, domains: [] }))
             ]);
             
             if (appsRes.success && modsRes.success) {
+                const appsData = appsRes.data || appsRes;
+                const modsData = modsRes.data || modsRes;
+                const domsData = domsRes.data || domsRes;
+                const domains = domsData.domains || [];
+
                 this.setState({
-                    apps: appsRes.data.apps || [],
-                    sharedGroups: appsRes.data.shared_groups || {},
-                    modules: modsRes.data.modules || [],
+                    apps: appsData.apps || [],
+                    domains: domains,
+                    devMode: appsData.dev_mode !== false,
+                    profile: appsData.profile || 'dev',
+                    sharedGroups: appsData.shared_groups || {},
+                    foreignApps: appsData.foreign_apps || [],
+                    foreignServices: appsData.foreign_services || [],
+                    modules: modsData.modules || [],
                     loading: false
                 });
+
+                if (this.state.selectedDomain && this.state.selectedDomain !== 'all') {
+                    await this.loadDomainApps(this.state.selectedDomain);
+                }
             } else {
-                throw new Error((appsRes.message || '') + " " + (modsRes.message || ''));
+                throw new Error((appsRes.message || appsRes.error || '') + " " + (modsRes.message || modsRes.error || ''));
             }
         } catch (e) {
             if (retryCount < 2) {
@@ -60,15 +132,77 @@ export default class AppsView extends BaseComponent {
         }
     }
 
+    async selectDomain(domPattern) {
+        localStorage.setItem('spp_admin_selected_domain', domPattern);
+        this.setState({ selectedDomain: domPattern });
+        if (domPattern !== 'all') {
+            await this.loadDomainApps(domPattern);
+        } else {
+            this.setState({ domainAppsData: null });
+        }
+    }
+
+    async loadDomainApps(domain) {
+        this.setState({ loadingDomainApps: true });
+        try {
+            const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+            const res = await apiCall('domains_get_domain_apps', { domain });
+            if (res.success) {
+                this.setState({ domainAppsData: res, loadingDomainApps: false });
+            } else {
+                this.setState({ loadingDomainApps: false });
+                this.notify(res.error || 'Failed to load domain applications.', 'error');
+            }
+        } catch (e) {
+            this.setState({ loadingDomainApps: false });
+            this.notify(e.message, 'error');
+        }
+    }
+
     setTab(tab) {
         localStorage.setItem('spp_admin_apps_tab', tab);
         this.setState({ activeTab: tab });
+        if (tab === 'cpanel') {
+            this.loadCpanelArchives();
+        } else if (tab === 'backups') {
+            this.loadBackups();
+        } else if (tab === 'mesh') {
+            this.refreshMeshStatus();
+        }
         this.renderHeader(); // clear or set header actions based on tab
     }
 
     setModFilter(filter) {
         localStorage.setItem('spp_admin_mod_filter', filter);
         this.setState({ modFilter: filter });
+    }
+
+    setAppFilter(filter) {
+        localStorage.setItem('spp_admin_apps_filter', filter);
+        this.setState({ appFilterType: filter });
+    }
+
+    async toggleDevMode() {
+        const isDev = this.state.devMode !== false;
+        const nextMode = isDev ? 'prod' : 'dev';
+        const msg = isDev
+            ? "Switch to Production profile? This will disable developer and administration portals (sppadmin, sppdev) for security. You can re-enable anytime via CLI: php spp.php env:mode dev"
+            : "Switch to Developer profile? This enables developer and administration portals (sppadmin, sppdev).";
+        if (!confirm(msg)) return;
+
+        try {
+            const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+            const res = await apiCall('toggle_dev_mode', { mode: nextMode });
+            if (res.success) {
+                (this.admin || window.admin).notify(res.message || `Switched to ${nextMode} mode.`, 'success');
+                await this.loadData();
+                this.update();
+            } else {
+                (this.admin || window.admin).notify(res.error || res.message || 'Failed to toggle dev mode', 'error');
+            }
+        } catch (e) {
+            (this.admin || window.admin).notify('Error toggling dev mode: ' + e.message, 'error');
+        }
     }
 
     togglePath(appName) {
@@ -105,22 +239,82 @@ export default class AppsView extends BaseComponent {
                 <div class="tab-bar-secondary">
                     <button class="sub-tab-btn ${activeTab === 'apps' ? 'active' : ''}" 
                         @click=${() => this.setTab('apps')}>📱 Applications</button>
+                    <button class="sub-tab-btn ${activeTab === 'mesh' ? 'active' : ''}" 
+                        @click=${() => this.setTab('mesh')}>🕸️ Service Mesh &amp; Daemons</button>
                     <button class="sub-tab-btn ${activeTab === 'modules' ? 'active' : ''}" 
                         @click=${() => this.setTab('modules')}>📦 Modules Registry</button>
+                    <button class="sub-tab-btn ${activeTab === 'lifecycle' ? 'active' : ''}" 
+                        @click=${() => this.setTab('lifecycle')}>🔄 Deployments & Lifecycle</button>
                     <button class="sub-tab-btn ${activeTab === 'builder' ? 'active' : ''}" 
                         @click=${() => this.setTab('builder')}>🛠️ App Builder (CLI)</button>
                     <button class="sub-tab-btn ${activeTab === 'groups' ? 'active' : ''}" 
                         @click=${() => this.setTab('groups')}>👥 Shared Groups</button>
                     <button class="sub-tab-btn ${activeTab === 'logs' ? 'active' : ''}" 
                         @click=${() => this.setTab('logs')}>📡 Server Logs</button>
+                    <button class="sub-tab-btn ${activeTab === 'cpanel' ? 'active' : ''}" 
+                        @click=${() => this.setTab('cpanel')}>📥 cPanel Importer</button>
+                    <button class="sub-tab-btn ${activeTab === 'backups' ? 'active' : ''}" 
+                        @click=${() => this.setTab('backups')}>💾 Backups &amp; Restore</button>
                 </div>
 
                 <div class="apps-content">
                     ${activeTab === 'apps' ? this.renderAppsTable() : ''}
+                    ${activeTab === 'mesh' ? this.renderMeshTab() : ''}
                     ${activeTab === 'modules' ? this.renderModulesTable() : ''}
+                    ${activeTab === 'lifecycle' ? this.renderLifecycle() : ''}
                     ${activeTab === 'builder' ? this.renderAppBuilder() : ''}
                     ${activeTab === 'groups' ? this.renderGroupsTable() : ''}
                     ${activeTab === 'logs' ? this.renderServerLogs() : ''}
+                    ${activeTab === 'cpanel' ? this.renderCpanelImporter() : ''}
+                    ${activeTab === 'backups' ? this.renderBackupsTable() : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    renderLifecycle() {
+        setTimeout(async () => {
+            const mount = document.getElementById('apps-lifecycle-mount');
+            if (mount) {
+                if (!this.lifecycleInstance) {
+                    try {
+                        const ts = window.SPP_CONFIG?.version || Date.now();
+                        const mod = await import(`./lifecycle.js?v=${ts}`);
+                        const LifecycleView = mod.default;
+                        this.lifecycleInstance = new LifecycleView(this.app || this.admin, mount, { app: (this.app || this.admin).selectedApp });
+                        if (this.lifecycleInstance.onInit) await this.lifecycleInstance.onInit();
+                        await this.lifecycleInstance.update();
+                    } catch (err) {
+                        console.error('Failed to load LifecycleView:', err);
+                        mount.innerHTML = `<div class="alert error" style="margin: 1.5rem;">Failed to load Deployments & Lifecycle: ${err.message}</div>`;
+                    }
+                } else {
+                    this.lifecycleInstance.container = mount;
+                    await this.lifecycleInstance.update();
+                }
+            }
+        }, 10);
+
+        return html`
+            <div id="apps-lifecycle-mount" class="fade-in" style="min-height: 500px;">
+                <div class="loading-state" style="padding: 2rem; text-align: center;"><div class="sppux-spinner"></div> Loading Deployment Command Center...</div>
+            </div>
+        `;
+    }
+
+    // --- Helper: Package Card ---
+    renderPackageCard(pkg) {
+        return html`
+            <div class="package-item-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <strong style="color: var(--text-bright); font-size: 12px;">${pkg.name || pkg.id}</strong>
+                    <code class="code-badge" style="font-size: 10px;">v${pkg.version || '1.0.0'}</code>
+                </div>
+                <div style="font-size: 11px; color: var(--accent); font-weight: 500;">
+                    ${pkg.category || 'Package'}
+                </div>
+                <div style="font-size: 11px; color: var(--text-dim); line-height: 1.35; margin-top: 2px; ${pkg.description ? '' : 'display: none;'}">
+                    ${pkg.description || ''}
                 </div>
             </div>
         `;
@@ -128,69 +322,1627 @@ export default class AppsView extends BaseComponent {
 
     // --- Tab: Applications ---
     renderAppsTable() {
-        const { apps, expandedPaths } = this.state;
+        const { apps, domains = [], selectedDomain = 'all', expandedPaths, appFilterType = 'all', devMode = true } = this.state;
+        const systemAppNames = ['sppadmin', 'sppdev', 'default', 'admin', 'system'];
+        const isSystemApp = (app) => app.is_system || systemAppNames.includes((app.name || '').toLowerCase()) || (app.src_path && app.src_path.startsWith('spp/'));
+
+        const userApps = apps.filter(a => !isSystemApp(a));
+        const systemApps = apps.filter(a => isSystemApp(a));
+
+        let displayApps = apps;
+        if (appFilterType === 'user') {
+            displayApps = userApps;
+        } else if (appFilterType === 'system') {
+            displayApps = systemApps;
+        }
+
+        const domainSwitcherHtml = html`
+            <div class="domain-selector-bar" style="display: flex; align-items: center; gap: 8px; margin-bottom: 1.25rem; overflow-x: auto; padding-bottom: 6px;">
+                <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; margin-right: 4px;">
+                    🌐 Domain View:
+                </span>
+                <button type="button" 
+                    class="btn btn-sm ${selectedDomain === 'all' ? 'primary-btn' : 'ghost-btn'}"
+                    style="border-radius: 20px; font-size: 0.8rem; padding: 4px 14px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;"
+                    @click=${() => this.selectDomain('all')}>
+                    🌍 All Applications (${apps.length})
+                </button>
+                ${domains.map(dom => {
+                    const isSelected = selectedDomain === dom.pattern;
+                    const defaultApp = dom.default_app || 'default';
+                    const defaultAppName = typeof defaultApp === 'object' ? (defaultApp.app_name || defaultApp.name || 'default') : defaultApp;
+                    return html`
+                        <button type="button" 
+                            class="btn btn-sm ${isSelected ? 'primary-btn' : 'ghost-btn'}"
+                            style="border-radius: 20px; font-size: 0.8rem; padding: 4px 12px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; ${isSelected ? 'box-shadow: 0 0 12px rgba(99,102,241,0.4);' : ''}"
+                            @click=${() => this.selectDomain(dom.pattern)}>
+                            <span>🌐 ${dom.pattern}</span>
+                            <span class="badge" style="font-size: 0.65rem; padding: 1px 6px; border-radius: 8px; background: ${isSelected ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)'}; color: ${isSelected ? '#fff' : 'var(--text-dim)'}; font-weight: 600;">
+                                ${defaultAppName}
+                            </span>
+                        </button>
+                    `;
+                })}
+                <button type="button"
+                    class="btn ghost-btn btn-sm"
+                    style="border-radius: 20px; font-size: 0.75rem; padding: 4px 10px; white-space: nowrap; border: 1px dashed var(--glass-border); margin-left: 4px;"
+                    @click=${() => this.openInstallToDomainModal(selectedDomain !== 'all' ? selectedDomain : null)}
+                    title="Install an Application on a specific domain">
+                    ➕ Install to Domain
+                </button>
+            </div>
+        `;
+
+        if (selectedDomain !== 'all') {
+            return html`
+                ${domainSwitcherHtml}
+                ${this.renderDomainAppsView(selectedDomain)}
+            `;
+        }
+
         return html`
+            ${domainSwitcherHtml}
             <div class="glass-panel registry-panel fade-in">
-                <div class="panel-header">
-                    <div class="header-main">
-                        <h3 class="gradient-text">Registered Applications</h3>
-                        <span class="count-badge">${apps.length}</span>
-                        <button class="btn primary-btn btn-sm" @click=${() => this.openTemplateHub()} style="margin-left: 20px;">🏗️ Template Hub</button>
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div class="header-main" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <h3 class="gradient-text" style="margin: 0;">Registered Applications</h3>
+                        <span class="count-badge">${displayApps.length}</span>
+                        
+                        <div class="filter-tabs" style="display: inline-flex; background: rgba(0,0,0,0.25); border-radius: 8px; padding: 2px; border: 1px solid rgba(255,255,255,0.08); margin-left: 10px;">
+                            <button class="btn btn-sm ${appFilterType === 'all' ? 'primary-btn' : 'ghost-btn'}" 
+                                style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
+                                @click=${() => this.setAppFilter('all')}>
+                                All (${apps.length})
+                            </button>
+                            <button class="btn btn-sm ${appFilterType === 'user' ? 'primary-btn' : 'ghost-btn'}" 
+                                style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
+                                @click=${() => this.setAppFilter('user')}>
+                                🚀 User Apps (${userApps.length})
+                            </button>
+                            <button class="btn btn-sm ${appFilterType === 'system' ? 'primary-btn' : 'ghost-btn'}" 
+                                style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
+                                @click=${() => this.setAppFilter('system')}>
+                                🛡️ System Apps (${systemApps.length})
+                            </button>
+                        </div>
+
+                        <button class="btn primary-btn btn-sm" @click=${() => this.openTemplateHub()}>🏗️ Template Hub</button>
+                        <button class="btn secondary-btn btn-sm" @click=${() => this.openInstallToDomainModal()}>🌐 Install to Domain</button>
+                    </div>
+
+                    <div class="header-actions-right" style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">Dev Mode:</span>
+                        <button class="btn btn-sm ${devMode ? 'btn-success' : 'ghost-btn'}" 
+                            @click=${() => this.toggleDevMode()} 
+                            style="border-radius: 20px; font-size: 11px; padding: 3px 12px; font-weight: 600;" 
+                            title="Dev Mode enables/disables administration and dev portals (sppadmin, sppdev)">
+                            ${devMode ? '🟢 Enabled (Portals Active)' : '⚪ Disabled (Portals Blocked)'}
+                        </button>
                     </div>
                 </div>
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width: 40%;">Application</th>
-                                <th style="width: 25%;">Base URL</th>
+                                <th style="width: 25%;">Application</th>
+                                <th style="width: 20%;">Domain Scope</th>
+                                <th style="width: 20%;">Base URL</th>
                                 <th style="width: 15%;">Prefix</th>
-                                <th class="text-right" style="width: 200px;">Actions</th>
+                                <th class="text-right" style="width: 240px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${apps.map(app => {
+                            ${displayApps.map(app => {
                                 const isExpanded = expandedPaths.has(app.name);
+                                const isSystem = isSystemApp(app);
                                 return html`
-                                    <tr class="${isExpanded ? 'expanded-row' : ''}">
+                                    <tr class="${isExpanded ? 'expanded-row' : ''} ${isSystem ? 'system-app-row' : ''}">
                                         <td>
                                             <div class="app-identity" style="display: flex; align-items: center; gap: 12px;">
-                                                <label class="icon-radio-wrap" title="Set as Primary Base Application" style="margin-bottom: 0;">
-                                                    <input type="radio" name="base-app-selector" value="${app.name}" 
-                                                        ?checked="${app.is_base_app}" 
-                                                        @change=${() => this.setBaseApp(app.name)}>
-                                                    <div class="app-icon ${app.is_base_app ? 'active' : ''}">🚀</div>
-                                                </label>
+                                                ${isSystem ? html`
+                                                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px;" title="Protected System Application">🛡️</div>
+                                                ` : (app.is_installed !== false ? html`
+                                                    <label class="icon-radio-wrap" title="Set as Primary Base Application" style="margin-bottom: 0;">
+                                                        <input type="radio" name="base-app-selector" value="${app.name}" 
+                                                            ?checked="${app.is_base_app}" 
+                                                            @change=${() => this.setBaseApp(app.name)}>
+                                                        <div class="app-icon ${app.is_base_app ? 'active' : ''}">🚀</div>
+                                                    </label>
+                                                ` : html`
+                                                    <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; background: var(--warning-bg); border-radius: 8px;">📦</div>
+                                                `)}
                                                 <div class="app-name-wrap">
-                                                    <div class="entity-name">${app.name}</div>
+                                                    <div class="entity-name" style="${app.is_installed === false ? 'color: var(--text-dim);' : ''}">
+                                                        ${app.name}
+                                                        ${isSystem ? html`
+                                                            <span class="badge" style="margin-left: 8px; font-size: 10px; padding: 2px 7px; border-radius: 10px; background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.35); font-weight: 600;">
+                                                                SYSTEM
+                                                            </span>
+                                                        ` : ''}
+                                                        ${app.packages && app.packages.length > 0 ? html`
+                                                            <span class="badge-packages" style="cursor: pointer; margin-left: 8px; font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-weight: 500;" @click=${() => this.togglePath(app.name)} title="Click to view packages">
+                                                                📦 ${app.packages.length} Packages ${isExpanded ? '▲' : '▼'}
+                                                            </span>
+                                                        ` : ''}
+                                                        ${app.is_installed === false ? html`
+                                                            <span class="badge-dormant">Dormant Code</span>
+                                                        ` : ''}
+                                                    </div>
                                                     <div class="app-status-row">
-                                                        ${app.is_base_app ? html`<span class="status-indicator active"></span> <small>Primary</small>` : ''}
+                                                        ${isSystem ? (app.dev_mode_dependent || ['sppadmin', 'sppdev'].includes((app.name || '').toLowerCase()) ? html`
+                                                            ${devMode ? html`
+                                                                <span style="color: #4ade80; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
+                                                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #4ade80; display: inline-block;"></span>
+                                                                    Enabled (Dev Mode)
+                                                                </span>
+                                                            ` : html`
+                                                                <span style="color: var(--text-dim); font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
+                                                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>
+                                                                    Disabled (Prod Mode)
+                                                                </span>
+                                                            `}
+                                                            <small style="color: var(--text-dim); margin-left: 8px;">Cannot be uninstalled</small>
+                                                        ` : html`
+                                                            ${app.is_base_app ? html`<span class="status-indicator active"></span> <small>Primary Framework Base</small>` : html`<small style="color: var(--text-dim);">Core System App</small>`}
+                                                        `) : html`
+                                                            ${app.is_base_app ? html`<span class="status-indicator active"></span> <small>Primary</small>` : ''}
+                                                            ${app.packages && app.packages.length > 0 && !isExpanded ? html`
+                                                                <small style="color: var(--text-dim); margin-left: 6px;">Includes: ${app.packages.map(p => p.id || p.name).slice(0, 4).join(', ')}${app.packages.length > 4 ? '...' : ''}</small>
+                                                            ` : ''}
+                                                        `}
                                                     </div>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td>
+                                            ${isSystem ? html`
+                                                <span class="code-badge" style="background: rgba(139, 92, 246, 0.15); color: #c084fc; font-size: 11px;" title="Internal System Portal">
+                                                    🛡️ System Core
+                                                </span>
+                                            ` : (app.is_installed === false ? html`
+                                                <span class="badge-config-uninstalled" title="Source code is preserved in ${app.src_path}, but configuration is uninstalled.">
+                                                    🟡 Config Uninstalled
+                                                </span>
+                                            ` : app.is_domain_app ? html`
+                                                <span class="code-badge primary" title="Installed at ${app.src_path}" style="font-size: 11px;">
+                                                    🌐 ${app.installed_domain}
+                                                </span>
+                                            ` : app.domain_only ? html`
+                                                <span class="code-badge warning" title="Restricted to: ${(app.allowed_domains || []).join(', ')}" style="font-size: 11px;">
+                                                    🔒 Domain-Only (${(app.allowed_domains || []).length})
+                                                </span>
+                                            ` : html`
+                                                <span class="code-badge success" title="Global (Accessible across all domains)" style="font-size: 11px;">
+                                                    🌍 Global
+                                                </span>
+                                            `)}
                                         </td>
                                         <td><div class="url-cell"><code class="code-badge primary">${app.base_url || '/'}</code></div></td>
                                         <td><code class="code-badge warning">${app.table_prefix || '(none)'}</code></td>
                                         <td class="text-right">
                                             <div class="btn-group-horizontal" style="justify-content: flex-end;">
-                                                <button class="btn ghost-btn btn-sm" @click=${() => this.cloneApp(app.name)} title="Clone Application">👯 Clone</button>
-                                                <button class="btn ghost-btn btn-sm" @click=${() => this.openDeploySync(app.name)} title="Export & Deploy">🚀 Deploy</button>
-                                                ${app.has_admin ? html`
-                                                    <button class="btn primary-btn btn-sm" @click=${() => this.manageApp(app.name)} title="Manage Application">🛠️ Manage</button>
-                                                ` : ''}
-                                                <button class="btn ghost-btn btn-sm" @click=${() => this.showAppInfo(app)} title="View Configuration">👁️ Show</button>
-                                                <button class="btn ghost-btn btn-sm" @click=${() => this.openAppEditor(app.name)} title="Configure Application">⚙️ Configure</button>
+                                                ${isSystem ? html`
+                                                    <button class="btn ghost-btn btn-sm" @click=${() => this.showAppInfo(app)} title="View Configuration">👁️ Show</button>
+                                                    ${app.dev_mode_dependent || ['sppadmin', 'sppdev'].includes((app.name || '').toLowerCase()) ? html`
+                                                        <button class="btn ${devMode ? 'ghost-btn' : 'primary-btn'} btn-sm" @click=${() => this.toggleDevMode()} title="Toggle Dev Mode (Enables/Disables sppadmin and sppdev)">
+                                                            ⚡ ${devMode ? 'Dev Mode' : 'Enable Dev Mode'}
+                                                        </button>
+                                                    ` : ''}
+                                                    <span class="badge" style="font-size: 10px; color: var(--text-dim); padding: 4px 6px;" title="System applications cannot be uninstalled">🛡️ Protected</span>
+                                                ` : (app.is_installed === false ? html`
+                                                    <button class="btn btn-reinstall btn-sm" @click=${() => this.reinstallApp(app.name)} title="Re-install and Activate Application">📥 Re-Install</button>
+                                                    <button class="btn btn-full-delete btn-sm" @click=${() => this.purgeDormantCode(app.name)} title="Permanently Delete Remaining Source Code from Disk">🗑️ Full Delete</button>
+                                                    <button class="btn ghost-btn btn-sm" @click=${() => this.showAppInfo(app)} title="View Preserved Code Info">👁️ Show</button>
+                                                ` : html`
+                                                    <button class="btn ghost-btn btn-sm" @click=${() => this.cloneApp(app.name)} title="Clone Application">👯 Clone</button>
+                                                    <button class="btn ghost-btn btn-sm" @click=${() => this.openDeploySync(app.name)} title="Export & Deploy">🚀 Deploy</button>
+                                                    ${app.has_admin ? html`
+                                                        <button class="btn primary-btn btn-sm" @click=${() => this.manageApp(app.name)} title="Manage Application">🛠️ Manage</button>
+                                                    ` : ''}
+                                                    <button class="btn ghost-btn btn-sm" @click=${() => this.showAppInfo(app)} title="View Configuration">👁️ Show</button>
+                                                    <button class="btn ghost-btn btn-sm" @click=${() => this.openDomainScopeModal(app)} title="Configure Domain Scope">🌐 Scope</button>
+                                                    <button class="btn ghost-btn btn-sm" @click=${() => this.openAppEditor(app.name)} title="Configure Application">⚙️ Configure</button>
+                                                    ${!['default', 'admin', 'spp', 'core', 'system', 'sppadmin', 'sppdev'].includes((app.name || '').toLowerCase()) && !app.is_system ? html`
+                                                        <button class="btn danger-btn btn-sm" @click=${() => this.openUninstallModal(app)} title="Uninstall / Decommission Application">🗑️ Uninstall</button>
+                                                    ` : ''}
+                                                `)}
                                             </div>
                                         </td>
                                     </tr>
+                                    ${isExpanded && app.packages && app.packages.length > 0 ? html`
+                                        <tr class="packages-expansion-row">
+                                            <td colspan="5" style="background: rgba(15, 23, 42, 0.45); padding: 14px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                                                    <span style="font-size: 12px; font-weight: 600; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                        📦 Integrated Packages for ${app.title || app.name} (${app.packages.length})
+                                                    </span>
+                                                    <span style="font-size: 11px; color: var(--text-dim);">Treated as internal modules of ${app.name}</span>
+                                                </div>
+                                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px;">
+                                                    ${app.packages.map(pkg => this.renderPackageCard(pkg))}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ` : ''}
                                 `;
                             })}
-                            ${apps.length === 0 ? html`<tr><td colspan="4" class="empty-row">No applications detected.</td></tr>` : ''}
+                            ${apps.length === 0 ? html`<tr><td colspan="5" class="empty-row">No applications detected.</td></tr>` : ''}
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            ${this.renderForeignAppsTable()}
         `;
+    }
+
+    // --- Sub-Section: Multi-Language Guest Applications & Microservices ---
+    renderForeignAppsTable() {
+        const { foreignApps, foreignServices, meshOperating } = this.state;
+        const guestApps = (foreignApps || []).filter(a => (a.type || '').toLowerCase() !== 'spp');
+        const totalCount = guestApps.length;
+        const runningCount = guestApps.filter(a => a.running).length;
+
+        const getLangBadge = (type) => {
+            switch ((type || '').toLowerCase()) {
+                case 'python': return html`<span class="badge-lang-python">🐍 Python</span>`;
+                case 'node':
+                case 'nodejs': return html`<span class="badge-lang-node">🟢 Node.js</span>`;
+                case 'php':
+                case 'php-fpm': return html`<span class="badge-lang-php">🐘 PHP-FPM</span>`;
+                case 'go':
+                case 'golang': return html`<span class="badge-lang-go">🐹 Go</span>`;
+                case 'static': return html`<span class="badge-lang-static">📄 Static SPA</span>`;
+                default: return html`<span class="badge-lang-default">🌐 ${type}</span>`;
+            }
+        };
+
+        return html`
+            <div class="glass-panel registry-panel fade-in" style="margin-top: 2rem;">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div class="header-main" style="display: flex; align-items: center; gap: 10px;">
+                        <h3 class="gradient-text" style="margin: 0;">🌐 Multi-Language Applications & Microservices</h3>
+                        <span class="count-badge">${totalCount}</span>
+                        <span class="badge ${runningCount > 0 ? 'badge-success' : 'badge-neutral'}" style="font-size: 0.75rem; padding: 3px 8px; border-radius: 999px;">
+                            ${runningCount} / ${totalCount} Running
+                        </span>
+                    </div>
+                    <div class="header-actions-right" style="display: flex; gap: 8px;">
+                        <button class="btn ghost-btn btn-sm" ?disabled=${meshOperating} @click=${() => this.refreshMeshStatus()}>
+                            🔄 Refresh Daemons
+                        </button>
+                        <button class="btn secondary-btn btn-sm" @click=${() => this.setTab('mesh')}>
+                            🕸️ Service Mesh Studio
+                        </button>
+                    </div>
+                </div>
+
+                <p style="color: var(--text-dim); font-size: 0.85rem; margin: -10px 0 16px 0;">
+                    Guest applications running in any language (Python, Node.js, Go, PHP) seamlessly routed under server route directories and subdomains via the SPP Ambient Mesh.
+                </p>
+
+                ${totalCount === 0 ? html`
+                    <div class="empty-state" style="padding: 2.5rem; text-align: center;">
+                        <div class="empty-icon" style="font-size: 2.5rem; margin-bottom: 0.5rem;">🕸️</div>
+                        <h4>No Multi-Language Applications Registered</h4>
+                        <p style="color: var(--text-dim); max-width: 520px; margin: 0 auto 1.5rem auto;">
+                            Declare Python, Node.js, or external PHP apps inside <code>etc/apps.yml</code> to run them natively under SPP subpaths and subdomains.
+                        </p>
+                        <button class="btn primary-btn btn-sm" @click=${() => this.createSampleForeignApp()}>
+                            ✨ Scaffold Example Microservice
+                        </button>
+                    </div>
+                ` : html`
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Application & ID</th>
+                                    <th style="width: 15%;">Stack & Runtime</th>
+                                    <th style="width: 20%;">Route & Subdomain</th>
+                                    <th style="width: 15%;">Supervisor & Port</th>
+                                    <th class="text-right" style="width: 25%;">Lifecycle & Mesh Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${guestApps.map(app => {
+                                    const appSvcs = (foreignServices || []).filter(s => s.app_id === app.id);
+                                    const isRunning = !!app.running;
+                                    const isDaemon = !!app.is_daemon;
+
+                                    return html`
+                                        <tr>
+                                            <td>
+                                                <div style="display: flex; align-items: center; gap: 10px;">
+                                                    <div style="font-size: 1.5rem;">${app.type === 'python' ? '🐍' : app.type === 'node' ? '🟢' : app.type === 'php-fpm' ? '🐘' : app.type === 'go' ? '🐹' : '🌐'}</div>
+                                                    <div>
+                                                        <div style="font-weight: 600; color: var(--text-primary);">${app.name}</div>
+                                                        <div style="font-size: 0.75rem; color: var(--text-dim); font-family: monospace;">id: ${app.id}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>${getLangBadge(app.type)}</div>
+                                                ${appSvcs.length > 0 ? html`
+                                                    <div style="font-size: 0.72rem; color: var(--primary); font-weight: 500; margin-top: 4px;">
+                                                        ⚡ ${appSvcs.length} exposed ${appSvcs.length === 1 ? 'service' : 'services'}
+                                                    </div>
+                                                ` : ''}
+                                            </td>
+                                            <td>
+                                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                                    <div>
+                                                        <a href="${app.route}" target="_blank" class="code-badge link" title="Open ${app.route} in new tab" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                                            📁 <code>${app.route}</code> ↗
+                                                        </a>
+                                                    </div>
+                                                    ${app.subdomain && app.subdomain !== '-' ? html`
+                                                        <div style="font-size: 0.75rem; color: var(--text-dim);">
+                                                            🌐 <code>${app.subdomain}</code>
+                                                        </div>
+                                                    ` : ''}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                                    ${isDaemon ? html`
+                                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                                            <span class="status-indicator ${isRunning ? 'active' : ''}" style="${!isRunning ? 'background: #ef4444;' : ''}"></span>
+                                                            <span style="font-size: 0.8rem; font-weight: 500; color: ${isRunning ? 'var(--success)' : 'var(--danger)'};">
+                                                                ${isRunning ? 'Running' : 'Stopped'}
+                                                            </span>
+                                                        </div>
+                                                        ${isRunning ? html`
+                                                            <div style="font-size: 0.72rem; color: var(--text-dim); font-family: monospace;">
+                                                                PID: ${app.pid} | Port: ${app.port}
+                                                            </div>
+                                                        ` : ''}
+                                                    ` : html`
+                                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                                            <span class="status-indicator ${app.enabled ? 'active' : ''}" style="${!app.enabled ? 'background: #94a3b8;' : ''}"></span>
+                                                            <span style="font-size: 0.8rem; font-weight: 500; color: ${app.enabled ? 'var(--success)' : 'var(--text-dim)'};">
+                                                                ${app.state_label || (app.type === 'static' ? 'Ready (Static)' : (app.type === 'php-fpm' ? 'Ready (PHP-FPM)' : 'Ready (PHP Engine)'))}
+                                                            </span>
+                                                        </div>
+                                                        <div style="font-size: 0.72rem; color: var(--text-dim); font-family: monospace;">
+                                                            ${app.type === 'static' ? 'Direct Asset Delivery' : 'On-Demand SAPI / Pool'}
+                                                        </div>
+                                                    `}
+                                                </div>
+                                            </td>
+                                            <td class="text-right">
+                                                <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
+                                                    ${isDaemon ? html`
+                                                        ${isRunning ? html`
+                                                            <button class="btn ghost-btn btn-xs" ?disabled=${meshOperating} @click=${() => this.stopDaemon(app.id)} title="Stop Daemon" style="color: #f87171;">
+                                                                ⏹️ Stop
+                                                            </button>
+                                                            <button class="btn ghost-btn btn-xs" ?disabled=${meshOperating} @click=${() => this.restartDaemon(app.id)} title="Restart Daemon">
+                                                                🔄 Restart
+                                                            </button>
+                                                        ` : html`
+                                                            <button class="btn primary-btn btn-xs" ?disabled=${meshOperating} @click=${() => this.startDaemon(app.id)} title="Start Daemon">
+                                                                ▶️ Start
+                                                            </button>
+                                                        `}
+                                                        <button class="btn ghost-btn btn-xs" @click=${() => this.openMeshLogs(app.id)} title="View Output Logs">
+                                                            📜 Logs
+                                                        </button>
+                                                    ` : ''}
+                                                    <button class="btn ghost-btn btn-xs" @click=${() => this.openRpcSandboxForApp(app.id)} title="Invoke Service RPC">
+                                                        ⚡ RPC
+                                                    </button>
+                                                    <a href="${app.route}" target="_blank" class="btn secondary-btn btn-xs" style="text-decoration: none;" title="Open in browser">
+                                                        🌐 Open
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                `}
+            </div>
+        `;
+    }
+
+    // --- Tab: Service Mesh & Daemons ---
+    renderMeshTab() {
+        const {
+            foreignApps,
+            foreignServices,
+            meshOperating,
+            meshRpcApp,
+            meshRpcEndpoint,
+            meshRpcMethod,
+            meshRpcPayload,
+            meshRpcResult,
+            meshRpcExecuting,
+            meshFilterTerm,
+            meshEventName,
+            meshEventPayload,
+            meshEventResult,
+            meshEventDispatching
+        } = this.state;
+
+        const totalApps = (foreignApps || []).length;
+        const runningDaemons = (foreignApps || []).filter(a => a.running).length;
+        const totalServices = (foreignServices || []).length;
+
+        const filteredApps = (foreignApps || []).filter(a => {
+            if (!meshFilterTerm) return true;
+            const term = meshFilterTerm.toLowerCase();
+            return (a.id || '').toLowerCase().includes(term) ||
+                   (a.name || '').toLowerCase().includes(term) ||
+                   (a.type || '').toLowerCase().includes(term) ||
+                   (a.route || '').toLowerCase().includes(term);
+        });
+
+        return html`
+            <div class="mesh-view fade-in">
+                <!-- Stat Overview Header -->
+                <div class="mesh-stat-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div class="glass-panel" style="padding: 16px; border-radius: 12px; display: flex; align-items: center; gap: 14px;">
+                        <div style="font-size: 2.2rem; background: rgba(56, 189, 248, 0.1); width: 52px; height: 52px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">📱</div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">Registered Apps</div>
+                            <div style="font-size: 1.6rem; font-weight: 700; color: var(--text-bright);">${totalApps}</div>
+                        </div>
+                    </div>
+                    <div class="glass-panel" style="padding: 16px; border-radius: 12px; display: flex; align-items: center; gap: 14px;">
+                        <div style="font-size: 2.2rem; background: rgba(74, 222, 128, 0.1); width: 52px; height: 52px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">🟢</div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">Active Daemons</div>
+                            <div style="font-size: 1.6rem; font-weight: 700; color: #4ade80;">${runningDaemons} <span style="font-size: 0.9rem; color: var(--text-dim);">/ ${totalApps}</span></div>
+                        </div>
+                    </div>
+                    <div class="glass-panel" style="padding: 16px; border-radius: 12px; display: flex; align-items: center; gap: 14px;">
+                        <div style="font-size: 2.2rem; background: rgba(167, 139, 250, 0.1); width: 52px; height: 52px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">⚡</div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">Mesh Services</div>
+                            <div style="font-size: 1.6rem; font-weight: 700; color: #a78bfa;">${totalServices}</div>
+                        </div>
+                    </div>
+                    <div class="glass-panel" style="padding: 16px; border-radius: 12px; display: flex; align-items: center; gap: 14px;">
+                        <div style="font-size: 2.2rem; background: rgba(251, 191, 36, 0.1); width: 52px; height: 52px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">🔌</div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">Port Pool</div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: #fbbf24; font-family: monospace;">10000 - 20000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 1: Process Supervisor & Microservices Fleet -->
+                <div class="glass-panel registry-panel mb-4" style="margin-bottom: 24px;">
+                    <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div class="header-main" style="display: flex; align-items: center; gap: 12px;">
+                            <h3 class="gradient-text" style="margin: 0;">🚀 Process Supervisor &amp; Daemons</h3>
+                            <span class="count-badge">${filteredApps.length}</span>
+                        </div>
+                        <div class="header-actions-right" style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" placeholder="Filter microservices..." 
+                                value="${meshFilterTerm}" 
+                                @input=${(e) => this.setState({ meshFilterTerm: e.target.value })}
+                                style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text-bright); width: 180px;">
+                            <button class="btn primary-btn btn-xs" ?disabled=${meshOperating} @click=${() => this.startAllDaemons()}>
+                                ▶️ Start All
+                            </button>
+                            <button class="btn ghost-btn btn-xs" ?disabled=${meshOperating} @click=${() => this.stopAllDaemons()} style="color: var(--danger);">
+                                ⏹️ Stop All
+                            </button>
+                            <button class="btn ghost-btn btn-xs" ?disabled=${meshOperating} @click=${() => this.refreshMeshStatus()}>
+                                🔄 Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Application & ID</th>
+                                    <th style="width: 15%;">Stack</th>
+                                    <th style="width: 20%;">Route Prefix</th>
+                                    <th style="width: 15%;">PID & Port</th>
+                                    <th style="width: 10%;">State</th>
+                                    <th class="text-right" style="width: 15%;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filteredApps.length === 0 ? html`
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-dim);">
+                                            No microservices match your filter.
+                                        </td>
+                                    </tr>
+                                ` : filteredApps.map(app => {
+                                    const isRunning = !!app.running;
+                                    const isDaemon = !!app.is_daemon;
+
+                                    return html`
+                                        <tr>
+                                            <td>
+                                                <div style="display: flex; align-items: center; gap: 10px;">
+                                                    <span style="font-size: 1.4rem;">${app.type === 'python' ? '🐍' : app.type === 'node' ? '🟢' : app.type === 'php-fpm' ? '🐘' : app.type === 'go' ? '🐹' : '🌐'}</span>
+                                                    <div>
+                                                        <div style="font-weight: 600; color: var(--text-primary);">${app.name}</div>
+                                                        <div style="font-size: 0.72rem; color: var(--text-dim); font-family: monospace;">id: ${app.id}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <code class="code-badge" style="font-size: 0.75rem;">${app.type}</code>
+                                            </td>
+                                            <td>
+                                                <a href="${app.route}" target="_blank" class="code-badge link" style="text-decoration: none;">
+                                                    ${app.route} ↗
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <div style="font-family: monospace; font-size: 0.78rem;">
+                                                    ${isDaemon ? html`
+                                                        ${isRunning ? html`
+                                                            <div>PID: <span style="color: var(--success); font-weight: 600;">${app.pid}</span></div>
+                                                            <div style="color: var(--text-dim);">Port: ${app.port}</div>
+                                                        ` : html`<span style="color: var(--text-dim);">-</span>`}
+                                                    ` : html`<span style="color: var(--text-dim);">${app.type === 'static' ? 'Static (Direct)' : 'SAPI / Pool'}</span>`}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge ${isRunning ? 'badge-success' : (!app.enabled ? 'badge-neutral' : 'badge-neutral')}" style="font-size: 0.75rem; padding: 2px 8px;">
+                                                    ${app.state_label || (isRunning ? (isDaemon ? 'Running' : 'Ready') : 'Stopped')}
+                                                </span>
+                                            </td>
+                                            <td class="text-right">
+                                                <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end;">
+                                                    ${isDaemon ? html`
+                                                        ${isRunning ? html`
+                                                            <button class="btn ghost-btn btn-xs" ?disabled=${meshOperating} @click=${() => this.stopDaemon(app.id)} style="color: var(--danger);" title="Stop Daemon">⏹️</button>
+                                                            <button class="btn ghost-btn btn-xs" ?disabled=${meshOperating} @click=${() => this.restartDaemon(app.id)} title="Restart Daemon">🔄</button>
+                                                        ` : html`
+                                                            <button class="btn primary-btn btn-xs" ?disabled=${meshOperating} @click=${() => this.startDaemon(app.id)} title="Start Daemon">▶️</button>
+                                                        `}
+                                                        <button class="btn ghost-btn btn-xs" @click=${() => this.openMeshLogs(app.id)} title="Logs">📜</button>
+                                                    ` : ''}
+                                                    <button class="btn ghost-btn btn-xs" @click=${() => this.openRpcSandboxForApp(app.id)} title="RPC">⚡</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Section 2 & 3: Two-Column Mesh Studio (RPC Sandbox + Event Bus) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                    
+                    <!-- Inter-App RPC Sandbox -->
+                    <div class="glass-panel" style="padding: 20px; border-radius: 12px; display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 class="gradient-text" style="margin: 0 0 4px 0;">⚡ Inter-App RPC Sandbox</h3>
+                                <div style="font-size: 0.8rem; color: var(--text-dim);">Execute live remote calls to guest microservices via \\SPP\\Mesh</div>
+                            </div>
+                            <span class="badge" style="background: rgba(167, 139, 250, 0.15); color: #a78bfa;">Sovereign Mesh</span>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 2fr 3fr 1fr; gap: 8px;">
+                            <div>
+                                <label style="font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Target App</label>
+                                <select id="mesh-rpc-app-select" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text-bright); font-size: 0.82rem;"
+                                    @change=${(e) => this.onMeshRpcAppChange(e.target.value)}>
+                                    <option value="">-- Select App --</option>
+                                    ${(foreignApps || []).map(a => html`
+                                        <option value="${a.id}" ?selected="${meshRpcApp === a.id}">${a.name} (${a.id})</option>
+                                    `)}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style="font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Service Endpoint</label>
+                                <input type="text" id="mesh-rpc-endpoint" placeholder="/api/predict" value="${meshRpcEndpoint}"
+                                    @input=${(e) => this.setState({ meshRpcEndpoint: e.target.value })}
+                                    style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text-bright); font-size: 0.82rem; font-family: monospace;">
+                            </div>
+
+                            <div>
+                                <label style="font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Method</label>
+                                <select id="mesh-rpc-method" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text-bright); font-size: 0.82rem;"
+                                    @change=${(e) => this.setState({ meshRpcMethod: e.target.value })}>
+                                    <option value="POST" ?selected="${meshRpcMethod === 'POST'}">POST</option>
+                                    <option value="GET" ?selected="${meshRpcMethod === 'GET'}">GET</option>
+                                    <option value="PUT" ?selected="${meshRpcMethod === 'PUT'}">PUT</option>
+                                    <option value="DELETE" ?selected="${meshRpcMethod === 'DELETE'}">DELETE</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        ${foreignServices.filter(s => s.app_id === meshRpcApp).length > 0 ? html`
+                            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                                <span style="font-size: 0.72rem; color: var(--text-dim);">Discovered endpoints:</span>
+                                ${foreignServices.filter(s => s.app_id === meshRpcApp).map(svc => html`
+                                    <button class="btn ghost-btn btn-xs" style="font-family: monospace; font-size: 0.72rem; padding: 2px 6px;"
+                                        @click=${() => this.setState({ meshRpcEndpoint: svc.endpoint, meshRpcMethod: svc.method || 'POST' })}>
+                                        ${svc.method} ${svc.endpoint}
+                                    </button>
+                                `)}
+                            </div>
+                        ` : ''}
+
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <label style="font-size: 0.75rem; color: var(--text-dim);">JSON Payload</label>
+                                <button class="btn ghost-btn btn-xs" style="font-size: 0.7rem; padding: 2px 6px;"
+                                    @click=${() => this.formatRpcPayload()}>Format JSON</button>
+                            </div>
+                            <textarea id="mesh-rpc-payload" rows="4" 
+                                style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--glass-border); background: #0d1117; color: #58a6ff; font-family: monospace; font-size: 0.82rem; resize: vertical;"
+                                @input=${(e) => this.setState({ meshRpcPayload: e.target.value })}>${meshRpcPayload}</textarea>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button class="btn primary-btn btn-sm" ?disabled=${meshRpcExecuting || !meshRpcApp} @click=${() => this.executeMeshRpc()}>
+                                ${meshRpcExecuting ? '⏳ Executing Call...' : '🚀 Invoke Mesh Service'}
+                            </button>
+                        </div>
+
+                        ${meshRpcResult ? html`
+                            <div class="mesh-rpc-result-card fade-in" style="background: rgba(0,0,0,0.3); border: 1px solid ${meshRpcResult.success ? 'rgba(74, 222, 128, 0.3)' : 'rgba(239, 68, 68, 0.3)'}; border-radius: 8px; padding: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="badge ${meshRpcResult.success ? 'badge-success' : 'badge-danger'}" style="font-size: 0.75rem;">
+                                            ${meshRpcResult.success ? '200 OK' : 'RPC Error'}
+                                        </span>
+                                        <span style="font-size: 0.75rem; color: var(--text-dim); font-family: monospace;">
+                                            ⏱️ ${meshRpcResult.duration_ms || 0} ms
+                                        </span>
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: var(--text-dim); font-family: monospace;">
+                                        Target: ${meshRpcResult.app_id || meshRpcApp}${meshRpcResult.endpoint || meshRpcEndpoint}
+                                    </div>
+                                </div>
+                                <pre style="margin: 0; padding: 10px; background: #0d1117; border-radius: 6px; font-size: 0.78rem; color: ${meshRpcResult.success ? '#7ee787' : '#f85149'}; max-height: 200px; overflow-y: auto; font-family: monospace;">${JSON.stringify(meshRpcResult.response || meshRpcResult.error, null, 2)}</pre>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Cross-App Unified Event Bus -->
+                    <div class="glass-panel" style="padding: 20px; border-radius: 12px; display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 class="gradient-text" style="margin: 0 0 4px 0;">📡 Inter-App Event Bus</h3>
+                                <div style="font-size: 0.8rem; color: var(--text-dim);">Broadcast domain events across native SPP listeners & guest microservices</div>
+                            </div>
+                            <span class="badge badge-success">Pub/Sub</span>
+                        </div>
+
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Event Name</label>
+                            <input type="text" id="mesh-event-name" placeholder="e.g. user.created or workflow.after_transition" value="${meshEventName}"
+                                @input=${(e) => this.setState({ meshEventName: e.target.value })}
+                                style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text-bright); font-size: 0.82rem; font-family: monospace;">
+                        </div>
+
+                        <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                            <span style="font-size: 0.72rem; color: var(--text-dim);">Common events:</span>
+                            <button class="btn ghost-btn btn-xs" style="font-size: 0.7rem; padding: 2px 6px;"
+                                @click=${() => this.setState({ meshEventName: 'user.created', meshEventPayload: '{\n  "user_id": 42,\n  "role": "student"\n}' })}>
+                                user.created
+                            </button>
+                            <button class="btn ghost-btn btn-xs" style="font-size: 0.7rem; padding: 2px 6px;"
+                                @click=${() => this.setState({ meshEventName: 'workflow.after_transition', meshEventPayload: '{\n  "entity": "Student",\n  "transition": "admit"\n}' })}>
+                                workflow.after_transition
+                            </button>
+                            <button class="btn ghost-btn btn-xs" style="font-size: 0.7rem; padding: 2px 6px;"
+                                @click=${() => this.setState({ meshEventName: 'ai.inference_requested', meshEventPayload: '{\n  "prompt": "Evaluate performance"\n}' })}>
+                                ai.inference_requested
+                            </button>
+                        </div>
+
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Payload (JSON)</label>
+                            <textarea id="mesh-event-payload" rows="4" 
+                                style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--glass-border); background: #0d1117; color: #a5d6ff; font-family: monospace; font-size: 0.82rem; resize: vertical;"
+                                @input=${(e) => this.setState({ meshEventPayload: e.target.value })}>${meshEventPayload}</textarea>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button class="btn primary-btn btn-sm" ?disabled=${meshEventDispatching || !meshEventName} @click=${() => this.dispatchMeshEvent()}>
+                                ${meshEventDispatching ? '⏳ Firing Event...' : '🔥 Dispatch Event to Mesh'}
+                            </button>
+                        </div>
+
+                        ${meshEventResult ? html`
+                            <div class="mesh-event-result-card fade-in" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(74, 222, 128, 0.3); border-radius: 8px; padding: 12px;">
+                                <div style="font-size: 0.8rem; color: #7ee787; font-weight: 600; margin-bottom: 4px;">
+                                    ✔ Event '${meshEventResult.event}' successfully broadcast to bus
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--text-dim);">
+                                    Propagated to native listeners and guest microservices via <code>/spp-mesh/events</code>.
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                </div>
+            </div>
+        `;
+    }
+
+    // --- Mesh Controller Helpers ---
+    async refreshMeshStatus() {
+        this.setState({ meshOperating: true });
+        try {
+            const res = await (this.admin || window.admin).api('apps_mesh_status');
+            const data = res.data || res;
+            if (res.success || data.success) {
+                this.setState({
+                    foreignApps: data.statuses || [],
+                    foreignServices: data.services || [],
+                    meshOperating: false
+                });
+                this.notify('Mesh microservices synchronized.', 'success');
+            } else {
+                this.notify(data.error || 'Failed to refresh mesh status.', 'error');
+                this.setState({ meshOperating: false });
+            }
+        } catch (e) {
+            this.notify('Mesh refresh error: ' + e.message, 'error');
+            this.setState({ meshOperating: false });
+        }
+    }
+
+    async startDaemon(appId) {
+        this.setState({ meshOperating: true });
+        this.notify(`Starting microservice '${appId}'...`, 'info');
+        try {
+            const res = await (this.admin || window.admin).api('apps_mesh_start', { app_id: appId });
+            const data = res.data || res;
+            if (data.success) {
+                this.notify(`Microservice '${appId}' started successfully on port ${data.port || ''}!`, 'success');
+                await this.refreshMeshStatus();
+            } else {
+                this.notify(data.error || 'Failed to start microservice.', 'error');
+                this.setState({ meshOperating: false });
+            }
+        } catch (e) {
+            this.notify('Start error: ' + e.message, 'error');
+            this.setState({ meshOperating: false });
+        }
+    }
+
+    async stopDaemon(appId) {
+        this.setState({ meshOperating: true });
+        this.notify(`Stopping microservice '${appId}'...`, 'info');
+        try {
+            const res = await (this.admin || window.admin).api('apps_mesh_stop', { app_id: appId });
+            const data = res.data || res;
+            if (data.success) {
+                this.notify(`Microservice '${appId}' stopped.`, 'success');
+                await this.refreshMeshStatus();
+            } else {
+                this.notify(data.error || 'Failed to stop microservice.', 'error');
+                this.setState({ meshOperating: false });
+            }
+        } catch (e) {
+            this.notify('Stop error: ' + e.message, 'error');
+            this.setState({ meshOperating: false });
+        }
+    }
+
+    async restartDaemon(appId) {
+        this.setState({ meshOperating: true });
+        this.notify(`Restarting microservice '${appId}'...`, 'info');
+        try {
+            const res = await (this.admin || window.admin).api('apps_mesh_restart', { app_id: appId });
+            const data = res.data || res;
+            if (data.success) {
+                this.notify(`Microservice '${appId}' restarted on port ${data.port || ''}!`, 'success');
+                await this.refreshMeshStatus();
+            } else {
+                this.notify(data.error || 'Failed to restart microservice.', 'error');
+                this.setState({ meshOperating: false });
+            }
+        } catch (e) {
+            this.notify('Restart error: ' + e.message, 'error');
+            this.setState({ meshOperating: false });
+        }
+    }
+
+    async startAllDaemons() {
+        this.setState({ meshOperating: true });
+        const { foreignApps } = this.state;
+        const toStart = (foreignApps || []).filter(a => a.is_daemon && !a.running);
+        if (toStart.length === 0) {
+            this.notify('All microservice daemons are already running.', 'info');
+            this.setState({ meshOperating: false });
+            return;
+        }
+        this.notify(`Starting ${toStart.length} microservices...`, 'info');
+        for (const app of toStart) {
+            await (this.admin || window.admin).api('apps_mesh_start', { app_id: app.id });
+        }
+        this.notify('All microservices started.', 'success');
+        await this.refreshMeshStatus();
+    }
+
+    async stopAllDaemons() {
+        this.setState({ meshOperating: true });
+        const { foreignApps } = this.state;
+        const toStop = (foreignApps || []).filter(a => a.is_daemon && a.running);
+        if (toStop.length === 0) {
+            this.notify('No microservice daemons are currently running.', 'info');
+            this.setState({ meshOperating: false });
+            return;
+        }
+        this.notify(`Stopping ${toStop.length} microservices...`, 'info');
+        for (const app of toStop) {
+            await (this.admin || window.admin).api('apps_mesh_stop', { app_id: app.id });
+        }
+        this.notify('All microservices stopped.', 'success');
+        await this.refreshMeshStatus();
+    }
+
+    async openMeshLogs(appId) {
+        this.setState({ meshLogApp: appId, meshLogLoading: true, meshLogLines: 'Loading logs...' });
+        
+        const fetchLogs = async () => {
+            try {
+                const res = await (this.admin || window.admin).api('apps_mesh_logs', { app_id: appId, lines: 150 });
+                const data = res.data || res;
+                const logs = data.logs || 'No log output captured yet.';
+                const preEl = document.getElementById('mesh-log-terminal');
+                if (preEl) {
+                    preEl.textContent = logs;
+                    preEl.scrollTop = preEl.scrollHeight;
+                }
+            } catch (e) {
+                console.error("Log fetch error", e);
+            }
+        };
+
+        const modalHtml = html`
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 0.85rem; color: var(--text-dim);">
+                        Supervisor Output: <code>var/run/apps/${appId}.log</code>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn ghost-btn btn-xs" id="mesh-log-refresh-btn">🔄 Refresh</button>
+                    </div>
+                </div>
+                <pre id="mesh-log-terminal" style="margin: 0; padding: 14px; background: #0d1117; color: #58a6ff; font-family: monospace; font-size: 0.8rem; border-radius: 8px; height: 380px; overflow-y: auto; white-space: pre-wrap; line-height: 1.45;">Loading logs for ${appId}...</pre>
+            </div>
+        `;
+
+        this.openModal(`📜 Logs: ${appId}`, modalHtml);
+        setTimeout(async () => {
+            await fetchLogs();
+            const refBtn = document.getElementById('mesh-log-refresh-btn');
+            if (refBtn) {
+                refBtn.addEventListener('click', fetchLogs);
+            }
+        }, 50);
+    }
+
+    onMeshRpcAppChange(appId) {
+        const { foreignServices } = this.state;
+        const appSvcs = (foreignServices || []).filter(s => s.app_id === appId);
+        const defaultEp = appSvcs.length > 0 ? appSvcs[0].endpoint : '/';
+        const defaultMethod = appSvcs.length > 0 ? (appSvcs[0].method || 'POST') : 'POST';
+        this.setState({
+            meshRpcApp: appId,
+            meshRpcEndpoint: defaultEp,
+            meshRpcMethod: defaultMethod,
+            meshRpcResult: null
+        });
+    }
+
+    openRpcSandboxForApp(appId) {
+        this.setTab('mesh');
+        this.onMeshRpcAppChange(appId);
+        setTimeout(() => {
+            const el = document.getElementById('mesh-rpc-endpoint');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+    }
+
+    formatRpcPayload() {
+        try {
+            const parsed = JSON.parse(this.state.meshRpcPayload || '{}');
+            this.setState({ meshRpcPayload: JSON.stringify(parsed, null, 2) });
+            const ta = document.getElementById('mesh-rpc-payload');
+            if (ta) ta.value = JSON.stringify(parsed, null, 2);
+        } catch (e) {
+            this.notify('Invalid JSON: ' + e.message, 'error');
+        }
+    }
+
+    async executeMeshRpc() {
+        const { meshRpcApp, meshRpcEndpoint, meshRpcMethod, meshRpcPayload } = this.state;
+        if (!meshRpcApp) {
+            return this.notify('Please select a target application.', 'error');
+        }
+
+        let payload = null;
+        if (meshRpcMethod !== 'GET') {
+            try {
+                const trimmed = (meshRpcPayload || '').trim();
+                if (trimmed) payload = JSON.parse(trimmed);
+            } catch (e) {
+                return this.notify('Invalid JSON payload: ' + e.message, 'error');
+            }
+        }
+
+        this.setState({ meshRpcExecuting: true, meshRpcResult: null });
+        try {
+            const res = await (this.admin || window.admin).api('apps_mesh_call', {
+                app_id: meshRpcApp,
+                endpoint: meshRpcEndpoint,
+                method: meshRpcMethod,
+                payload: payload
+            });
+            const data = res.data || res;
+            this.setState({
+                meshRpcExecuting: false,
+                meshRpcResult: data
+            });
+            if (data.success) {
+                this.notify(`Mesh RPC call succeeded in ${data.duration_ms || 0}ms!`, 'success');
+            } else {
+                this.notify(data.error || 'RPC call failed', 'error');
+            }
+        } catch (e) {
+            this.setState({
+                meshRpcExecuting: false,
+                meshRpcResult: { success: false, error: e.message }
+            });
+            this.notify('RPC Execution error: ' + e.message, 'error');
+        }
+    }
+
+    async dispatchMeshEvent() {
+        const { meshEventName, meshEventPayload } = this.state;
+        if (!meshEventName) {
+            return this.notify('Please provide an event name.', 'error');
+        }
+
+        let payload = {};
+        try {
+            const trimmed = (meshEventPayload || '').trim();
+            if (trimmed) payload = JSON.parse(trimmed);
+        } catch (e) {
+            return this.notify('Invalid JSON payload: ' + e.message, 'error');
+        }
+
+        this.setState({ meshEventDispatching: true, meshEventResult: null });
+        try {
+            const res = await (this.admin || window.admin).api('apps_mesh_publish_event', {
+                event: meshEventName,
+                payload: payload
+            });
+            const data = res.data || res;
+            this.setState({
+                meshEventDispatching: false,
+                meshEventResult: data
+            });
+            this.notify(`Dispatched event '${meshEventName}' to Mesh!`, 'success');
+        } catch (e) {
+            this.setState({ meshEventDispatching: false });
+            this.notify('Dispatch error: ' + e.message, 'error');
+        }
+    }
+
+    createSampleForeignApp() {
+        this.openModal('Register Multi-Language Microservice', html`
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin: 0;">
+                    To add an application, add an entry to <code>etc/apps.yml</code>:
+                </p>
+                <pre style="margin: 0; padding: 12px; background: #0d1117; color: #7ee787; border-radius: 6px; font-size: 0.8rem; font-family: monospace;">apps:
+  ai_engine:
+    name: "AI Inference Engine"
+    type: python
+    route: /ai
+    subdomain: ai.school.local
+    root_dir: apps/ai_engine
+    command: "python -m uvicorn main:app --host 127.0.0.1 --port {PORT}"
+    health_check: /health
+    enabled: true</pre>
+                <div style="font-size: 0.8rem; color: var(--text-dim);">
+                    SPP will automatically supervise the daemon process, assign a free port from the dynamic pool, and route <code>/ai/*</code> transparently without broken assets!
+                </div>
+            </div>
+        `);
+    }
+
+    notify(msg, type = 'info') {
+        if (typeof SPPUX !== 'undefined' && SPPUX.notify) {
+            return SPPUX.notify(msg, type);
+        }
+        if (this.admin && typeof this.admin.notify === 'function') {
+            return this.admin.notify(msg, type);
+        }
+        if (window.admin && typeof window.admin.notify === 'function') {
+            return window.admin.notify(msg, type);
+        }
+        console.log(`[${type}] ${msg}`);
+    }
+
+    openModal(title, content, actions = []) {
+        if (typeof SPPUX !== 'undefined' && SPPUX.openModal) {
+            return SPPUX.openModal(title, content, actions);
+        }
+        if (this.admin && typeof this.admin.openModal === 'function') {
+            return this.admin.openModal(title, content, actions);
+        }
+        if (window.admin && typeof window.admin.openModal === 'function') {
+            return window.admin.openModal(title, content, actions);
+        }
+    }
+
+    closeModal() {
+        if (typeof SPPUX !== 'undefined' && typeof SPPUX.closeModal === 'function') {
+            return SPPUX.closeModal();
+        }
+        if (this.admin && typeof this.admin.closeModal === 'function') {
+            return this.admin.closeModal();
+        }
+        if (window.admin && typeof window.admin.closeModal === 'function') {
+            return window.admin.closeModal();
+        }
+        const modal = document.querySelector('.sppux-modal-overlay, .modal-backdrop, .modal');
+        if (modal) modal.remove();
+    }
+
+    // --- Domain-Scoped Application View ---
+    renderDomainAppsView(domainName) {
+        const { domainAppsData, loadingDomainApps } = this.state;
+        
+        if (loadingDomainApps && !domainAppsData) {
+            return html`
+                <div class="glass-panel" style="padding: 3rem; text-align: center;">
+                    <div class="sppux-spinner"></div>
+                    <div style="margin-top: 1rem; color: var(--text-dim);">Loading applications for <strong>${domainName}</strong>...</div>
+                </div>
+            `;
+        }
+
+        const data = domainAppsData || {};
+        const defaultApp = data.default_app || { name: 'default', title: 'Default', type: 'spp', route: '/', target_path: 'domains/' + domainName + '/src' };
+        const subApps = data.sub_apps || [];
+        const availableApps = data.available_framework_apps || [];
+        const account = data.account || 'default';
+        const appDir = data.app_dir || data.suggested_defaults?.app_dir || 'Default Workspace';
+        const dataDir = data.data_dir || data.suggested_defaults?.data_dir || 'Default Data Dir';
+
+        return html`
+            <div class="domain-apps-view fade-in">
+                <!-- Domain Overview Header -->
+                <div class="glass-panel" style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-left: 4px solid var(--accent, #6366f1);">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <h2 style="margin: 0; font-size: 1.35rem; color: var(--text-bright); display: flex; align-items: center; gap: 8px;">
+                                <span>🌐 ${domainName}</span>
+                            </h2>
+                            <span class="badge" style="background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">
+                                Account: <strong>${account}</strong>
+                            </span>
+                        </div>
+                        <div style="display: flex; gap: 18px; font-size: 0.8rem; color: var(--text-dim); flex-wrap: wrap; margin-top: 6px;">
+                            <span>📁 App Directory: <code style="color: var(--text-bright);">${appDir}</code></span>
+                            <span>💾 Data Directory: <code style="color: var(--text-bright);">${dataDir}</code></span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <a href="https://${domainName}" target="_blank" class="btn ghost-btn btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+                            🔗 Open Site
+                        </a>
+                        <button type="button" class="btn primary-btn btn-sm" @click=${() => this.openInstallToDomainModal(domainName)} style="display: inline-flex; align-items: center; gap: 6px;">
+                            ➕ Install Application on ${domainName}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 1. Default Application (Served at Root /) -->
+                <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.05) 100%); border: 1px solid rgba(99,102,241,0.35); box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                <span class="badge" style="background: #f59e0b; color: #000; font-weight: 800; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; text-transform: uppercase;">
+                                    ⭐ DEFAULT ROOT APPLICATION
+                                </span>
+                                <span class="badge" style="background: ${defaultApp.type === 'spp' ? 'rgba(59,130,246,0.2)' : 'rgba(16,185,129,0.2)'}; color: ${defaultApp.type === 'spp' ? '#60a5fa' : '#34d399'}; border: 1px solid ${defaultApp.type === 'spp' ? 'rgba(59,130,246,0.4)' : 'rgba(16,185,129,0.4)'}; font-size: 0.7rem; padding: 2px 8px; border-radius: 6px; font-weight: 600;">
+                                    ${defaultApp.type === 'spp' ? '🚀 SPP Native' : '🌐 Non-SPP (' + (defaultApp.index || 'PHP') + ')'}
+                                </span>
+                            </div>
+                            <h3 style="margin: 0; font-size: 1.25rem; color: var(--text-bright); display: flex; align-items: center; gap: 8px;">
+                                ${defaultApp.title || defaultApp.name}
+                                <code style="font-size: 0.8rem; font-weight: normal; color: var(--text-dim); background: rgba(0,0,0,0.25); padding: 2px 6px; border-radius: 4px;">/</code>
+                            </h3>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="https://${domainName}/" target="_blank" class="btn ghost-btn btn-sm" style="display: inline-flex; align-items: center; gap: 4px;">
+                                🔗 View Root Site
+                            </a>
+                            ${defaultApp.type === 'spp' ? html`
+                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.openAppEditor(defaultApp.name)}>
+                                    ⚙️ Configure
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.8rem;">
+                        <div>
+                            <div style="color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; margin-bottom: 3px;">Application Directory</div>
+                            <div style="font-family: monospace; color: var(--text-bright); word-break: break-all;">
+                                ${defaultApp.target_path || 'Default Workspace'}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; margin-bottom: 3px;">Data Directory</div>
+                            <div style="font-family: monospace; color: var(--text-bright); word-break: break-all;">
+                                ${defaultApp.data_dir || '(none)'}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; margin-bottom: 3px;">Entry Script</div>
+                            <div style="font-family: monospace; color: var(--text-bright);">
+                                ${defaultApp.index || 'index.php'}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; margin-bottom: 3px;">SPP Data Isolation</div>
+                            <div style="color: ${defaultApp.opt_in_sppdata ? '#34d399' : 'var(--text-dim)'}; font-weight: 600;">
+                                ${defaultApp.opt_in_sppdata ? '✔ Active (Protected SPPData)' : '— Standard'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Secondary Applications Table (Base Routes) -->
+                <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.1rem; color: var(--text-bright); display: flex; align-items: center; gap: 8px;">
+                                <span>Secondary Applications &amp; Base Routes</span>
+                                <span class="count-badge">${subApps.length}</span>
+                            </h3>
+                            <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: var(--text-dim);">
+                                Applications mounted on sub-routes under <code>${domainName}</code>. Any secondary app can be promoted to the root default application with 1-click.
+                            </p>
+                        </div>
+                        <button type="button" class="btn secondary-btn btn-sm" @click=${() => this.openInstallToDomainModal(domainName)}>
+                            ➕ Add Secondary App
+                        </button>
+                    </div>
+
+                    ${subApps.length === 0 ? html`
+                        <div style="padding: 2.5rem 1rem; text-align: center; border: 1px dashed var(--glass-border); border-radius: 8px;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📂</div>
+                            <h4 style="margin: 0 0 6px 0; color: var(--text-bright);">No Secondary Applications Mapped</h4>
+                            <p style="margin: 0 auto 1rem auto; max-width: 480px; font-size: 0.85rem; color: var(--text-dim);">
+                                You can install an SPP app or any external app (WordPress, Laravel, Node.js, static site) to run on a base route (e.g. <code>https://${domainName}/blog</code> or <code>https://${domainName}/store</code>).
+                            </p>
+                            <button type="button" class="btn primary-btn btn-sm" @click=${() => this.openInstallToDomainModal(domainName)}>
+                                ➕ Install First Secondary App
+                            </button>
+                        </div>
+                    ` : html`
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%;">Route</th>
+                                        <th style="width: 20%;">Application</th>
+                                        <th style="width: 15%;">Type &amp; Stack</th>
+                                        <th style="width: 25%;">Directory Path</th>
+                                        <th class="text-right" style="width: 20%;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${subApps.map(sub => html`
+                                        <tr>
+                                            <td>
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <code class="code-badge primary" style="font-size: 0.8rem; font-weight: 700;">
+                                                        ${sub.route}
+                                                    </code>
+                                                </div>
+                                                <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 3px;">
+                                                    https://${domainName}${sub.route}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style="font-weight: 600; color: var(--text-bright);">
+                                                    ${sub.title || sub.name}
+                                                </div>
+                                                <div style="font-size: 0.72rem; color: var(--text-dim); font-family: monospace;">
+                                                    ${sub.name}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge" style="background: ${sub.type === 'spp' ? 'rgba(59,130,246,0.15)' : 'rgba(16,185,129,0.15)'}; color: ${sub.type === 'spp' ? '#60a5fa' : '#34d399'}; border: 1px solid ${sub.type === 'spp' ? 'rgba(59,130,246,0.3)' : 'rgba(16,185,129,0.3)'}; font-size: 0.72rem; padding: 2px 7px; border-radius: 6px;">
+                                                    ${sub.type === 'spp' ? '🚀 SPP Native' : '🌐 Non-SPP (' + (sub.index || 'PHP') + ')'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div style="font-family: monospace; font-size: 0.75rem; color: var(--text-bright); word-break: break-all;">
+                                                    ${sub.target_path || '(default)'}
+                                                </div>
+                                                ${sub.data_dir ? html`
+                                                    <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 2px;">
+                                                        Data: <code>${sub.data_dir}</code>
+                                                    </div>
+                                                ` : ''}
+                                            </td>
+                                            <td class="text-right">
+                                                <div class="btn-group-horizontal" style="justify-content: flex-end; gap: 4px;">
+                                                    <button type="button" class="btn btn-sm" 
+                                                        style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.72rem; padding: 3px 8px; border-radius: 6px;"
+                                                        @click=${() => this.makeAppDefault(domainName, sub.name, defaultApp.name)}
+                                                        title="Promote this app to become the Default Root Application (/) for ${domainName}">
+                                                        ⭐ Make Default
+                                                    </button>
+                                                    <a href="https://${domainName}${sub.route}" target="_blank" class="btn ghost-btn btn-sm" style="font-size: 0.72rem; padding: 3px 8px;">
+                                                        🔗 Open
+                                                    </a>
+                                                    <button type="button" class="btn danger-btn btn-sm" style="font-size: 0.72rem; padding: 3px 8px;"
+                                                        @click=${() => this.removeSubApp(domainName, sub.route, sub.name)}
+                                                        title="Unmap this route from ${domainName}">
+                                                        🗑️
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `)}
+                                </tbody>
+                            </table>
+                        </div>
+                    `}
+                </div>
+
+                <!-- 3. Available Framework Apps (Quick Attach) -->
+                ${availableApps.length > 0 ? html`
+                    <div class="glass-panel" style="padding: 1.25rem 1.5rem;">
+                        <h4 style="margin: 0 0 10px 0; font-size: 0.95rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">
+                            📦 Framework Applications in Workspace
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">
+                            ${availableApps.filter(a => a.name !== defaultApp.name && !subApps.some(s => s.name === a.name)).map(app => html`
+                                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-bright);">${app.title || app.name}</div>
+                                        <div style="font-size: 0.72rem; color: var(--text-dim);">${app.src_path || 'src/' + app.name}</div>
+                                    </div>
+                                    <button type="button" class="btn ghost-btn btn-sm" style="font-size: 0.72rem; padding: 3px 8px;"
+                                        @click=${() => this.openInstallToDomainModal(domainName, app.name)}>
+                                        ➕ Attach
+                                    </button>
+                                </div>
+                            `)}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    async makeAppDefault(domain, appName, currentDefaultName) {
+        const demotedRoute = prompt(
+            `Promote '${appName}' to become the primary Default Application (/) for ${domain}?\n\n` +
+            `Enter the sub-route to move the current default application ('${currentDefaultName}') to:`,
+            `/${currentDefaultName.toLowerCase()}`
+        );
+        if (demotedRoute === null) return; // User cancelled
+
+        try {
+            const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+            const res = await apiCall('domains_set_default_app', {
+                domain: domain,
+                app_name: appName,
+                demoted_route: demotedRoute.trim() || null
+            });
+
+            if (res.success) {
+                (this.admin || window.admin).notify(`🎉 ${appName} is now the Default Application (/) for ${domain}!`, 'success');
+                await this.loadData();
+                await this.loadDomainApps(domain);
+                this.update();
+            } else {
+                (this.admin || window.admin).notify(res.error || 'Failed to set default application.', 'error');
+            }
+        } catch (e) {
+            (this.admin || window.admin).notify('Error setting default app: ' + e.message, 'error');
+        }
+    }
+
+    async removeSubApp(domain, route, appName) {
+        if (!confirm(`Are you sure you want to remove the route '${route}' (${appName}) from ${domain}?\n\nThis will unmap the route from domains.yml but will NOT delete your files on disk.`)) {
+            return;
+        }
+
+        try {
+            const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+            const res = await apiCall('domains_subapp_delete', {
+                domain: domain,
+                route: route
+            });
+
+            if (res.success) {
+                (this.admin || window.admin).notify(`Route '${route}' removed from ${domain}.`, 'success');
+                await this.loadDomainApps(domain);
+                this.update();
+            } else {
+                (this.admin || window.admin).notify(res.error || 'Failed to remove sub-app route.', 'error');
+            }
+        } catch (e) {
+            (this.admin || window.admin).notify('Error removing sub-app: ' + e.message, 'error');
+        }
+    }
+
+    openInstallToDomainModal(preselectedDomain = null, preselectedAppName = '') {
+        const { domains = [], domainAppsData } = this.state;
+        const currentDomain = preselectedDomain || (this.state.selectedDomain !== 'all' ? this.state.selectedDomain : (domains[0]?.pattern || window.location.hostname || 'example.com'));
+        
+        const targetDom = domains.find(d => d.pattern === currentDomain) || domains[0] || {};
+        const account = targetDom.account || 'default';
+        const defaultAppPath = account !== 'default' ? `/home/${account}/apps/${preselectedAppName || 'app'}` : `domains/${currentDomain}/src/${preselectedAppName || 'app'}`;
+        const defaultDataPath = account !== 'default' ? `/home/${account}/sppdata/${currentDomain}/${preselectedAppName || 'app'}` : `var/data/${currentDomain}/${preselectedAppName || 'app'}`;
+
+        const modalHtml = html`
+            <div class="form-grid" style="display: flex; flex-direction: column; gap: 14px; max-height: 72vh; overflow-y: auto; padding-right: 4px;">
+                <!-- Domain Selection -->
+                <div class="input-group">
+                    <label style="font-weight: 600; display: block; margin-bottom: 4px;">Target Domain</label>
+                    <select id="inst-domain" class="form-control" style="width: 100%; background: var(--bg-card-glass); border: 1px solid var(--glass-border); border-radius: 6px; padding: 8px 10px; color: var(--text-bright);">
+                        ${domains.map(d => html`
+                            <option value="${d.pattern}" ?selected="${d.pattern === currentDomain}">
+                                🌐 ${d.pattern} (Account: ${d.account || 'default'})
+                            </option>
+                        `)}
+                    </select>
+                </div>
+
+                <!-- Application Architecture / Type -->
+                <div class="input-group">
+                    <label style="font-weight: 600; display: block; margin-bottom: 6px;">Application Type</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <label style="display: flex; align-items: flex-start; gap: 8px; background: rgba(0,0,0,0.18); border: 1px solid var(--glass-border); border-radius: 8px; padding: 10px; cursor: pointer;">
+                            <input type="radio" name="inst-app-type" value="spp" checked style="margin-top: 3px;">
+                            <div>
+                                <strong style="color: var(--text-bright); font-size: 0.85rem;">🚀 SPP Framework App</strong>
+                                <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 2px;">Native SPPEntity, Controllers, Blade/Twig views &amp; events.</div>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: flex-start; gap: 8px; background: rgba(0,0,0,0.18); border: 1px solid var(--glass-border); border-radius: 8px; padding: 10px; cursor: pointer;">
+                            <input type="radio" name="inst-app-type" value="non_spp" style="margin-top: 3px;">
+                            <div>
+                                <strong style="color: var(--text-bright); font-size: 0.85rem;">🌐 Non-SPP / External App</strong>
+                                <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 2px;">WordPress, Laravel, Node.js, Python, or Static HTML SPA.</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Application Name -->
+                <div class="input-group">
+                    <label style="font-weight: 600; display: block; margin-bottom: 4px;">Application Name / Identifier</label>
+                    <input type="text" id="inst-app-name" value="${preselectedAppName}" placeholder="e.g. blog, store, docs, portal" 
+                        style="width: 100%; background: var(--bg-card-glass); border: 1px solid var(--glass-border); border-radius: 6px; padding: 8px 10px; color: var(--text-bright);">
+                    <small style="color: var(--text-dim); font-size: 0.72rem;">Letters, numbers, hyphens, and underscores only.</small>
+                </div>
+
+                <!-- Application Directory Path (Zero restriction!) -->
+                <div class="input-group">
+                    <label style="font-weight: 600; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span>Application Directory Path</span>
+                        <span style="font-size: 0.7rem; color: #34d399; font-weight: 500;">Zero directory naming restriction</span>
+                    </label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="inst-target-path" value="${preselectedAppName ? defaultAppPath : ''}" placeholder="${defaultAppPath}" 
+                            style="flex: 1; font-family: monospace; background: var(--bg-card-glass); border: 1px solid var(--glass-border); border-radius: 6px; padding: 8px 10px; color: var(--text-bright);">
+                        <button type="button" id="btn-probe-path" class="btn ghost-btn btn-sm" style="white-space: nowrap;">
+                            🔍 Probe Path
+                        </button>
+                    </div>
+                    <div id="probe-feedback" style="display: none; margin-top: 6px; padding: 8px 12px; border-radius: 6px; font-size: 0.75rem;"></div>
+                    <small style="color: var(--text-dim); font-size: 0.72rem;">Absolute path (e.g. <code>/home/${account}/apps/myblog</code> or <code>/var/www/wordpress</code>) or relative to SPP workspace.</small>
+                </div>
+
+                <!-- Domain Route & Role -->
+                <div class="input-group" style="background: rgba(0,0,0,0.15); border: 1px solid var(--glass-border); border-radius: 8px; padding: 12px;">
+                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Domain Mount &amp; Role</label>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="inst-app-role" value="secondary" checked>
+                            <span><strong>🔗 Secondary Application (Base Route)</strong></span>
+                        </label>
+                        <div id="role-route-wrap" style="margin-left: 24px;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 0.85rem; color: var(--text-dim); font-family: monospace;">Route:</span>
+                                <input type="text" id="inst-route" value="/${preselectedAppName || 'app'}" placeholder="/blog" 
+                                    style="width: 160px; font-family: monospace; background: var(--bg-card-glass); border: 1px solid var(--glass-border); border-radius: 6px; padding: 5px 8px; color: var(--text-bright);">
+                            </div>
+                            <small style="color: var(--text-dim); font-size: 0.72rem; display: block; margin-top: 4px;">Visitors accessing this sub-path on the domain will be routed to this application.</small>
+                        </div>
+
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 4px;">
+                            <input type="radio" name="inst-app-role" value="default">
+                            <span><strong>⭐ Default Root Application (Served at /)</strong></span>
+                        </label>
+                        <div id="role-default-wrap" style="margin-left: 24px; display: none;">
+                            <div style="font-size: 0.75rem; color: #fbbf24; margin-bottom: 4px;">
+                                Move current default root app to sub-route (optional):
+                            </div>
+                            <input type="text" id="inst-demoted-route" placeholder="e.g. /old or /docs" 
+                                style="width: 180px; font-family: monospace; background: var(--bg-card-glass); border: 1px solid var(--glass-border); border-radius: 6px; padding: 5px 8px; color: var(--text-bright);">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Directory Path -->
+                <div class="input-group">
+                    <label style="font-weight: 600; display: block; margin-bottom: 4px;">Data Directory Path</label>
+                    <input type="text" id="inst-data-dir" value="${preselectedAppName ? defaultDataPath : ''}" placeholder="${defaultDataPath}" 
+                        style="width: 100%; font-family: monospace; background: var(--bg-card-glass); border: 1px solid var(--glass-border); border-radius: 6px; padding: 8px 10px; color: var(--text-bright);">
+                    <small style="color: var(--text-dim); font-size: 0.72rem;">Location for application logs, databases, cache, and uploads.</small>
+                </div>
+
+                <!-- Manifest & Scaffold Options -->
+                <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.12); padding: 10px 12px; border-radius: 6px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; cursor: pointer;">
+                        <input type="checkbox" id="inst-mark-props" checked>
+                        <span>Mark directory as application in <code>__spp_file_props.yml</code> (<code>is_app: true</code>)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; cursor: pointer;">
+                        <input type="checkbox" id="inst-scaffold" checked>
+                        <span>Scaffold boilerplate structure if directory is empty</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; cursor: pointer;">
+                        <input type="checkbox" id="inst-opt-in-sppdata" checked>
+                        <span>Enable sovereign SPP Data isolation</span>
+                    </label>
+                </div>
+            </div>
+        `;
+
+        this.openModal(`Install Application to Domain`, modalHtml, [
+            { label: 'Cancel', type: 'secondary', fn: () => this.closeModal() },
+            { label: '🚀 Install & Map to Domain', type: 'primary', fn: async () => {
+                const domain = document.getElementById('inst-domain')?.value;
+                const appName = document.getElementById('inst-app-name')?.value?.trim();
+                const targetPath = document.getElementById('inst-target-path')?.value?.trim();
+                const dataDir = document.getElementById('inst-data-dir')?.value?.trim();
+                const markProps = document.getElementById('inst-mark-props')?.checked;
+                const scaffold = document.getElementById('inst-scaffold')?.checked;
+                const optInSppdata = document.getElementById('inst-opt-in-sppdata')?.checked;
+
+                let appType = 'spp';
+                for (const r of document.getElementsByName('inst-app-type')) {
+                    if (r.checked) { appType = r.value; break; }
+                }
+
+                let isDefault = false;
+                for (const r of document.getElementsByName('inst-app-role')) {
+                    if (r.checked && r.value === 'default') { isDefault = true; break; }
+                }
+
+                const route = document.getElementById('inst-route')?.value?.trim();
+                const demotedRoute = document.getElementById('inst-demoted-route')?.value?.trim() || null;
+
+                if (!appName) {
+                    alert('Please enter an Application Name.');
+                    return;
+                }
+
+                try {
+                    const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+                    const res = await apiCall('domains_install_app', {
+                        domain: domain,
+                        app_name: appName,
+                        type: appType,
+                        target_path: targetPath,
+                        data_dir: dataDir,
+                        is_default: isDefault ? 1 : 0,
+                        route: route,
+                        demoted_route: demotedRoute,
+                        scaffold: scaffold ? 1 : 0,
+                        opt_in_sppdata: optInSppdata ? 1 : 0
+                    });
+
+                    if (res.success) {
+                        (this.admin || window.admin).notify(`🎉 Application '${appName}' mapped to ${domain} successfully!`, 'success');
+                        this.closeModal();
+                        this.setState({ selectedDomain: domain });
+                        await this.loadData();
+                        await this.loadDomainApps(domain);
+                        this.update();
+                    } else {
+                        alert(res.error || 'Failed to install application to domain.');
+                    }
+                } catch (e) {
+                    alert('Error: ' + e.message);
+                }
+            }}
+        ]);
+
+        // Post-render listeners
+        setTimeout(() => {
+            const probeBtn = document.getElementById('btn-probe-path');
+            const targetPathInput = document.getElementById('inst-target-path');
+            const feedbackDiv = document.getElementById('probe-feedback');
+            const appNameInput = document.getElementById('inst-app-name');
+            const routeInput = document.getElementById('inst-route');
+            const domainSelect = document.getElementById('inst-domain');
+            const roleRadios = document.getElementsByName('inst-app-role');
+            const roleRouteWrap = document.getElementById('role-route-wrap');
+            const roleDefaultWrap = document.getElementById('role-default-wrap');
+
+            // Toggle role options
+            for (const r of roleRadios) {
+                r.addEventListener('change', () => {
+                    const isDef = (r.value === 'default' && r.checked);
+                    if (roleRouteWrap) roleRouteWrap.style.display = isDef ? 'none' : 'block';
+                    if (roleDefaultWrap) roleDefaultWrap.style.display = isDef ? 'block' : 'none';
+                });
+            }
+
+            // Probe path handler
+            if (probeBtn && targetPathInput && feedbackDiv) {
+                probeBtn.addEventListener('click', async () => {
+                    const path = targetPathInput.value.trim() || targetPathInput.placeholder;
+                    if (!path) {
+                        feedbackDiv.style.display = 'block';
+                        feedbackDiv.style.background = 'rgba(239, 68, 68, 0.15)';
+                        feedbackDiv.style.color = '#f87171';
+                        feedbackDiv.textContent = 'Please enter a directory path to probe.';
+                        return;
+                    }
+
+                    feedbackDiv.style.display = 'block';
+                    feedbackDiv.style.background = 'rgba(59, 130, 246, 0.15)';
+                    feedbackDiv.style.color = '#93c5fd';
+                    feedbackDiv.textContent = 'Probing directory path on server...';
+
+                    try {
+                        const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+                        const res = await apiCall('domains_subapp_probe', { target_path: path });
+                        if (res.exists) {
+                            feedbackDiv.style.background = 'rgba(16, 185, 129, 0.15)';
+                            feedbackDiv.style.color = '#34d399';
+                            feedbackDiv.innerHTML = `✅ <strong>Directory Exists</strong> (${res.clean_path || path})<br>` +
+                                `Detected Framework: <strong>${res.framework || 'Custom'}</strong> | Entry: <code>${res.index_file || res.suggested_index || 'index.php'}</code> | ` +
+                                (res.has_props ? '📄 Has <code>__spp_file_props.yml</code>' : '📄 <code>__spp_file_props.yml</code> will be generated.');
+                        } else {
+                            feedbackDiv.style.background = 'rgba(59, 130, 246, 0.15)';
+                            feedbackDiv.style.color = '#93c5fd';
+                            feedbackDiv.innerHTML = `📁 <strong>Directory does not exist yet</strong>.<br>` +
+                                `It will be created at <code>${res.clean_path || path}</code> along with <code>__spp_file_props.yml</code>.`;
+                        }
+                    } catch (err) {
+                        feedbackDiv.style.background = 'rgba(239, 68, 68, 0.15)';
+                        feedbackDiv.style.color = '#f87171';
+                        feedbackDiv.textContent = 'Probe error: ' + err.message;
+                    }
+                });
+            }
+
+            // Sync app name to route and paths if not modified
+            if (appNameInput) {
+                appNameInput.addEventListener('input', () => {
+                    const name = appNameInput.value.trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '');
+                    if (routeInput && (!routeInput.dataset.modified || routeInput.dataset.modified === 'false')) {
+                        routeInput.value = '/' + name;
+                    }
+                });
+            }
+        }, 50);
     }
 
     // --- Tab: Modules ---
@@ -293,7 +2045,7 @@ export default class AppsView extends BaseComponent {
                                         <div class="module-card-body">
                                             ${mod.description ? html`<p class="module-description">${mod.description}</p>` : ''}
                                             <div class="module-deps">
-                                                ${(mod.dependencies || []).map(d => html`<span class="dep-badge">${d}</span>`)}
+                                                ${this.normalizeDependencies(mod.dependencies).map(d => html`<span class="dep-badge">${d}</span>`)}
                                             </div>
                                         </div>
                                         <div class="card-footer">
@@ -312,6 +2064,30 @@ export default class AppsView extends BaseComponent {
                 })}
             </div>
         `;
+    }
+
+    normalizeDependencies(deps) {
+        if (!deps) return [];
+        if (Array.isArray(deps)) return deps;
+        if (typeof deps === 'object') {
+            const result = [];
+            for (const [key, val] of Object.entries(deps)) {
+                if (Array.isArray(val)) {
+                    val.forEach(v => {
+                        if (v !== null && v !== undefined) result.push(typeof v === 'string' ? v : JSON.stringify(v));
+                    });
+                } else if (typeof val === 'string' || typeof val === 'number') {
+                    result.push(key && isNaN(key) ? `${key} (${val})` : String(val));
+                } else if (key && isNaN(key)) {
+                    result.push(key);
+                }
+            }
+            return result;
+        }
+        if (typeof deps === 'string') {
+            return deps.split(',').map(s => s.trim()).filter(Boolean);
+        }
+        return [];
     }
 
     renderModuleGraph(modules) {
@@ -341,11 +2117,13 @@ export default class AppsView extends BaseComponent {
 
         // Draw simple SVG lines for dependencies
         modules.forEach(mod => {
-            if (mod.dependencies && mod.dependencies.length > 0) {
-                mod.dependencies.forEach(dep => {
-                    if (positions[mod.name] && positions[dep]) {
+            const deps = this.normalizeDependencies(mod.dependencies);
+            if (deps && deps.length > 0) {
+                deps.forEach(dep => {
+                    const cleanDep = String(dep).split(' ')[0].split('(')[0].trim();
+                    if (positions[mod.name] && positions[cleanDep]) {
                         const from = positions[mod.name];
-                        const to = positions[dep];
+                        const to = positions[cleanDep];
                         edgesHtml.push(html`
                             <line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="var(--primary-color)" stroke-width="2" marker-end="url(#arrowhead)" opacity="0.6" stroke-dasharray="5,5" />
                         `);
@@ -942,6 +2720,413 @@ export default class AppsView extends BaseComponent {
         }
     }
 
+    openDomainScopeModal(app) {
+        const allowedStr = (app.allowed_domains || []).join(', ');
+        this.openModal(`Configure Domain Scope: ${app.name}`, html`
+            <div class="form-grid">
+                <div class="input-group full-width" style="grid-column: 1 / -1; margin-bottom: 12px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 6px;">Domain Scope Mode</label>
+                    <div style="display: flex; gap: 20px; align-items: center; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 8px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="app-scope-mode" value="global" ?checked="${!app.domain_only && !app.is_domain_app}">
+                            <span>🌍 Global (Accessible across all domains)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="app-scope-mode" value="domain_only" ?checked="${app.domain_only || app.is_domain_app}">
+                            <span>🔒 Domain-Only (Restricted to specific domains)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="input-group full-width" style="grid-column: 1 / -1;">
+                    <label>Allowed Domains (Comma-Separated)</label>
+                    <input type="text" id="app-allowed-domains" value="${allowedStr}" placeholder="e.g. portal.school.edu, students.school.edu">
+                    <small style="color: var(--text-dim); margin-top: 4px; display: block;">If Domain-Only is selected, requests to this application will only be permitted on the listed virtual host domains.</small>
+                </div>
+            </div>
+        `, [
+            { label: 'Cancel', type: 'secondary', fn: () => this.closeModal() },
+            { label: 'Save Domain Scope', type: 'primary', fn: async () => {
+                const radios = document.getElementsByName('app-scope-mode');
+                let scopeMode = 'global';
+                for (const r of radios) {
+                    if (r.checked) { scopeMode = r.value; break; }
+                }
+                const isDomainOnly = (scopeMode === 'domain_only');
+                const rawAllowed = document.getElementById('app-allowed-domains').value;
+                const allowedDomains = rawAllowed.split(',').map(s => s.trim()).filter(Boolean);
+
+                try {
+                    const res = await (this.admin || this.app).api('apps_set_domain_scope', {
+                        app_name: app.name,
+                        domain_only: isDomainOnly ? 1 : 0,
+                        allowed_domains: allowedDomains
+                    });
+                    if (res.success) {
+                        this.notify(res.message || 'Domain scope updated successfully.', 'success');
+                        this.closeModal();
+                        await this.loadData();
+                    } else {
+                        this.notify(res.error || res.message || 'Failed to update domain scope.', 'error');
+                    }
+                } catch (e) {
+                    this.notify('Error: ' + e.message, 'error');
+                }
+            }}
+        ]);
+    }
+
+    openUninstallModal(app) {
+        if (['default', 'admin', 'spp', 'core', 'system'].includes((app.name || '').toLowerCase())) {
+            this.notify(`Cannot uninstall protected system application '${app.name}'.`, 'error');
+            return;
+        }
+
+        this.openModal(`Uninstall / Decommission: ${app.name}`, html`
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 14px; display: flex; gap: 12px; align-items: flex-start;">
+                    <div style="font-size: 1.6rem; line-height: 1;">⚠️</div>
+                    <div style="font-size: 0.85rem; color: var(--text-bright); line-height: 1.4;">
+                        You are about to decommission <strong>${app.name}</strong> (${app.title || app.name}).
+                        Please select your removal preferences below.
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;">Removal Mode</label>
+                    <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15); border: 1px solid var(--glass-border); border-radius: 8px; padding: 14px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+                            <input type="radio" name="uninstall-mode" value="config" checked style="margin-top: 3px;">
+                            <div>
+                                <strong style="color: var(--text-bright); font-size: 0.9rem;">Config-Only Removal (Recommended)</strong>
+                                <div style="font-size: 0.78rem; color: var(--text-dim); margin-top: 2px;">
+                                    Unregisters the application from <code>global-settings.yml</code>, unbinds all virtual hosts in <code>etc/domains.yml</code>, and clears routing caches. The source code in <code>src/${app.name}</code> is completely preserved.
+                                </div>
+                            </div>
+                        </label>
+                        <div style="height: 1px; background: var(--glass-border);"></div>
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+                            <input type="radio" name="uninstall-mode" value="full" style="margin-top: 3px;">
+                            <div>
+                                <strong style="color: var(--danger); font-size: 0.9rem;">Full Removal (Purge Everything)</strong>
+                                <div style="font-size: 0.78rem; color: var(--text-dim); margin-top: 2px;">
+                                    Completely deletes application source code (<code>src/${app.name}</code>), configuration directories (<code>etc/apps/${app.name}</code>), caches, and domain mappings.
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;">Safety &amp; Data Options</label>
+                    <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15); border: 1px solid var(--glass-border); border-radius: 8px; padding: 14px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="uninstall-create-backup" checked>
+                            <span style="font-size: 0.85rem; color: var(--text-bright);">
+                                📦 <strong>Create Safety Backup Archive</strong> in <code>var/backups/apps/</code> before removal (allows 1-click restore later)
+                            </span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="uninstall-purge-db">
+                            <span style="font-size: 0.85rem; color: var(--text-bright);">
+                                🗄️ <strong>Purge SQLite Database</strong> (<code>var/db/${app.name}.sqlite</code>) if present
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        `, [
+            { label: 'Cancel', type: 'secondary', fn: () => this.closeModal() },
+            { label: 'Confirm Uninstallation', type: 'danger', fn: async () => {
+                const radios = document.getElementsByName('uninstall-mode');
+                let mode = 'config';
+                for (const r of radios) {
+                    if (r.checked) { mode = r.value; break; }
+                }
+                const createBackup = document.getElementById('uninstall-create-backup').checked;
+                const purgeDb = document.getElementById('uninstall-purge-db').checked;
+
+                this.notify(`Decommissioning application '${app.name}'...`, 'info');
+                this.closeModal();
+
+                if (mode === 'full') {
+                    // Instantly remove from list on full uninstall
+                    this.setState({ apps: (this.state.apps || []).filter(a => a.name !== app.name) });
+                }
+
+                try {
+                    const res = await (this.admin || this.app).api('apps_uninstall', {
+                        app: app.name,
+                        mode: mode,
+                        config_only: (mode === 'config') ? 1 : 0,
+                        create_backup: createBackup ? 1 : 0,
+                        purge_db: purgeDb ? 1 : 0
+                    });
+
+                    if (res.success) {
+                        this.notify(res.message || `Application '${app.name}' decommissioned successfully.`, 'success');
+                        await this.loadData();
+                        if (this.state.activeTab === 'backups') {
+                            await this.loadBackups();
+                        }
+                    } else {
+                        this.notify(res.error || res.message || 'Uninstallation failed.', 'error');
+                        await this.loadData();
+                    }
+                } catch (e) {
+                    this.notify('Error: ' + e.message, 'error');
+                    await this.loadData();
+                }
+            }}
+        ]);
+    }
+
+    async reinstallApp(appName) {
+        this.notify(`Re-installing and activating application '${appName}'...`, 'info');
+        try {
+            const res = await (this.admin || this.app).api('apps_reinstall', { app: appName });
+            if (res.success) {
+                this.notify(res.message || `Application '${appName}' re-installed successfully!`, 'success');
+                await this.loadData();
+            } else {
+                this.notify(res.error || res.message || 'Re-installation failed.', 'error');
+            }
+        } catch (e) {
+            this.notify(`Re-installation failed: ${e.message}`, 'error');
+        }
+    }
+
+    purgeDormantCode(appName) {
+        this.openModal(`Purge Source Code: ${appName}`, html`
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 14px; display: flex; gap: 12px; align-items: flex-start;">
+                    <div style="font-size: 1.6rem; line-height: 1;">⚠️</div>
+                    <div style="font-size: 0.85rem; color: var(--text-bright); line-height: 1.4;">
+                        Are you sure you want to permanently delete all remaining source code for <strong>${appName}</strong> (<code>src/${appName}</code>)?<br>
+                        This will delete the directory from disk and cannot be undone.
+                    </div>
+                </div>
+            </div>
+        `, [
+            { label: 'Cancel', type: 'secondary', fn: () => this.closeModal() },
+            { label: 'Permanently Purge', type: 'danger', fn: async () => {
+                this.closeModal();
+                this.notify(`Purging source code for '${appName}'...`, 'info');
+                // Instantly remove from list
+                this.setState({ apps: (this.state.apps || []).filter(a => a.name !== appName) });
+                try {
+                    const res = await (this.admin || this.app).api('apps_uninstall', {
+                        app: appName,
+                        mode: 'full',
+                        config_only: 0
+                    });
+                    if (res.success) {
+                        this.notify(res.message || `Application '${appName}' source code purged.`, 'success');
+                    } else {
+                        this.notify(res.error || res.message || 'Purge failed.', 'error');
+                    }
+                    await this.loadData();
+                } catch (e) {
+                    this.notify(`Purge failed: ${e.message}`, 'error');
+                    await this.loadData();
+                }
+            }}
+        ]);
+    }
+
+    async loadBackups() {
+        this.setState({ loadingBackups: true });
+        try {
+            const res = await (this.admin || this.app).api('apps_list_backups');
+            if (res.success) {
+                const data = res.data || res;
+                this.setState({
+                    backups: data.backups || [],
+                    backupInventory: data.inventory || null,
+                    loadingBackups: false
+                });
+            } else {
+                this.setState({ loadingBackups: false });
+                this.notify(res.error || 'Failed to list application backups.', 'error');
+            }
+        } catch (e) {
+            this.setState({ loadingBackups: false });
+            this.notify('Error loading backups: ' + e.message, 'error');
+        }
+    }
+
+    renderBackupsTable() {
+        const { backups, loadingBackups, backupInventory } = this.state;
+
+        return html`
+            <div class="glass-panel registry-panel fade-in">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div class="header-main" style="display: flex; align-items: center; gap: 12px;">
+                        <h3 class="gradient-text" style="margin: 0;">Application Backups &amp; Restoration</h3>
+                        <span class="count-badge">${(backups || []).length}</span>
+                        ${backupInventory ? html`
+                            <span class="code-badge primary" style="font-size: 11px;">
+                                Total Reclaimable: ${backupInventory.total_size_formatted || '0 B'}
+                            </span>
+                        ` : ''}
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn ghost-btn btn-sm" @click=${() => this.loadBackups()}>🔄 Refresh</button>
+                        <button class="btn primary-btn btn-sm" @click=${() => this.openCreateBackupModal()}>📦 Create New Backup</button>
+                    </div>
+                </div>
+
+                ${loadingBackups ? html`
+                    <div class="loading-state" style="padding: 2rem; text-align: center;"><div class="sppux-spinner"></div> Loading application backups...</div>
+                ` : (backups && backups.length > 0) ? html`
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Archive File</th>
+                                    <th style="width: 15%;">Application</th>
+                                    <th style="width: 15%;">Size</th>
+                                    <th style="width: 15%;">Files Packed</th>
+                                    <th style="width: 15%;">Created At</th>
+                                    <th class="text-right" style="width: 180px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${backups.map(b => html`
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span style="font-size: 1.2rem;">📦</span>
+                                                <div>
+                                                    <div style="font-weight: 600; color: var(--text-bright);">${b.filename}</div>
+                                                    <small style="color: var(--text-dim); font-size: 0.75rem;">${b.has_db ? '🗄️ Includes Database' : 'Code & Config Only'}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="code-badge primary" style="font-size: 12px; font-weight: 600;">
+                                                📱 ${b.app_name}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <code class="code-badge warning">${b.size_formatted}</code>
+                                        </td>
+                                        <td>
+                                            <span style="color: var(--text-bright); font-size: 0.85rem;">${b.files_count} files</span>
+                                        </td>
+                                        <td>
+                                            <span style="color: var(--text-dim); font-size: 0.8rem;">${b.created_at_formatted || b.created_at || '—'}</span>
+                                        </td>
+                                        <td class="text-right">
+                                            <div class="btn-group-horizontal" style="justify-content: flex-end; gap: 6px;">
+                                                <button class="btn secondary-btn btn-sm" @click=${() => this.restoreBackup(b)} title="Restore Application from Backup">
+                                                    🔄 Restore
+                                                </button>
+                                                <button class="btn danger-btn btn-sm" @click=${() => this.deleteBackup(b)} title="Delete Backup to Free Disk Space">
+                                                    🗑️ Free Space
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `)}
+                            </tbody>
+                        </table>
+                    </div>
+                ` : html`
+                    <div class="empty-state" style="padding: 3rem 1rem; text-align: center;">
+                        <div class="empty-icon" style="font-size: 3rem; margin-bottom: 12px;">💾</div>
+                        <h3>No Application Backups Found</h3>
+                        <p style="color: var(--text-dim); max-width: 500px; margin: 0 auto 16px auto;">
+                            Application backups created during uninstallation or manually generated will appear here. Backups can be restored with 1 click or permanently deleted to reclaim disk space.
+                        </p>
+                        <button class="btn primary-btn btn-sm" @click=${() => this.openCreateBackupModal()}>Create First Backup</button>
+                    </div>
+                `}
+            </div>
+        `;
+    }
+
+    openCreateBackupModal() {
+        const appOptions = (this.state.apps || []).map(a => html`
+            <option value="${a.name}">${a.name} (${a.title || a.name})</option>
+        `);
+
+        this.openModal('Create Application Backup Archive', html`
+            <div class="form-grid">
+                <div class="input-group full-width" style="grid-column: 1 / -1;">
+                    <label>Select Application to Backup</label>
+                    <select id="backup-app-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text-bright);">
+                        ${appOptions}
+                    </select>
+                    <small style="color: var(--text-dim); margin-top: 6px; display: block;">
+                        Packages source code in <code>src/</code>, configuration in <code>etc/apps/</code>, SQLite database, and domain mappings into a standalone compressed zip archive in <code>var/backups/apps/</code>.
+                    </small>
+                </div>
+            </div>
+        `, [
+            { label: 'Cancel', type: 'secondary', fn: () => this.closeModal() },
+            { label: 'Create Backup', type: 'primary', fn: async () => {
+                const select = document.getElementById('backup-app-select');
+                const targetApp = select ? select.value : '';
+                if (!targetApp) return;
+
+                this.notify(`Creating standalone backup for '${targetApp}'...`, 'info');
+                this.closeModal();
+
+                try {
+                    const res = await (this.admin || this.app).api('apps_backup_create', { app: targetApp });
+                    if (res.success) {
+                        this.notify(res.message || `Backup for '${targetApp}' created successfully.`, 'success');
+                        await this.loadBackups();
+                    } else {
+                        this.notify(res.error || res.message || 'Backup generation failed.', 'error');
+                    }
+                } catch (e) {
+                    this.notify('Error: ' + e.message, 'error');
+                }
+            }}
+        ]);
+    }
+
+    async restoreBackup(backup) {
+        if (!confirm(`Restore application '${backup.app_name}' from backup '${backup.filename}'?\n\nThis will restore application code, configuration in etc/apps/, and domain bindings.`)) {
+            return;
+        }
+
+        this.notify(`Restoring application '${backup.app_name}'...`, 'info');
+        try {
+            const res = await (this.admin || this.app).api('apps_restore_backup', { file: backup.filename });
+            if (res.success) {
+                this.notify(res.message || `Application '${backup.app_name}' restored successfully!`, 'success');
+                await this.loadData();
+                await this.loadBackups();
+            } else {
+                this.notify(res.error || res.message || 'Restoration failed.', 'error');
+            }
+        } catch (e) {
+            this.notify('Error restoring backup: ' + e.message, 'error');
+        }
+    }
+
+    async deleteBackup(backup) {
+        if (!confirm(`Permanently delete backup archive '${backup.filename}' to reclaim ${backup.size_formatted} of disk space?\n\nThis action cannot be undone.`)) {
+            return;
+        }
+
+        this.notify(`Deleting backup archive '${backup.filename}'...`, 'info');
+        try {
+            const res = await (this.admin || this.app).api('apps_delete_backup', { file: backup.filename });
+            if (res.success) {
+                this.notify(res.message || `Backup '${backup.filename}' deleted. Disk space reclaimed!`, 'success');
+                await this.loadBackups();
+            } else {
+                this.notify(res.error || res.message || 'Failed to delete backup.', 'error');
+            }
+        } catch (e) {
+            this.notify('Error deleting backup: ' + e.message, 'error');
+        }
+    }
+
     // --- Tab: Server Logs ---
     renderServerLogs() {
         const { logLines, logFilter, logPolling } = this.state;
@@ -1084,6 +3269,270 @@ export default class AppsView extends BaseComponent {
         }
     }
 
+    // --- Tab: cPanel Importer ---
+    async loadCpanelArchives() {
+        this.setState({ cpanelLoadingArchives: true });
+        try {
+            const res = await this.apiPost('cpanel_import_list_archives', {});
+            const list = res.archives || (res.data?.archives) || [];
+            this.setState({ cpanelArchives: list, cpanelLoadingArchives: false });
+        } catch (e) {
+            this.setState({ cpanelLoadingArchives: false });
+        }
+    }
+
+    async inspectCpanelArchive(archivePath) {
+        const path = archivePath || this.state.cpanelArchivePath;
+        if (!path) {
+            SPPUX.notify('Please specify or select a backup archive path.', 'error');
+            return;
+        }
+        this.setState({ cpanelInspecting: true, cpanelInspection: null, cpanelArchivePath: path });
+        try {
+            const res = await this.apiPost('cpanel_import_inspect', { archive: path });
+            const data = res.manifest ? res : (res.data || {});
+            if (data.manifest) {
+                this.setState({
+                    cpanelInspection: data.manifest,
+                    cpanelInspecting: false,
+                    cpanelTargetApp: this.state.cpanelTargetApp || data.manifest.username || ''
+                });
+                SPPUX.notify('cPanel backup archive preflight inspection successful!', 'success');
+            } else {
+                this.setState({ cpanelInspecting: false });
+                SPPUX.notify(data.error || res.message || 'Inspection failed', 'error');
+            }
+        } catch (e) {
+            this.setState({ cpanelInspecting: false });
+            SPPUX.notify('Inspection error: ' + e.message, 'error');
+        }
+    }
+
+    async executeCpanelImport() {
+        const path = this.state.cpanelArchivePath;
+        if (!path) {
+            SPPUX.notify('Please specify or select a backup archive path.', 'error');
+            return;
+        }
+        const app = this.state.cpanelTargetApp || (this.state.cpanelInspection?.username) || 'cpanel_migrated_app';
+        if (!confirm(`Import cPanel backup into SPP application '${app}'?\n\nThis will extract public_html to docroot, restore databases, create sovereign mailboxes, and provision BIND DNS.`)) {
+            return;
+        }
+
+        this.setState({ cpanelImporting: true, cpanelImportResult: null });
+        try {
+            const res = await this.apiPost('cpanel_import_execute', {
+                archive: path,
+                app: app,
+                overwrite: this.state.cpanelOverwrite,
+                skip_db: this.state.cpanelSkipDb,
+                skip_email: this.state.cpanelSkipEmail,
+                skip_files: this.state.cpanelSkipFiles,
+                skip_dns: this.state.cpanelSkipDns
+            });
+            const data = res.app ? res : (res.data || {});
+            if (data.success) {
+                this.setState({ cpanelImporting: false, cpanelImportResult: data });
+                SPPUX.notify(`cPanel migration completed in ${data.duration_ms || 0}ms!`, 'success');
+                this.loadData();
+            } else {
+                this.setState({ cpanelImporting: false, cpanelImportResult: data });
+                SPPUX.notify(data.error || res.message || 'Migration failed', 'error');
+            }
+        } catch (e) {
+            this.setState({ cpanelImporting: false });
+            SPPUX.notify('Import error: ' + e.message, 'error');
+        }
+    }
+
+    renderCpanelImporter() {
+        const { 
+            cpanelArchives, cpanelLoadingArchives, cpanelArchivePath, 
+            cpanelTargetApp, cpanelOverwrite, cpanelSkipDb, cpanelSkipEmail, 
+            cpanelSkipFiles, cpanelSkipDns, cpanelInspection, cpanelInspecting, 
+            cpanelImporting, cpanelImportResult 
+        } = this.state;
+
+        return html`
+            <div class="cpanel-importer-container" style="padding: 20px;">
+                <div class="header-card" style="margin-bottom: 20px;">
+                    <div class="header-main" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <h3 class="gradient-text" style="margin: 0; font-size: 1.25rem;">📥 1-Click cPanel / WHM Migration Engine</h3>
+                            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: var(--text-dim);">
+                                Ingest standard cPanel/WHM backups (<code>cpmove-*.tar.gz</code>, <code>.tar</code>, <code>.zip</code>) into sovereign SPP applications. Restores docroot files, databases, virtual mailboxes, Maildir message store, forwarders, and BIND DNS zones.
+                            </p>
+                        </div>
+                        <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.loadCpanelArchives()}>
+                            ${cpanelLoadingArchives ? '⏳ Scanning...' : '🔄 Rescan Archives'}
+                        </button>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Left Column: Archive Selection & Target Configuration -->
+                    <div class="glass-panel" style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); border-radius: 8px; padding: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: var(--text-bright);">1. Select cPanel Backup Archive</h4>
+
+                        <!-- Discovered Archives List -->
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;">
+                                Discovered Archives on Server (${cpanelArchives.length})
+                            </label>
+                            ${cpanelArchives.length === 0 ? html`
+                                <div style="font-size: 0.8rem; color: var(--text-dim); font-style: italic; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                                    No backup files found in <code>var/backups</code> or temp directory. Specify absolute path below.
+                                </div>
+                            ` : html`
+                                <div style="display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto;">
+                                    ${cpanelArchives.map(a => html`
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(255,255,255,0.03); border: 1px solid ${cpanelArchivePath === a.path ? 'var(--primary)' : 'rgba(255,255,255,0.06)'}; border-radius: 6px; cursor: pointer;"
+                                            @click=${() => this.inspectCpanelArchive(a.path)}>
+                                            <div>
+                                                <div style="font-weight: 600; font-size: 0.8rem; color: var(--text-bright);">${a.filename}</div>
+                                                <div style="font-size: 0.7rem; color: var(--text-dim);">${a.size_human} • ${a.modified_at}</div>
+                                            </div>
+                                            <button type="button" class="btn primary-btn btn-sm" style="padding: 2px 8px; font-size: 0.72rem;">Inspect</button>
+                                        </div>
+                                    `)}
+                                </div>
+                            `}
+                        </div>
+
+                        <!-- Manual Path Input -->
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;">
+                                Or Enter Full Archive Path / Directory:
+                            </label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" class="suite-search-input" style="flex: 1; font-family: monospace; font-size: 0.8rem;"
+                                    placeholder="/var/backups/cpmove-user.tar.gz"
+                                    .value=${cpanelArchivePath}
+                                    @input=${(e) => this.setState({ cpanelArchivePath: e.target.value.trim() })}>
+                                <button type="button" class="btn primary-btn btn-sm"
+                                    @click=${() => this.inspectCpanelArchive()}
+                                    ?disabled=${cpanelInspecting}>
+                                    ${cpanelInspecting ? '⏳ Inspecting...' : '🔍 Inspect'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Target App Name -->
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;">
+                                Target SPP App Name:
+                            </label>
+                            <input type="text" class="suite-search-input" style="width: 100%; font-family: monospace; font-size: 0.8rem;"
+                                placeholder="e.g. myschool (defaults to cPanel username)"
+                                .value=${cpanelTargetApp}
+                                @input=${(e) => this.setState({ cpanelTargetApp: e.target.value.trim().toLowerCase() })}>
+                        </div>
+
+                        <!-- Migration Options Checkboxes -->
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;">
+                                Migration Options:
+                            </label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.8rem; color: var(--text-dim);">
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" .checked=${cpanelOverwrite} @change=${(e) => this.setState({ cpanelOverwrite: e.target.checked })}>
+                                    <span>Overwrite Existing App</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" .checked=${cpanelSkipDb} @change=${(e) => this.setState({ cpanelSkipDb: e.target.checked })}>
+                                    <span>Skip Databases</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" .checked=${cpanelSkipEmail} @change=${(e) => this.setState({ cpanelSkipEmail: e.target.checked })}>
+                                    <span>Skip Mailboxes &amp; Maildir</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" .checked=${cpanelSkipFiles} @change=${(e) => this.setState({ cpanelSkipFiles: e.target.checked })}>
+                                    <span>Skip Docroot Files</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                                    <input type="checkbox" .checked=${cpanelSkipDns} @change=${(e) => this.setState({ cpanelSkipDns: e.target.checked })}>
+                                    <span>Skip BIND DNS Zone</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn primary-btn shine-effect" style="width: 100%; padding: 10px; font-weight: 700; font-size: 0.9rem;"
+                            @click=${() => this.executeCpanelImport()}
+                            ?disabled=${cpanelImporting || !cpanelArchivePath}>
+                            ${cpanelImporting ? '⏳ Executing 1-Click Migration Pipeline...' : '🚀 Execute 1-Click Migration'}
+                        </button>
+                    </div>
+
+                    <!-- Right Column: Preflight Inspection Breakdown & Execution Output -->
+                    <div class="glass-panel" style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); border-radius: 8px; padding: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: var(--text-bright);">2. Preflight Manifest &amp; Results</h4>
+
+                        ${cpanelInspection ? html`
+                            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(99,102,241,0.25); border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span style="font-weight: 700; color: #818cf8; font-size: 0.85rem;">📦 Preflight Inspection Manifest</span>
+                                    <span class="suite-pill suite-pill-success" style="font-size: 0.7rem;">Verified Compatible</span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.8rem; color: var(--text-bright);">
+                                    <div><strong>cPanel User:</strong> <code>${cpanelInspection.username || '—'}</code></div>
+                                    <div><strong>Primary Domain:</strong> <code>${cpanelInspection.domain || '—'}</code></div>
+                                    <div><strong>Archive Format:</strong> ${cpanelInspection.archive_type?.toUpperCase()}</div>
+                                    <div><strong>Docroot Files:</strong> ${cpanelInspection.has_public_html ? '✔ public_html found' : '✖ None'}</div>
+                                    <div><strong>MySQL Databases:</strong> ${(cpanelInspection.databases || []).length} found</div>
+                                    <div><strong>Virtual Mailboxes:</strong> ${(cpanelInspection.email_accounts || []).length} found</div>
+                                    <div><strong>Email Forwarders:</strong> ${(cpanelInspection.email_forwarders || []).length} found</div>
+                                    <div><strong>BIND DNS Zone:</strong> ${cpanelInspection.has_dns_zone ? '✔ Found' : '✖ None'}</div>
+                                </div>
+
+                                ${cpanelInspection.databases?.length > 0 ? html`
+                                    <div style="margin-top: 10px; font-size: 0.75rem; color: var(--text-dim);">
+                                        <strong>Databases to Import:</strong>
+                                        ${cpanelInspection.databases.map(d => html`
+                                            <div style="font-family: monospace; color: #a5b4fc;">• ${d.name} (${Math.round((d.size || 0)/1024)} KB)</div>
+                                        `)}
+                                    </div>
+                                ` : ''}
+
+                                ${cpanelInspection.email_accounts?.length > 0 ? html`
+                                    <div style="margin-top: 8px; font-size: 0.75rem; color: var(--text-dim);">
+                                        <strong>Mailboxes to Provision:</strong>
+                                        <div style="font-family: monospace; color: #34d399;">
+                                            ${cpanelInspection.email_accounts.map(e => e.email).join(', ')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : html`
+                            <div style="padding: 24px; text-align: center; color: var(--text-dim); font-size: 0.85rem; border: 1px dashed var(--glass-border); border-radius: 8px; margin-bottom: 16px;">
+                                Select an archive on the left and click <strong>Inspect</strong> to view the preflight inspection manifest.
+                            </div>
+                        `}
+
+                        ${cpanelImportResult ? html`
+                            <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 14px;">
+                                <div style="font-weight: 700; color: #34d399; margin-bottom: 6px; font-size: 0.9rem;">
+                                    🎉 Migration Completed Successfully!
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--text-bright); margin-bottom: 8px;">
+                                    Application: <strong>${cpanelImportResult.app}</strong> | Target Directory: <code>${cpanelImportResult.target_dir}</code>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.75rem; color: var(--text-dim); font-family: monospace;">
+                                    ${(cpanelImportResult.steps || []).map(st => html`
+                                        <div>✔ ${st}</div>
+                                    `)}
+                                </div>
+                                <div style="margin-top: 8px; font-size: 0.75rem; color: #a5b4fc;">
+                                    Time Elapsed: <strong>${cpanelImportResult.duration_ms}ms</strong>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     // --- Header Injection ---
     renderHeader() {
         const headerActions = document.getElementById('header-actions');
@@ -1095,21 +3544,21 @@ export default class AppsView extends BaseComponent {
             const categories = Array.from(new Set(modules.map(m => m.module_category || (m.type === 'system' ? 'Core Optional' : 'App Modules'))));
             
             const headerHtml = html`
-                <div class="header-filters" style="display: flex; gap: 12px; align-items: center;">
-                    <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.setState({modGraphMode: !this.state.modGraphMode})}>
+                <div class="header-filters" style="display: flex; gap: 8px; align-items: center; flex-shrink: 0; white-space: nowrap;">
+                    <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.setState({modGraphMode: !this.state.modGraphMode})} style="white-space: nowrap;">
                         ${this.state.modGraphMode ? '📋 List View' : '🕸️ Graph View'}
                     </button>
-                    <select class="btn ghost-btn btn-sm" style="background: var(--bg-card-glass);" 
+                    <select class="btn ghost-btn btn-sm" style="background: var(--bg-card-glass); max-width: 140px;" 
                         @change=${(e) => this.setModFilter(e.target.value)}>
                         <option value="all" ?selected="${modFilter === 'all'}">📦 All Modules</option>
                         ${categories.map(c => html`<option value="${c}" ?selected="${modFilter === c}">📁 ${c}</option>`)}
                     </select>
-                    <div class="btn-group" style="display: flex; gap: 8px;">
-                        <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.rebuildRegistry()}>⚡ Compile</button>
-                        <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.runMigrations()}>🚀 Migrate</button>
+                    <div class="btn-group" style="display: flex; gap: 6px; flex-shrink: 0;">
+                        <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.rebuildRegistry()} style="white-space: nowrap;">⚡ Compile</button>
+                        <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.runMigrations()} style="white-space: nowrap;">🚀 Migrate</button>
                     </div>
                 </div>
-                <span style="font-size: 0.8rem; color: var(--text-dim); white-space: nowrap;">${activeCount}/${modules.length} active</span>
+                <span style="font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; flex-shrink: 0;">${activeCount}/${modules.length} active</span>
             `;
             headerActions.innerHTML = headerHtml.toString();
             

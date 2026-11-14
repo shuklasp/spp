@@ -1,7 +1,25 @@
-.TH "polyglot:list" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH POLYGLOT:LIST 1 "October 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-polyglot:list \- Discovers and tabulates all registered polyglot services
+polyglot:list \- Discovers and tabulates all registered polyglot service scripts and DSL files
 .SH SYNOPSIS
 .B php spp.php polyglot:list
 .SH DESCRIPTION
-Discovers and tabulates all registered polyglot services
+.B polyglot:list
+recursively scans standard service directories across the workspace for scripts, compiled sources, and DSL files matching any language driver registered in the Universal Polyglot 2.0 LanguageRegistry.
+.PP
+Discovered services are formatted into an ANSI table displaying the language identifier and relative workspace path, confirming which polyglot services are available for invocation via controllers, template macros, or background jobs.
+.SH OPTIONS
+This command takes no arguments or flags.
+.SH UNDER THE HOOD
+.IP \(bu 2
+Dynamically queries all registered file extensions from \fILanguageRegistry\fR.
+.IP \(bu 2
+Traverses \fIservices/\fR, \fIsrc/services/\fR, and \fIsrc/*/services/\fR using recursive directory iterators.
+.IP \(bu 2
+Filters out temporary build artifacts (\fI/bin/\fR, \fI/obj/\fR).
+.IP \(bu 2
+Maps discovered extensions to canonical driver IDs.
+.SH SEE ALSO
+.BR spp-polyglot-status (1),
+.BR spp-make-polyglot-language (1),
+.BR spp-make-polyglot-partial (1)

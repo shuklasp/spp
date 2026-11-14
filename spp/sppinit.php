@@ -88,6 +88,28 @@ if (!defined('SPP_VER')) {
   define('APP_ETC_DIR', SPP_APP_DIR . SPP_DS . 'etc' . SPP_DS . 'apps');
   define('SPP_LOG_DIR', SPP_APP_DIR . SPP_DS . 'var' . SPP_DS . 'logs');
 
+  if (!defined('SPP_DATA_DIR')) {
+    $envDataDir = getenv('SPP_DATA_DIR');
+    if ($envDataDir && is_dir($envDataDir)) {
+      define('SPP_DATA_DIR', rtrim(str_replace('\\', '/', $envDataDir), '/'));
+    } else {
+      $candidates = [
+        SPP_APP_DIR . SPP_DS . 'sppdata',
+        dirname(SPP_BASE_DIR) . SPP_DS . 'sppdata',
+        '/var/sppdata',
+        SPP_APP_DIR . SPP_DS . 'var' . SPP_DS . 'data'
+      ];
+      $resolvedDataDir = null;
+      foreach ($candidates as $cand) {
+        if (is_dir($cand)) {
+          $resolvedDataDir = rtrim(str_replace('\\', '/', $cand), '/');
+          break;
+        }
+      }
+      define('SPP_DATA_DIR', $resolvedDataDir ?: (SPP_APP_DIR . SPP_DS . 'var' . SPP_DS . 'data'));
+    }
+  }
+
   // Include Composer autoloader
   $composer_autoload = SPP_APP_DIR . SPP_DS . 'vendor' . SPP_DS . 'autoload.php';
   if (file_exists($composer_autoload)) {
@@ -117,7 +139,9 @@ if (!defined('SPP_VER')) {
   }
 
   // Boot the application
-  \SPP\App::boot();
+  if (!defined('SPP_NO_AUTO_BOOT') || !SPP_NO_AUTO_BOOT) {
+    \SPP\App::boot();
+  }
 }
 
 // Universally expose global translation shorthand helper
@@ -127,4 +151,3 @@ if (!function_exists('__')) {
     return \SPP\Core\Translation::translate($key, $paramsOrLocale, $locale);
   }
 }
-?>

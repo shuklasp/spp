@@ -1,88 +1,411 @@
-# Polyglot Bridge Tutorial
+# SPP Universal Polyglot 2.0: Comprehensive Novice-First Guide & Tutorial
 
-Welcome to the SPP Polyglot Bridge! If you are a novice developer looking to integrate code written in other programming languages (like Python, Java, Go, or .NET) into your PHP application, you're in the right place. This tutorial will guide you step-by-step through configuring and using the new Polyglot Bridge strategies.
+Welcome to the SPP Universal Polyglot 2.0 framework documentation! If you are a novice developer looking to integrate code written in virtually any programming language (like Python, Go, Rust, Zig, Node.js, Ruby, Java, C#, or Elixir) or even **script your own custom Domain-Specific Language (DSL)** directly within your PHP application, this guide walks you through every layer of the architecture.
 
-## Foundational Concepts
+---
 
-The SPP framework is built primarily in PHP, but modern applications often need to use libraries or scripts written in other languages (for example, a Python script for machine learning). The **Polyglot Bridge** solves this by providing a unified, secure way to execute non-PHP code and return the results directly into your PHP application.
+## 1. Foundational Concepts: What is Universal Polyglot 2.0?
 
-Instead of one massive, confusing system, the Bridge uses a **Strategy Pattern**. This means there is a specific, optimized handler (a "Bridge") for each language:
-- `JavaBridge` handles `.jar` files and Java execution.
-- `GoBridge` handles compiled Go binaries.
-- `DotNetBridge` handles C# / .NET execution.
-- `DefaultBridge` handles generic scripts (like Python, Node.js, bash, etc.).
+In traditional web development, you are often forced to choose between two extremes:
+* **The Monoculture Monolith**: Writing everything in PHP, even when libraries for machine learning (Python), ultra-high-concurrency IO (Go/Rust), or enterprise integrations (.NET/Java) are vastly superior elsewhere.
+* **The Microservice Maze**: Fragmenting your application into dozens of detached network services, adding immense Docker/Kubernetes deployment complexity, network serialization latency, and authentication overhead.
 
-This modular design makes it extremely easy to add new languages without breaking existing ones!
+**SPP Universal Polyglot 2.0** provides the **Polyglot Monolith** middle ground:
+* PHP remains your application's primary kernel, orchestrator, and database manager.
+* Any external programming language or custom DSL can be invoked seamlessly with sub-millisecond overhead.
+* The system works across **all operating systems** (Windows, Linux glibc/musl, macOS, BSD) and **all server environments** (Apache, Nginx with PHP-FPM, Caddy, FrankenPHP, Swoole, RoadRunner, and CLI).
+* You can add support for **any new language** without touching a single line of framework core code, simply by dropping a YAML manifest into `etc/polyglot/`.
+* You can even **script a brand-new custom language or DSL** directly in pure PHP using the built-in Pratt AST parser!
 
-## Lifecycle & Architecture
+---
 
-Here is how the Polyglot Bridge works behind the scenes when you request to run a script:
+## 2. Architecture & Lifecycle Overview
 
-1. **Request:** Your application asks the `PolyglotBridgeFactory` to run a script for a specific language.
-2. **Resolution:** The Factory checks if a specialized Bridge exists for that language (e.g., "java" -> `JavaBridge`). If not, it falls back to the `DefaultBridge`.
-3. **Execution:** The selected Bridge prepares the environment, safely escapes any arguments you provided to prevent command injection, and executes the script.
-4. **Response:** The Bridge captures the standard output (`stdout`) and standard error (`stderr`) and returns it to your application.
-
-## Step-by-Step Tutorial
-
-Let's write a simple Python script and execute it from within an SPP controller.
-
-### Step 1: Create Your Non-PHP Script
-
-Create a Python script named `hello.py` in your app's `resources/scripts` directory:
-
-```python
-# resources/scripts/hello.py
-import sys
-
-# Get the name from the arguments, default to "World"
-name = sys.argv[1] if len(sys.argv) > 1 else "World"
-print(f"Hello, {name} from Python!")
+```text
+SPP Controller / View (@polyglot)
+              │
+              ▼
+   Polyglot Language Registry (LanguageRegistry)
+   [Reads etc/polyglot/*.yml - Supports ANY language]
+              │
+              ├──► Category: DSL / In-Process
+              │    └──► SPP\Core\Polyglot\DSL\AbstractLanguage (Sandboxed AST Execution)
+              │
+              └──► Category: Interpreted / Compiled / Daemon
+                   └──► UniversalDynamicBridge
+                        ├── Tier 1: Kernel IPC (POSIX UDS .sock / Win32 Named Pipes)
+                        ├── Tier 2: Loopback Network (IPv4/IPv6 TCP Socket)
+                        ├── Tier 3: Subprocess Pipe (proc_open STDIN/STDOUT)
+                        └── Tier 4: In-Process WASM Sandbox
 ```
 
-### Step 2: Use the PolyglotBridgeFactory in PHP
+### How a Polyglot Request Executes
+1. **Resolution**: You invoke `@polyglot('pricing_engine', $data)` in a template or `$this->polyglot('pricing_engine', $data)` in a controller.
+2. **Dynamic Discovery**: SPP checks `resources/{app}/services/polyglot/pricing_engine.*`. It looks up the file extension (e.g. `.py`, `.rs`, `.zig`, `.calc`, `.rule`) in `LanguageRegistry`.
+3. **Execution Mode**:
+   - **Custom DSL (`category: dsl`)**: Evaluated immediately in-process using the sandboxed AST parser. Zero process spawn overhead (<0.05ms).
+   - **Persistent Daemon (`category: daemon`)**: Communicates with the pre-booted language daemon over Unix Domain Sockets or Named Pipes (0.2–1ms).
+   - **Compiled / Ephemeral**: Automatically builds the binary if out-of-date and executes via isolated pipes.
+4. **Content Negotiation & Security**: Automatically injects Content Security Policy (CSP) nonces into `<script>` and `<style>` tags rendered by external runtimes and tags the output into `SPPCacheManager`.
 
-In your SPP Controller or Service, you can use the factory to execute this script safely.
+---
 
+## 3. Step-by-Step Practical Tutorials
+
+### Tutorial A: Running Python, Go, or Rust via Magic Auto-Discovery
+
+#### Step 1: Create Your Service File
+Create a Python file at `src/MyApp/services/polyglot/ml_recommendations.py`:
+```python
+def render_partial(args=None):
+    user = args.get('user', 'Guest') if args else 'Guest'
+    return f"""
+    <div class="card p-3 shadow-sm">
+        <h5>AI Recommendations for {user}</h5>
+        <p>Generated by Python 3.12 without inline HTML in PHP controllers.</p>
+    </div>
+    """.strip()
+```
+
+#### Step 2: Render in Your Blade View
+In any Blade template, simply write:
+```html
+<div class="dashboard-widget">
+    @polyglot('ml_recommendations', ['user' => 'Dr. Shukla'])
+</div>
+```
+SPP automatically discovers that `.py` maps to the `python` driver, executes it in daemon mode, caches the response, and inserts the generated HTML!
+
+---
+
+### Tutorial B: Registering Any New Language via `make:polyglot-language`
+
+Suppose you want to write a high-performance mathematical routine in **Zig** (`.zig`) or **Rust** (`.rs`):
+
+#### Step 1: Scaffold the Language Driver
+Run the native CLI command:
+```bash
+php spp.php make:polyglot-language rust --ext=rs --category=compiled
+```
+This generates `etc/polyglot/rust.yml`:
+```yaml
+language:
+  id: rust
+  name: "Rust"
+  category: compiled
+  extensions: ["rs"]
+  discovery:
+    binaries:
+      windows: ["cargo.exe", "rustc.exe"]
+      posix: ["cargo", "rustc"]
+    version_arg: "--version"
+  execution:
+    compilation:
+      command: 'rustc "{source}" -O -o "{output_binary}"'
+```
+
+From this moment on, any `.rs` file in your polyglot services directories is natively understood by the framework!
+
+---
+
+### Tutorial C: Scripting Your Own Custom Domain-Specific Language (DSL)
+
+Suppose your business requires a custom calculation or rule language for discounts and taxes called **"RuleDsl"** (`.rule`).
+
+#### Step 1: Scaffold the DSL
+```bash
+php spp.php make:polyglot-language ruledsl --ext=rule --category=dsl --app=MyApp
+```
+This automatically provisions:
+1. `etc/apps/MyApp/polyglot/ruledsl.yml`
+2. `src/MyApp/Languages/RuledslLanguage.php` extending `AbstractLanguage`
+
+#### Step 2: Define Custom Functions and Operators in PHP
+Open `src/MyApp/Languages/RuledslLanguage.php`:
 ```php
 <?php
 
-namespace App\Controllers;
+namespace App\Languages;
 
-use SPP\Core\Polyglot\PolyglotBridgeFactory;
-use SPP\Core\ResourceController;
+use SPP\Core\Polyglot\DSL\AbstractLanguage;
 
-class PolyglotDemoController extends ResourceController
+class RuledslLanguage extends AbstractLanguage
 {
-    public function runPythonAction()
+    protected string $languageId = 'ruledsl';
+    protected array $extensions = ['rule'];
+
+    public function defineGrammar(): void
     {
-        // 1. Get the correct bridge for Python
-        // Since there is no specific PythonBridge yet, this will return the DefaultBridge
-        $bridge = PolyglotBridgeFactory::getBridge('python');
+        // Custom domain functions
+        $this->registerFunction('LOYALTY_BONUS', fn($points) => $points * 0.05);
+        $this->registerFunction('TAX', fn($amount, $rate) => $amount * ($rate / 100));
 
-        // 2. Define the path to your script and the arguments
-        $scriptPath = $this->app->getAppDir() . '/resources/scripts/hello.py';
-        $arguments = ['SPP Developer'];
-
-        // 3. Execute the script!
-        try {
-            $output = $bridge->execute($scriptPath, $arguments);
-            return $this->respond(['message' => trim($output)]);
-        } catch (\Exception $e) {
-            return $this->respondError("Script failed: " . $e->getMessage());
-        }
+        // Custom operators
+        $this->registerOperator('POW', fn($a, $b) => pow($a, $b));
     }
 }
 ```
 
-### Step 3: Run and Test
+#### Step 3: Write Your DSL Script
+Create `src/MyApp/services/polyglot/vip_discount.rule`:
+```text
+discount = IF user_tier == "VIP" AND order_total > 500 
+           THEN TAX(order_total, 20) + LOYALTY_BONUS(points) 
+           ELSE 0;
 
-When a user visits the route pointing to `runPythonAction`, the output will be:
-
-```json
-{
-  "message": "Hello, SPP Developer from Python!"
-}
+RETURN discount;
 ```
 
-That's it! You have successfully bridged PHP with Python. The framework handles all the underlying complexity, allowing you to focus on building great features.
+#### Step 4: Execute Directly in PHP
+In your controller:
+```php
+public function checkoutAction()
+{
+    $discount = $this->polyglot('vip_discount', [
+        'user_tier' => 'VIP',
+        'order_total' => 650,
+        'points' => 200
+    ]);
+
+    return $this->respond(['applied_discount' => $discount]);
+}
+```
+The script is tokenized, parsed into an AST, and evaluated in memory with 100% memory safety, zero `eval()`, and sub-millisecond execution!
+
+---
+
+### Tutorial C: The Fluent `\SPP\Polyglot` Facade & Ad-Hoc `eval()`
+
+For maximum developer ergonomics, SPP provides the `\SPP\Polyglot` facade. It eliminates all boilerplate, allowing you to run files, evaluate snippets on the fly, or configure execution pipelines via a fluent builder.
+
+#### 1. Instant File Execution (Auto-Detected Extension)
+```php
+use SPP\Polyglot;
+
+// Auto-detects extension (.py, .js, .rs, .calc, etc.) and routes to driver
+$result = Polyglot::run('services/polyglot/analytics_chart.py', [
+    'title' => 'Monthly Trends',
+    'dataset' => [10, 20, 30]
+]);
+
+// Evaluate custom DSL rule file directly
+$score = Polyglot::run('services/rules/grading.calc', ['exam_score' => 88]);
+```
+
+#### 2. Ad-Hoc Expression & Code Snippet Evaluation
+Evaluate code on the fly in any language without creating files on disk:
+```php
+// In-process Formula DSL expression (< 0.05ms)
+$total = Polyglot::eval('formula', 'base_fee * (1 - discount_rate)', [
+    'base_fee' => 1200,
+    'discount_rate' => 0.15
+]);
+
+// Ad-hoc Python list comprehension
+$squared = Polyglot::eval('python', 'return [x ** 2 for x in args.get("nums", [])]', [
+    'nums' => [1, 2, 3, 4, 5]
+]);
+
+// Ad-hoc Node.js transform
+$doubled = Polyglot::eval('node', 'return args.items.map(x => x * 2);', [
+    'items' => [10, 20, 30]
+]);
+```
+
+#### 3. Fluent Chainable Builder with Fallbacks
+Guard against third-party process timeouts or crashes by defining graceful fallbacks:
+```php
+$chartData = Polyglot::file('services/compute/heavy_analytics.py')
+    ->with(['quarter' => 'Q3'])
+    ->timeout(2.5)
+    ->fallback([
+        'status' => 'degraded',
+        'series' => [0, 0, 0]
+    ])
+    ->get();
+```
+
+---
+
+### Tutorial D: Interactive CLI Superpowers
+
+SPP equips developers with a suite of interactive CLI tools for testing polyglot routines:
+
+#### 1. Instant CLI Evaluation (`polyglot:eval`)
+```bash
+# Evaluate mathematical and business rules
+php spp.php polyglot:eval "ROUND(SQRT(144) * 1.5, 2)"
+php spp.php polyglot:eval "IF score >= 90 THEN 'Honor Roll' ELSE 'Regular'" --context='{"score": 95}'
+
+# Evaluate Python code
+php spp.php polyglot:eval "return [x * 2 for x in args.get('items', [])]" --lang=python --context='{"items": [1, 2, 3]}'
+```
+
+#### 2. Interactive Terminal REPL (`polyglot:repl`)
+Launch a persistent interactive Read-Eval-Print-Loop session:
+```bash
+php spp.php polyglot:repl formula
+
+formula> 100 * (1 - 0.20) + 15
+=> 95.0 (0.12ms)
+
+formula> context {"order_total": 450}
+Active Context: {"order_total":450}
+
+formula> IF order_total > 300 THEN TAX(order_total, 10) ELSE 0
+=> 45.0 (0.09ms)
+
+formula> exit
+```
+
+#### 3. Comprehensive Service Benchmarking (`polyglot:test`)
+Benchmark any polyglot file, capturing execution duration in milliseconds, memory consumption in kilobytes, and output structure:
+```bash
+php spp.php polyglot:test services/rules/discount.calc --payload='{"order_total": 500}'
+```
+
+---
+
+### Tutorial E: Safe View Fallbacks in Drishyam (`@polyglot`)
+
+In Blade and Twig templates, you can provide an optional fallback partial to ensure that a failing or slow polyglot microservice never breaks the web page:
+
+```blade
+<!-- 1. Magic Discovery with Skeleton Fallback Partial -->
+@polyglot('analytics_chart', ['theme' => 'corporate'], true, 3600, 'partials/chart_skeleton.blade.php')
+
+<!-- 2. Ad-hoc In-Template Polyglot Evaluation -->
+<span class="badge badge-success">
+    Final Tuition: $@polyglot_eval('formula', 'base_fee * (1 - discount_pct)', ['base_fee' => 5000, 'discount_pct' => 0.10])
+</span>
+```
+
+---
+
+## 4. Formula DSL Standard Library Reference
+
+The built-in Formula DSL (`.calc`, `.rule`) includes a full standard library of math, string, logic, and collection functions:
+
+| Category | Function | Example | Description |
+|---|---|---|---|
+| **Math** | `SQRT(n)` | `SQRT(144)` &rarr; `12` | Square root |
+| **Math** | `ROUND(n, decimals)` | `ROUND(3.14159, 2)` &rarr; `3.14` | Rounds to precision |
+| **Math** | `ABS(n)` | `ABS(-42)` &rarr; `42` | Absolute value |
+| **Math** | `CLAMP(val, min, max)` | `CLAMP(120, 0, 100)` &rarr; `100` | Constrains value to range |
+| **Math** | `MIN(...)`, `MAX(...)` | `MAX(10, 25, 5)` &rarr; `25` | Minimum / Maximum value |
+| **Math** | `POW(a, b)` | `POW(2, 3)` &rarr; `8` | Exponentiation |
+| **Business** | `TAX(amount, rate)` | `TAX(200, 15)` &rarr; `30` | Calculates percentage tax |
+| **Business** | `DISCOUNT(total, pct)` | `DISCOUNT(100, 20)` &rarr; `80` | Deducts percentage discount |
+| **String** | `UPPER(s)`, `LOWER(s)` | `UPPER("spp")` &rarr; `"SPP"` | Changes case |
+| **String** | `CONCAT(...)` | `CONCAT("A", "-", "B")` &rarr; `"A-B"` | Concatenates strings |
+| **String** | `LEN(s)` | `LEN("hello")` &rarr; `5` | Length of string |
+| **String** | `CONTAINS(haystack, needle)` | `CONTAINS("apple", "pp")` &rarr; `true` | Substring search |
+| **Logic** | `IF(cond, then, else)` | `IF(age >= 18, "Adult", "Minor")` | Inline ternary condition |
+| **Logic** | `COALESCE(...)` | `COALESCE(nick, name, "Guest")` | First non-null value |
+| **Logic** | `BETWEEN(val, min, max)` | `BETWEEN(grade, 80, 100)` &rarr; `1` | Inclusive range check |
+| **Collection** | `SUM(list)` | `SUM([10, 20, 30])` &rarr; `60` | Sum of array items |
+| **Collection** | `AVG(list)` | `AVG([10, 20, 30])` &rarr; `20` | Arithmetic mean of items |
+| **Collection** | `COUNT(list)` | `COUNT([10, 20, 30])` &rarr; `3` | Number of items in array |
+
+---
+
+## 5. Diagnostics & Tooling Cheatsheet
+
+| Command | Purpose |
+|---|---|
+| `php spp.php polyglot:status` | Scans and tabulates binary paths and status for all registered language drivers across the current OS. |
+| `php spp.php polyglot:toggle <lang> [--enable\|--disable]` | Dynamically activates or deactivates language execution permissions at will without application restart. |
+| `php spp.php polyglot:eval "<code>" [--lang=...]` | Evaluates an ad-hoc code snippet or mathematical expression on the fly. |
+| `php spp.php polyglot:repl [language]` | Launches an interactive Read-Eval-Print-Loop terminal shell. |
+| `php spp.php polyglot:test <path> [--payload=...]` | Test-runs a polyglot service, benchmarking execution duration and memory. |
+| `php spp.php polyglot:list` | Dynamically discovers and indexes all polyglot and DSL services across your project. |
+| `php spp.php make:polyglot-language <name> [--ext=<ext>] [--category=<type>]` | Registers a new programming language or scaffolds a custom DSL grammar engine. |
+| `php spp.php make:polyglot-partial <name> [--lang=<lang>]` | Scaffolds a new external polyglot service fragment. |
+| `php spp.php polyglot:worker [start\|stop\|restart\|status] <module>` | Manages long-lived persistent language worker daemons. |
+| `php spp.php test spp/tests/core/UniversalPolyglotTest.php` | Runs the automated Parikshak regression test suite for polyglot infrastructure. |
+
+---
+
+## 6. Supported 47 Polyglot Languages & Runtimes
+
+The SPP framework ships with ready-to-run declarative manifests in `etc/polyglot/` spanning 47 programming languages, compilers, runtimes, and pure-PHP DSLs:
+
+| Category | Languages | Extensions | Primary Runtimes / Compilers |
+|---|---|---|---|
+| **High-Performance Interpreters** | Python, Node.js, Bun, Deno, PHP, Ruby, Perl, Lua | `.py`, `.js`, `.mjs`, `.bun.js`, `.deno.ts`, `.php`, `.rb`, `.pl`, `.lua` | `python`, `node`, `bun`, `deno`, `php`, `ruby`, `perl`, `lua` |
+| **Compiled Systems Languages** | Rust, Go, C++, Zig, Nim, Crystal, D (Dlang), V (Vlang), Odin | `.rs`, `.go`, `.cpp`, `.cc`, `.zig`, `.nim`, `.cr`, `.d`, `.v`, `.odin` | `rustc`/`cargo`, `go`, `cl.exe`/`g++`, `zig`, `nim`, `crystal`, `dmd`, `v`, `odin` |
+| **Enterprise JVM & .NET** | Java, Kotlin, Scala, Groovy, Clojure, C# (.NET), F# | `.java`, `.kt`, `.scala`, `.groovy`, `.clj`, `.cs`, `.fs` | `java`/`javac`, `kotlinc`, `scala`, `groovy`, `clojure`, `dotnet` |
+| **Functional & Concurrent** | Elixir, Erlang, Haskell, OCaml | `.ex`, `.exs`, `.erl`, `.hs`, `.ml` | `elixir`, `erl`/`escript`, `ghc`, `ocaml` |
+| **Scientific & Numerical** | Julia, R, GNU Octave / MATLAB | `.jl`, `.r`, `.R`, `.m` | `julia`, `Rscript`, `octave-cli` |
+| **Lisp & Symbolic Computing** | Common Lisp, Racket, Scheme | `.lisp`, `.cl`, `.rkt`, `.scm` | `sbcl`, `racket`, `guile` |
+| **Scripting & Shells** | Shell (Bash / PowerShell), AWK, Tcl | `.sh`, `.bash`, `.ps1`, `.awk`, `.tcl` | `powershell.exe`/`bash`, `awk`, `tclsh` |
+| **Web3 & Modern Platforms** | WebAssembly (WASI), Solidity, Dart, Swift | `.wasm`, `.wat`, `.sol`, `.dart`, `.swift` | `wasmtime`/`wasmer`, `solc`, `dart`, `swift` |
+| **Classic & Mission-Critical** | Ada (GNAT), Free Pascal, Fortran | `.adb`, `.ads`, `.pas`, `.f90`, `.f` | `gnatmake`, `fpc`, `gfortran` |
+| **Data & Queries** | SQL Script | `.sql` | Native database query engines |
+| **In-Process DSLs** | SPP Formula & Rule DSL, Minilang | `.calc`, `.rule`, `.formula`, `.mini` | Pure-PHP Sandboxed Pratt AST Evaluator (<0.05ms) |
+
+---
+
+## 7. Enabling & Disabling Languages at Will
+
+Administrators and developers can activate or deactivate any language on the fly without restarting web servers or modifying PHP code.
+
+### Activation Manifest (`etc/polyglot/status.yml`)
+When a language is disabled, it is registered in `etc/polyglot/status.yml`:
+```yaml
+# SPP Universal Polyglot 2.0 Language Activation Manifest
+# Languages listed under 'disabled' are blocked from execution in SPP.
+disabled:
+  - julia
+  - haskell
+```
+
+### CLI Toggle Commands
+```bash
+# Toggle current state of Python
+php spp.php polyglot:toggle python
+
+# Explicitly disable a high-resource language
+php spp.php polyglot:toggle julia --disable
+
+# Explicitly re-enable a language
+php spp.php polyglot:toggle julia --enable
+
+# Inspect current status across all 47 languages
+php spp.php polyglot:status
+```
+
+### Safe Guarding & Exception Handling
+If any service, controller, or template calls a disabled language, SPP immediately blocks the process before spawning subshells or opening network sockets, throwing a clear `PolyglotExecutionException`:
+```text
+[Polyglot Error] Execution of julia service 'eval://...' failed with exit code 1.
+STDERR: Polyglot language 'julia' is currently disabled in SPP.
+Enable it via 'php spp.php polyglot:toggle julia --enable' or the SPPAdmin Polyglot Studio.
+```
+
+In Drishyam templates (`@polyglot`), the exception is safely caught and an optional fallback template or error badge is rendered, preventing web page crashes.
+
+---
+
+## 8. SPPAdmin & SPPDev Universal Polyglot Studio
+
+Both the **SPPAdmin Operations Console** and the **SPPDev Developer Studio** provide an interactive Web GUI accessible via the sidebar navigation (`🌐 Polyglot Studio`) or the Global Command Palette (`Ctrl+K` &rarr; "Polyglot Studio" or `Ctrl+Shift+P`).
+
+### 1. Languages Inventory Tab
+* **Category Filters**: Filter all 48 languages by category (Interpreted, Compiled, Functional, Systems, Scientific, Pure DSL, WASM, Web3, Database / SQL, Shell).
+* **Live Search**: Instant substring filtering by language name or file extensions (`.rs`, `.py`, `.dart`, `.ml`).
+* **1-Click Activation Switch**: Toggle any language between `ACTIVE` and `DISABLED` with instant zero-restart feedback and microsecond persistence in `status.yml`.
+* **Runtime Discovery**: Shows whether the binary was detected in the host's `PATH` (`RUNTIME OK`) or requires installation (`MISSING PATH`), including ready-to-copy install commands.
+* **Smart Envelope Negotiation & Path Caching**: The Studio communicates with `CommandBridge` API endpoints (`polyglot_inventory`, `polyglot_toggle`, `polyglot_services`, `polyglot_evaluate`), safely unwrapping standard SPP response envelopes (`res.data`) and leveraging 24-hour binary cache TTL with 1-click manual "🔄 Rescan PATH" refresh for sub-50ms dashboard render latency.
+
+### 2. Live Playground & Telemetry Tab
+* **Interactive Code Editor**: Write and test ad-hoc code snippets in any registered language.
+* **Pre-Loaded Sample Snippets**: Selecting any language automatically loads idiomatic starter code for that language.
+* **Context Payload**: Bind complex JSON arrays and objects directly into the foreign execution environment.
+* **Real-Time Telemetry**: Measures execution latency in milliseconds and memory consumption in bytes.
+
+### 3. Workspace Polyglot Files Tab
+* Automatically scans `spp/services/` and application resource directories.
+* Displays file sizes, last modification timestamps, and active status.
+* Includes a 1-click **Test in Playground** button to inspect and verify service behavior.
+

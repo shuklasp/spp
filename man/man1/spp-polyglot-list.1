@@ -1,20 +1,25 @@
-.TH SPP-polyglot-list 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-POLYGLOT:LIST 1 "October 2026" "SPP Framework" "SPP User Commands"
 .SH NAME
-polyglot:list
-.PP
- \- Discovers and tabulates all registered polyglot services
-.SH DESCRIPTION
-Discovers and tabulates all registered polyglot services
-.PP
+spp\-polyglot:list \- Discovers and tabulates all registered polyglot service scripts and DSL files
 .SH SYNOPSIS
-php spp.php polyglot:list [OPTIONS]
+.B spp polyglot:list
+.SH DESCRIPTION
+.B spp polyglot:list
+recursively scans standard service directories across the workspace for scripts, compiled sources, and DSL files matching any language driver registered in the Universal Polyglot 2.0 LanguageRegistry.
 .PP
+Discovered services are formatted into an ANSI table displaying the language identifier and relative workspace path, confirming which polyglot services are available for invocation via controllers, template macros, or background jobs.
 .SH OPTIONS
-No static options detected for this command.
-.PP
+This command takes no arguments or flags.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Instantiates internal components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
-.br
-.PP
-.PP
+.IP \(bu 2
+Dynamically queries all registered file extensions from \fILanguageRegistry\fR.
+.IP \(bu 2
+Traverses \fIservices/\fR, \fIsrc/services/\fR, and \fIsrc/*/services/\fR using recursive directory iterators.
+.IP \(bu 2
+Filters out temporary build artifacts (\fI/bin/\fR, \fI/obj/\fR).
+.IP \(bu 2
+Maps discovered extensions to canonical driver IDs.
+.SH SEE ALSO
+.BR spp-polyglot-status (1),
+.BR spp-make-polyglot-language (1),
+.BR spp-make-polyglot-partial (1)

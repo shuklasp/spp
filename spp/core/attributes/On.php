@@ -12,9 +12,11 @@ class On
 {
     /**
      * @param string $event The event name to listen for.
+     * @param int $priority Execution priority (higher runs first, default 500).
      */
     public function __construct(
-        public string $event
+        public string $event,
+        public int $priority = 500
     ) {
     }
 }

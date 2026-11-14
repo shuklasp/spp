@@ -280,3 +280,42 @@ To ensure flawless cross-layout navigation without stylesheet shedding:
    ```
 4. **Global Single-Key Accelerator Jumps**: Updated `sppdocs-shortcuts.js` so pressing `A` (outside inputs) navigates directly to Project Administration via `window.location.href`, guaranteeing a complete `<head>` stylesheet initialization every time.
 
+---
+
+## 7. SPP Developer Studio & Admin Workbench Implementation (`sppdev` & `sppadmin`)
+
+In addition to documentation portals, the SPP framework provides a unified, zero-latency **Universal Command Palette** across both **SPP Dev** (`/sppdev`) and **SPP Admin** (`/sppadmin`):
+
+### Why `Ctrl+K` Failed on the Dashboard
+Prior to this release, pressing `Ctrl+K` on `#dashboard` (or any other workbench view) failed for two reasons:
+1. **Missing Capture-Phase Listener**: Only `PagesView` (SPP Studio) declared a shortcut listener, but it was registered in standard bubbling phase (`window.addEventListener('keydown', ...)` without `{ capture: true }`). Google Chrome on Windows intercepted `Ctrl+K` before event bubbling reached user scripts and opened the Omnibox.
+2. **View Isolation**: Because the shortcut was attached inside `pages.js`, navigating to `#dashboard`, `#coder`, `#tinker`, `#workflows`, or `#entities` meant no `Ctrl+K` handler existed at all.
+
+### The Universal Architecture
+To make `Ctrl+K` work everywhere with zero friction:
+
+1. **Standalone Resilient Script (`spp-command-palette.js`)**:
+   - Automatically injects the glassmorphic modal DOM (`#spp-cmd-palette-backdrop`) if absent from the markup.
+   - Registers capture-phase handlers (`{ capture: true }`) for `keydown`, `keyup`, and `keypress`.
+   - Hardware-level `KeyK` checking (`e.code === 'KeyK' || (e.key && e.key.toLowerCase() === 'k') || e.keyCode === 75 || e.which === 75`).
+   - Immediately invokes `e.preventDefault()`, `e.stopPropagation()`, and `e.stopImmediatePropagation()`.
+2. **Workbench Hub & Studio Integration**:
+   - Offers instant fuzzy navigation across all 13 workbench views (`#dashboard`, `#coder`, `#tinker`, `#pages`, `#workflows`, `#entities`, `#forms`, `#routing`, `#reports`, `#ai`, `#mesh`, `#testing`, `#commands`).
+   - Dynamically discovers active applications (`lekhak`, `school`, `ptable`, `default`) and allows 1-click context switching that updates both the sidebar and SPP Studio in lockstep.
+   - When on `#pages` (SPP Studio), dynamically exposes Studio actions (Canvas, Split View, Code Studio, Database ERD, SQL Console, Fresh Canvas, Smoke Test & Auto-Fix).
+   - Supports 1-click theme switching between **Night**, **Day**, and **Saffron** modes.
+3. **Dual Affordance in Workbench Header**:
+   - An elegant search bar is embedded directly in the content header between the view title and tools:
+   ```html
+   <div class="adm-header-search-wrap">
+       <div class="adm-header-search-box" onclick="window.SPPCommandPalette && window.SPPCommandPalette.open()" title="Search workbench, views, commands... (Ctrl+K)">
+           <span class="adm-search-icon">🔍</span>
+           <input type="text" class="adm-header-search-input" placeholder="Search workbench, views, commands... (Ctrl+K)" readonly onclick="window.SPPCommandPalette && window.SPPCommandPalette.open()" onfocus="this.blur(); window.SPPCommandPalette && window.SPPCommandPalette.open();">
+           <kbd class="adm-search-kbd">Ctrl+K</kbd>
+       </div>
+   </div>
+   ```
+4. **Studio Toolbar Alignment**:
+   - The Studio toolbar in `pages.js` maps `Ctrl+K`, `Ctrl+Shift+P`, and `F1` to the Command Palette, and `Ctrl+I` to the Inline AI Copilot modal, providing complete alignment with modern IDE conventions (VS Code, Cursor, JetBrains).
+
+

@@ -23,6 +23,12 @@ export class TemplateResult {
     }
 
     /**
+     * Backward compatibility with TrustedHTML expectations.
+     */
+    get __isTrusted() { return true; }
+    get content() { return this.toString(); }
+
+    /**
      * Converts this TemplateResult to an HTML string.
      * Recursively serializes child TemplateResults, arrays, and primitive values.
      * Omits functions, null, undefined, and booleans (matching standard JSX/lit behavior).
@@ -56,7 +62,13 @@ export class TemplateResult {
                 const eventAttrMatch = str.match(/([ \t\r\n])@([a-zA-Z0-9_\-]+)=["']?$/);
                 if (eventAttrMatch && typeof val === 'function') {
                     const prefix = str.slice(0, eventAttrMatch.index + eventAttrMatch[1].length);
-                    result += prefix;
+                    const eventName = eventAttrMatch[2];
+                    const id = 'spp_h_' + Math.random().toString(36).substr(2, 9);
+                    if (typeof window !== 'undefined') {
+                        window.__spp_handlers = window.__spp_handlers || {};
+                        window.__spp_handlers[id] = val;
+                    }
+                    result += prefix + `data-spp-evt-${eventName}="${id}" `;
                     continue;
                 }
 
@@ -95,6 +107,9 @@ export class TemplateResult {
             if (val instanceof TemplateResult) {
                 return val.toString();
             }
+            if (val.__isTrusted && typeof val.content === 'string') {
+                return val.content;
+            }
             if (typeof val.toString === 'function' && val.toString !== Object.prototype.toString) {
                 return val.toString();
             }
@@ -128,10 +143,16 @@ export function getTemplate(strings) {
     let html = '';
     for (let i = 0; i < strings.length - 1; i++) {
         html += strings[i];
-        // Heuristic: Are we inside an HTML tag?
+        // Heuristic: Are we inside an HTML tag or RCDATA (textarea)?
         const lastOpen = html.lastIndexOf('<');
         const lastClose = html.lastIndexOf('>');
+        const lastTextareaOpen = html.toLowerCase().lastIndexOf('<textarea');
+        const lastTextareaClose = html.toLowerCase().lastIndexOf('</textarea');
+        const isInsideTextarea = lastTextareaOpen !== -1 && lastTextareaOpen > lastTextareaClose;
+
         if (lastOpen > lastClose) {
+            html += marker + i;
+        } else if (isInsideTextarea) {
             html += marker + i;
         } else {
             html += `<!--${marker}${i}-->`;
@@ -161,6 +182,24 @@ export function getTemplate(strings) {
             const index = parseInt(node.data.substring(marker.length), 10);
             parts.push({ type: 'node', index, path: getPath(node) });
         } else if (node.nodeType === 1) {
+            // Check for textarea body interpolation: <textarea>${val}</textarea>
+            if (node.tagName === 'TEXTAREA' && node.textContent && node.textContent.includes(marker)) {
+                const text = node.textContent;
+                const match = text.match(new RegExp(`${marker}(\\d+)`));
+                if (match) {
+                    const index = parseInt(match[1], 10);
+                    const pieces = text.split(new RegExp(`${marker}\\d+`));
+                    parts.push({
+                        type: 'property',
+                        name: 'value',
+                        index,
+                        path: getPath(node),
+                        strings: (pieces.length > 1 && pieces.some(s => s !== '')) ? pieces : null
+                    });
+                    node.textContent = '';
+                }
+            }
+
             const attrsToRemove = [];
             for (const attr of Array.from(node.attributes)) {
                 if (attr.name.includes(marker) || attr.value.includes(marker)) {
@@ -185,7 +224,13 @@ export function getTemplate(strings) {
                         name = name.substring(1);
                     }
 
-                    parts.push({ type, name, index, path: getPath(node) });
+                    // Extract static template strings surrounding the marker in the attribute value
+                    let strings = null;
+                    if (type === 'attr' && !isName && attr.value && attr.value.includes(marker)) {
+                        strings = attr.value.split(new RegExp(`${marker}\\d+`));
+                    }
+
+                    parts.push({ type, name, index, path: getPath(node), strings });
                     attrsToRemove.push(attr.name);
                 }
             }
@@ -254,13 +299,13 @@ export class TemplateInstance {
                     part = new NodePart(startNode, endNode);
                 }
             } else if (desc.type === 'attr') {
-                part = new AttributePart(node, desc.name);
+                part = new AttributePart(node, desc.name, desc.strings);
             } else if (desc.type === 'event') {
                 part = new EventPart(node, desc.name);
             } else if (desc.type === 'boolean') {
                 part = new BooleanPart(node, desc.name);
             } else if (desc.type === 'property') {
-                part = new PropertyPart(node, desc.name);
+                part = new PropertyPart(node, desc.name, desc.strings);
             }
 
             this.parts[desc.index] = part;
@@ -308,6 +353,7 @@ export class NodePart extends Part {
         this._instance = null;
         this._textNode = null;
         this._arrayItems = [];
+        this._htmlContent = null;
     }
 
     commit(value) {
@@ -315,6 +361,8 @@ export class NodePart extends Part {
 
         if (value instanceof TemplateResult) {
             this._commitTemplate(value);
+        } else if (value && (value.__isTrusted || (typeof TrustedHTML !== 'undefined' && value instanceof TrustedHTML))) {
+            this._commitHTML(value.content ?? String(value));
         } else if (value && value._isPortal) {
             this._commitPortal(value);
         } else if (value && value._isRepeat) {
@@ -332,13 +380,30 @@ export class NodePart extends Part {
         this.value = value;
     }
 
+    _commitHTML(html) {
+        if (this._htmlContent === html) return;
+        this._htmlContent = html;
+        this._clear();
+        const tpl = document.createElement('template');
+        tpl.innerHTML = html;
+        const parent = this.startNode ? this.startNode.parentNode : null;
+        if (parent) {
+            const before = (this.endNode && this.endNode.parentNode === parent) ? this.endNode : null;
+            parent.insertBefore(tpl.content, before);
+        }
+    }
+
     _commitText(text) {
-        if (this._textNode && this._textNode.parentNode === this.startNode.parentNode) {
+        const parent = this.startNode ? this.startNode.parentNode : null;
+        if (this._textNode && parent && this._textNode.parentNode === parent) {
             this._textNode.data = text;
         } else {
             this._clear();
             this._textNode = document.createTextNode(text);
-            this.startNode.parentNode.insertBefore(this._textNode, this.endNode);
+            if (parent) {
+                const before = (this.endNode && this.endNode.parentNode === parent) ? this.endNode : null;
+                parent.insertBefore(this._textNode, before);
+            }
         }
     }
 
@@ -350,7 +415,11 @@ export class NodePart extends Part {
             const template = getTemplate(result.strings);
             this._instance = new TemplateInstance(template);
             this._instance.update(result.values);
-            this.startNode.parentNode.insertBefore(this._instance.fragment, this.endNode);
+            const parent = this.startNode ? this.startNode.parentNode : null;
+            if (parent) {
+                const before = (this.endNode && this.endNode.parentNode === parent) ? this.endNode : null;
+                parent.insertBefore(this._instance.fragment, before);
+            }
         }
     }
 
@@ -394,7 +463,8 @@ export class NodePart extends Part {
         }
         
         // Phase 3: Insert and move nodes into correct order
-        const parent = this.startNode.parentNode;
+        const parent = this.startNode ? this.startNode.parentNode : null;
+        if (!parent) return;
         let insertAnchor = this.startNode.nextSibling;
         
         for (let i = 0; i < newArrayItems.length; i++) {
@@ -449,6 +519,8 @@ export class NodePart extends Part {
 
     _commitIterable(items) {
         this._clearNonArray();
+        const parent = this.startNode ? this.startNode.parentNode : null;
+        if (!parent) return;
         
         const newArrayItems = [];
         const max = Math.max(this._arrayItems.length, items.length);
@@ -461,8 +533,8 @@ export class NodePart extends Part {
                 } else {
                     const start = document.createComment('');
                     const end = document.createComment('');
-                    this.startNode.parentNode.insertBefore(start, this.endNode);
-                    this.startNode.parentNode.insertBefore(end, this.endNode);
+                    parent.insertBefore(start, this.endNode);
+                    parent.insertBefore(end, this.endNode);
                     part = new NodePart(start, end);
                 }
                 part.commit(items[i]);
@@ -470,8 +542,8 @@ export class NodePart extends Part {
             } else {
                 const part = this._arrayItems[i];
                 part._clear();
-                part.startNode.parentNode.removeChild(part.startNode);
-                part.endNode.parentNode.removeChild(part.endNode);
+                if (part.startNode && part.startNode.parentNode) part.startNode.parentNode.removeChild(part.startNode);
+                if (part.endNode && part.endNode.parentNode) part.endNode.parentNode.removeChild(part.endNode);
             }
         }
         
@@ -480,8 +552,14 @@ export class NodePart extends Part {
 
     _commitPortal(directive) {
         this._clearNonArray();
-        const { templateResult, targetElement } = directive;
+        const { templateResult } = directive;
+        const targetElement = directive.targetElement || (typeof document !== 'undefined' ? (document.getElementById('sppcoder-modal-portal') || document.body) : null);
         
+        if (!templateResult || !targetElement) {
+            this._clear();
+            return;
+        }
+
         if (this._portalInstance && this._portalInstance.template === getTemplate(templateResult.strings) && this._portalTarget === targetElement) {
             this._portalInstance.update(templateResult.values);
         } else {
@@ -498,10 +576,8 @@ export class NodePart extends Part {
     }
 
     _clearNonArray() {
-        if (this._instance || this._textNode || this._portalInstance) {
+        if (this._instance || this._textNode || this._portalInstance || this._htmlContent) {
             this._clear();
-            this._instance = null;
-            this._textNode = null;
             this._portalInstance = null;
         }
     }
@@ -524,15 +600,20 @@ export class NodePart extends Part {
             this._portalTarget = null;
         }
         
+        // Null stale references whose DOM nodes were just removed
+        this._instance = null;
+        this._textNode = null;
+        this._htmlContent = null;
         this._arrayItems = [];
     }
 }
 
 export class AttributePart extends Part {
-    constructor(element, name) {
+    constructor(element, name, strings = null) {
         super();
         this.element = element;
         this.name = name;
+        this.strings = strings;
     }
     commit(value) {
         if (this.name === 'ref' && value && value._isRef) {
@@ -572,10 +653,36 @@ export class AttributePart extends Part {
         }
         
         if (value === this.value) return;
+
+        // Dynamic standalone attribute interpolation without static name (e.g. <input ${disabled ? 'disabled' : ''}>)
+        if (!this.name) {
+            if (this.value && typeof this.value === 'string' && this.value.trim()) {
+                const prevAttr = this.value.trim().split('=')[0].trim();
+                if (prevAttr) {
+                    try { this.element.removeAttribute(prevAttr); } catch (e) {}
+                }
+            }
+            if (value && typeof value === 'string' && value.trim()) {
+                const eqIdx = value.indexOf('=');
+                let attrName = eqIdx !== -1 ? value.substring(0, eqIdx).trim() : value.trim();
+                let attrVal = eqIdx !== -1 ? value.substring(eqIdx + 1).trim().replace(/^['"]|['"]$/g, '') : '';
+                if (attrName) {
+                    try { this.element.setAttribute(attrName, attrVal); } catch (e) {}
+                }
+            }
+            this.value = value;
+            return;
+        }
+
         if (value == null) {
-            this.element.removeAttribute(this.name);
+            if (this.strings && this.strings.join('').trim() !== '') {
+                this.element.setAttribute(this.name, this.strings.join(''));
+            } else {
+                this.element.removeAttribute(this.name);
+            }
         } else {
-            this.element.setAttribute(this.name, value);
+            const finalVal = this.strings ? this.strings.join(value) : value;
+            this.element.setAttribute(this.name, finalVal);
         }
         this.value = value;
     }
@@ -589,6 +696,10 @@ export class BooleanPart extends Part {
     }
     commit(value) {
         if (value === this.value) return;
+        if (!this.name) {
+            this.value = value;
+            return;
+        }
         if (value) {
             this.element.setAttribute(this.name, '');
         } else {
@@ -599,13 +710,21 @@ export class BooleanPart extends Part {
 }
 
 export class PropertyPart extends Part {
-    constructor(element, name) {
+    constructor(element, name, strings = null) {
         super();
         this.element = element;
         this.name = name;
+        this.strings = strings;
     }
     commit(value) {
+        if (this.strings) {
+            value = this.strings.join(value);
+        }
         if (value === this.value) return;
+        if (!this.name) {
+            this.value = value;
+            return;
+        }
         if (this.name === 'value' && document.activeElement === this.element && this.element.value === value) {
             return;
         }
@@ -621,6 +740,7 @@ export class EventPart extends Part {
         this.eventName = eventName;
     }
     commit(value) {
+        if (!this.eventName) return;
         if (value && value._isAction) {
             const apiFunction = value.apiFunction;
             if (this.value !== apiFunction) {

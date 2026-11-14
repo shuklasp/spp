@@ -40,6 +40,7 @@
                 <tr>
                     <th>User</th>
                     <th>Email</th>
+                    <th>Status</th>
                     <th>Global Authority</th>
                     <th>Assigned Project Roles</th>
                     <th>Created</th>
@@ -59,6 +60,16 @@
                         </div>
                     </td>
                     <td>{{ !empty($u['email']) ? $u['email'] : '—' }}</td>
+                    <td>
+                        @php $st = strtolower($u['status'] ?? 'active'); @endphp
+                        @if($st === 'suspended')
+                            <span class="adm-badge" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fde68a;">⚠️ Suspended</span>
+                        @elseif($st === 'banned')
+                            <span class="adm-badge" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;">🚫 Banned</span>
+                        @else
+                            <span class="adm-badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7;">Active</span>
+                        @endif
+                    </td>
                     <td>
                         @if(!empty($u['is_global_admin']))
                             <span class="adm-badge adm-badge-admin">👑 Global Super Admin</span>
@@ -118,6 +129,25 @@
                             <button type="button" class="adm-btn adm-btn-secondary adm-btn-sm" onclick='openAssignRolesModal(@json($u))'>
                                 🛡️ Assign Roles
                             </button>
+
+                            @if($u['username'] !== 'admin')
+                            <form action="@url('admin/users/moderate')" method="POST" class="adm-inline-form">
+                                <input type="hidden" name="csrf_token" value="{{ $csrf_token }}">
+                                <input type="hidden" name="username" value="{{ $u['username'] }}">
+                                <input type="hidden" name="action" value="set_status">
+                                @if(($u['status'] ?? 'active') === 'suspended' || ($u['status'] ?? 'active') === 'banned')
+                                    <input type="hidden" name="value" value="active">
+                                    <button type="submit" class="adm-btn adm-btn-secondary adm-btn-sm" style="color: #6ee7b7;">
+                                        Activate
+                                    </button>
+                                @else
+                                    <input type="hidden" name="value" value="suspended">
+                                    <button type="submit" class="adm-btn adm-btn-danger adm-btn-sm">
+                                        Suspend
+                                    </button>
+                                @endif
+                            </form>
+                            @endif
 
                             <form action="@url('admin/users/toggle-global-admin')" method="POST" class="adm-inline-form">
                                 <input type="hidden" name="csrf_token" value="{{ $csrf_token }}">

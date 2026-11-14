@@ -32,4 +32,24 @@ interface ForumDriverInterface
      * List threads within a category
      */
     public function listThreads(?string $category = null): array;
+
+    /**
+     * Create a new discussion thread
+     */
+    public function createThread(string $categoryId, array $threadData): ?array;
+
+    /**
+     * Post a reply to an existing thread
+     */
+    public function postReply(string $threadId, array $replyData): ?array;
+
+    /**
+     * Mark a reply as the accepted solution
+     */
+    public function markSolution(string $threadId, string $replyId): bool;
+
+    /**
+     * Add an emoji reaction to a reply
+     */
+    public function addReaction(string $threadId, string $replyId, string $userId, string $reaction): bool;
 }

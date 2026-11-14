@@ -20,4 +20,8 @@ interface DBAdapter
     public function commit(): bool;
     public function rollBack(): bool;
     public function inTransaction(): bool;
+    public function createSavepoint(string $name): void;
+    public function releaseSavepoint(string $name): void;
+    public function rollbackToSavepoint(string $name): void;
+    public function getTransactionLevel(): int;
 }

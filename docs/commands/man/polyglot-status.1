@@ -1,7 +1,25 @@
-.TH "polyglot:status" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH POLYGLOT:STATUS 1 "October 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-polyglot:status \- Checks the runtime environment for polyglot language binaries
+polyglot:status \- Inspects and audits the host runtime environment for polyglot language binaries and DSL engines
 .SH SYNOPSIS
 .B php spp.php polyglot:status
 .SH DESCRIPTION
-Checks the runtime environment for polyglot language binaries
+.B polyglot:status
+queries the Universal Polyglot 2.0 LanguageRegistry and Platform discovery subsystem to inspect installed compilers, interpreters, and runtime binaries across Windows, Linux, macOS, BSD, and container environments.
+.PP
+The command produces an ANSI-formatted status table identifying the discovery status (OK or MISSING), the binary executable path, and the detected runtime version for all registered languages (Python, Node.js, Go, Rust, Zig, Ruby, Elixir, Lua, Java, C#, Swift, Kotlin, and in-process DSLs).
+.SH OPTIONS
+This command takes no arguments or flags.
+.SH UNDER THE HOOD
+.IP \(bu 2
+Scans declarative YAML language definitions from \fIetc/polyglot/*.yml\fR and application-specific manifests.
+.IP \(bu 2
+Invokes platform-specific path resolution using \fIwhere.exe\fR on Windows or \fIwhich\fR on POSIX/Linux/macOS/BSD systems.
+.IP \(bu 2
+Executes safe non-destructive version inspection commands (\fI--version\fR or \fI-v\fR).
+.IP \(bu 2
+Reports zero-overhead in-process DSL status for grammar engines extending \fISPP\\Core\\Polyglot\\DSL\\AbstractLanguage\fR.
+.SH SEE ALSO
+.BR spp-polyglot-list (1),
+.BR spp-make-polyglot-language (1),
+.BR spp-make-polyglot-partial (1)

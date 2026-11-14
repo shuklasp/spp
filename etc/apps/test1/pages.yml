@@ -1,6 +1,0 @@
-pages:
-  - name: index
-    url: index.php
-defaults:
-  home: index
-  pagedir: /src/test1

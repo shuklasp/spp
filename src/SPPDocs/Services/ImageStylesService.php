@@ -4,7 +4,7 @@ namespace App\SPPDocs\Services;
 
 use Symfony\Component\Yaml\Yaml;
 
-class ImageStylesService extends \SPPMod\SPPMedia\ImageStyle
+class ImageStylesService
 {
     /**
      * Default core image styles.
@@ -57,7 +57,10 @@ class ImageStylesService extends \SPPMod\SPPMedia\ImageStyle
      */
     public static function resolveMediaDir(string $projectId): string
     {
-        $configFile = 'C:/projects/apache/school1/etc/apps/SPPDocs/config.yml';
+        $configFile = dirname(__DIR__) . '/etc/config.yml';
+        if (!file_exists($configFile)) {
+            $configFile = dirname(__DIR__) . '/etc/sppdocs.yml';
+        }
         $mediaDir = 'public/uploads';
         if (file_exists($configFile)) {
             $config = Yaml::parseFile($configFile);
@@ -66,7 +69,7 @@ class ImageStylesService extends \SPPMod\SPPMedia\ImageStyle
             }
         }
 
-        $root = 'C:/projects/apache/school1';
+        $root = defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : dirname(__DIR__, 3);
         $cleanMediaDir = str_replace('\\', '/', $mediaDir);
 
         if (stripos($cleanMediaDir, $root . '/') === 0) {

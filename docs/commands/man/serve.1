@@ -1,7 +1,22 @@
-.TH "serve" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH SERVE 1 "October 2026" "SPP Enterprise" "SPP CLI Manual"
 .SH NAME
-serve \- Start a local development server for the current application
+serve \- Start the sovereign SPP HTTP web server interactively
 .SH SYNOPSIS
 .B php spp.php serve
+[\fB\-\-host\fR=\fIip\fR]
+[\fB\-\-port\fR=\fIport\fR]
+[\fB\-\-app\fR=\fIname\fR]
 .SH DESCRIPTION
-Start a local development server for the current application
+\fBserve\fR boots SPP's standalone pure-PHP HTTP server fronted by the sovereign router (\fBspp/router.php\fR). It operates completely independently of Apache, Nginx, or external web servers, handling dynamic MVC routing, static asset delivery, security guards, and the SPPAdmin workbench with real-time terminal output.
+.SH OPTIONS
+.TP
+\fB\-\-host\fR=\fIip\fR
+Network interface IP to bind (default: 0.0.0.0 for LAN and local access).
+.TP
+\fB\-\-port\fR=\fIport\fR
+Listening TCP port (default: 8000; use 80 for standard HTTP).
+.TP
+\fB\-\-app\fR=\fIname\fR
+Application context to boot by default.
+.SH UNDER THE HOOD
+Spawns PHP built-in web server with sovereign router \fBspp/router.php\fR, serving static files and routing dynamic requests to \fBpublic/index.php\fR.

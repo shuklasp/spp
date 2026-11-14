@@ -39,21 +39,35 @@ class ModuleCompiler
     /**
      * Compiles modules to an array, enforcing topological sorting.
      */
+    private function safeParseYaml(string $file): array
+    {
+        $raw = @file_get_contents($file);
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+        return (array)Yaml::parse($raw);
+    }
+
     public function compileToArray(): array
     {
         $registry = [];
-        $meta = ['manifest_mtime' => 0];
+        $meta = [
+            'manifest_mtime' => 0,
+            'app_dir' => defined('SPP_APP_DIR') ? str_replace('\\', '/', SPP_APP_DIR) : ''
+        ];
         $discovered = $this->discoverActiveModules($meta);
 
         // Sort modules by dependency graph (Topological Sort)
         $sortedNames = $this->topologicalSort($discovered);
+
+        $appDir = defined('SPP_APP_DIR') ? str_replace('\\', '/', SPP_APP_DIR) : '';
 
         foreach ($sortedNames as $modName) {
             $modData = $discovered[$modName];
             $manifestPath = $modData['manifest'];
             try {
                 // Fetch raw parsed manifest from Yaml so the runtime doesn't have to
-                $parsedYaml = Yaml::parseFile($manifestPath);
+                $parsedYaml = $this->safeParseYaml($manifestPath);
                 $rawManifest = $parsedYaml['module'] ?? ($parsedYaml['modules'][0]['module'] ?? ($parsedYaml['modules'][0] ?? $parsedYaml));
                 
                 $module = new Module($manifestPath);
@@ -65,19 +79,30 @@ class ModuleCompiler
                     $meta['manifest_mtime'] = $mtime;
                 }
 
+                $modPath = $module->ModPath;
+                $normModPath = str_replace('\\', '/', $modPath);
+                if ($appDir !== '' && str_starts_with($normModPath, $appDir . '/')) {
+                    $portablePath = './' . substr($normModPath, strlen($appDir) + 1);
+                } else {
+                    $portablePath = $modPath;
+                }
+
                 // Collect basic metadata
                 $registry[$modName] = [
                     'name' => $module->InternalName,
-                    'path' => $module->ModPath,
+                    'path' => $portablePath,
                     'type' => $module->ModuleType,
                     'version' => $module->Version,
                     'namespace' => $rawManifest['namespace'] ?? null,
                     'dependencies' => $rawManifest['dependencies'] ?? $module->Dependencies,
                     'includes' => $module->IncludeFiles,
                     'services' => $this->extractServices($module),
+                    'provider' => $rawManifest['provider'] ?? ($rawManifest['service_provider'] ?? ($rawManifest['serviceprovider'] ?? ($module->ServiceProvider ?? null))),
+                    'routes' => $rawManifest['routes'] ?? ($module->Routes ?? []),
+                    'settings' => $rawManifest['settings'] ?? ($module->Settings ?? []),
                     'config' => $this->extractConfig($module),
                     'raw_manifest' => $rawManifest,
-                    'events' => file_exists($module->ModPath . SPP_DS . 'events.yml') ? Yaml::parseFile($module->ModPath . SPP_DS . 'events.yml') : [],
+                    'events' => $this->extractEvents($module->ModPath),
                     'has_modinit' => file_exists($module->ModPath . SPP_DS . 'modinit.php')
                 ];
             } catch (\Exception $e) {
@@ -112,14 +137,31 @@ class ModuleCompiler
                     $ext = strtolower(pathinfo($manifestPath, PATHINFO_EXTENSION));
                     $deps = [];
                     if ($ext === 'yml' || $ext === 'yaml') {
-                        $parsed = Yaml::parseFile($manifestPath);
+                        $parsed = $this->safeParseYaml($manifestPath);
                         $deps = $parsed['module']['deps'] ?? ($parsed['module']['dependencies'] ?? []);
                     }
 
-                    foreach ($deps as $key => $val) {
-                        // Support both sequential lists [- sppdb] and associative [sppdb: ^1.0]
+                    // Handle legacy nested structure: deps: { depends: ... }
+                    if (is_array($deps) && isset($deps['depends'])) {
+                        $deps = (array) $deps['depends'];
+                    }
+
+                    foreach ((array) $deps as $key => $val) {
+                        // Support sequential lists [- sppdb], associative [sppdb: ^1.0], and decorated lists [- "sppdb (^1.0)"]
                         $dep = is_numeric($key) ? $val : $key;
                         $constraint = is_numeric($key) ? null : $val;
+
+                        if (is_string($dep)) {
+                            if (strpos($dep, '(') !== false) {
+                                $parts = explode('(', $dep);
+                                $dep = trim($parts[0]);
+                                $constraint = $constraint ?: trim(rtrim($parts[1], ')'));
+                            } elseif (strpos($dep, ' ') !== false) {
+                                $parts = explode(' ', $dep);
+                                $dep = trim($parts[0]);
+                                $constraint = $constraint ?: (isset($parts[1]) ? trim($parts[1]) : null);
+                            }
+                        }
 
                         if (isset($modules[$dep])) {
                             // Enforce strict SemVer constraint if specified
@@ -127,7 +169,7 @@ class ModuleCompiler
                                 $depManifestPath = $modules[$dep]['manifest'] ?? null;
                                 $depVersion = '0.0.0';
                                 if ($depManifestPath) {
-                                    $depParsed = Yaml::parseFile($depManifestPath);
+                                    $depParsed = $this->safeParseYaml($depManifestPath);
                                     $depVersion = $depParsed['module']['version'] ?? '0.0.0';
                                 }
                                 if (!\Composer\Semver\Semver::satisfies($depVersion, $constraint)) {
@@ -189,7 +231,7 @@ class ModuleCompiler
                     }
                 }
             } else {
-                $data = Yaml::parseFile($m['file']);
+                $data = $this->safeParseYaml($m['file']);
                 $mods = $data['modules'] ?? [];
             }
 
@@ -234,7 +276,7 @@ class ModuleCompiler
                 if ($manifestPath) {
                     // Quick parse to get name
                     try {
-                        $parsed = Yaml::parseFile($manifestPath);
+                        $parsed = $this->safeParseYaml($manifestPath);
                         $name = $parsed['module']['name'] ?? $parsed['module']['id'] ?? $d;
                         $active[$name] = [
                             'manifest' => $manifestPath,
@@ -271,17 +313,38 @@ class ModuleCompiler
         return $config;
     }
 
-    private function writeCache(array $registry): bool
+    private function extractEvents(string $modPath): array
+    {
+        $events = [];
+        $candidates = [
+            $modPath . SPP_DS . 'etc' . SPP_DS . 'events.yml',
+            $modPath . SPP_DS . 'events.yml',
+        ];
+        foreach ($candidates as $file) {
+            if (file_exists($file)) {
+                try {
+                    $parsed = $this->safeParseYaml($file);
+                    if (is_array($parsed)) {
+                        $events = array_merge_recursive($events, $parsed);
+                    }
+                } catch (\Exception $e) {
+                }
+            }
+        }
+        return $events;
+    }
+
+    public function writeCache(array $registry): bool
     {
         $dir = dirname($this->cacheFile);
         if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
+            @mkdir($dir, 0755, true);
         }
 
         $content = "<?php\n// SPP Compiled Module Registry - DO NOT EDIT\n";
         $content .= "return " . var_export($registry, true) . ";\n";
         
-        $success = (bool) file_put_contents($this->cacheFile, $content);
+        $success = (bool) @file_put_contents($this->cacheFile, $content);
 
         // Aggregate events
         $eventsCache = [];

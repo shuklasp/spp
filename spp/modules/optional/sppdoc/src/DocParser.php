@@ -26,8 +26,13 @@ class DocParser
                         $path = $file->getPathname();
                         $filename = $file->getFilename();
                         
-                        // Skip test, temporary, and vendor files
-                        if (str_contains($path, 'tests' . SPP_DS) || str_contains($path, 'tmp' . SPP_DS) || str_contains($path, 'vendor' . SPP_DS) || str_contains($path, 'data' . SPP_DS)) {
+                        // Skip test, temporary, vendor, cache, and dist files
+                        if (str_contains($path, 'tests' . SPP_DS) || str_contains($path, 'tmp' . SPP_DS) || str_contains($path, 'vendor' . SPP_DS) || str_contains($path, 'data' . SPP_DS) || str_contains($path, 'cache' . SPP_DS) || str_contains($path, 'dist' . SPP_DS) || str_contains($path, 'node_modules' . SPP_DS)) {
+                            continue;
+                        }
+
+                        // Skip procedural entry and module initialization scripts
+                        if (in_array($filename, ['modinit.php', 'init.php', 'index.php', 'server.php', 'bootstrap.php'], true)) {
                             continue;
                         }
 
@@ -79,18 +84,45 @@ class DocParser
                                 continue;
                             }
                             
+                            $content = file_get_contents($path);
                             // Prevent loading generic scripts that might redeclare functions or cause side effects
                             if ($isAppFile && !$isClassFile) {
-                                $content = file_get_contents($path);
                                 if (!preg_match('/^namespace\s+[a-zA-Z0-9_\\\\]+;/m', $content)) {
                                     continue;
                                 }
                             }
+
+                            $real = realpath($path);
+                            if ($real) {
+                                $path = $real;
+                            }
+
+                            // Check if all types declared in this file are already loaded in memory
+                            $declaredTypes = self::extractDeclaredTypes($content);
+                            if (empty($declaredTypes)) {
+                                continue;
+                            }
+                            if (self::hasTopLevelExecution($content)) {
+                                continue;
+                            }
+                            $allAlreadyDeclared = true;
+                            foreach ($declaredTypes as $type) {
+                                if (!class_exists($type, false) && !interface_exists($type, false) && !trait_exists($type, false) && !(function_exists('enum_exists') && enum_exists($type, false))) {
+                                    $allAlreadyDeclared = false;
+                                    break;
+                                }
+                            }
+                            if ($allAlreadyDeclared) {
+                                continue;
+                            }
+
+                            ob_start();
                             try {
                                 @include_once $path;
                             } catch (\Throwable $e) {
                                 // Ignore
                             }
+                            ob_end_clean();
                         }
                     }
                 }
@@ -165,15 +197,20 @@ class DocParser
             if (preg_match('/\/src\/([^\/]+)/', $normalizedFileName, $matches)) {
                 $appName = $matches[1];
                 $appDir = SPP_APP_DIR . '/src/' . $appName;
+                $realAppDir = realpath($appDir);
+                if ($realAppDir && is_dir($realAppDir)) {
+                    $appName = basename($realAppDir);
+                    $appDir = $realAppDir;
+                }
                 
                 if (is_dir($appDir . '/components') || is_dir($appDir . '/pages') || file_exists($appDir . '/app.json') || is_dir($appDir . '/serv') || file_exists($appDir . '/etc/events.yml')) {
                     $subPath = 'General';
-                    if (preg_match('/\/src\/' . preg_quote($appName, '/') . '\/([^\/]+)/', $normalizedFileName, $subMatches)) {
+                    if (preg_match('/\/src\/' . preg_quote($appName, '/') . '\/([^\/]+)/i', $normalizedFileName, $subMatches)) {
                         $subPath = ucfirst($subMatches[1]);
                     }
-                    $path = 'Apps\\' . ucfirst($appName) . '\\' . $subPath;
+                    $path = 'Apps\\' . $appName . '\\' . $subPath;
                 } else {
-                    $path = 'Shared\\' . ucfirst($appName);
+                    $path = 'Shared\\' . $appName;
                 }
             } else {
                 $path = 'Apps\\General';
@@ -317,5 +354,95 @@ class DocParser
         $doc = preg_replace('#\s*\*/$#', '', $doc);
         $doc = preg_replace('#^\s*\*\s?#m', '', $doc);
         return trim($doc);
+    }
+
+    private static function extractDeclaredTypes(string $content): array
+    {
+        $types = [];
+        try {
+            $tokens = token_get_all($content);
+            $namespace = '';
+            $count = count($tokens);
+            for ($i = 0; $i < $count; $i++) {
+                if (is_array($tokens[$i]) && $tokens[$i][0] === T_NAMESPACE) {
+                    $ns = '';
+                    for ($j = $i + 1; $j < $count; $j++) {
+                        if ($tokens[$j] === ';' || $tokens[$j] === '{') {
+                            break;
+                        }
+                        if (is_array($tokens[$j]) && in_array($tokens[$j][0], [T_STRING, T_NAME_QUALIFIED, T_NS_SEPARATOR])) {
+                            $ns .= $tokens[$j][1];
+                        }
+                    }
+                    $namespace = trim($ns);
+                    continue;
+                }
+
+                if (is_array($tokens[$i]) && in_array($tokens[$i][0], [T_CLASS, T_INTERFACE, T_TRAIT, defined('T_ENUM') ? T_ENUM : -1])) {
+                    // Check previous non-whitespace token: must not be :: (T_DOUBLE_COLON)
+                    $prevIdx = $i - 1;
+                    while ($prevIdx >= 0 && is_array($tokens[$prevIdx]) && in_array($tokens[$prevIdx][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])) {
+                        $prevIdx--;
+                    }
+                    if ($prevIdx >= 0 && is_array($tokens[$prevIdx]) && $tokens[$prevIdx][0] === T_DOUBLE_COLON) {
+                        continue; // Skip Foo::class references
+                    }
+
+                    // Next non-whitespace token MUST be the type name (T_STRING)
+                    $nextIdx = $i + 1;
+                    while ($nextIdx < $count && is_array($tokens[$nextIdx]) && in_array($tokens[$nextIdx][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])) {
+                        $nextIdx++;
+                    }
+
+                    if ($nextIdx < $count && is_array($tokens[$nextIdx]) && $tokens[$nextIdx][0] === T_STRING) {
+                        $typeName = $tokens[$nextIdx][1];
+                        $types[] = $namespace ? $namespace . '\\' . $typeName : $typeName;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {}
+        return $types;
+    }
+
+    private static function hasTopLevelExecution(string $content): bool
+    {
+        try {
+            $tokens = token_get_all($content);
+            $braceLevel = 0;
+            $parenLevel = 0;
+            $count = count($tokens);
+            for ($i = 0; $i < $count; $i++) {
+                $token = $tokens[$i];
+                if ($token === '{' || (is_array($token) && $token[0] === T_CURLY_OPEN)) {
+                    $braceLevel++;
+                    continue;
+                }
+                if ($token === '}') {
+                    if ($braceLevel > 0) {
+                        $braceLevel--;
+                    }
+                    continue;
+                }
+                if ($token === '(') {
+                    $parenLevel++;
+                    continue;
+                }
+                if ($token === ')') {
+                    if ($parenLevel > 0) {
+                        $parenLevel--;
+                    }
+                    continue;
+                }
+                if ($braceLevel === 0 && is_array($token)) {
+                    if (in_array($token[0], [T_ECHO, T_PRINT, T_EXIT], true)) {
+                        return true;
+                    }
+                    if ($parenLevel === 0 && $token[0] === T_VARIABLE) {
+                        return true;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {}
+        return false;
     }
 }

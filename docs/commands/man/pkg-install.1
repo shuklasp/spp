@@ -1,55 +1,47 @@
-.TH PKG:INSTALL 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH PKG-INSTALL 1 "October 2026" "SPP Framework" "User Commands"
 .SH NAME
-pkg:install \- Download and install a native SPP app or external package from a URL, local path, or central registry
+pkg:install \- Universal Installer for SPP Applications and Modules
 .SH SYNOPSIS
 .B php spp.php pkg:install
-.I <source_or_name>
-.I <app_name>
-[\-\-type=native|external] [\-\-route=/path]
+\fIsourceOrName\fR
+[\fB--as=\fIcustomName\fR]
+[\fB--scope=\fIsystem|app\fR]
+[\fB--app=\fItargetApp\fR]
+[\fB--version=\fIversion\fR]
+[\fB--repo=\fIrepoNameOrUrl\fR]
+[\fB--force\fR]
 .SH DESCRIPTION
-The
-.B pkg:install
-command serves as the SPP Package Manager. It is designed to automatically provision either native SPP applications or external legacy applications (like Drupal, WordPress, or custom PHP scripts) directly into your environment.
-.PP
-When downloading an
-.B external
-app, the system will automatically route requests to it using the SPP WebOS Mesh router bypass mechanism.
-.PP
-When downloading a
-.B native
-app, the system will unpack it into the src/ directory, register it in global-settings.yml, and trigger the site:install hook.
+\fBpkg:install\fR downloads and installs SPP applications and modules into an existing SPP environment.
+It seamlessly resolves packages from the central registry (\fBsatyalab.net\fR), CDNs, GitHub releases,
+direct URLs, or local archives, validates SHA-256 signatures, provisions directory trees, and updates system manifests.
 .SH OPTIONS
 .TP
-.I <source_or_name>
-(Required) The local .zip file path, an HTTP/HTTPS URL to a .zip file, or the central registry shortname (e.g., spp-blog-app).
+.BR \fIsourceOrName\fR
+Package name (e.g. 'satyalab/school1'), direct URL, or local archive path.
 .TP
-.I <app_name>
-(Required) The internal machine name you wish to assign to this application (e.g., school1, wordpress).
+.BR --as=\fIcustomName\fR
+Override the installed application or module folder name.
 .TP
-.B \-\-type=native|external
-(Optional) Specify native (default) for standard SPP applications that live in src/. Specify external for third-party CMS/scripts that should be unpacked into public/ and routed via mesh.
+.BR --scope=\fIsystem|app\fR
+Module installation scope: system-wide or scoped to a specific application.
 .TP
-.B \-\-route=/path
-(Optional) When using \-\-type=external, you must specify the URL prefix where the application will be mounted (e.g., \-\-route=/blog).
-.SH EXAMPLES
-.B Install a Native Application from the Central Registry:
-.br
-php spp.php pkg:install sample-crm-app my_crm
-.PP
-.B Install a Native Application from a ZIP URL:
-.br
-php spp.php pkg:install https://example.com/downloads/crm.zip my_crm
-.PP
-.B Install WordPress (External CMS) and Mount it on /blog:
-.br
-php spp.php pkg:install https://wordpress.org/latest.zip wordpress \-\-type=external \-\-route=/blog
+.BR --app=\fItargetApp\fR
+Target application identifier for app-level modules.
+.TP
+.BR --version=\fIversion\fR
+Specify target release version. Defaults to latest.
+.TP
+.BR --repo=\fIrepoNameOrUrl\fR
+Repository identifier or URL. Defaults to 'satyalab'.
+.TP
+.BR --force
+Overwrite existing files if the application/module already exists.
 .SH UNDER THE HOOD
-1. Network / FS Activity: Downloads the specified ZIP file into var/tmp and extracts it. Handles GitHub repository ZIP wrappers automatically.
-.br
-2. Filesystem Writes: Moves the extracted directory into src/<app_name> (native) or public/<route> (external).
-.br
-3. Config Modifications (Native): Injects the new application and its route mapping into spp/etc/global-settings.yml.
-.br
-4. Config Modifications (External): Injects the route bypass into spp/etc/routes.yml and creates a dummy spp-webos-config.php file in the target directory to spoof WebOS isolation variables.
-.br
-5. Hooks: Calls php spp.php site:install <app_name> for native installations to build out database schemas.
+.IP 1.
+Downloads package to \fBvar/cache/packages/\fR and verifies cryptographic SHA-256 integrity.
+.IP 2.
+Extracts files into \fBsrc/\fR, \fBetc/apps/\fR, and \fBresources/\fR (apps) or \fBspp/modules/\fR (modules).
+.IP 3.
+Registers applications in \fBglobal-settings.yml\fR or modules in \fBmodules.yml\fR.
+.IP 4.
+Executes automated database migrations and setup routines.

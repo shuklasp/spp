@@ -1,6 +1,0 @@
-# Self-contained application descriptor
-# Discovered automatically by SPP framework
-base_url: "/samvaad"
-table_prefix: "Samvaad_"
-type: "mixed"
-shared_group: "core"

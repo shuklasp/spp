@@ -1,4 +1,10 @@
 {{-- Global Keyboard Shortcuts & Cheatsheet Modal (Zero Inline CSS) --}}
+@php
+    $effectiveProjId = !empty($project_id) ? $project_id : ($_SESSION['sppdocs_current_project'] ?? '');
+    if (empty($project) && !empty($effectiveProjId)) {
+        $project = \App\SPPDocs\Services\MenuRegistry::resolveProject($effectiveProjId);
+    }
+@endphp
 <div id="sppdocs-shortcuts-help-modal" class="sppdocs-shortcuts-backdrop" onclick="if(event.target===this) this.style.display='none'">
     <div class="sppdocs-shortcuts-modal" onclick="event.stopPropagation()">
         <div class="sppdocs-shortcuts-header">
@@ -31,27 +37,29 @@
                 <span class="sppdocs-shortcuts-keys"><kbd>ESC</kbd></span>
             </div>
 
-            <div class="sppdocs-shortcuts-section-title">Issues & Project Management</div>
+            @if(\App\SPPDocs\Services\FeatureManager::isEnabled('issues', $project ?? []))
+                <div class="sppdocs-shortcuts-section-title">Issues & Project Management</div>
 
-            <div class="sppdocs-shortcuts-row">
-                <span class="sppdocs-shortcuts-label">Create New Issue</span>
-                <span class="sppdocs-shortcuts-keys"><kbd>C</kbd></span>
-            </div>
+                <div class="sppdocs-shortcuts-row">
+                    <span class="sppdocs-shortcuts-label">Create New Issue</span>
+                    <span class="sppdocs-shortcuts-keys"><kbd>C</kbd></span>
+                </div>
 
-            <div class="sppdocs-shortcuts-row">
-                <span class="sppdocs-shortcuts-label">Move Selection Down / Up</span>
-                <span class="sppdocs-shortcuts-keys"><kbd>J</kbd> / <kbd>K</kbd></span>
-            </div>
+                <div class="sppdocs-shortcuts-row">
+                    <span class="sppdocs-shortcuts-label">Move Selection Down / Up</span>
+                    <span class="sppdocs-shortcuts-keys"><kbd>J</kbd> / <kbd>K</kbd></span>
+                </div>
 
-            <div class="sppdocs-shortcuts-row">
-                <span class="sppdocs-shortcuts-label">Select / Deselect Row Checkbox</span>
-                <span class="sppdocs-shortcuts-keys"><kbd>X</kbd></span>
-            </div>
+                <div class="sppdocs-shortcuts-row">
+                    <span class="sppdocs-shortcuts-label">Select / Deselect Row Checkbox</span>
+                    <span class="sppdocs-shortcuts-keys"><kbd>X</kbd></span>
+                </div>
 
-            <div class="sppdocs-shortcuts-row">
-                <span class="sppdocs-shortcuts-label">Open Selected Issue / Result</span>
-                <span class="sppdocs-shortcuts-keys"><kbd>Enter</kbd> or <kbd>O</kbd></span>
-            </div>
+                <div class="sppdocs-shortcuts-row">
+                    <span class="sppdocs-shortcuts-label">Open Selected Issue / Result</span>
+                    <span class="sppdocs-shortcuts-keys"><kbd>Enter</kbd> or <kbd>O</kbd></span>
+                </div>
+            @endif
 
             <div class="sppdocs-shortcuts-row">
                 <span class="sppdocs-shortcuts-label">Edit Current Page</span>
@@ -60,30 +68,34 @@
 
             <div class="sppdocs-shortcuts-section-title">Quick Jumps</div>
 
-            <div class="sppdocs-shortcuts-row">
-                <span class="sppdocs-shortcuts-label">Jump to Kanban Board</span>
-                <span class="sppdocs-shortcuts-keys"><kbd>B</kbd></span>
-            </div>
+            @if(\App\SPPDocs\Services\FeatureManager::isEnabled('issues', $project ?? []))
+                <div class="sppdocs-shortcuts-row">
+                    <span class="sppdocs-shortcuts-label">Jump to Kanban Board</span>
+                    <span class="sppdocs-shortcuts-keys"><kbd>B</kbd></span>
+                </div>
 
-            <div class="sppdocs-shortcuts-row">
-                <span class="sppdocs-shortcuts-label">Jump to Issues List</span>
-                <span class="sppdocs-shortcuts-keys"><kbd>L</kbd></span>
-            </div>
+                <div class="sppdocs-shortcuts-row">
+                    <span class="sppdocs-shortcuts-label">Jump to Issues List</span>
+                    <span class="sppdocs-shortcuts-keys"><kbd>L</kbd></span>
+                </div>
 
-            <div class="sppdocs-shortcuts-row">
-                <span class="sppdocs-shortcuts-label">Jump to Milestones</span>
-                <span class="sppdocs-shortcuts-keys"><kbd>M</kbd></span>
-            </div>
+                <div class="sppdocs-shortcuts-row">
+                    <span class="sppdocs-shortcuts-label">Jump to Milestones</span>
+                    <span class="sppdocs-shortcuts-keys"><kbd>M</kbd></span>
+                </div>
+            @endif
 
             <div class="sppdocs-shortcuts-row">
                 <span class="sppdocs-shortcuts-label">Jump to Documentation</span>
                 <span class="sppdocs-shortcuts-keys"><kbd>D</kbd></span>
             </div>
 
-            <div class="sppdocs-shortcuts-row">
-                <span class="sppdocs-shortcuts-label">Jump to Project Administration</span>
-                <span class="sppdocs-shortcuts-keys"><kbd>A</kbd></span>
-            </div>
+            @if(!empty($isProjectAdmin) || !empty($isGlobalAdmin))
+                <div class="sppdocs-shortcuts-row">
+                    <span class="sppdocs-shortcuts-label">Jump to Project Administration</span>
+                    <span class="sppdocs-shortcuts-keys"><kbd>A</kbd></span>
+                </div>
+            @endif
         </div>
     </div>
 </div>

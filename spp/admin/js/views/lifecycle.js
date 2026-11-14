@@ -5,6 +5,17 @@
 export default class LifecycleView extends BaseComponent {
     constructor(app, container, props = {}) {
         super(app, container, props);
+        this.target = 'production';
+        this.environments = {};
+        this.activeTab = 'overview';
+        this.deltas = null;
+        this.loading = false;
+        this.logContent = '';
+        this.logOffset = -1;
+        this.logTailing = false;
+        this.logTailTimer = null;
+        this.commandHistory = [];
+        this.localToken = '';
         this.state = {
             target: 'production',
             environments: {},
@@ -25,9 +36,14 @@ export default class LifecycleView extends BaseComponent {
 
     async loadEnvironments() {
         try {
-            const res = await this.admin.api('lifecycle_get_envs');
-            if (res.success) {
-                this.environments = res.data.environments || {};
+            const apiFn = (this.admin && typeof this.admin.api === 'function')
+                ? this.admin.api.bind(this.admin)
+                : (typeof SPPUX !== 'undefined' && SPPUX.api ? SPPUX.api : null);
+            if (apiFn) {
+                const res = await apiFn('lifecycle_get_envs');
+                if (res && res.success) {
+                    this.environments = res.data?.environments || res.environments || {};
+                }
             }
         } catch (err) {
             console.error("Failed to load environments:", err);
@@ -49,7 +65,8 @@ export default class LifecycleView extends BaseComponent {
         ];
 
         let envOptions = '';
-        Object.keys(this.environments).forEach(name => {
+        const envs = this.environments || this.state?.environments || {};
+        Object.keys(envs).forEach(name => {
             const selected = name === this.target ? 'selected' : '';
             envOptions += `<option value="${name}" ${selected}>${name}</option>`;
         });
@@ -180,28 +197,32 @@ export default class LifecycleView extends BaseComponent {
         // Load deployment history
         try {
             const histRes = await this.admin.api('lifecycle_deploy_history');
-            if (histRes.success && histRes.data.history) {
-                const history = histRes.data.history;
-                document.getElementById('stat-deploys').textContent = history.length;
+            const history = histRes?.data?.history || histRes?.history || [];
+            if ((histRes?.success || history.length > 0) && Array.isArray(history)) {
+                const statDeploys = document.getElementById('stat-deploys');
+                if (statDeploys) statDeploys.textContent = history.length;
                 if (history.length > 0) {
                     const last = history[0];
                     const ago = this.timeAgo(new Date(last.date));
-                    document.getElementById('stat-last-deploy').textContent = ago;
+                    const statLast = document.getElementById('stat-last-deploy');
+                    if (statLast) statLast.textContent = ago;
                 }
 
                 const timeline = document.getElementById('deploy-timeline');
-                if (history.length === 0) {
-                    timeline.innerHTML = '<div class="timeline-empty">No deployments yet.</div>';
-                } else {
-                    timeline.innerHTML = history.slice(0, 5).map(h => `
-                        <div class="timeline-item">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-title">${h.filename}</div>
-                                <div class="timeline-meta">${h.date} · ${this.formatSize(h.size)}</div>
+                if (timeline) {
+                    if (history.length === 0) {
+                        timeline.innerHTML = '<div class="timeline-empty">No deployments yet.</div>';
+                    } else {
+                        timeline.innerHTML = history.slice(0, 5).map(h => `
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">${h.filename || 'Deployment'}</div>
+                                    <div class="timeline-meta">${h.date || ''} · ${this.formatSize(h.size || 0)}</div>
+                                </div>
                             </div>
-                        </div>
-                    `).join('');
+                        `).join('');
+                    }
                 }
             }
         } catch (e) { console.error(e); }
@@ -209,18 +230,22 @@ export default class LifecycleView extends BaseComponent {
         // Load backup count
         try {
             const backupRes = await this.admin.api('lifecycle_list_backups');
-            if (backupRes.success && backupRes.data.backups) {
-                document.getElementById('stat-backups').textContent = backupRes.data.backups.length;
+            const backups = backupRes?.data?.backups || backupRes?.backups || [];
+            const statBackups = document.getElementById('stat-backups');
+            if (statBackups && Array.isArray(backups)) {
+                statBackups.textContent = backups.length;
             }
         } catch (e) { console.error(e); }
 
         // Ping health
         try {
             const healthRes = await this.admin.api('lifecycle_health_check', { target: this.target });
-            if (healthRes.success && healthRes.data) {
-                document.getElementById('stat-health').textContent = healthRes.data.latency_ms + 'ms';
+            const healthData = healthRes?.data || healthRes;
+            if (healthRes?.success && healthData) {
+                const statHealth = document.getElementById('stat-health');
+                if (statHealth) statHealth.textContent = (healthData.latency_ms ?? 0) + 'ms';
                 const dot = document.getElementById('health-dot');
-                if (dot) dot.classList.add(healthRes.data.reachable ? 'dot-green' : 'dot-red');
+                if (dot) dot.classList.add(healthData.reachable ? 'dot-green' : 'dot-red');
             }
         } catch (e) { console.error(e); }
     }
@@ -298,26 +323,35 @@ export default class LifecycleView extends BaseComponent {
             const container = document.getElementById('backups-container');
             if (!container) return;
 
-            if (res.success && res.data.backups && res.data.backups.length > 0) {
+            const backups = res?.data?.backups || res?.backups || [];
+            if ((res?.success || Array.isArray(backups)) && backups.length > 0) {
                 container.innerHTML = `
                     <table class="deploy-table">
                         <thead>
                             <tr><th>Filename</th><th>Type</th><th>Size</th><th>Created</th><th>Action</th></tr>
                         </thead>
                         <tbody>
-                            ${res.data.backups.map(b => `
+                            ${backups.map(b => {
+                                const rawType = b.type || (b.filename && b.filename.endsWith('.zip') ? 'ZIP' : (b.filename && b.filename.endsWith('.tar.gz') ? 'TAR.GZ' : 'ARCHIVE'));
+                                const typeLabel = (typeof rawType === 'string' ? rawType : 'ARCHIVE').toUpperCase();
+                                const badgeClass = typeLabel.includes('ZIP') ? 'primary' : 'warning';
+                                const sizeFormatted = b.size_formatted || b.size_human || (typeof b.size === 'number' ? (b.size > 1048576 ? (b.size / 1048576).toFixed(2) + ' MB' : (b.size / 1024).toFixed(1) + ' KB') : (b.size || '—'));
+                                const dateFormatted = b.created_at || b.date || '—';
+
+                                return `
                                 <tr>
-                                    <td><code>${b.filename}</code></td>
-                                    <td><span class="badge badge-${b.type === 'zip' ? 'primary' : 'warning'}">${b.type.toUpperCase()}</span></td>
-                                    <td>${b.size_human}</td>
-                                    <td>${b.date}</td>
+                                    <td><code>${b.filename || ''}</code></td>
+                                    <td><span class="badge badge-${badgeClass}">${typeLabel}</span></td>
+                                    <td>${sizeFormatted}</td>
+                                    <td>${dateFormatted}</td>
                                     <td>
-                                        <button class="deploy-btn deploy-btn-sm deploy-btn-danger btn-restore-backup" data-file="${b.filename}">
+                                        <button class="deploy-btn deploy-btn-sm deploy-btn-danger btn-restore-backup" data-file="${b.filename || ''}">
                                             🔄 Restore
                                         </button>
                                     </td>
                                 </tr>
-                            `).join('')}
+                                `;
+                            }).join('')}
                         </tbody>
                     </table>
                 `;
@@ -344,6 +378,11 @@ export default class LifecycleView extends BaseComponent {
 
     // ─── CONSOLE TAB ─────────────────────────────────────────────
     renderConsoleTab() {
+        const history = Array.isArray(this.commandHistory) ? this.commandHistory : (Array.isArray(this.state?.commandHistory) ? this.state.commandHistory : []);
+        const cmdOutputHtml = history.length > 0
+            ? history.map(c => `<span class="cmd-prompt">$ ${c.cmd || ''}</span>\n${c.output || ''}\n<span class="cmd-exit">[exit: ${c.exit_code ?? 0}]</span>\n`).join('\n')
+            : 'Remote shell output will appear here...';
+
         return `
             <div class="deploy-grid deploy-grid-2">
                 <div class="deploy-card console-card">
@@ -371,7 +410,7 @@ export default class LifecycleView extends BaseComponent {
                         <button class="deploy-btn deploy-btn-primary" id="btn-run-cmd">Execute</button>
                     </div>
                     <div class="terminal" id="cmd-terminal">
-                        <pre id="cmd-output">${this.commandHistory.length > 0 ? this.commandHistory.map(c => `<span class="cmd-prompt">$ ${c.cmd}</span>\n${c.output}\n<span class="cmd-exit">[exit: ${c.exit_code}]</span>\n`).join('\n') : 'Remote shell output will appear here...'}</pre>
+                        <pre id="cmd-output">${cmdOutputHtml}</pre>
                     </div>
                 </div>
             </div>
@@ -488,15 +527,21 @@ export default class LifecycleView extends BaseComponent {
             const container = document.getElementById('cluster-container');
             if (!container) return;
 
-            if (res.success && res.data.clusters && Object.keys(res.data.clusters).length > 0) {
+            const clusters = res?.data?.clusters || res?.clusters || {};
+            const clusterEntries = (clusters && typeof clusters === 'object' && !Array.isArray(clusters))
+                ? Object.entries(clusters)
+                : [];
+
+            if (clusterEntries.length > 0) {
                 let html = '';
-                for (const [clusterName, nodes] of Object.entries(res.data.clusters)) {
+                for (const [clusterName, nodes] of clusterEntries) {
                     html += `<div class="cluster-group"><h4>${clusterName}</h4>`;
-                    html += nodes.map(n => `
+                    const nodeList = Array.isArray(nodes) ? nodes : [];
+                    html += nodeList.map(n => `
                         <div class="cluster-node">
                             <span class="pulse-dot ${n.reachable ? 'dot-green' : 'dot-red'}"></span>
-                            <span class="node-name">${n.name}</span>
-                            <span class="node-latency">${n.reachable ? n.latency_ms + 'ms' : 'Unreachable'}</span>
+                            <span class="node-name">${n.name || 'Unknown'}</span>
+                            <span class="node-latency">${n.reachable ? (n.latency_ms ?? 0) + 'ms' : 'Unreachable'}</span>
                         </div>
                     `).join('');
                     html += '</div>';
@@ -514,14 +559,15 @@ export default class LifecycleView extends BaseComponent {
             const container = document.getElementById('webhooks-container');
             if (!container) return;
 
-            const webhooks = res.data?.webhooks || [];
-            if (webhooks.length > 0) {
+            const webhooks = res?.data?.webhooks || res?.webhooks || [];
+            if (Array.isArray(webhooks) && webhooks.length > 0) {
                 container.innerHTML = webhooks.map((url, i) => {
-                    const platform = url.includes('discord') ? '🟣 Discord' : url.includes('slack') ? '🟢 Slack' : '🔗 Custom';
+                    const urlStr = String(url || '');
+                    const platform = urlStr.includes('discord') ? '🟣 Discord' : urlStr.includes('slack') ? '🟢 Slack' : '🔗 Custom';
                     return `
                         <div class="webhook-item">
                             <span class="webhook-platform">${platform}</span>
-                            <code class="webhook-url">${url.substring(0, 60)}...</code>
+                            <code class="webhook-url">${urlStr.substring(0, 60)}...</code>
                             <button class="deploy-btn deploy-btn-sm deploy-btn-danger btn-remove-webhook" data-idx="${i}">✕</button>
                         </div>
                     `;
@@ -910,7 +956,7 @@ export default class LifecycleView extends BaseComponent {
     }
 
     openEnvConfig() {
-        const env = this.environments[this.target] || { url: '', token: '', exclude: [] };
+        const env = (this.environments || {})[this.target] || { url: '', token: '', exclude: [] };
         const content = `
             <div class="form-group">
                 <label>Environment Name</label>
@@ -954,7 +1000,8 @@ export default class LifecycleView extends BaseComponent {
 
     // ─── HELPERS ─────────────────────────────────────────────────
     timeAgo(date) {
-        const seconds = Math.floor((new Date() - date) / 1000);
+        if (!date || isNaN(new Date(date).getTime())) return 'Recently';
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
         if (seconds < 60) return 'Just now';
         const minutes = Math.floor(seconds / 60);
         if (minutes < 60) return minutes + 'm ago';
@@ -965,9 +1012,10 @@ export default class LifecycleView extends BaseComponent {
     }
 
     formatSize(bytes) {
-        if (bytes < 1024) return bytes + ' B';
-        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-        return (bytes / 1048576).toFixed(2) + ' MB';
+        const n = Number(bytes) || 0;
+        if (n < 1024) return n + ' B';
+        if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+        return (n / 1048576).toFixed(2) + ' MB';
     }
 
     // ─── STYLES ──────────────────────────────────────────────────

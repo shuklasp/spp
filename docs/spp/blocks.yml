@@ -7,6 +7,6 @@ regions:
       vocab: categories
       weight: 10
       visibility:
-        paths: ['*']
+        paths: ['<front>', 'project*', 'docs*']
         roles: ['*']
   header_top: {  }

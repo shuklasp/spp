@@ -1,25 +1,26 @@
-.TH SPP-module-update 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
+.TH "MODULE:UPDATE" 1 "October 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-spp-module-update \- Execute the update hook for a specific module
+module:update \- Execute database sync, migrations, and update hooks for a module or all modules
 .SH SYNOPSIS
 .B php spp.php module:update
-[OPTIONS]
+[\fImodulename\fR] [\fB--from=\fIversion\fR] [\fB--to=\fIversion\fR] [\fB--all\fR]
 .SH DESCRIPTION
-Execute the update hook for a specific module
-.PP
-Usage: php spp.php module:update <modulename> [--from=1.0] [--to=1.1]
-.br
-
-.PP
+\fBmodule:update\fR performs database schema synchronizations from \fBdb.yml\fR, triggers
+pre-upgrade, update, and post-upgrade hooks on the module's \fBServiceProvider\fR, and updates
+version tracking records in the \fBspp_modules\fR table.
 .SH OPTIONS
 .TP
-.B --from=
-Expects a value. Extracted via static analysis from ModuleUpdateCommand.php
+\fImodulename\fR
+Internal name of the module to update.
 .TP
-.B --to=
-Expects a value. Extracted via static analysis from ModuleUpdateCommand.php
+\fB--all\fR
+Iterate through and upgrade all currently active modules.
+.TP
+\fB--from=\fIversion\fR
+Specify the baseline version for manual lifecycle invocation.
+.TP
+\fB--to=\fIversion\fR
+Specify the target version for manual lifecycle invocation.
 .SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Executes native PHP logic without major side-effects or external dependencies.
-.br
+Instantiates the declared \fBServiceProvider\fR, reads declarative table definitions from \fBdb.yml\fR,
+performs incremental DDL migrations via the database adapter, and updates metadata in the \fBspp_modules\fR table.

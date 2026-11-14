@@ -263,4 +263,303 @@ JS);
     {
         echo self::component($name, $props, $appname);
     }
+
+    /**
+     * Render an SPPUX generic widget and enqueue required assets automatically.
+     */
+    public static function widget(string $name, array $props = [], ?string $appname = null): string
+    {
+        self::registerAssets($appname);
+        return \SPPMod\Drishyam\TemplateMacros::sppwidget($name, $props);
+    }
+
+    public static function dataTable(array $columnsOrProps, array $data = [], array $options = []): string
+    {
+        if (isset($columnsOrProps['columns']) || isset($columnsOrProps['data']) || isset($columnsOrProps['title']) || empty($data)) {
+            return self::widget('table', array_merge($columnsOrProps, $options));
+        }
+        return self::widget('table', array_merge(['columns' => $columnsOrProps, 'data' => $data], $options));
+    }
+
+    public static function filterBuilder(array $fieldsOrProps, array $options = []): string
+    {
+        if (isset($fieldsOrProps['fields']) || empty($fieldsOrProps) || !isset($fieldsOrProps[0])) {
+            return self::widget('filter-builder', array_merge($fieldsOrProps, $options));
+        }
+        return self::widget('filter-builder', array_merge(['fields' => $fieldsOrProps], $options));
+    }
+
+    public static function fileUpload(array $options = []): string
+    {
+        return self::widget('file-upload', $options);
+    }
+
+    public static function timeline(array $itemsOrProps, array $options = []): string
+    {
+        if (isset($itemsOrProps['items']) || empty($itemsOrProps) || !isset($itemsOrProps[0])) {
+            return self::widget('timeline', array_merge($itemsOrProps, $options));
+        }
+        return self::widget('timeline', array_merge(['items' => $itemsOrProps], $options));
+    }
+
+    public static function codeBlock(array|string $codeOrProps, string $language = 'text', array $options = []): string
+    {
+        if (is_array($codeOrProps)) {
+            return self::widget('code-block', array_merge($codeOrProps, $options));
+        }
+        return self::widget('code-block', array_merge(['code' => $codeOrProps, 'language' => $language], $options));
+    }
+
+    public static function metricGrid(array $metricsOrProps, array $options = []): string
+    {
+        if (isset($metricsOrProps['metrics']) || empty($metricsOrProps) || !isset($metricsOrProps[0])) {
+            return self::widget('metric-grid', array_merge($metricsOrProps, $options));
+        }
+        return self::widget('metric-grid', array_merge(['metrics' => $metricsOrProps], $options));
+    }
+
+    public static function badge(array|string $labelOrProps, array|string $variant = 'primary', bool $pulse = false, array $options = []): string
+    {
+        if (is_array($labelOrProps)) {
+            return self::widget('badge', array_merge($labelOrProps, $options));
+        }
+        if (is_array($variant)) {
+            return self::widget('badge', array_merge(['label' => $labelOrProps], $variant, $options));
+        }
+        return self::widget('badge', array_merge(['label' => $labelOrProps, 'variant' => $variant, 'pulse' => $pulse], $options));
+    }
+
+    public static function emptyState(array|string $titleOrProps, string $description = '', array $options = []): string
+    {
+        if (is_array($titleOrProps)) {
+            return self::widget('empty-state', array_merge($titleOrProps, $options));
+        }
+        return self::widget('empty-state', array_merge(['title' => $titleOrProps, 'description' => $description], $options));
+    }
+
+    public static function diff(array|string $oldTextOrProps, string $newText = '', array $options = []): string
+    {
+        if (is_array($oldTextOrProps)) {
+            return self::widget('diff', array_merge($oldTextOrProps, $options));
+        }
+        return self::widget('diff', array_merge(['oldText' => $oldTextOrProps, 'newText' => $newText], $options));
+    }
+
+    public static function transfer(array $itemsOrProps, array $selected = [], array $options = []): string
+    {
+        if (isset($itemsOrProps['items']) || isset($itemsOrProps['titles']) || empty($itemsOrProps) || !isset($itemsOrProps[0])) {
+            return self::widget('transfer', array_merge($itemsOrProps, $options));
+        }
+        return self::widget('transfer', array_merge(['items' => $itemsOrProps, 'selected' => $selected], $options));
+    }
+
+    public static function wizard(array $stepsOrProps, array $options = []): string
+    {
+        if (isset($stepsOrProps['steps']) || empty($stepsOrProps) || !isset($stepsOrProps[0])) {
+            return self::widget('wizard', array_merge($stepsOrProps, $options));
+        }
+        return self::widget('wizard', array_merge(['steps' => $stepsOrProps], $options));
+    }
+
+    public static function breadcrumb(array $itemsOrProps, array $options = []): string
+    {
+        if (isset($itemsOrProps['items']) || empty($itemsOrProps) || !isset($itemsOrProps[0])) {
+            return self::widget('breadcrumb', array_merge($itemsOrProps, $options));
+        }
+        return self::widget('breadcrumb', array_merge(['items' => $itemsOrProps], $options));
+    }
+
+    public static function dropdown(array|string $triggerOrProps, array $items = [], array $options = []): string
+    {
+        if (is_array($triggerOrProps)) {
+            return self::widget('dropdown', array_merge($triggerOrProps, $options));
+        }
+        return self::widget('dropdown', array_merge(['trigger' => $triggerOrProps, 'items' => $items], $options));
+    }
+
+    public static function dateRange(array $options = []): string
+    {
+        return self::widget('daterange', $options);
+    }
+
+    public static function tabs(array $tabsOrProps, array $options = []): string
+    {
+        if (isset($tabsOrProps['tabs']) || empty($tabsOrProps) || !isset($tabsOrProps[0])) {
+            return self::widget('tabs', array_merge($tabsOrProps, $options));
+        }
+        return self::widget('tabs', array_merge(['tabs' => $tabsOrProps], $options));
+    }
+
+    public static function treeView(array $dataOrProps, array $options = []): string
+    {
+        if (isset($dataOrProps['data']) || empty($dataOrProps) || !isset($dataOrProps[0])) {
+            return self::widget('tree', array_merge($dataOrProps, $options));
+        }
+        return self::widget('tree', array_merge(['data' => $dataOrProps], $options));
+    }
+
+    public static function kanban(array $columnsOrProps, array $options = []): string
+    {
+        if (isset($columnsOrProps['columns']) || empty($columnsOrProps) || !isset($columnsOrProps[0])) {
+            return self::widget('kanban', array_merge($columnsOrProps, $options));
+        }
+        return self::widget('kanban', array_merge(['columns' => $columnsOrProps], $options));
+    }
+
+    public static function accordion(array $itemsOrProps, array $options = []): string
+    {
+        if (isset($itemsOrProps['items']) || empty($itemsOrProps) || !isset($itemsOrProps[0])) {
+            return self::widget('accordion', array_merge($itemsOrProps, $options));
+        }
+        return self::widget('accordion', array_merge(['items' => $itemsOrProps], $options));
+    }
+
+    public static function card(array|string $titleOrProps, string $content = '', array $options = []): string
+    {
+        if (is_array($titleOrProps)) {
+            return self::widget('card', array_merge($titleOrProps, $options));
+        }
+        return self::widget('card', array_merge(['title' => $titleOrProps, 'content' => $content], $options));
+    }
+
+    public static function listView(array $itemsOrProps, array $options = []): string
+    {
+        if (isset($itemsOrProps['items']) || empty($itemsOrProps) || !isset($itemsOrProps[0])) {
+            return self::widget('list', array_merge($itemsOrProps, $options));
+        }
+        return self::widget('list', array_merge(['items' => $itemsOrProps], $options));
+    }
+
+    public static function descriptionList(array $itemsOrProps, array $options = []): string
+    {
+        if (isset($itemsOrProps['items']) || empty($itemsOrProps) || !isset($itemsOrProps[0])) {
+            return self::widget('description-list', array_merge($itemsOrProps, $options));
+        }
+        return self::widget('description-list', array_merge(['items' => $itemsOrProps], $options));
+    }
+
+    public static function avatar(array|string $nameOrProps, array $options = []): string
+    {
+        if (is_array($nameOrProps)) {
+            return self::widget('avatar', array_merge($nameOrProps, $options));
+        }
+        return self::widget('avatar', array_merge(['name' => $nameOrProps], $options));
+    }
+
+    public static function kbd(array|string $keysOrProps, array $options = []): string
+    {
+        if (is_array($keysOrProps)) {
+            return self::widget('kbd', array_merge($keysOrProps, $options));
+        }
+        return self::widget('kbd', array_merge(['keys' => $keysOrProps], $options));
+    }
+
+    public static function rating(array|int|float $valueOrProps, int $max = 5, array $options = []): string
+    {
+        if (is_array($valueOrProps)) {
+            return self::widget('rating', array_merge($valueOrProps, $options));
+        }
+        return self::widget('rating', array_merge(['value' => $valueOrProps, 'max' => $max], $options));
+    }
+
+    public static function slider(array|int|float $valueOrProps, int $min = 0, int $max = 100, array $options = []): string
+    {
+        if (is_array($valueOrProps)) {
+            return self::widget('slider', array_merge($valueOrProps, $options));
+        }
+        return self::widget('slider', array_merge(['value' => $valueOrProps, 'min' => $min, 'max' => $max], $options));
+    }
+
+    public static function colorPicker(array|string $colorOrProps, array $options = []): string
+    {
+        if (is_array($colorOrProps)) {
+            return self::widget('color-picker', array_merge($colorOrProps, $options));
+        }
+        return self::widget('color-picker', array_merge(['value' => $colorOrProps], $options));
+    }
+
+    public static function toggleSwitch(array|string $labelOrProps, bool $checked = false, array $options = []): string
+    {
+        if (is_array($labelOrProps)) {
+            return self::widget('switch', array_merge($labelOrProps, $options));
+        }
+        return self::widget('switch', array_merge(['label' => $labelOrProps, 'checked' => $checked], $options));
+    }
+
+    public static function markdownEditor(array|string $contentOrProps, array $options = []): string
+    {
+        if (is_array($contentOrProps)) {
+            return self::widget('markdown-editor', array_merge($contentOrProps, $options));
+        }
+        return self::widget('markdown-editor', array_merge(['value' => $contentOrProps], $options));
+    }
+
+    public static function signature(array $options = []): string
+    {
+        return self::widget('signature', $options);
+    }
+
+    public static function pagination(array|int $pageOrProps, int $totalPages = 1, array $options = []): string
+    {
+        if (is_array($pageOrProps)) {
+            return self::widget('pagination', array_merge($pageOrProps, $options));
+        }
+        return self::widget('pagination', array_merge(['page' => $pageOrProps, 'totalPages' => $totalPages], $options));
+    }
+
+    public static function stepper(array $stepsOrProps, int $current = 1, array $options = []): string
+    {
+        if (isset($stepsOrProps['steps']) || empty($stepsOrProps) || !isset($stepsOrProps[0])) {
+            return self::widget('stepper', array_merge($stepsOrProps, $options));
+        }
+        return self::widget('stepper', array_merge(['steps' => $stepsOrProps, 'current' => $current], $options));
+    }
+
+    public static function modal(array|string $titleOrProps, string $content = '', array $options = []): string
+    {
+        if (is_array($titleOrProps)) {
+            return self::widget('modal', array_merge($titleOrProps, $options));
+        }
+        return self::widget('modal', array_merge(['title' => $titleOrProps, 'content' => $content], $options));
+    }
+
+    public static function drawer(array|string $titleOrProps, string $content = '', array $options = []): string
+    {
+        if (is_array($titleOrProps)) {
+            return self::widget('drawer', array_merge($titleOrProps, $options));
+        }
+        return self::widget('drawer', array_merge(['title' => $titleOrProps, 'content' => $content], $options));
+    }
+
+    public static function alert(array|string $messageOrProps, string $variant = 'info', array $options = []): string
+    {
+        if (is_array($messageOrProps)) {
+            return self::widget('alert', array_merge($messageOrProps, $options));
+        }
+        return self::widget('alert', array_merge(['message' => $messageOrProps, 'variant' => $variant], $options));
+    }
+
+    public static function progress(array|int|float $valueOrProps, array $options = []): string
+    {
+        if (is_array($valueOrProps)) {
+            return self::widget('progress', array_merge($valueOrProps, $options));
+        }
+        return self::widget('progress', array_merge(['value' => $valueOrProps], $options));
+    }
+
+    public static function skeleton(array|string $variantOrProps = 'text', array $options = []): string
+    {
+        if (is_array($variantOrProps)) {
+            return self::widget('skeleton', array_merge($variantOrProps, $options));
+        }
+        return self::widget('skeleton', array_merge(['variant' => $variantOrProps], $options));
+    }
+
+    public static function qrCode(array|string $dataOrProps, array $options = []): string
+    {
+        if (is_array($dataOrProps)) {
+            return self::widget('qrcode', array_merge($dataOrProps, $options));
+        }
+        return self::widget('qrcode', array_merge(['data' => $dataOrProps], $options));
+    }
 }

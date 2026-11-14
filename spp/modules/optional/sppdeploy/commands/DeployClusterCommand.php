@@ -22,7 +22,7 @@ class DeployClusterCommand extends Command
             return;
         }
 
-        $conf = @yaml_parse_file($confFile);
+        $conf = \SPPMod\SPPDeploy\Deployer\TargetConnection::parseYamlFile($confFile);
         if (!isset($conf['clusters'][$clusterName]) || !is_array($conf['clusters'][$clusterName])) {
             echo "Error: Cluster '{$clusterName}' not found or invalid in .sppdeploy.yml.\n";
             return;

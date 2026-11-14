@@ -19,8 +19,10 @@ class QueryBuilder
     protected $offset = null;
     protected $distinct = false;
     protected $modelClass = null;
-    protected $softDeleteState = 'hide'; // 'hide', 'with', 'only'
+    protected $softDeleteState = 'disabled'; // 'hide', 'with', 'only'
     protected $with = [];
+    protected ?string $customXPath = null;
+    protected ?string $customXQuery = null;
 
     public function __construct($db, $table)
     {
@@ -163,11 +165,63 @@ class QueryBuilder
         return $this;
     }
 
+    public function whereXPath(string $xpath): self
+    {
+        $this->customXPath = $xpath;
+        return $this;
+    }
+
+    public function whereXQuery(string $xquery): self
+    {
+        $this->customXQuery = $xquery;
+        return $this;
+    }
+
+    public function xquery(string $xquery, array $vars = []): array
+    {
+        return $this->db->queryXQuery($xquery, $vars);
+    }
+
+    public function xquf(string $xquf): bool
+    {
+        return (bool)$this->db->updateXQUF($xquf);
+    }
+
+    public function xpath(string $xpath): array
+    {
+        return $this->db->queryX($xpath);
+    }
+
+    protected function formatResults($results)
+    {
+        if ($this->modelClass && is_array($results)) {
+            $hydrated = [];
+            foreach ($results as $row) {
+                $obj = new $this->modelClass();
+                foreach ($row as $k => $v) {
+                    $obj->$k = $v;
+                }
+                $hydrated[] = $obj;
+            }
+            return $hydrated;
+        }
+        return is_array($results) ? $results : [];
+    }
+
     /**
      * Executes the query and returns results.
      */
     public function get($fields = '*')
     {
+        if ($this->customXQuery !== null) {
+            $results = $this->db->queryXQuery($this->customXQuery);
+            return $this->formatResults($results);
+        }
+        if ($this->customXPath !== null) {
+            $results = $this->db->queryX($this->customXPath);
+            return $this->formatResults($results);
+        }
+
         $sql = "SELECT " . ($this->distinct ? "DISTINCT " : "") . (is_array($fields) ? implode(', ', $fields) : $fields);
         $sql .= " FROM " . $this->tableName;
 

@@ -35,37 +35,6 @@ class PermissionManager
                 'forums.read', 'forums.post', 'forums.moderate',
                 'releases.read', 'releases.manage',
                 'webhooks.manage', 'automations.manage',
-                'lms.read', 'lms.view_studio', 'lms.manage_courses', 'lms.author_assigned', 'lms.view_roster', 'lms.export_gradebook'
-            ]
-        ],
-        'instructor' => [
-            'id' => 'instructor',
-            'name' => 'Course Instructor',
-            'description' => 'Course creation, syllabus editing, lesson authoring, and student roster review.',
-            'is_system' => true,
-            'permissions' => [
-                'docs.read',
-                'lms.read', 'lms.view_studio', 'lms.author_assigned', 'lms.view_roster'
-            ]
-        ],
-        'teaching_assistant' => [
-            'id' => 'teaching_assistant',
-            'name' => 'Teaching Assistant',
-            'description' => 'Review student submissions, inspect grades, and export course gradebooks.',
-            'is_system' => true,
-            'permissions' => [
-                'docs.read',
-                'lms.read', 'lms.view_studio', 'lms.view_roster', 'lms.export_gradebook'
-            ]
-        ],
-        'auditor' => [
-            'id' => 'auditor',
-            'name' => 'Compliance Auditor',
-            'description' => 'Read-only inspection of student rosters, verification certificates, and gradebooks.',
-            'is_system' => true,
-            'permissions' => [
-                'docs.read',
-                'lms.read', 'lms.view_roster', 'lms.export_gradebook'
             ]
         ],
         'developer' => [
@@ -79,7 +48,6 @@ class PermissionManager
                 'milestones.read', 'milestones.create', 'milestones.edit',
                 'forums.read', 'forums.post',
                 'releases.read',
-                'lms.read'
             ]
         ],
         'reporter' => [
@@ -93,7 +61,6 @@ class PermissionManager
                 'milestones.read',
                 'forums.read', 'forums.post',
                 'releases.read',
-                'lms.read'
             ]
         ],
         'viewer' => [
@@ -102,7 +69,7 @@ class PermissionManager
             'description' => 'Read-only access to documentation, issue tracker, milestones, and release downloads.',
             'is_system' => true,
             'permissions' => [
-                'docs.read', 'issues.read', 'milestones.read', 'forums.read', 'releases.read', 'lms.read'
+                'docs.read', 'issues.read', 'milestones.read', 'forums.read', 'releases.read'
             ]
         ],
         'guest' => [
@@ -111,10 +78,29 @@ class PermissionManager
             'description' => 'Public unauthenticated access to documentation and forum threads.',
             'is_system' => true,
             'permissions' => [
-                'docs.read', 'issues.read', 'forums.read', 'lms.read'
+                'docs.read', 'issues.read', 'forums.read'
             ]
         ]
     ];
+
+    private static array $dynamicRoles = [];
+    private static array $dynamicPermissions = [];
+
+    /**
+     * Dynamically register a package role.
+     */
+    public static function registerRole(string $id, array $role): void
+    {
+        self::$dynamicRoles[$id] = $role;
+    }
+
+    /**
+     * Dynamically register a package permission domain.
+     */
+    public static function registerPermissionDomain(string $id, array $domain): void
+    {
+        self::$dynamicPermissions[$id] = $domain;
+    }
 
     /**
      * File path for persistent roles storage.
@@ -125,12 +111,12 @@ class PermissionManager
     }
 
     /**
-     * Retrieve all defined roles (system + custom).
+     * Retrieve all defined roles (system + dynamic + custom).
      */
     public static function getAllRoles(): array
     {
         $file = self::getRolesFilePath();
-        $roles = self::DEFAULT_ROLES;
+        $roles = array_merge(self::DEFAULT_ROLES, self::$dynamicRoles);
 
         if (file_exists($file)) {
             $custom = json_decode(file_get_contents($file), true) ?: [];
@@ -226,7 +212,7 @@ class PermissionManager
      */
     public static function getAvailablePermissions(): array
     {
-        return [
+        $catalog = [
             'docs' => [
                 'label' => 'Documentation & Content',
                 'description' => 'Authoring, editing, and publishing documentation pages and blog articles.',
@@ -294,20 +280,10 @@ class PermissionManager
                     'team.manage' => ['label' => 'Manage Team Members', 'desc' => 'Add/remove members and assign project roles'],
                     'project.settings' => ['label' => 'Project Settings', 'desc' => 'Modify branding, modular features, and repository links'],
                 ]
-            ],
-            'lms' => [
-                'label' => 'Academy & Course Studio (LMS)',
-                'description' => 'Course creation, syllabus editing, lesson authoring, roster management, and gradebook exports.',
-                'permissions' => [
-                    'lms.read' => ['label' => 'Access Academy', 'desc' => 'Browse courses and take lessons and quizzes'],
-                    'lms.view_studio' => ['label' => 'Access Course Studio', 'desc' => 'View the course management dashboard'],
-                    'lms.manage_courses' => ['label' => 'Manage Courses', 'desc' => 'Create, publish, or delete courses'],
-                    'lms.author_assigned' => ['label' => 'Author Assigned Courses', 'desc' => 'Edit syllabus and lessons for assigned courses'],
-                    'lms.view_roster' => ['label' => 'View Roster & Analytics', 'desc' => 'Inspect student attempts, scores, and completion'],
-                    'lms.export_gradebook' => ['label' => 'Export Gradebooks', 'desc' => 'Download gradebook CSV and audit records'],
-                ]
             ]
         ];
+
+        return array_merge($catalog, self::$dynamicPermissions);
     }
 
     /**
@@ -397,13 +373,33 @@ class PermissionManager
     }
 
     /**
+     * Safely parse a YAML file via direct stream reading.
+     * Prevents false-negative is_readable() checks on certain Windows PHP SAPI environments.
+     */
+    public static function safeParseYamlFile(string $file): array
+    {
+        if (!file_exists($file)) {
+            return [];
+        }
+        $raw = @file_get_contents($file);
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+        try {
+            return (array)Yaml::parse($raw);
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
      * Retrieve the list of Global Super Admin usernames.
      */
     public static function getGlobalAdmins(): array
     {
         $configFile = __DIR__ . '/../etc/sppdocs.yml';
         if (file_exists($configFile)) {
-            $config = Yaml::parseFile($configFile) ?: [];
+            $config = self::safeParseYamlFile($configFile);
             if (!empty($config['global_admins']) && is_array($config['global_admins'])) {
                 return array_unique(array_filter($config['global_admins']));
             }
@@ -424,7 +420,7 @@ class PermissionManager
         }
 
         $configFile = __DIR__ . '/../etc/sppdocs.yml';
-        $config = file_exists($configFile) ? (Yaml::parseFile($configFile) ?: []) : [];
+        $config = file_exists($configFile) ? self::safeParseYamlFile($configFile) : [];
         $config['global_admins'] = array_values($admins);
 
         file_put_contents($configFile, Yaml::dump($config, 4, 2));
@@ -517,9 +513,13 @@ class PermissionManager
             }
         }
 
-        // Check project.yml ACL write & members
+        // Check project.yml ACL write, creator & members
         $projectConfig = self::loadProjectConfig($projectId);
         if ($projectConfig) {
+            // Project Creator has automatic Admin authority over their project
+            if (!empty($projectConfig['creator']) && strcasecmp($projectConfig['creator'], $username) === 0) {
+                return ['admin'];
+            }
             if (!empty($projectConfig['members'][$username])) {
                 return self::normalizeRoles($projectConfig['members'][$username]);
             }
@@ -724,14 +724,22 @@ class PermissionManager
             return null;
         }
 
-        $mainConfig = Yaml::parseFile($configFile) ?: [];
+        $mainConfig = self::safeParseYamlFile($configFile);
         $projectConfigPath = $mainConfig['projects'][$projectId] ?? null;
 
         if (!$projectConfigPath) {
+            $dataProj = __DIR__ . '/../data/projects/' . $projectId . '/project.yml';
+            if (file_exists($dataProj)) {
+                $cfg = self::safeParseYamlFile($dataProj);
+                if (!empty($cfg)) {
+                    $cfg['_config_path'] = $dataProj;
+                }
+                return $cfg;
+            }
             $fallback = dirname(SPP_BASE_DIR) . '/docs/' . $projectId . '/project.yml';
             if (file_exists($fallback)) {
-                $cfg = Yaml::parseFile($fallback);
-                if (is_array($cfg)) {
+                $cfg = self::safeParseYamlFile($fallback);
+                if (!empty($cfg)) {
                     $cfg['_config_path'] = $fallback;
                 }
                 return $cfg;
@@ -744,8 +752,8 @@ class PermissionManager
         }
 
         if (file_exists($projectConfigPath)) {
-            $cfg = Yaml::parseFile($projectConfigPath);
-            if (is_array($cfg)) {
+            $cfg = self::safeParseYamlFile($projectConfigPath);
+            if (!empty($cfg)) {
                 $cfg['_config_path'] = $projectConfigPath;
             }
             return $cfg;
@@ -795,7 +803,7 @@ class PermissionManager
             return [];
         }
 
-        $mainConfig = Yaml::parseFile($configFile) ?: [];
+        $mainConfig = self::safeParseYamlFile($configFile);
         $rawProjects = $mainConfig['projects'] ?? [];
         $list = [];
 
@@ -807,6 +815,23 @@ class PermissionManager
                 'title' => $title,
                 'config_path' => $path
             ];
+        }
+
+        // Also discover dynamic projects in data/projects/
+        $dataProjectsDir = __DIR__ . '/../data/projects';
+        if (is_dir($dataProjectsDir)) {
+            foreach (glob($dataProjectsDir . '/*', GLOB_ONLYDIR) as $pDir) {
+                $pId = basename($pDir);
+                if (!isset($list[$pId]) && file_exists($pDir . '/project.yml')) {
+                    $cfg = self::loadProjectConfig($pId);
+                    $title = $cfg['title'] ?? $cfg['name'] ?? ucfirst($pId);
+                    $list[$pId] = [
+                        'id' => $pId,
+                        'title' => $title,
+                        'config_path' => $pDir . '/project.yml'
+                    ];
+                }
+            }
         }
 
         return $list;
@@ -1059,4 +1084,5 @@ class PermissionManager
         $expected = self::generatePreviewToken($projectId, $type, $slug);
         return hash_equals($expected, $token);
     }
+
 }

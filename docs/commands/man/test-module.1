@@ -1,7 +1,43 @@
-.TH "test:module" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "TEST-MODULE" "1" "October 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-test:module \- Run PHPUnit tests for an isolated module
+test:module \- Run native Parikshak automated test suites for an isolated module
 .SH SYNOPSIS
 .B php spp.php test:module
+.I <modulename>
+[\fB\-\-filter=\fIpattern\fR]
+[\fB\-\-compact\fR|\fB\-c\fR]
+[\fB\-\-profile\fR]
+[\fB\-\-bail\fR|\fB\-x\fR]
+[\fB\-\-coverage\fR]
+[\fB\-\-teamcity\fR]
 .SH DESCRIPTION
-Run PHPUnit tests for an isolated module
+\fBtest:module\fR executes unit and feature test suites defined in an isolated module's
+\fBtests/\fR directory using SPP's primary native testing engine, Parikshak.
+Tests must extend \fB\\SPPMod\\Parikshak\\SPPTestCase\fR or \fB\\SPPMod\\Parikshak\\TestCase\fR.
+.SH OPTIONS
+.TP
+.BR <modulename>
+Internal name or directory basename of the module to test.
+.TP
+.BR \-\-filter= \fIpattern\fR
+Filter tests by class or method name regex pattern.
+.TP
+.BR \-\-compact ", " \-c
+Output minimal progress and only print detailed traces for failed tests.
+.TP
+.BR \-\-profile
+Measure test execution timings and display the 5 slowest tests.
+.TP
+.BR \-\-bail ", " \-x
+Halt test suite execution immediately on first failure.
+.TP
+.BR \-\-coverage
+Generate code coverage report (requires Xdebug or PCOV).
+.TP
+.BR \-\-teamcity
+Format output as TeamCity service messages.
+.SH UNDER THE HOOD
+Resolves module metadata, provisions an in-memory SQLite isolation sandbox, and
+invokes \fB\\SPPMod\\Parikshak\\SPPTestRunner::runDirectory()\fR.
+.SH AUTHOR
+Satya Prakash Shukla

@@ -4,15 +4,55 @@
         "icon": "👋",
         "component": "views/dashboard.js"
     },
-    "studio": {
-        "title": "Studio & Scaffolder",
+    "coder": {
+        "title": "Code Studio & Scaffolder",
         "icon": "💻",
-        "component": "views/studio.js"
+        "component": "views/coder.js"
+    },
+    "studio": {
+        "title": "Code Studio & Scaffolder",
+        "icon": "💻",
+        "component": "views/coder.js"
+    },
+    "tinker": {
+        "title": "Web Tinker REPL",
+        "icon": "💬",
+        "component": "views/tinker.js"
+    },
+    "terminal": {
+        "title": "Interactive Web Terminal",
+        "icon": "⬛",
+        "component": "views/terminal.js"
+    },
+    "files": {
+        "title": "File Manager & Storage",
+        "icon": "📁",
+        "component": "views/files.js"
+    },
+    "deploy": {
+        "title": "Deployments, Packaging & Cloud Sync",
+        "icon": "🚀",
+        "component": "views/deploy.js"
+    },
+    "pages": {
+        "title": "SPP Studio",
+        "icon": "📐",
+        "component": "views/pages.js"
+    },
+    "workflows": {
+        "title": "Workflows & State Machines",
+        "icon": "🔄",
+        "component": "views/workflows.js"
+    },
+    "database": {
+        "title": "Database & Schemas",
+        "icon": "🗄️",
+        "component": "views/database.js"
     },
     "entities": {
         "title": "Entities & Schemas",
         "icon": "🏗️",
-        "component": "views/database.js"
+        "component": "views/entities.js"
     },
     "forms": {
         "title": "Forms & Locales",
@@ -24,84 +64,99 @@
         "icon": "🛤️",
         "component": "views/routing.js"
     },
+    "polyglot": {
+        "title": "Universal Polyglot Studio",
+        "icon": "🌐",
+        "component": "views/polyglot.js"
+    },
     "reports": {
         "title": "Reports Studio & Analytics",
         "icon": "📊",
         "component": "views/reports.js"
+    },
+    "manifests": {
+        "title": "Manifest OS & Dependency Graph",
+        "icon": "🛡️",
+        "component": "views/manifests.js"
+    },
+    "mesh": {
+        "title": "Integration Mesh & Daemons",
+        "icon": "🕸️",
+        "component": "views/mesh.js"
+    },
+    "apistudio": {
+        "title": "Interactive API Studio & OpenAPI 3.1",
+        "icon": "🚀",
+        "component": "views/apistudio.js"
+    },
+    "webhooks": {
+        "title": "Sovereign Webhook Relay & Inspector",
+        "icon": "⚡",
+        "component": "views/webhooks.js"
     },
     "ai": {
         "title": "AI Copilot & Playground",
         "icon": "🤖",
         "component": "views/ai.js"
     },
-    "copilot": {
-        "title": "AI Copilot & Playground",
-        "icon": "🤖",
-        "component": "views/ai.js"
+    "parikshak": {
+        "title": "Parikshak Test Studio",
+        "icon": "🧪",
+        "component": "views/parikshak.js"
     },
     "testing": {
         "title": "Testing & Tracing",
         "icon": "🧪",
         "component": "views/testing.js"
     },
+    "apm": {
+        "title": "Native In-Panel APM & Flame Graph Profiler",
+        "icon": "🔥",
+        "component": "views/apm.js"
+    },
+    "trace": {
+        "title": "Event Tracing & Telemetry",
+        "icon": "📈",
+        "component": "views/trace.js"
+    },
+    "cron": {
+        "title": "Background Tasks & DAG Jobs",
+        "icon": "⏱️",
+        "component": "views/cron.js"
+    },
+    "system": {
+        "title": "Observability & Live Logs",
+        "icon": "🖥️",
+        "component": "views/system.js"
+    },
     "commands": {
         "title": "CLI Command Center",
         "icon": "⚡",
         "component": "views/commands.js"
     },
-    "editor": {
-        "title": "Code Editor",
-        "icon": "💻",
-        "component": "views/studio.js"
-    },
-    "apps": {
-        "title": "App Studio",
-        "icon": "📱",
-        "component": "views/studio.js"
-    },
     "docs": {
-        "title": "Code Explorer & Docs",
-        "icon": "📚",
-        "component": "views/studio.js"
-    },
-    "database": {
-        "title": "Database & Schemas",
-        "icon": "🏗️",
-        "component": "views/database.js"
-    },
-    "xdb": {
-        "title": "XML Database (XDB)",
-        "icon": "🗄️",
-        "component": "views/database.js"
-    },
-    "interdb": {
-        "title": "InterDB Data Mesh",
-        "icon": "🕸️",
-        "component": "views/database.js"
+        "title": "Framework Documentation",
+        "icon": "📖",
+        "component": "views/docs.js"
     },
     "spplang": {
         "title": "Translations & Locales",
         "icon": "💬",
-        "component": "views/forms.js"
+        "component": "views/spplang.js"
     },
-    "mobile": {
-        "title": "Mobile Studio",
+    "xdb": {
+        "title": "XML Database (XDB)",
+        "icon": "🗄️",
+        "component": "views/xdb.js"
+    },
+    "interdb": {
+        "title": "InterDB Data Mesh",
+        "icon": "🕸️",
+        "component": "views/interdb.js"
+    },
+    "apps": {
+        "title": "Applications & Context Switcher",
         "icon": "📱",
-        "component": "views/forms.js"
-    },
-    "services": {
-        "title": "Services & Polyglot API",
-        "icon": "🔌",
-        "component": "views/routing.js"
-    },
-    "parikshak": {
-        "title": "Parikshak Testing",
-        "icon": "🧪",
-        "component": "views/testing.js"
-    },
-    "trace": {
-        "title": "Event Tracing",
-        "icon": "🐛",
-        "component": "views/testing.js"
+        "component": "views/apps.js"
     }
 }

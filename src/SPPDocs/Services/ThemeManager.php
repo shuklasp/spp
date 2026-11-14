@@ -28,7 +28,10 @@ class ThemeManager
      */
     public static function getActiveThemeName(string $projectId): string
     {
-        $configFile = 'C:/projects/apache/school1/etc/apps/SPPDocs/config.yml';
+        $configFile = dirname(__DIR__) . '/etc/config.yml';
+        if (!file_exists($configFile)) {
+            $configFile = dirname(__DIR__) . '/etc/sppdocs.yml';
+        }
         if (file_exists($configFile)) {
             try {
                 $cfg = Yaml::parseFile($configFile);

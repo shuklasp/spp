@@ -1,7 +1,39 @@
-.TH "delete:app" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH SPP-DELETE-APP 1 "October 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-delete:app \- Delete an SPP application context and all its data (files, config, caches, views)
+spp-delete-app \- Delete an SPP application context and all its data (files, config, caches, views)
 .SH SYNOPSIS
 .B php spp.php delete:app
+\fIAppName\fR
+[\fB\-\-config\-only\fR]
+[\fB\-\-backup\fR]
+[\fB\-\-keep\-db\fR]
+[\fB\-\-force\fR]
+[\fB\-\-dry\-run\fR]
 .SH DESCRIPTION
-Delete an SPP application context and all its data (files, config, caches, views)
+.B delete:app
+removes an SPP application and its associated resources, caches, and configuration.
+Supports \fB\-\-config\-only\fR mode to preserve source files in \fBsrc/\fR while unregistering
+configurations and virtual hosts, and \fB\-\-backup\fR to generate an archive prior to deletion.
+.SH OPTIONS
+.TP
+.I AppName
+(Required) Name of the application to delete.
+.TP
+.BR \-\-config\-only
+Only remove configuration, caches, and domain bindings; keep source code in \fBsrc/\fR.
+.TP
+.BR \-\-backup
+Create a full zip backup archive in \fBvar/backups/apps/\fR before deleting.
+.TP
+.BR \-\-force
+Skip confirmation prompt.
+.TP
+.BR \-\-keep\-db
+Preserve database tables (only remove files and config).
+.TP
+.BR \-\-dry\-run
+Show what would be deleted without actually deleting anything.
+.SH SEE ALSO
+.BR spp-app-uninstall (1),
+.BR spp-app-backup (1),
+.BR spp-app-restore (1)

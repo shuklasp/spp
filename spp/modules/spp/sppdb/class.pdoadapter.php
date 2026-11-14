@@ -146,6 +146,9 @@ class PDOAdapter implements DBAdapter
 
     public function update(string $table, array $data, string $where, array $params = []): bool
     {
+        if (empty($data)) {
+            return true;
+        }
         return $this->runWithReconnect(function () use ($table, $data, $where, $params) {
             $this->hasWritten = true;
             $set = [];
@@ -244,6 +247,11 @@ class PDOAdapter implements DBAdapter
         }
         
         if ($this->transactions > 1) {
+            try {
+                $this->pdo->exec("RELEASE SAVEPOINT trans{$this->transactions}");
+            } catch (\Throwable $e) {
+                // Some engines or configs handle release silently
+            }
             $this->transactions--;
             return true;
         }
@@ -265,6 +273,42 @@ class PDOAdapter implements DBAdapter
         }
 
         return false;
+    }
+
+    public function createSavepoint(string $name): void
+    {
+        $safeName = preg_replace('/[^a-zA-Z0-9_]/', '', $name);
+        if ($safeName === '') {
+            throw new \InvalidArgumentException("Invalid savepoint name: {$name}");
+        }
+        $this->pdo->exec("SAVEPOINT {$safeName}");
+    }
+
+    public function releaseSavepoint(string $name): void
+    {
+        $safeName = preg_replace('/[^a-zA-Z0-9_]/', '', $name);
+        if ($safeName === '') {
+            throw new \InvalidArgumentException("Invalid savepoint name: {$name}");
+        }
+        try {
+            $this->pdo->exec("RELEASE SAVEPOINT {$safeName}");
+        } catch (\Throwable $e) {
+            // Non-blocking
+        }
+    }
+
+    public function rollbackToSavepoint(string $name): void
+    {
+        $safeName = preg_replace('/[^a-zA-Z0-9_]/', '', $name);
+        if ($safeName === '') {
+            throw new \InvalidArgumentException("Invalid savepoint name: {$name}");
+        }
+        $this->pdo->exec("ROLLBACK TO SAVEPOINT {$safeName}");
+    }
+
+    public function getTransactionLevel(): int
+    {
+        return $this->transactions;
     }
 
     public function inTransaction(): bool

@@ -6,41 +6,83 @@ This branch covers three framework capabilities that are easy to miss when learn
 - localization/content translation;
 - reporting and scheduled reports.
 
-## Part A — SPP Storage
+## Part A — SPP Sovereign File Services & Storage
 
 ### A.1 Why a storage abstraction exists
 
-A file is not necessarily a local file forever.
+A file is not necessarily a local file forever, and raw PHP filesystem calls (`file_put_contents`, `unlink`, `scandir`) cause fatal locking collisions (`STATUS_SHARING_VIOLATION` / `EINVAL`) in Windows and WSL environments.
 
-An application may later use a different storage backend or deployment topology.
-
-The repository contains a `Storage` abstraction, disk interfaces, and a local-disk implementation.
+The framework provides a dual-tier filesystem subsystem:
+- **`\SPP\File` (`\SPP\Core\File`)**: Sovereign static primitives for atomic staged writes (`putAtomic`), lazy generator line streaming (`lines()`), native YAML/JSON serialization, and path containment guards.
+- **`\SPP\Storage` (`\SPP\Core\Storage`)**: Multi-disk abstraction covering `LocalDisk`, pure-PHP `S3Disk` (AWS SigV4 for S3, Cloudflare R2, MinIO), virtual in-memory `MemoryDisk`, and cluster shared storage.
 
 ```mermaid
 flowchart LR
-    A[Application] --> B[Storage abstraction]
-    B --> C[Disk interface]
-    C --> D[Concrete disk]
+    A[Application] --> B["\\SPP\\Storage facade"]
+    B --> C["DiskInterface"]
+    C --> D["LocalDisk (App / Backups)"]
+    C --> E["S3Disk (AWS S3 / R2 / MinIO)"]
+    C --> F["MemoryDisk (Serverless / Parikshak)"]
 ```
 
-### A.2 First storage exercise
+### A.2 First storage exercise: Atomic file persistence
 
-Store an uploaded Task attachment using the SPP storage layer instead of hard-coding `file_put_contents()` everywhere.
+Never use raw `file_put_contents()` for configuration or user assets. Write atomically using staged swaps:
 
-Then retrieve it.
+```php
+use SPP\File;
+use SPP\Core\Storage;
 
-### A.3 Security exercise
+// 1. Atomic write with DrvFs/Windows lock resilience
+File::putAtomic('/var/app/data.txt', 'Resilient content');
 
-Test:
+// 2. Atomic YAML persistence
+Storage::writeYaml('/etc/apps/myapp/app.yml', ['name' => 'MyApp', 'version' => '1.0'], 10, 2);
+```
 
-- invalid path;
-- unauthorized access;
-- unexpected file type;
-- missing object.
+### A.3 Second storage exercise: Memory-efficient streaming & query builder
 
-### A.4 Parikshak checkpoint
+Process large files without breaching PHP's `memory_limit` and search directories with the fluent generator:
 
-Test storage operations independently from controllers and views.
+```php
+use SPP\File;
+
+// 1. Stream line-by-line using a generator
+foreach (File::lines('/var/logs/access.log') as $num => $line) {
+    if (str_contains($line, '404')) {
+        // Handle error line
+    }
+}
+
+// 2. Fluent directory scanner
+$oldBackups = File::find('/var/backups')
+    ->extension('zip')
+    ->size('> 50MB')
+    ->modifiedBefore('-30 days')
+    ->get();
+```
+
+### A.4 Third storage exercise: Cloud object storage & expiring URLs
+
+```php
+use SPP\Core\Storage;
+
+// 1. Store directly on S3 / Cloudflare R2 / MinIO without AWS SDK
+$s3 = Storage::disk('s3');
+$s3->put('documents/report.pdf', $pdfBytes);
+
+// 2. Issue a 15-minute temporary signed download URL
+$url = Storage::temporaryUrl('documents/report.pdf', '+15 minutes');
+```
+
+### A.5 Parikshak checkpoint
+
+Test storage operations with Parikshak:
+- Verify `putAtomic()` cleans staging files.
+- Test `MemoryDisk` virtual storage for isolated, zero-I/O test execution.
+- Validate that `LocalDisk::path()` throws an exception on path traversal attempts (`../../etc/passwd`).
+
+---
 
 ## Part B — Internationalization
 

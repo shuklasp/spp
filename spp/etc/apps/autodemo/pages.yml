@@ -1,5 +1,0 @@
-pages:
-  index:
-    name: Home
-    url: pages/index.php
-    home: true

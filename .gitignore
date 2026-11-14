@@ -10,9 +10,17 @@
 /spp/cache/
 /spp/logs/
 
-# Scratch & Dev
-/scratch/
-/.gemini/
+# Antigravity, Gemini & AI Assistant Sessions, Caches & Scratch
+.gemini/
+**/.gemini/
+.antigravity/
+**/.antigravity/
+.antigravitycli/
+**/.antigravitycli/
+brain/
+**/brain/
+scratch/
+**/scratch/
 *.bak
 *.log
 
@@ -20,6 +28,24 @@
 .env
 .env.local
 .env.*.local
+
+# Production Server Isolations (Never push secrets/tokens or server-specific files to GitHub)
+.sppdeploy.local.yml
+*.sppdeploy.local.yml
+.sppdeploy.token
+etc/domains.local.yml
+etc/domains.*.local.yml
+spp/etc/domains.local.yml
+spp/etc/domains.*.local.yml
+/domains/
+
+# Dynamic project storage, user uploads, runtime data, docs build cache
+/src/SPPDocs/data/
+/data/
+/sppdata/
+/public/uploads/
+/.phpdoc/
+/.VSCodeCounter/
 
 # IDE and OS files
 .idea/

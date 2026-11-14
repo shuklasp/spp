@@ -1,7 +1,26 @@
-.TH "module:update" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "MODULE:UPDATE" 1 "October 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-module:update \- Execute the update hook for a specific module
+module:update \- Execute database sync, migrations, and update hooks for a module or all modules
 .SH SYNOPSIS
 .B php spp.php module:update
+[\fImodulename\fR] [\fB--from=\fIversion\fR] [\fB--to=\fIversion\fR] [\fB--all\fR]
 .SH DESCRIPTION
-Execute the update hook for a specific module
+\fBmodule:update\fR performs database schema synchronizations from \fBdb.yml\fR, triggers
+pre-upgrade, update, and post-upgrade hooks on the module's \fBServiceProvider\fR, and updates
+version tracking records in the \fBspp_modules\fR table.
+.SH OPTIONS
+.TP
+\fImodulename\fR
+Internal name of the module to update.
+.TP
+\fB--all\fR
+Iterate through and upgrade all currently active modules.
+.TP
+\fB--from=\fIversion\fR
+Specify the baseline version for manual lifecycle invocation.
+.TP
+\fB--to=\fIversion\fR
+Specify the target version for manual lifecycle invocation.
+.SH UNDER THE HOOD
+Instantiates the declared \fBServiceProvider\fR, reads declarative table definitions from \fBdb.yml\fR,
+performs incremental DDL migrations via the database adapter, and updates metadata in the \fBspp_modules\fR table.

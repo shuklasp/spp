@@ -3,22 +3,41 @@
 namespace {{namespace}};
 
 use SPPMod\SPPView\Form;
+use SPPMod\SPPView\ViewForm;
 
 /**
  * Class {{className}}
- * Auto-generated Form class.
+ * 
+ * Auto-generated SPP Form definition using the Fluent Form Builder.
+ * 
+ * USAGE PATTERNS:
+ * 1. In Controller:
+ *    $form = $this->form('{{formName}}', $entity);
+ * 
+ * 2. In Blade Template:
+ *    @sppform_render('{{formName}}', ['entity' => $item])
+ * 
+ * 3. Programmatic rendering:
+ *    echo {{className}}::build()->getHTML();
  */
 class {{className}}
 {
     /**
      * Builds and returns the form instance.
      */
-    public static function build(): \SPPMod\SPPView\ViewForm
+    public static function build($entity = null): ViewForm
     {
-        return Form::create('{{formName}}', '/{{formRoute}}')
-            ->addValidator(new \SPPMod\SPPWorkflow\Validators\SPPWorkflowGuardValidator())
-            ->addText('example_field', 'Example Field', ['required' => true])
+        return Form::make('{{formName}}', '/{{formRoute}}')
+            ->addHoneypot('sp_hp_trap')
+            ->addText('title', 'Title', ['required' => true, 'placeholder' => 'Enter title...'])
+            ->addTextarea('description', 'Description')
+            ->addTags('tags', 'Tags', ['placeholder' => 'Add tags...'])
+            ->addToggle('requires_approval', 'Requires Approval')
+            ->addTextarea('approval_notes', 'Approval Notes')
+                ->dependsOn('requires_approval', true)
+            ->addWorkflowActions()
             ->addSubmit('submit_btn', 'Submit')
+            ->bind($entity)
             ->build();
     }
 }

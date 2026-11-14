@@ -159,7 +159,11 @@ trait XDB_Crud
         $xml .= "  <data>\n  </data>\n";
         $xml .= "</database>";
 
-        return file_put_contents($path, $xml) !== false;
+        $res = file_put_contents($path, $xml) !== false;
+        if ($res) {
+            $this->connect($tableName);
+        }
+        return $res;
     }
 
     /**
@@ -350,8 +354,18 @@ trait XDB_Crud
             }
         }
         $result = $this->save();
+        $this->treeEngine = null;
         $this->logAudit('update', $data, $where);
         $this->fireHook('afterUpdate', $data);
+
+        if (!empty($this->liveQueryManager)) {
+            $tbl = $this->tableName ?: 'default';
+            $this->liveQueryManager->notifyMutation('UPDATE', $tbl, $data);
+        }
+        if (!empty($this->merkleLedger)) {
+            $tbl = $this->tableName ?: 'default';
+            $this->merkleLedger->append('UPDATE', $tbl, (string)($data['id'] ?? 'batch'), $data);
+        }
 
         if ($autoCommit) {
             $this->commit();
@@ -427,8 +441,18 @@ trait XDB_Crud
             }
         }
         $result = $this->save();
+        $this->treeEngine = null;
         $this->logAudit('delete', null, $where);
         $this->fireHook('afterDelete', $where);
+
+        if (!empty($this->liveQueryManager)) {
+            $tbl = $this->tableName ?: 'default';
+            $this->liveQueryManager->notifyMutation('DELETE', $tbl, ['where' => $where, 'params' => $params]);
+        }
+        if (!empty($this->merkleLedger)) {
+            $tbl = $this->tableName ?: 'default';
+            $this->merkleLedger->append('DELETE', $tbl, 'batch', ['where' => $where, 'params' => $params]);
+        }
 
         if ($autoCommit) {
             $this->commit();
@@ -464,7 +488,8 @@ trait XDB_Crud
             $autoCommit = true;
         }
 
-        $root = $this->doc->documentElement;
+        try {
+            $root = $this->doc->documentElement;
 
         // Handle auto-increment ID
         if (!isset($data['id'])) {
@@ -542,8 +567,18 @@ trait XDB_Crud
         $this->updateIndexes($data['id'], $data, 'add');
 
         $result = $this->save();
+        $this->treeEngine = null;
         $this->logAudit('insert', $data);
         $this->fireHook('afterInsert', $data);
+
+        if (!empty($this->liveQueryManager)) {
+            $tbl = $this->tableName ?: 'default';
+            $this->liveQueryManager->notifyMutation('INSERT', $tbl, $data);
+        }
+        if (!empty($this->merkleLedger)) {
+            $tbl = $this->tableName ?: 'default';
+            $this->merkleLedger->append('INSERT', $tbl, (string)$data['id'], $data);
+        }
 
         if ($autoCommit) {
             $this->commit();
@@ -561,6 +596,12 @@ trait XDB_Crud
         }
 
         return $result;
+        } catch (\Throwable $e) {
+            if ($autoCommit) {
+                $this->rollback();
+            }
+            throw $e;
+        }
     }
 
     /**

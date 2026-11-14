@@ -44,11 +44,20 @@ class MakeSeederCommand extends BaseMakeCommand
             mkdir($seederPath, 0777, true);
         }
 
-        $code = "<?php\n\nnamespace App\\Seeders;\n\nuse SPPMod\\SPPDB\\SPPDB;\n\nclass {$seederName}\n{\n";
-        $code .= "    public function run(SPPDB \$db): void\n    {\n";
-        $code .= "        // Example:\n";
-        $code .= "        // \$db->execute_query(\"INSERT INTO users (name, email) VALUES (?, ?)\", ['John Doe', 'john@example.com']);\n";
-        $code .= "        echo \"Seeding {$seederName}...\\n\";\n";
+        $entityGuess = preg_replace('/Seeder$/', '', $seederName);
+        $tableGuess = strtolower($entityGuess) . 's';
+
+        $code = "<?php\n\nnamespace App\\Seeders;\n\nuse SPPMod\\SPPDB\\SPPSeeder;\n\n";
+        $code .= "class {$seederName} extends SPPSeeder\n{\n";
+        $code .= "    /**\n     * Run the database seeds.\n     */\n";
+        $code .= "    public function run(): void\n    {\n";
+        $code .= "        // 1. Clean slate truncate (optional)\n";
+        $code .= "        // \$this->truncate('{$tableGuess}');\n\n";
+        $code .= "        // 2. Synthesize schema-derived mock data\n";
+        $code .= "        \$this->seed('{$entityGuess}', count: 10, overrides: [\n";
+        $code .= "            // 'status' => 'active'\n";
+        $code .= "        ]);\n\n";
+        $code .= "        \$this->log(\"Seeded {$entityGuess} successfully.\");\n";
         $code .= "    }\n}\n";
 
         $file = $seederPath . '/' . $seederName . '.php';

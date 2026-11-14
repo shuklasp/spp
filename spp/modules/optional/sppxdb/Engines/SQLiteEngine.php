@@ -92,6 +92,18 @@ class SQLiteEngine
         }
         return $results;
     }
+    public function autoInitialize($table, array $data = [])
+    {
+        $cols = ["id INTEGER PRIMARY KEY AUTOINCREMENT"];
+        foreach ($data as $k => $v) {
+            if ($k === 'id') continue;
+            $cols[] = "$k TEXT";
+        }
+        $sql = "CREATE TABLE IF NOT EXISTS $table (" . implode(', ', $cols) . ")";
+        $this->pdo->exec($sql);
+        return true;
+    }
+
 
     public function insert(array $data)
     {
@@ -115,8 +127,18 @@ class SQLiteEngine
         $placeholders = array_fill(0, count($fields), '?');
         
         $sql = "INSERT INTO " . $this->tableName . " (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(array_values($data));
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute(array_values($data));
+        } catch (\PDOException $pe) {
+            if (strpos($pe->getMessage(), 'no such table') !== false) {
+                $this->autoInitialize($this->tableName, $data);
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute(array_values($data));
+            } else {
+                throw $pe;
+            }
+        }
         
         $this->lastInsertId = $this->pdo->lastInsertId();
 

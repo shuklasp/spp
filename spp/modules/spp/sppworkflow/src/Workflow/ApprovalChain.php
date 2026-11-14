@@ -67,19 +67,27 @@ class ApprovalChain
     public function evaluateRequiredTier($entity, string $amountField = 'amount'): ?string
     {
         $amount = 0.0;
-        if (method_exists($entity, 'get')) {
-            $amount = (float)($entity->get($amountField) ?: 0.0);
-        } elseif (isset($entity->$amountField)) {
-            $amount = (float)$entity->$amountField;
+        if (is_array($entity)) {
+            $amount = (float)($entity[$amountField] ?? 0.0);
+        } elseif (is_object($entity)) {
+            if (method_exists($entity, 'get')) {
+                $amount = (float)($entity->get($amountField) ?: 0.0);
+            } elseif (isset($entity->$amountField)) {
+                $amount = (float)$entity->$amountField;
+            }
         }
 
-        $entityDepartment = ($entity instanceof ReviewableEntityInterface) ? $entity->getDepartment() : null;
+        $entityDepartment = ($entity instanceof ReviewableEntityInterface) ? $entity->getDepartment() : (is_array($entity) ? ($entity['department'] ?? null) : null);
 
-        foreach ($this->tiers as $tierName => $meta) {
-            if ($meta['department'] !== null && $entityDepartment !== null && $meta['department'] !== $entityDepartment) {
+        // Sort tiers by threshold descending so highest matching threshold takes precedence
+        $sortedTiers = $this->tiers;
+        uasort($sortedTiers, fn($a, $b) => ($b['threshold'] ?? 0.0) <=> ($a['threshold'] ?? 0.0));
+
+        foreach ($sortedTiers as $tierName => $meta) {
+            if (isset($meta['department']) && $entityDepartment !== null && $meta['department'] !== $entityDepartment) {
                 continue;
             }
-            if ($amount >= $meta['threshold']) {
+            if ($amount >= ($meta['threshold'] ?? 0.0)) {
                 return $tierName;
             }
         }

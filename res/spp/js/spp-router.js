@@ -262,6 +262,64 @@
         });
     }
 
+    // Isomorphic Named Route Registry & Reverse URL Generator
+    let namedRoutes = window.__SPP_ROUTES__ || {};
+
+    function route(name, params = {}, absolute = false) {
+        let routeDef = namedRoutes[name];
+        if (!routeDef) {
+            for (const [k, def] of Object.entries(namedRoutes)) {
+                if (k === name || k.endsWith('.' + name)) {
+                    routeDef = def;
+                    break;
+                }
+            }
+        }
+
+        if (!routeDef || !routeDef.path) {
+            console.warn(`[SPP Route] Route '${name}' not found.`);
+            return '#';
+        }
+
+        let path = routeDef.path;
+        const used = new Set();
+
+        path = path.replace(/\{([a-zA-Z0-9_]+)(?::[^\}]+)?\}/g, (_, paramName) => {
+            if (params && params[paramName] !== undefined) {
+                used.add(paramName);
+                return encodeURIComponent(params[paramName]);
+            }
+            return `{${paramName}}`;
+        });
+
+        // Append unused params as query string
+        const remaining = {};
+        if (params && typeof params === 'object') {
+            for (const [k, v] of Object.entries(params)) {
+                if (!used.has(k) && v !== null && v !== undefined && v !== '') {
+                    remaining[k] = v;
+                }
+            }
+        }
+        const qs = new URLSearchParams(remaining).toString();
+        if (qs) {
+            path += (path.includes('?') ? '&' : '?') + qs;
+        }
+
+        if (absolute) {
+            return window.location.origin + path;
+        }
+        return path;
+    }
+
+    function setRoutes(routesMap) {
+        namedRoutes = Object.assign({}, namedRoutes, routesMap);
+    }
+
     window.SPP = window.SPP || {};
     window.SPP.navigate = navigate;
+    window.SPP.prefetch = prefetch;
+    window.SPP.route = route;
+    window.SPP.setRoutes = setRoutes;
+    window.SPP.getRoutes = () => namedRoutes;
 })();

@@ -42,8 +42,8 @@
         <h2>🌍 Polyglot Architecture</h2>
         <p>SPP supports multiple rendering paradigms in the same app:</p>
         <ul style="line-height:2; color:var(--muted);">
-            <li><b>Blade Templates:</b> <code>@extends</code>, <code>@section</code>, <code>@sppux</code>, <code>@sppform</code></li>
-            <li><b>Twig Templates:</b> <code>{{ "{{ var }}" }}</code>, <code>{{ "{% block %}" }}</code> — via <code>SPPTwig</code></li>
+            <li><b>Blade Templates:</b> <code>&#64;extends</code>, <code>&#64;section</code>, <code>&#64;sppux</code>, <code>&#64;sppform</code></li>
+            <li><b>Twig Templates:</b> <code>&#123;&#123; var &#125;&#125;</code>, <code>&#123;% block %&#125;</code> — via <code>SPPTwig</code></li>
             <li><b>Native PHP:</b> Direct PHP output with <code>ViewPage</code> augmentation</li>
             <li><b>SPP-UX:</b> Reactive components with <code>BaseComponent</code>, <code>html``</code>, <code>setState</code></li>
             <li><b>REST API:</b> Controllers returning JSON with <code>header('Content-Type: application/json')</code></li>

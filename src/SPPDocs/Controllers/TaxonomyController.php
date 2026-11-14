@@ -15,6 +15,51 @@ class TaxonomyController extends \SPPMod\SPPView\ViewController
         $this->loadProjectConfig();
     }
 
+    public function index($projectId = null)
+    {
+        $projectId = $projectId ?? ($_GET['project'] ?? ($_GET['projectId'] ?? null));
+        $this->loadProjectConfig();
+        if (!$projectId || !isset($this->config['projects'][$projectId])) {
+            $keys = array_keys($this->config['projects'] ?? []);
+            $projectId = $keys[0] ?? 'spp';
+        }
+        $_GET['project'] = $projectId;
+        $project = $this->config['projects'][$projectId];
+
+        $vocabs = TaxonomyService::listVocabularies($projectId);
+        $activeVocabKey = $_GET['vocab'] ?? (array_key_first($vocabs) ?: 'categories');
+        $activeVocab = $vocabs[$activeVocabKey] ?? null;
+        $hierarchyTree = $activeVocabKey ? TaxonomyService::getHierarchyTree($projectId, $activeVocabKey) : [];
+
+        return $this->render('admin.taxonomy', [
+            'projectId' => $projectId,
+            'project_id' => $projectId,
+            'project' => $project,
+            'vocabularies' => $vocabs,
+            'activeVocabKey' => $activeVocabKey,
+            'activeVocab' => $activeVocab,
+            'hierarchyTree' => $hierarchyTree,
+            'active_tab' => 'taxonomy',
+            'csrf_token' => $_SESSION['sppdocs_csrf'] ?? '',
+            'user' => $this->getProjectUser(),
+        ]);
+    }
+
+    public function vocabulary($id = null)
+    {
+        $_GET['vocab'] = $id ?? ($this->routeParams['id'] ?? 'categories');
+        return $this->index();
+    }
+
+    public function term($id = null)
+    {
+        $this->loadProjectConfig();
+        $projectId = $_GET['project'] ?? (array_key_first($this->config['projects'] ?? []) ?: 'spp');
+        $vocab = $_GET['vocab'] ?? 'categories';
+        $slug = $id ?? ($this->routeParams['id'] ?? '');
+        return $this->archive($projectId, $vocab, $slug);
+    }
+
     #[Route('/admin/taxonomy', method: 'GET')]
     public function adminIndex()
     {

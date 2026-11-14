@@ -45,5 +45,18 @@
       Inject content partial so the initial page load perfectly matches 
       the structure expected by subsequent HTMX swaps! 
     -->
-    @spppartial('partials/doc-content.blade.php', ['title' => $title, 'content' => $content])
+    @spppartial('partials/doc-content.blade.php', [
+        'title' => $title,
+        'content' => $content,
+        'project' => $project ?? [],
+        'project_id' => $project_id ?? ($project['id'] ?? ''),
+        'is_book' => $is_book ?? false,
+        'prev_page' => $prev_page ?? null,
+        'next_page' => $next_page ?? null,
+    ])
+
+    @spppartial('partials/evaarta_feedback_drawer.blade.php', [
+        'title' => $title,
+        'project_id' => $project_id ?? ($project['id'] ?? '')
+    ])
 @endsection

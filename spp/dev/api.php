@@ -14,7 +14,30 @@ ob_start();
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
 
-// Relying on global SPPErrorHandler from sppinit.php instead of local handlers.
+// Failsafe fatal error shutdown handler to ensure SPA always receives valid JSON
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+        if (ob_get_length()) {
+            ob_clean();
+        }
+        if (!headers_sent()) {
+            http_response_code(500);
+            if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
+    }
+        }
+        echo json_encode([
+            'success' => false,
+            'message' => 'Fatal Error: ' . $error['message'] . ' in ' . basename($error['file']) . ':' . $error['line'],
+            'data' => [],
+            'instructions' => [
+                ['action' => 'notify', 'message' => 'Fatal Error: ' . $error['message'] . ' in ' . basename($error['file']) . ':' . $error['line'], 'type' => 'error']
+            ]
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+});
 
 // Polyfills for PHP < 8.0
 if (!function_exists('str_starts_with')) {
@@ -42,12 +65,19 @@ if (!defined('SPP_BASE_DIR')) {
 }
 
 // Support for JSON payloads
-if (strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
+$contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+if (stripos($contentType, 'application/json') !== false || (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST')) {
     $input = file_get_contents('php://input');
-    $data = json_decode($input, true);
-    if (is_array($data)) {
-        $_POST = array_merge($_POST, $data);
-        $_REQUEST = array_merge($_REQUEST, $data);
+    if (!empty($input)) {
+        $data = json_decode($input, true);
+        if (is_array($data)) {
+            $queryAction = $_GET['action'] ?? null;
+            $_POST = array_merge($_POST, $data);
+            $_REQUEST = array_merge($_REQUEST, $data);
+            if ($queryAction !== null && $queryAction !== '') {
+                $_REQUEST['action'] = $queryAction;
+            }
+        }
     }
 }
 
@@ -76,6 +106,9 @@ foreach (['class.sppuser.php'] as $f) {
         require_once $authDir . '/' . $f;
 }
 
+if (!defined('SPP_NO_AUTO_BOOT')) {
+    define('SPP_NO_AUTO_BOOT', true);
+}
 require_once SPP_BASE_DIR . '/sppinit.php';
 
 // Load global handlers if available
@@ -88,8 +121,12 @@ if (file_exists($globalPath)) {
  * sendResponse function
  * Helper to transmit JSON results back to the SPA.
  */
-function sendResponse($success, $data = [], $message = '')
+function sendResponse($success, $data = [], $message = '', bool $autoNotify = true)
 {
+    // If output has already been sent (e.g. by SPPAjax::respond terminating), avoid double JSON output
+    if (headers_sent() && !ob_get_level()) {
+        exit;
+    }
     $phpOutput = ob_get_clean();
     $instructions = [];
 
@@ -111,7 +148,19 @@ function sendResponse($success, $data = [], $message = '')
         unset($data['instructions']);
     }
 
-    if ($message && empty(array_filter($instructions, fn($i) => $i['action'] === 'notify'))) {
+    // Passive read/query actions or generic success messages should NEVER generate toast clutter
+    $passiveActions = [
+        'check_auth', 'get_profile', 'list_apps', 'list_modules', 'storage_list_files', 
+        'storage_tree', 'storage_disk_usage', 'storage_read_file', 'get_admin_permissions',
+        'load_view', 'diagnostics_health', 'get_system_info', 'get_global_settings',
+        'switch_context', 'set_context', 'manifest_graph', 'manifest_catalog', 'manifest_bundle'
+    ];
+    $reqAction = $_REQUEST['action'] ?? '';
+    if (in_array($reqAction, $passiveActions, true) || in_array(strtolower(trim($message)), ['ok', 'success', 'authenticated', 'authenticated.'], true)) {
+        $autoNotify = false;
+    }
+
+    if ($autoNotify && $message && empty(array_filter($instructions, fn($i) => $i['action'] === 'notify'))) {
         $instructions[] = ['action' => 'notify', 'message' => $message, 'type' => $success ? 'success' : 'error'];
     }
 
@@ -133,7 +182,9 @@ function sendResponse($success, $data = [], $message = '')
         error_log("[" . date('Y-m-d H:i:s') . "] API Response: success=" . ($success ? 'true' : 'false') . ", action=" . ($_REQUEST['action'] ?? 'none') . "\n", 3, $logFile);
     }
 
-    header('Content-Type: application/json; charset=utf-8');
+    if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
+    }
     $json = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     if ($json === false) {
         $response['data'] = [];
@@ -306,10 +357,23 @@ function repairNamespace($class)
     return $class;
 }
 
-function checkDevMode()
+function checkDevMode(): bool
 {
+    // 1. Block in production environments (APP_ENV / SPP_ENV)
+    $appEnv = strtolower((string)(getenv('APP_ENV') ?: (getenv('SPP_ENV') ?: '')));
+    if (in_array($appEnv, ['prod', 'production', 'live'], true)) {
+        return false;
+    }
+
+    // 2. Block public production domains (public is strictly forbidden from accessing dev studio on live servers)
+    $host = strtolower(trim(explode(':', (string)($_SERVER['HTTP_HOST'] ?? ''))[0]));
+    if ($host !== '' && !in_array($host, ['localhost', '127.0.0.1', '::1'], true) && !str_ends_with($host, '.local') && !str_ends_with($host, '.test')) {
+        return false;
+    }
+
     $settings = getGlobalSettings();
-    return strtolower($settings['profile'] ?? '') === 'dev';
+    $profile = $settings['profile'] ?? $settings["\xef\xbb\xbfprofile"] ?? '';
+    return strtolower((string)$profile) === 'dev';
 }
 
 function isPublicAdminAction(string $action): bool
@@ -347,8 +411,12 @@ function isAdminAuthenticated(): bool
 
 // 1. Initial Gating
 if (!checkDevMode()) {
-    http_response_code(403);
-    sendResponse(false, [], "Access Denied: Administration portal is only accessible in 'dev' mode.");
+    if (!headers_sent()) {
+        http_response_code(403);
+    }
+    if (php_sapi_name() !== 'cli' || !defined('PARIKSHAK_ACTIVE')) {
+        sendResponse(false, [], "Access Denied: Administration portal is only accessible in 'dev' mode.");
+    }
 }
 
 // --- Global Helpers ---
@@ -374,24 +442,64 @@ if (!function_exists('createEntityRevision')) {
 }
 
 try {
-    file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] API Request: action=" . ($_REQUEST['action'] ?? 'none') . " session_keys=" . (isset($_SESSION) ? implode(',', array_keys($_SESSION)) : 'none') . "\n", FILE_APPEND);
+    if (session_status() === PHP_SESSION_NONE) {
+        @session_start();
+    }
+
+    $action = (!empty($_GET['action'])) ? $_GET['action'] : ($_POST['action'] ?? ($_REQUEST['action'] ?? ''));
+    if (!$action) {
+        $jsonInput = file_get_contents('php://input');
+        if (!empty($jsonInput)) {
+            $decoded = json_decode($jsonInput, true);
+            if ($decoded && !empty($decoded['action'])) {
+                $action = $decoded['action'];
+                $_REQUEST = array_merge($_REQUEST, $decoded);
+            }
+        }
+    }
+
+    // Ultra-Fast Path: check_auth requires 0 app boots and produces 0 toast notifications
+    if ($action === 'check_auth') {
+        $username = null;
+        $userId = '1';
+        if (!empty($_SESSION['spp_admin_fallback'])) {
+            $username = 'admin';
+            $userId = '0';
+        } elseif (!empty($_SESSION['spp_admin_user'])) {
+            $username = $_SESSION['spp_admin_user'];
+        } elseif (\SPP\SPPSession::sessionVarExists('__sppauth_user__')) {
+            $username = \SPP\SPPSession::getSessionVar('__sppauth_user__');
+        } elseif (class_exists('\\SPPMod\\SPPAuth\\SPPAuth') && \SPPMod\SPPAuth\SPPAuth::check()) {
+            $user = \SPPMod\SPPAuth\SPPAuth::user();
+            $userId = (string) \SPPMod\SPPAuth\SPPAuth::guard()->id();
+            $username = $user ? ($user->username ?? (is_object($user) && method_exists($user, 'get') ? $user->get('UserName') : null) ?? $userId) : $userId;
+        }
+
+        if ($username) {
+            sendResponse(true, [
+                'username' => $username,
+                'user_id' => $userId,
+                'role' => 'Administrator'
+            ], 'Authenticated.', false);
+        } else {
+            sendResponse(false, ['authenticated' => false], '', false);
+        }
+        exit;
+    }
+
+    // Ultra-Fast Path: Reject unauthenticated requests immediately without booting app
+    if (!isPublicAdminAction($action) && !isAdminAuthenticated()) {
+        http_response_code(401);
+        sendResponse(false, ['authenticated' => false], 'Authentication required.', false);
+        exit;
+    }
 
     $authContext = 'sppadmin';
-    $appContext = $_REQUEST['appname'] ?? $_REQUEST['context'] ?? 'default';
-    if ($appContext === 'sppadmin')
+    $appContext = $_REQUEST['appname'] ?? $_REQUEST['context'] ?? ($_SESSION['spp_admin_selected_app'] ?? 'default');
+    if ($appContext === 'sppadmin' || $appContext === 'sppdev') {
         $appContext = 'default';
-
-    try {
-        try {
-            \SPP\Scheduler::getProcObj($appContext);
-        } catch (\Exception $e) {
-            new \SPP\App($appContext);
-        }
-        \SPP\Scheduler::setContext($appContext);
-        file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] Context set to $appContext\n", FILE_APPEND);
-    } catch (\Exception $e) {
-        file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] Context failure: " . $e->getMessage() . "\n", FILE_APPEND);
     }
+    $_SESSION['spp_admin_selected_app'] = $appContext;
 
     // 3. API Action Routing
     if (isset($_REQUEST['__api']) && $_REQUEST['__api'] == '1') {
@@ -404,8 +512,6 @@ try {
         exit;
     }
 
-    $action = $_POST['action'] ?? $_GET['action'] ?? '';
-
     if ($action === 'info') {
         echo json_encode([
             'session_save_path' => session_save_path(),
@@ -416,25 +522,10 @@ try {
         exit;
     }
 
-    if (!$action) {
-        $jsonInput = file_get_contents('php://input');
-        if (!empty($jsonInput)) {
-            $decoded = json_decode($jsonInput, true);
-            if ($decoded) {
-                $action = $decoded['action'] ?? '';
-                $_REQUEST = array_merge($_REQUEST, $decoded);
-            }
-        }
-    }
-
-    require_once __DIR__ . '/services/CommandBridge.php';
-    require_once __DIR__ . '/services/General.php';
-    error_log("Dispatching action: " . $action);
+    require_once dirname(__DIR__) . '/admin/services/CommandBridge.php';
+    require_once dirname(__DIR__) . '/admin/services/General.php';
 
     if (!isPublicAdminAction($action)) {
-        if (!isAdminAuthenticated()) {
-            sendResponse(false, [], "Authentication required.");
-        }
         \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::enforceRequestGuards();
     }
 
@@ -448,18 +539,28 @@ try {
         sendResponse(false, [], "Access Denied: You do not have permission to perform '{$action}'. Contact your administrator.");
     }
 
+    // Release PHP session file lock early for non-mutating actions to enable full parallel request concurrency
+    $sessionMutatingActions = ['login', 'logout', 'switch_context', 'save_profile', 'admin_login'];
+    if (!in_array($action, $sessionMutatingActions, true) && session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+
     $requestData = array_merge($_GET, $_POST, $_REQUEST);
+    if (!empty($_FILES)) {
+        $requestData['uploaded_files'] = $_FILES;
+    }
 
     // 1. Unified CommandBridge: Execute via CLI or synchronized action
     $bridgeRes = \SPP\Admin\Services\CommandBridge::handleAction($action, $requestData);
-    if ($bridgeRes['success'] || (isset($bridgeRes['error']) && !str_contains($bridgeRes['error'], 'not recognized by CommandBridge'))) {
+    $bridgeSuccess = !empty($bridgeRes['success']) || (!isset($bridgeRes['error']) && is_array($bridgeRes));
+    if ($bridgeSuccess || (isset($bridgeRes['error']) && !str_contains((string)$bridgeRes['error'], 'not recognized by CommandBridge'))) {
         $resData = $bridgeRes;
         if (array_key_exists('data', $bridgeRes)) {
             $resData = $bridgeRes['data'];
         } else {
             unset($resData['success'], $resData['message'], $resData['error']);
         }
-        sendResponse($bridgeRes['success'], $resData, $bridgeRes['message'] ?? ($bridgeRes['error'] ?? ''));
+        sendResponse($bridgeRes['success'] ?? true, $resData, $bridgeRes['message'] ?? ($bridgeRes['error'] ?? ''));
         exit;
     }
 

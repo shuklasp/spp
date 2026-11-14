@@ -327,6 +327,15 @@ class ViewTag extends \SPP\SPPObject
         return $this->attributes;
     }
 
+    public function getAttributesHTML(): string
+    {
+        $pstr = '';
+        foreach ($this->attributes as $key => $val) {
+            $pstr .= ' ' . htmlspecialchars((string) $key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars(is_array($val) ? json_encode($val) : (string)$val, ENT_QUOTES, 'UTF-8') . '"';
+        }
+        return trim($pstr);
+    }
+
     /***
      * function addChild()
      * Adds a child to the element.

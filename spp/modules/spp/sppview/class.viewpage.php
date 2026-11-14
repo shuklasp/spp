@@ -263,4 +263,5 @@ class ViewPage extends \SPP\SPPObject
     public static function getPageMeta() { return self::$pagemeta; }
     public static function getXML() { return self::$xml; }
     public static function setXML($xml) { self::$xml = $xml; }
+    public static function addClass(string $elementId, string $className): void {}
 }

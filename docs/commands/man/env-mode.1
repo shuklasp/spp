@@ -1,7 +1,22 @@
-.TH "env:mode" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "ENV:MODE" 1 "November 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-env:mode \- Switch environment error reporting mode between dev (Ignition errors) and prod (500 pages)
+env:mode \- Switch environment profile, error reporting mode, and internal system portals between dev and prod
 .SH SYNOPSIS
 .B php spp.php env:mode
+<\fIdev\fR|\fIprod\fR>
 .SH DESCRIPTION
-Switch environment error reporting mode between dev (Ignition errors) and prod (500 pages)
+.B env:mode
+switches the global operational profile between development (\fBdev\fR) and production (\fBprod\fR).
+In development mode, ignition error pages are enabled, and internal protected system portals (\fBsppadmin\fR and \fBsppdev\fR) are fully active.
+In production mode, user-facing 500 error pages are served, and system administration portals are disabled with HTTP 403 Forbidden responses to protect production servers.
+.SH OPTIONS
+.TP
+.BR <dev|prod>
+Target environment mode. Required.
+.SH UNDER THE HOOD
+.IP \(bu 2
+Modifies \fIspp/etc/global-settings.yml\fR (\fBprofile\fR and \fBdebug\fR flags).
+.IP \(bu 2
+Synchronizes \fIspp/etc/settings.xml\fR profile node.
+.IP \(bu 2
+Unlinks and purges compiled configuration cache in \fIvar/cache/system/config.php\fR.

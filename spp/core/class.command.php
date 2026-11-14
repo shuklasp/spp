@@ -84,6 +84,10 @@ abstract class Command
     {
         echo "\033[32mINFO: \033[0m" . $text . "\n";
     }
+    protected function success(string $text): void
+    {
+        echo "\033[32mSUCCESS: \033[0m" . $text . "\n";
+    }
     protected function warn(string $text): void
     {
         echo "\033[33mWARN: \033[0m" . $text . "\n";
@@ -91,6 +95,53 @@ abstract class Command
     protected function error(string $text): void
     {
         echo "\033[31mERROR: \033[0m" . $text . "\n";
+    }
+
+    /**
+     * Renders a formatted tabular view in CLI output.
+     *
+     * @param array<string> $headers
+     * @param array<array<string, mixed>|array<int, mixed>> $rows
+     */
+    protected function table(array $headers, array $rows): void
+    {
+        if (function_exists('printTable')) {
+            printTable($headers, $rows);
+            return;
+        }
+
+        // Inline fallback if sppfuncs not loaded
+        if (empty($headers) && empty($rows)) {
+            return;
+        }
+        $colWidths = [];
+        foreach ($headers as $i => $h) {
+            $colWidths[$i] = mb_strlen((string)$h);
+        }
+        $normRows = [];
+        foreach ($rows as $row) {
+            $norm = [];
+            $i = 0;
+            foreach ($headers as $hKey => $h) {
+                $val = is_array($row) ? ($row[$h] ?? ($row[$hKey] ?? ($row[$i] ?? ''))) : (string)$row;
+                $val = is_scalar($val) ? (string)$val : json_encode($val);
+                $norm[$i] = $val;
+                $colWidths[$i] = max($colWidths[$i] ?? 0, mb_strlen($val));
+                $i++;
+            }
+            $normRows[] = $norm;
+        }
+        $border = '+';
+        foreach ($colWidths as $w) { $border .= str_repeat('-', $w + 2) . '+'; }
+        echo $border . "\n|";
+        foreach ($headers as $i => $h) { echo ' ' . str_pad((string)$h, $colWidths[$i]) . ' |'; }
+        echo "\n" . $border . "\n";
+        foreach ($normRows as $row) {
+            echo '|';
+            foreach ($row as $i => $cell) { echo ' ' . str_pad($cell, $colWidths[$i]) . ' |'; }
+            echo "\n";
+        }
+        echo $border . "\n";
     }
 
     /**
@@ -199,6 +250,14 @@ abstract class Command
         }
         $parsed = \SPP\CLI\ArgParser::parse($args);
         return isset($parsed['options'][$name]);
+    }
+
+    /**
+     * Checks if an option / flag is present (alias for hasFlag).
+     */
+    protected function hasOption(array $args, string $name): bool
+    {
+        return $this->hasFlag($args, $name);
     }
 
     /**

@@ -6,11 +6,17 @@
 if (!function_exists('live_Entities_List')) {
     function live_Entities_List($la, $params)
     {
-        $appname = $params['appname'] ?? 'default';
+        $appname = $params['appname'] ?? $params['context'] ?? ($_SESSION['spp_admin_selected_app'] ?? 'default');
         $entities = \SPP\Scheduler::withContext($appname, function () {
             return \SPPMod\SPPDB\SPPEntity::listAvailableEntities();
         });
-        $la->setData(['entities' => array_values($entities)]);
+        $filtered = [];
+        foreach ($entities as $k => $e) {
+            $name = is_array($e) ? ($e['name'] ?? (string)$k) : (string)$e;
+            if (str_starts_with($name, '__')) continue;
+            $filtered[] = $e;
+        }
+        $la->setData(['entities' => array_values($filtered)]);
     }
 }
 
@@ -18,7 +24,7 @@ if (!function_exists('live_Entities_Save')) {
     function live_Entities_Save($la, $params)
     {
         $name = trim($params['name'] ?? '');
-        $appname = $params['appname'] ?? 'default';
+        $appname = $params['appname'] ?? $params['context'] ?? ($_SESSION['spp_admin_selected_app'] ?? 'default');
         $config = $params['config'] ?? [];
 
         if (empty($name) || empty($config)) {
@@ -38,7 +44,7 @@ if (!function_exists('live_Entities_Delete')) {
     function live_Entities_Delete($la, $params)
     {
         $name = trim($params['name'] ?? '');
-        $appname = $params['appname'] ?? 'default';
+        $appname = $params['appname'] ?? $params['context'] ?? ($_SESSION['spp_admin_selected_app'] ?? 'default');
         if (empty($name))
             return $la->setStatus('error')->notify("Name required.");
 

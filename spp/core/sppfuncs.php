@@ -164,9 +164,18 @@ function date_shift($date, $shift)
 
 /**
  * Generate an application or external URL using the framework Url engine.
+ *
+ * @param string $path Target path or external URL
+ * @param string|array|null $appName Specific application context or query parameters
+ * @param array $queryParams Optional query parameters when $appName is a string
+ * @return string
  */
-function url(string $path = '', ?string $appName = null, array $queryParams = []): string
+function url(string $path = '', string|array|null $appName = null, array $queryParams = []): string
 {
+    if (is_array($appName)) {
+        $queryParams = $appName;
+        $appName = null;
+    }
     return \SPP\Core\Url::to($path, $appName, $queryParams);
 }
 
@@ -176,4 +185,190 @@ function url(string $path = '', ?string $appName = null, array $queryParams = []
 function external_url(?string $url, string $defaultScheme = 'https'): string
 {
     return \SPP\Core\Url::external($url, $defaultScheme);
+}
+
+/**
+ * Retrieve a domain-scoped configuration setting for the active virtual host.
+ *
+ * @param string $key Setting key (e.g. 'site_name', 'theme', 'logo', 'contact_email')
+ * @param mixed $default Default fallback if setting is not defined
+ * @param string|null $host Optional specific host to query
+ * @return mixed
+ */
+function domain_setting(string $key, mixed $default = null, ?string $host = null): mixed
+{
+    if (class_exists('\SPP\Core\Router\DomainRouter')) {
+        return \SPP\Core\Router\DomainRouter::getSetting($key, $default, $host);
+    }
+    return $default;
+}
+
+/**
+ * Retrieve flashed old input value from session or request payload.
+ *
+ * @param string $field Input field name
+ * @param mixed $default Fallback value if field not present
+ * @return mixed
+ */
+function old(string $field, mixed $default = null): mixed
+{
+    if (isset($_SESSION['_spp_old_input'][$field])) {
+        return $_SESSION['_spp_old_input'][$field];
+    }
+    if (isset($_POST[$field])) {
+        return $_POST[$field];
+    }
+    return $default;
+}
+
+/**
+ * Retrieve the active application error bag or check for a specific field error.
+ *
+ * @param string|null $field
+ * @return mixed
+ */
+function errors(?string $field = null): mixed
+{
+    if (class_exists('\\SPPMod\\SPPView\\SPP_ViewErrors')) {
+        $errs = \SPPMod\SPPView\SPP_ViewErrors::getErrors();
+        if ($field === null) {
+            return $errs;
+        }
+        return $errs[$field] ?? null;
+    }
+    return null;
+}
+
+/**
+ * Formats and prints an ASCII table to standard output for CLI environments.
+ *
+ * @param array<string> $headers Column header titles
+ * @param array<array<string, mixed>|array<int, mixed>> $rows Data rows
+ * @return void
+ */
+function printTable(array $headers, array $rows): void
+{
+    if (empty($headers) && empty($rows)) {
+        return;
+    }
+
+    $colWidths = [];
+    foreach ($headers as $i => $header) {
+        $colWidths[$i] = mb_strlen((string)$header);
+    }
+
+    $normalizedRows = [];
+    foreach ($rows as $row) {
+        $norm = [];
+        $i = 0;
+        foreach ($headers as $headerKey => $header) {
+            $val = '';
+            if (is_array($row)) {
+                if (array_key_exists($header, $row)) {
+                    $val = $row[$header];
+                } elseif (array_key_exists($headerKey, $row)) {
+                    $val = $row[$headerKey];
+                } elseif (array_key_exists($i, $row)) {
+                    $val = $row[$i];
+                }
+            } else {
+                $val = (string)$row;
+            }
+
+            if (is_bool($val)) {
+                $val = $val ? 'true' : 'false';
+            } elseif (is_null($val)) {
+                $val = 'null';
+            } elseif (!is_scalar($val)) {
+                $val = json_encode($val, JSON_UNESCAPED_SLASHES);
+            } else {
+                $val = (string)$val;
+            }
+
+            $norm[$i] = $val;
+            $colWidths[$i] = max($colWidths[$i] ?? 0, mb_strlen($val));
+            $i++;
+        }
+        $normalizedRows[] = $norm;
+    }
+
+    $border = '+';
+    foreach ($colWidths as $w) {
+        $border .= str_repeat('-', $w + 2) . '+';
+    }
+
+    echo $border . "\n";
+    echo '|';
+    foreach ($headers as $i => $h) {
+        echo ' ' . str_pad((string)$h, $colWidths[$i]) . ' |';
+    }
+    echo "\n" . $border . "\n";
+
+    foreach ($normalizedRows as $row) {
+        echo '|';
+        foreach ($row as $i => $cell) {
+            echo ' ' . str_pad($cell, $colWidths[$i]) . ' |';
+        }
+        echo "\n";
+    }
+    echo $border . "\n";
+}
+
+/**
+ * Generate a canonical URL for a named route or path with parameter substitution.
+ *
+ * @param string $name Route name or path pattern (e.g. 'users.show', '/users/{id}')
+ * @param mixed $parameters Route parameters (scalar ID, array, or SPPEntity)
+ * @param bool $absolute Whether to return an absolute URL with scheme and host
+ * @return string
+ */
+function route(string $name, mixed $parameters = [], bool $absolute = false): string
+{
+    if (!class_exists("\\SPPMod\\SPPRouter\\UrlGenerator")) {
+        $genFile = defined("SPP_BASE_DIR") ? SPP_BASE_DIR . "/modules/spp/spprouter/src/UrlGenerator.php" : dirname(__DIR__) . "/modules/spp/spprouter/src/UrlGenerator.php";
+        if (file_exists($genFile)) {
+            require_once $genFile;
+        }
+    }
+
+    if (class_exists("\\SPPMod\\SPPRouter\\UrlGenerator")) {
+        return \SPPMod\SPPRouter\UrlGenerator::route($name, $parameters, $absolute);
+    }
+
+    throw new \InvalidArgumentException("Route [{$name}] not defined.");
+}
+
+/**
+ * Generate a URL for an application public asset.
+ *
+ * @param string $path Asset path (e.g. 'css/app.css', 'js/app.js')
+ * @return string
+ */
+function asset(string $path): string
+{
+    $baseUrl = class_exists('\\SPP\\App') ? \SPP\App::getBaseUrl() : '';
+    $cleanPath = ltrim($path, '/');
+    return rtrim($baseUrl, '/') . '/' . $cleanPath;
+}
+
+/**
+ * Retrieve a flashed session message, or null/default if none set.
+ *
+ * @param string $key Flash message identifier
+ * @param mixed $default Fallback value
+ * @return mixed
+ */
+function flash(string $key, mixed $default = null): mixed
+{
+    if (class_exists('\\SPP\\SPPSession')) {
+        if (\SPP\SPPSession::hasFlash($key)) {
+            return \SPP\SPPSession::getFlash($key);
+        }
+    }
+    if (isset($_SESSION['_spp_flashes'][$key])) {
+        $val = $_SESSION['_spp_flashes'][$key];
+        unset($_SESSION['_spp_flashes'][$key]);
+        return $val;
+    }
+    return $default;
 }

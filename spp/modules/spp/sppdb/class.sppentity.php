@@ -8,17 +8,43 @@ use SPP\Exceptions\EntityConfigurationException;
 
 require_once __DIR__ . '/entityexceptions.php';
 require_once __DIR__ . '/class.sppentityrelations.php';
+require_once __DIR__ . '/IdentityMap.php';
+require_once __DIR__ . '/Attributes/Attributes.php';
+require_once __DIR__ . '/Relations/Relation.php';
+require_once __DIR__ . '/Relations/HasMany.php';
+require_once __DIR__ . '/Relations/BelongsTo.php';
+require_once __DIR__ . '/Relations/HasOne.php';
+require_once __DIR__ . '/Relations/MorphMany.php';
+require_once __DIR__ . '/Relations/BelongsToMany.php';
+
+if (!interface_exists('\\SPP\\Core\\Interfaces\\WorkflowableInterface', false)) {
+    $wfInterface = dirname(__DIR__, 2) . '/core/interfaces/WorkflowableInterface.php';
+    if (file_exists($wfInterface)) {
+        require_once $wfInterface;
+    }
+}
+if (!trait_exists('\\SPPMod\\SPPWorkflow\\Traits\\HasWorkflow', false)) {
+    $wfTrait = dirname(__DIR__) . '/sppworkflow/Traits/HasWorkflow.php';
+    if (file_exists($wfTrait)) {
+        require_once $wfTrait;
+    }
+}
+
 /**
  * class Entity
- * Defines an entity
+ * Defines an entity with native active-record and workflow capabilities
  */
 
-class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
+class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface, \SPP\Core\Interfaces\WorkflowableInterface
 {
+    use \SPPMod\SPPWorkflow\Traits\HasWorkflow;
+
     protected $id = null;
     protected ?string $shardKey = null;               /** Simple sharding support */
     protected static $_metadata = [];                 /** Static registry for entity configuration */
+    protected static array $schema = [];              /** Declarative field schema definition */
     protected static bool $strictLazyLoading = false; /** Toggles N+1 prevention mode */
+    protected array $hidden = [];                     /** Attributes hidden from serialization */
 
     /**
      * Prevents lazy loading on all entities when set to true.
@@ -70,6 +96,11 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         return self::$_globalScopes[static::class] ?? [];
     }
 
+    public function getSnapshot(): array
+    {
+        return $this->_snapshot;
+    }
+
     protected function fireEvent(string $event)
     {
         $class = static::class;
@@ -82,12 +113,12 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             }
         }
         if (class_exists('\\SPP\\SPPEvent')) {
-            \SPP\SPPEvent::triggerHook("entity:{$event}", $this);
-            if ($event === 'created' || $event === 'updated') {
-                \SPP\SPPEvent::triggerHook('entity:after_save', $this);
-            } elseif ($event === 'deleted') {
-                \SPP\SPPEvent::triggerHook('entity:deleted', $this);
-            }
+            $evtParams = new \SPP\EventParams([
+                'entity' => $this,
+                'old' => $this->_snapshot,
+                'new' => $this->_values,
+            ], $this->_snapshot, $this->_values);
+            \SPP\SPPEvent::triggerHook("entity:{$event}", $evtParams);
         }
     }
 
@@ -165,6 +196,17 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     public static function find($id): ?self
     {
+        if ($id === null || $id === '') {
+            return null;
+        }
+
+        if (class_exists('\\SPPMod\\SPPDB\\IdentityMap')) {
+            $cached = \SPPMod\SPPDB\IdentityMap::get(static::class, $id);
+            if ($cached instanceof static) {
+                return $cached;
+            }
+        }
+
         $instance = new static();
         try {
             if ($instance->load($id)) {
@@ -190,6 +232,73 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             throw new EntityNotFoundException("Entity " . static::class . " with ID {$id} not found.");
         }
         return $instance;
+    }
+
+    /**
+     * Find a single entity by an attribute or array of conditions.
+     *
+     * @param string|array $field Attribute name or key-value criteria
+     * @param mixed $value Value to search for if $field is string
+     * @return static|null
+     */
+    public static function findBy(string|array $field, mixed $value = null): ?static
+    {
+        $query = static::query();
+        if (is_array($field)) {
+            foreach ($field as $k => $v) {
+                $query->where($k, $v);
+            }
+        } else {
+            $query->where($field, $value);
+        }
+        return $query->first();
+    }
+
+    /**
+     * Find all entities matching the given conditions.
+     *
+     * @param array $conditions Key-value criteria
+     * @return array<static>
+     */
+    public static function findWhere(array $conditions): array
+    {
+        $query = static::query();
+        foreach ($conditions as $k => $v) {
+            $query->where($k, $v);
+        }
+        return $query->get();
+    }
+
+    /**
+     * Create and save a new entity instance in a single step.
+     *
+     * @param array $attributes
+     * @return static
+     */
+    public static function create(array $attributes): static
+    {
+        $instance = new static();
+        $instance->setValues($attributes);
+        $instance->save();
+        return $instance;
+    }
+
+    /**
+     * Find the first entity matching the given attributes, or create one.
+     *
+     * @param array $attributes Search criteria
+     * @param array $values Additional attributes to set if creating
+     * @return static
+     */
+    public static function firstOrCreate(array $attributes, array $values = []): static
+    {
+        $existing = static::findBy($attributes);
+        if ($existing) {
+            return $existing;
+        }
+
+        $allAttributes = array_merge($attributes, $values);
+        return static::create($allAttributes);
     }
 
     /**
@@ -253,16 +362,22 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             // Handle recursion for 'extends'
             if (isset($ymlData['extends'])) {
                 $parentClass = $ymlData['extends'];
+                if (strpos($parentClass, '\\') === false) {
+                    $ns = $reflection->getNamespaceName();
+                    if ($ns && class_exists($ns . '\\' . $parentClass)) {
+                        $parentClass = $ns . '\\' . $parentClass;
+                    }
+                }
                 // Ensure parent is loaded
                 if (!isset(self::$_metadata[$parentClass])) {
                     static::loadEntityConfig($parentClass);
                 }
                 // Inherit from parent
-                $parentConfig = self::$_metadata[$parentClass];
+                $parentConfig = self::$_metadata[$parentClass] ?? [];
                 $config = array_merge($config, $parentConfig);
-                // For attributes, we want a deep merge.
+                // For attributes, we want a deep merge where child overrides parent
                 if (isset($parentConfig['attributes'])) {
-                    $config['attributes'] = $parentConfig['attributes'];
+                    $config['attributes'] = array_merge($parentConfig['attributes'], $config['attributes'] ?? []);
                 }
             }
 
@@ -313,12 +428,31 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
 
             // Register relations (only for the current entity level to avoid duplicate registrations if parent also registered them)
             if (isset($ymlData['relations']) && is_array($ymlData['relations'])) {
+                $ns = $reflection->getNamespaceName();
                 foreach ($ymlData['relations'] as $rel) {
+                    $parentEnt = $rel['parent_entity'] ?? $class;
+                    $childEnt = $rel['child_entity'] ?? $class;
+
+                    if ($ns) {
+                        if (strpos($parentEnt, '\\') === false) {
+                            $candidate = $ns . '\\' . $parentEnt;
+                            if (class_exists($candidate)) {
+                                $parentEnt = $candidate;
+                            }
+                        }
+                        if (strpos($childEnt, '\\') === false) {
+                            $candidate = $ns . '\\' . $childEnt;
+                            if (class_exists($candidate)) {
+                                $childEnt = $candidate;
+                            }
+                        }
+                    }
+
                     \SPPMod\SPPDB\SPPEntityRelations::registerEntityRelation(
                         $rel['name'] ?? null,
-                        $rel['parent_entity'] ?? $class,
+                        $parentEnt,
                         $rel['parent_entity_field'] ?? 'id',
-                        $rel['child_entity'] ?? $class,
+                        $childEnt,
                         $rel['child_entity_field'] ?? 'parent_id',
                         $rel['relation_type'] ?? 'OneToMany'
                     );
@@ -383,12 +517,134 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             // For now, I'll stick to what's in the YAML.
 
         } else {
-            // Fallback to define_attributes if no YAML
+            // Fallback to define_attributes and getTable if no YAML
             try {
                 $instance = $reflection->newInstanceWithoutConstructor();
                 $config['attributes'] = $instance->define_attributes();
+                if (method_exists($instance, 'getTable')) {
+                    $config['table'] = $instance->getTable();
+                }
+                $config['id_field'] = 'id';
             } catch (\Exception $e) {
                 // Methods might not be there if it's a dynamic class
+            }
+        }
+
+        // =====================================================================
+        // PHP 8.2+ Attribute Scanning — merged AFTER YAML so attributes can
+        // complement or override YAML when used as the sole definition source.
+        // =====================================================================
+        if (PHP_VERSION_ID >= 80200) {
+            try {
+                // #[Table] — class-level table/ID override
+                $tableAttrs = $reflection->getAttributes(\SPPMod\SPPDB\Attributes\Table::class);
+                if (!empty($tableAttrs)) {
+                    $tableAttr = $tableAttrs[0]->newInstance();
+                    $config['table'] = $tableAttr->name;
+                    if ($tableAttr->idField !== null) {
+                        $config['id_field'] = $tableAttr->idField;
+                    }
+                    if ($tableAttr->keyType !== null) {
+                        $config['key_type'] = $tableAttr->keyType;
+                    }
+                }
+
+                // #[Workflow] — class-level workflow binding
+                $wfAttrs = $reflection->getAttributes(\SPPMod\SPPDB\Attributes\Workflow::class);
+                if (!empty($wfAttrs)) {
+                    $wfAttr = $wfAttrs[0]->newInstance();
+                    $config['workflow'] = [
+                        'definition' => $wfAttr->definition,
+                        'initial_state' => $wfAttr->initialState,
+                    ];
+                }
+
+                // Property-level attributes: #[Id], #[Column]
+                foreach ($reflection->getProperties() as $prop) {
+                    $propName = $prop->getName();
+                    if (str_starts_with($propName, '_')) {
+                        continue;
+                    }
+
+                    // #[Id]
+                    $idAttrs = $prop->getAttributes(\SPPMod\SPPDB\Attributes\Id::class);
+                    if (!empty($idAttrs)) {
+                        $idAttr = $idAttrs[0]->newInstance();
+                        $config['id_field'] = $propName;
+                        $config['key_type'] = $idAttr->type;
+                    }
+
+                    // #[Column]
+                    $colAttrs = $prop->getAttributes(\SPPMod\SPPDB\Attributes\Column::class);
+                    if (!empty($colAttrs)) {
+                        $colAttr = $colAttrs[0]->newInstance();
+                        $attrDef = ['type' => $colAttr->type];
+                        if ($colAttr->length !== 255) $attrDef['length'] = $colAttr->length;
+                        if ($colAttr->precision !== 10) $attrDef['precision'] = $colAttr->precision;
+                        if ($colAttr->scale !== 2) $attrDef['scale'] = $colAttr->scale;
+                        if (!$colAttr->nullable) $attrDef['nullable'] = false;
+                        if ($colAttr->required) $attrDef['required'] = true;
+                        if ($colAttr->unique) $attrDef['unique'] = true;
+                        if ($colAttr->default !== null) $attrDef['default'] = $colAttr->default;
+                        if ($colAttr->searchable) $attrDef['searchable'] = true;
+                        if ($colAttr->filterable) $attrDef['filterable'] = true;
+                        if ($colAttr->pii) $attrDef['pii'] = true;
+                        if (!empty($colAttr->options)) $attrDef['options'] = $colAttr->options;
+                        $config['attributes'][$propName] = $attrDef;
+                    }
+                }
+
+                // Method-level relation attributes
+                $ns = $reflection->getNamespaceName();
+                $relAttrMap = [
+                    \SPPMod\SPPDB\Attributes\HasMany::class   => 'OneToMany',
+                    \SPPMod\SPPDB\Attributes\BelongsTo::class => 'ManyToOne',
+                    \SPPMod\SPPDB\Attributes\HasOne::class    => 'OneToOne',
+                ];
+
+                foreach ($reflection->getMethods() as $method) {
+                    foreach ($relAttrMap as $attrClass => $relType) {
+                        $relAttrs = $method->getAttributes($attrClass);
+                        if (!empty($relAttrs)) {
+                            $relAttr = $relAttrs[0]->newInstance();
+                            $targetClass = $relAttr->target;
+                            if (strpos($targetClass, '\\') === false && $ns) {
+                                $targetClass = $ns . '\\' . $targetClass;
+                            }
+                            $fk = $relAttr->foreignKey ?? strtolower($reflection->getShortName()) . '_id';
+                            $lk = property_exists($relAttr, 'localKey') ? ($relAttr->localKey ?? 'id') : ($relAttr->ownerKey ?? 'id');
+
+                            \SPPMod\SPPDB\SPPEntityRelations::registerEntityRelation(
+                                $method->getName(),
+                                $relType === 'ManyToOne' ? $targetClass : $class,
+                                $lk,
+                                $relType === 'ManyToOne' ? $class : $targetClass,
+                                $fk,
+                                $relType
+                            );
+                        }
+                    }
+
+                    // #[MorphMany]
+                    $morphAttrs = $method->getAttributes(\SPPMod\SPPDB\Attributes\MorphMany::class);
+                    if (!empty($morphAttrs)) {
+                        $morphAttr = $morphAttrs[0]->newInstance();
+                        $targetClass = $morphAttr->target;
+                        if (strpos($targetClass, '\\') === false && $ns) {
+                            $targetClass = $ns . '\\' . $targetClass;
+                        }
+                        \SPPMod\SPPDB\SPPEntityRelations::registerEntityRelation(
+                            $method->getName(),
+                            $class,
+                            $morphAttr->localKey ?? 'id',
+                            $targetClass,
+                            ($morphAttr->foreignKey ?? $morphAttr->morphPrefix . '_id'),
+                            'OneToMany'
+                        );
+                    }
+                }
+            } catch (\Throwable $e) {
+                error_log('[SPP] Attribute scanning failed for ' . $class . ': ' . $e->getMessage());
             }
         }
 
@@ -411,12 +667,43 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         if (!isset(self::$_metadata[static::class])) {
             static::loadEntityConfig(static::class);
         }
+        if ($key === 'id_field' && $default === null) {
+            $default = 'id';
+        }
         return self::$_metadata[static::class][$key] ?? $default;
     }
 
     public static function setMetadata(string $key, $value)
     {
         self::$_metadata[static::class][$key] = $value;
+    }
+
+    /**
+     * Returns the declarative schema definition for this entity.
+     */
+    public static function getSchema(): array
+    {
+        if (!empty(static::$schema)) {
+            return static::$schema;
+        }
+
+        $meta = static::getMetadata('fields', []);
+        if (!empty($meta)) {
+            return $meta;
+        }
+
+        return static::getMetadata('attributes', []);
+    }
+
+    /**
+     * Synchronizes this entity's schema into the physical database.
+     */
+    public static function syncSchema(?string $appname = null): array
+    {
+        if (!class_exists('\\SPPMod\\SPPDB\\SchemaSyncEngine')) {
+            require_once __DIR__ . '/SchemaSyncEngine.php';
+        }
+        return \SPPMod\SPPDB\SchemaSyncEngine::syncEntity(static::class, $appname);
     }
 
     /**
@@ -477,9 +764,84 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     }
 
     /**
-     * Serializes the entity specifically for JSON conversion.
+     * Resolves or generates an SPPForm for this entity.
+     * Automatically binds this entity instance and evaluates workflow locks.
+     *
+     * @param string|null $formName Optional custom form identifier
+     * @param array $options Form generation and workflow options
+     * @return \SPPMod\SPPView\ViewForm
      */
-    public function jsonSerialize(): mixed
+    public function getForm(?string $formName = null, array $options = []): \SPPMod\SPPView\ViewForm
+    {
+        $entityShortName = (new \ReflectionClass($this))->getShortName();
+        $slug = strtolower($entityShortName);
+        $name = $formName ?? $slug;
+
+        // 1. Try to load custom declarative form definition if available
+        if (class_exists('\\SPPMod\\SPPView\\Forms')) {
+            $customForm = \SPPMod\SPPView\Forms::get($name);
+            if ($customForm) {
+                $customForm->bind($this);
+                $this->attachWorkflowGuardsIfApplicable($customForm);
+                if (($options['workflow_actions'] ?? true) && $this instanceof \SPP\Core\Interfaces\WorkflowableInterface) {
+                    $this->attachWorkflowActionsIfApplicable($customForm, $options);
+                }
+                return $customForm;
+            }
+        }
+
+        // 2. Dynamically build from entity schema / define_attributes
+        if (class_exists('\\SPPMod\\SPPView\\ViewFormBuilder')) {
+            $builder = new \SPPMod\SPPView\ViewFormBuilder($this);
+            $form = $builder->build();
+            $this->attachWorkflowGuardsIfApplicable($form);
+            if (($options['workflow_actions'] ?? true) && $this instanceof \SPP\Core\Interfaces\WorkflowableInterface) {
+                $this->attachWorkflowActionsIfApplicable($form, $options);
+            }
+            return $form;
+        }
+
+        throw new \SPP\SPPException("ViewFormBuilder module not available to generate form for {$entityShortName}.");
+    }
+
+    private function attachWorkflowGuardsIfApplicable(\SPPMod\SPPView\ViewForm $form): void
+    {
+        if ($this instanceof \SPP\Core\Interfaces\WorkflowableInterface) {
+            $valCls = class_exists('\\SPPMod\\SPPView\\SPPWorkflowGuardValidator') 
+                ? '\\SPPMod\\SPPView\\SPPWorkflowGuardValidator' 
+                : (class_exists('\\SPPWorkflowGuardValidator') ? '\\SPPWorkflowGuardValidator' : null);
+            if ($valCls) {
+                $form->addValidator(new $valCls(), 'Entity is locked in a non-editable workflow state.');
+            }
+        }
+    }
+
+    private function attachWorkflowActionsIfApplicable(\SPPMod\SPPView\ViewForm $form, array $options = []): void
+    {
+        if (!class_exists('\\SPPMod\\SPPView\\SPPViewForm_WorkflowActions')) {
+            return;
+        }
+        $transitions = $this->getAvailableTransitions();
+        if (!empty($transitions)) {
+            $currentState = method_exists($this, 'getWorkflowState')
+                ? (is_array($this->getWorkflowState()) ? ($this->getWorkflowState()[0] ?? 'draft') : $this->getWorkflowState())
+                : ($this->status ?? 'draft');
+            $actionsElem = new \SPPMod\SPPView\SPPViewForm_WorkflowActions(
+                '_workflow_actions',
+                $transitions,
+                (string)$currentState,
+                $options['show_comment'] ?? false
+            );
+            $form->addElement($actionsElem);
+        }
+    }
+
+    /**
+     * Convert the entity instance to an associative array, excluding any hidden attributes.
+     *
+     * @return array
+     */
+    public function toArray(): array
     {
         $data = array_merge(
             ['id' => $this->id],
@@ -497,11 +859,23 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             } elseif (is_array($fieldsData)) {
                 $data = array_merge($data, $fieldsData);
             }
-            // We can leave or unset fields_data here. Let's keep it for completeness or unset to be clean.
             unset($data['fields_data']);
         }
 
+        $hiddenAttrs = array_merge($this->hidden, (array)static::getMetadata('hidden', []));
+        foreach ($hiddenAttrs as $attr) {
+            unset($data[$attr]);
+        }
+
         return $data;
+    }
+
+    /**
+     * Serializes the entity specifically for JSON conversion.
+     */
+    public function jsonSerialize(): mixed
+    {
+        return $this->toArray();
     }
 
     /**
@@ -539,6 +913,16 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
                 return $this->_relatedCaches[$attribute];
             }
 
+            // Check for first-class Relation methods (e.g., $entity->courses resolves via $this->courses())
+            if (method_exists($this, $attribute)) {
+                $result = $this->$attribute();
+                if ($result instanceof \SPPMod\SPPDB\Relations\Relation) {
+                    $resolved = $result->getResults();
+                    $this->_relatedCaches[$attribute] = $resolved;
+                    return $resolved;
+                }
+            }
+
             if (self::$strictLazyLoading && \SPPMod\SPPDB\SPPEntityRelations::hasRelation(static::class, $attribute)) {
                 throw new \SPPMod\SPPDB\LazyLoadingViolationException($this, $attribute);
             }
@@ -573,7 +957,14 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     public function getId()
     {
-        return $this->id;
+        if ($this->id !== null) {
+            return $this->id;
+        }
+        $idField = static::getMetadata('id_field', 'id');
+        if ($idField !== 'id' && isset($this->_values[$idField])) {
+            return $this->_values[$idField];
+        }
+        return null;
     }
 
     /**
@@ -737,6 +1128,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
                 $files = glob($dir . '/*.yml');
                 foreach ($files as $f) {
                     $name = basename($f, '.yml');
+                    if (str_starts_with($name, '__')) continue;
                     if (!isset($entities[$name])) {
                         $content = file_get_contents($f);
                         $config = [];
@@ -859,6 +1251,106 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     }
 
     /**
+     * Retrieve all records as an array of entities.
+     *
+     * @return static[]
+     */
+    public static function all(): array
+    {
+        return static::query()->get();
+    }
+
+    /**
+     * Start a fluent query with a where condition.
+     */
+    public static function where(string $field, $value, string $operator = '='): \SPPMod\SPPDB\SppEntityQuery
+    {
+        return static::query()->where($field, $value, $operator);
+    }
+
+    /**
+     * Start a fluent query with an orderBy clause.
+     */
+    public static function orderBy(string $field, string $direction = 'ASC'): \SPPMod\SPPDB\SppEntityQuery
+    {
+        return static::query()->orderBy($field, $direction);
+    }
+
+    /**
+     * Start a fluent query with eager-loaded relationships.
+     */
+    public static function with(array|string $relations): \SPPMod\SPPDB\SppEntityQuery
+    {
+        $query = static::query();
+        $rels = is_array($relations) ? $relations : func_get_args();
+        foreach ($rels as $rel) {
+            $query->with($rel);
+        }
+        return $query;
+    }
+
+    /**
+     * Start a fluent query with an XPath expression.
+     */
+    public static function whereXPath(string $xpath): \SPPMod\SPPDB\SppEntityQuery
+    {
+        return static::query()->whereXPath($xpath);
+    }
+
+    /**
+     * Start a fluent query with an XQuery FLWOR query.
+     */
+    public static function whereXQuery(string $xquery, array $vars = []): \SPPMod\SPPDB\SppEntityQuery
+    {
+        return static::query()->whereXQuery($xquery, $vars);
+    }
+
+    /**
+     * Execute an XQuery expression directly and return hydrated entities.
+     *
+     * @return static[]
+     */
+    public static function xquery(string $xquery, array $vars = []): array
+    {
+        return static::query()->xquery($xquery, $vars);
+    }
+
+    /**
+     * Execute an XPath expression directly and return hydrated entities.
+     *
+     * @return static[]
+     */
+    public static function xpath(string $xpath): array
+    {
+        return static::query()->xpath($xpath);
+    }
+
+    /**
+     * Execute an XQuery Update Facility (XQUF) statement.
+     */
+    public static function xquf(string $xquf): bool
+    {
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $adapter = $db->getAdapter();
+        if ($adapter instanceof \SPPMod\SPPDB\XDBAdapter) {
+            return $adapter->xquf($xquf);
+        }
+        return false;
+    }
+
+    /**
+     * Forward dynamic static method calls to SppEntityQuery.
+     */
+    public static function __callStatic(string $method, array $arguments)
+    {
+        $query = static::query();
+        if (method_exists($query, $method)) {
+            return $query->$method(...$arguments);
+        }
+        throw new \BadMethodCallException("Method " . static::class . "::{$method}() does not exist.");
+    }
+
+    /**
      * Static helper to find all instances of the entity with optional filtering.
      * @deprecated Use static::query()->...->get() instead.
      */
@@ -923,6 +1415,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         }
         foreach ($entities as $entity) {
             $entity->after_load();
+            $entity->_snapshot = $entity->_values;
             \SPP\SPPEvent::triggerHook('entity:after_load', $entity);
         }
 
@@ -1022,9 +1515,9 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             $value = $this->{$mutatorMethod}($value);
         }
 
-        $classVar = get_object_vars($this);
-        if (array_key_exists($attribute, $classVar)) {
+        if (property_exists($this, $attribute) && !str_starts_with($attribute, '_')) {
             $this->$attribute = $value;
+            $this->_values[$attribute] = $value;
             return true;
         } else {
             if ($this->currentLanguage !== 'en') {
@@ -1074,8 +1567,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             $value = $this->{$mutatorMethod}($value);
         }
 
-        $classVar = get_object_vars($this);
-        if (array_key_exists($attribute, $classVar)) {
+        if (property_exists($this, $attribute) && !str_starts_with($attribute, '_')) {
             $this->$attribute = $value;
         } else {
             if ($this->currentLanguage !== 'en') {
@@ -1146,8 +1638,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     public function attributeExists($attribute)
     {
         $exists = false;
-        $classVar = get_object_vars($this);
-        if (array_key_exists($attribute, $classVar)) {
+        if (property_exists($this, $attribute) && !str_starts_with($attribute, '_')) {
             $exists = true;
         } else {
             $attributes = $this->getAttributes();
@@ -1177,12 +1668,11 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     public function get($attribute)
     {
-        $classVar = get_object_vars($this);
         $value = null;
         $found = false;
 
-        if (array_key_exists($attribute, $classVar)) {
-            $value = $this->$attribute;
+        if (property_exists($this, $attribute) && !str_starts_with($attribute, '_')) {
+            $value = isset($this->$attribute) ? $this->$attribute : ($this->_values[$attribute] ?? null);
             $found = true;
         } else {
             if ($this->currentLanguage !== 'en' && array_key_exists($attribute, $this->_translations)) {
@@ -1302,7 +1792,11 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         $this->defensiveCleanup();
         $this->fireEvent('saving');
         $this->before_save();
-        $evtParams = new \SPP\EventParams(['entity' => $this]);
+        $evtParams = new \SPP\EventParams([
+            'entity' => $this,
+            'old' => $this->_snapshot,
+            'new' => $this->_values,
+        ], $this->_snapshot, $this->_values);
         \SPP\SPPEvent::fireEvent('entity:before_save', $evtParams);
 
         // Model-level Validation
@@ -1317,8 +1811,16 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             $this->fireEvent('created');
             \SPPMod\SPPAudit\SPPAudit::log(static::class, $new_id, 'create', null, $this->_values);
             $this->after_save();
-            $evtParams = new \SPP\EventParams(['entity' => $this]);
+            $evtParams = new \SPP\EventParams([
+                'entity' => $this,
+                'old' => $this->_snapshot,
+                'new' => $this->_values,
+            ], $this->_snapshot, $this->_values);
             \SPP\SPPEvent::fireEvent('entity:after_save', $evtParams);
+            $this->_snapshot = $this->_values;
+            if (class_exists('\\SPPMod\\SPPDB\\IdentityMap')) {
+                \SPPMod\SPPDB\IdentityMap::set($this);
+            }
             $this->fireEvent('saved');
             return $new_id;
         } else {
@@ -1327,8 +1829,16 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             $this->update();
             $this->fireEvent('updated');
             $this->after_save();
-            $evtParams = new \SPP\EventParams(['entity' => $this]);
+            $evtParams = new \SPP\EventParams([
+                'entity' => $this,
+                'old' => $this->_snapshot,
+                'new' => $this->_values,
+            ], $this->_snapshot, $this->_values);
             \SPP\SPPEvent::fireEvent('entity:after_save', $evtParams);
+            $this->_snapshot = $this->_values;
+            if (class_exists('\\SPPMod\\SPPDB\\IdentityMap')) {
+                \SPPMod\SPPDB\IdentityMap::set($this);
+            }
             $this->fireEvent('saved');
             return $this->id;
         }
@@ -1405,6 +1915,15 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     {
         $rules = static::getMetadata('validation', []);
         if (empty($rules)) {
+            $schema = static::getSchema();
+            if (!empty($schema)) {
+                if (!class_exists('\\SPPMod\\SPPDB\\SchemaSyncEngine')) {
+                    require_once __DIR__ . '/SchemaSyncEngine.php';
+                }
+                $rules = \SPPMod\SPPDB\SchemaSyncEngine::extractValidationRules($schema);
+            }
+        }
+        if (empty($rules)) {
             if (!class_exists('\\SPPMod\\SPPView\\ValidationResult')) {
                 require_once SPP_MODULES_DIR . '/spp/sppview/sppvalidator/class.validationresult.php';
             }
@@ -1461,6 +1980,10 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     protected function createId()
     {
         $keyType = static::getMetadata('key_type', 'int');
+        if ($keyType === 'autoincrement') {
+            return null;
+        }
+
         if ($keyType === 'uuid') {
             $data = random_bytes(16);
             $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
@@ -1486,12 +2009,24 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     public function insert()
     {
         $db = new \SPPMod\SPPDB\SPPDB();
-        $new_id = $this->createId();
-        $this->id = $new_id;
+        $keyType = static::getMetadata('key_type', 'int');
+        $idField = $this->getMetadata('id_field') ?: 'id';
+
+        if ($keyType === 'autoincrement') {
+            $new_id = $this->id;
+        } else {
+            $new_id = $this->id ?: $this->createId();
+            $this->id = $new_id;
+        }
+
         $attributes = $this->getAttributes();
-        $val_array = [$this->getMetadata('id_field') => $new_id];
+        $val_array = [];
+        if ($new_id !== null) {
+            $val_array[$idField] = $new_id;
+        }
+
         foreach ($this->_values as $k => $v) {
-            if (array_key_exists($k, $attributes)) {
+            if ($k !== $idField && array_key_exists($k, $attributes)) {
                 $val_array[$k] = $this->uncastAttributeValue($k, $v);
             }
         }
@@ -1507,6 +2042,19 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             $db->insertValues($this->getTable(), $val_array);
         }
 
+        if ($keyType === 'autoincrement' && $new_id === null) {
+            try {
+                $lastInsert = $db->getConnection()->lastInsertId();
+                if ($lastInsert) {
+                    $new_id = is_numeric($lastInsert) ? (int)$lastInsert : $lastInsert;
+                    $this->id = $new_id;
+                    $this->set($idField, $new_id);
+                }
+            } catch (\Throwable $e) {
+                // Non-blocking
+            }
+        }
+
         if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
             \SPPMod\SPPDB\SppDynamicFieldHandler::saveFields($this, $this->_dynamic_values);
         }
@@ -1520,24 +2068,55 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     protected function handleMagicDatabase(\PDOException $e, \SPPMod\SPPDB\SPPDB $db)
     {
-        $env = getenv('APP_ENV') ?: 'local';
-        if ($env !== 'local') {
+        $env = getenv('APP_ENV') ?: (defined('SPP_ENV') ? SPP_ENV : null);
+        if ($env !== null && in_array(strtolower((string)$env), ['prod', 'production'])) {
+            $isDev = false;
+        } else {
+            $isDev = $env === 'local' || (defined('SPP_DEBUG') && SPP_DEBUG);
+        }
+        if (!$isDev) {
             throw $e; // Only auto-migrate in local dev
         }
 
-        $errorCode = $e->getCode();
+        $msg = strtolower($e->getMessage());
+        $errorCode = (string)$e->getCode();
         $table = $this->getTable();
-        $attributes = $this->getAttributes();
 
-        if ($errorCode == '42S02') { // Base table or view not found
+        $isTableMissing = $errorCode === '42S02' || str_contains($msg, 'no such table') || str_contains($msg, "table doesn't exist");
+        $isColumnMissing = $errorCode === '42S22' || str_contains($msg, 'no such column') || str_contains($msg, 'unknown column') || str_contains($msg, 'does not exist');
+
+        if (!$isTableMissing && !$isColumnMissing) {
+            throw $e;
+        }
+
+        // 1. Check declarative $schema first
+        $schema = static::getSchema();
+        if (!empty($schema) && class_exists('\\SPPMod\\SPPDB\\SchemaSyncEngine')) {
+            $syncRes = \SPPMod\SPPDB\SchemaSyncEngine::syncEntity(static::class);
+            if (!empty($syncRes['created'])) {
+                error_log("Cakewalk Auto-Repair: Created missing table {$table}");
+            }
+            if (!empty($syncRes['added_columns'])) {
+                error_log("Cakewalk Auto-Repair: Added missing columns to {$table}: " . implode(', ', $syncRes['added_columns']));
+            }
+            return;
+        }
+
+        // 2. Fallback to metadata attributes
+        $attributes = $this->getAttributes();
+        if ($isTableMissing) {
             $idField = static::getMetadata('id_field', 'id');
             $idType = static::getMetadata('key_type', 'int') === 'uuid' ? 'varchar(36)' : 'varchar(20)';
             $sql = 'create table ' . $table . ' (' . $idField . ' ' . $idType . ')';
             $db->exec($sql);
-            $db->add_columns($table, $attributes);
+            if (!empty($attributes)) {
+                $db->add_columns($table, $attributes);
+            }
             error_log("Magic DB: Created missing table {$table}");
-        } elseif ($errorCode == '42S22') { // Column not found
-            $db->add_columns($table, $attributes);
+        } elseif ($isColumnMissing) {
+            if (!empty($attributes)) {
+                $db->add_columns($table, $attributes);
+            }
             error_log("Magic DB: Added missing columns to {$table}");
         } else {
             throw $e;
@@ -1632,8 +2211,11 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      * Updates the entity.
      * @return boolean
      */
-    public function update()
+    public function update(array $attributes = [])
     {
+        if (!empty($attributes)) {
+            $this->setValues($attributes);
+        }
         $db = new \SPPMod\SPPDB\SPPDB();
         if ($this->id != null) {
             // Revisions Tracking Implementation
@@ -1659,6 +2241,9 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             foreach ($this->_values as $k => $v) {
                 $keys[] = $k;
                 $values[] = $this->uncastAttributeValue($k, $v);
+            }
+            if (empty($keys)) {
+                return true;
             }
             $values[] = $this->id;
 
@@ -1700,6 +2285,9 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         }
         $deletedId = $this->id;
         $this->id = null;
+        if (class_exists('\\SPPMod\\SPPDB\\IdentityMap')) {
+            \SPPMod\SPPDB\IdentityMap::forget(static::class, $deletedId);
+        }
         $this->fireEvent('deleted');
 
         if (class_exists('\\SPPMod\\SPPCache\\SPPCacheManager')) {
@@ -1749,6 +2337,10 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
                 \SPPMod\SPPDB\SppDynamicFieldHandler::loadFields([$this]);
             }
             $this->after_load();
+            $this->_snapshot = $this->_values;
+            if (class_exists('\\SPPMod\\SPPDB\\IdentityMap')) {
+                \SPPMod\SPPDB\IdentityMap::set($this);
+            }
             \SPP\SPPEvent::triggerHook('entity:after_load', $this);
         } else {
             throw new EntityNotFoundException('Entity with id ' . $id . ' not found');
@@ -1781,6 +2373,9 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             }
             $this->after_load();
             $this->_snapshot = $this->_values;
+            if (class_exists('\\SPPMod\\SPPDB\\IdentityMap')) {
+                \SPPMod\SPPDB\IdentityMap::set($this);
+            }
             \SPP\SPPEvent::triggerHook('entity:after_load', $this);
         } else {
             throw new EntityNotFoundException('Entity with ' . $attribute . '=' . $value . ' not found');
@@ -1813,6 +2408,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         }
         foreach ($entities as $entity) {
             $entity->after_load();
+            $entity->_snapshot = $entity->_values;
             \SPP\SPPEvent::triggerHook('entity:after_load', $entity);
         }
         return $entities;
@@ -1936,8 +2532,16 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     public function getWorkflowState()
     {
         $status = $this->get('status');
-        if (is_string($status) && strpos($status, ',') !== false) {
-            return explode(',', $status);
+        if (is_string($status)) {
+            $decoded = json_decode($status, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+            if (strpos($status, ',') !== false) {
+                return array_map('trim', explode(',', $status));
+            }
+        } elseif (is_array($status)) {
+            return $status;
         }
         return $status ?: 'draft';
     }
@@ -1954,6 +2558,17 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     }
 
     /**
+     * Get available workflow transitions from current state.
+     */
+    public function getAvailableTransitions($user = null, array $context = []): array
+    {
+        if (class_exists('\\SPPMod\\SPPWorkflow\\SPPWorkflowManager')) {
+            return \SPPMod\SPPWorkflow\SPPWorkflowManager::getAvailableTransitions($this, $user, $context);
+        }
+        return [];
+    }
+
+    /**
      * Apply a workflow transition to this entity.
      */
     public function applyTransition(string $newStatus, $user = null, string $comment = '', array $context = []): bool
@@ -1966,6 +2581,17 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     }
 
     /**
+     * Rollback the entity's workflow transitions using the Saga Pattern.
+     */
+    public function rollback($user = null, $commentOrContext = [], array $context = []): bool
+    {
+        if (class_exists('\\SPPMod\\SPPWorkflow\\SPPWorkflowManager')) {
+            return \SPPMod\SPPWorkflow\SPPWorkflowManager::rollback($this, $user, $commentOrContext, $context);
+        }
+        return false;
+    }
+
+    /**
      * Get workflow transition history.
      */
     public function getWorkflowHistory(): array
@@ -1974,13 +2600,109 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             return [];
         }
         $db = new \SPPMod\SPPDB\SPPDB();
-        if ($db->tableExists('spp_entity_workflow_history')) {
+        $table = \SPPMod\SPPDB\SPPDB::sppTable('spp_entity_workflow_history');
+        if ($db->tableExists($table)) {
+            $entityType = method_exists($this, 'getWorkflowEntityType') ? $this->getWorkflowEntityType() : static::getEntityName(static::class);
             return $db->execute_query(
-                "SELECT * FROM spp_entity_workflow_history WHERE entity_id = ? AND entity_type = ? ORDER BY transition_timestamp DESC",
-                [$this->id, static::getEntityName(static::class)]
-            );
+                "SELECT * FROM %tab% WHERE entity_id = ? AND entity_type = ? ORDER BY id ASC, transition_timestamp ASC",
+                $table,
+                [(string)$this->id, $entityType]
+            ) ?: [];
         }
         return [];
+    }
+
+    /**
+     * Seeds N mock records for this entity class derived from declarative $schema.
+     *
+     * @param int $count Number of records to generate (default 10)
+     * @param array $overrides Manual attribute overrides
+     * @param \PDO|null $pdo Optional PDO connection for test isolation
+     * @return array Created entity instances or record arrays
+     */
+    public static function seed(int $count = 10, array $overrides = [], ?\PDO $pdo = null): array
+    {
+        if (!class_exists('\\SPPMod\\SPPDB\\SmartDataGenerator')) {
+            require_once __DIR__ . '/SmartDataGenerator.php';
+        }
+        return \SPPMod\SPPDB\SmartDataGenerator::seed(static::class, $count, $overrides, $pdo);
+    }
+
+    // =========================================================================
+    // First-Class Relation Object Helpers
+    // =========================================================================
+
+    /**
+     * Define a one-to-many relationship.
+     *
+     * @param string $related The fully-qualified related entity class.
+     * @param string|null $foreignKey FK column on the related table (defaults to snake_case(thisClass)_id).
+     * @param string $localKey Local key on this entity (defaults to 'id').
+     * @return \SPPMod\SPPDB\Relations\HasMany
+     */
+    protected function hasMany(string $related, ?string $foreignKey = null, string $localKey = 'id'): \SPPMod\SPPDB\Relations\HasMany
+    {
+        $foreignKey = $foreignKey ?? $this->guessForeignKeyName() . '_id';
+        return new \SPPMod\SPPDB\Relations\HasMany($this, $related, $foreignKey, $localKey);
+    }
+
+    /**
+     * Define an inverse many-to-one relationship.
+     *
+     * @param string $related The fully-qualified related entity class.
+     * @param string|null $foreignKey FK column on THIS table (defaults to snake_case(relatedClass)_id).
+     * @param string $ownerKey Owner key on the related entity (defaults to 'id').
+     * @return \SPPMod\SPPDB\Relations\BelongsTo
+     */
+    protected function belongsTo(string $related, ?string $foreignKey = null, string $ownerKey = 'id'): \SPPMod\SPPDB\Relations\BelongsTo
+    {
+        if ($foreignKey === null) {
+            $ref = new \ReflectionClass($related);
+            $foreignKey = strtolower($ref->getShortName()) . '_id';
+        }
+        return new \SPPMod\SPPDB\Relations\BelongsTo($this, $related, $foreignKey, $ownerKey);
+    }
+
+    /**
+     * Define a one-to-one relationship.
+     *
+     * @param string $related The fully-qualified related entity class.
+     * @param string|null $foreignKey FK column on the related table.
+     * @param string $localKey Local key on this entity (defaults to 'id').
+     * @return \SPPMod\SPPDB\Relations\HasOne
+     */
+    protected function hasOne(string $related, ?string $foreignKey = null, string $localKey = 'id'): \SPPMod\SPPDB\Relations\HasOne
+    {
+        $foreignKey = $foreignKey ?? $this->guessForeignKeyName() . '_id';
+        return new \SPPMod\SPPDB\Relations\HasOne($this, $related, $foreignKey, $localKey);
+    }
+
+    /**
+     * Define a polymorphic one-to-many relationship.
+     *
+     * @param string $related The fully-qualified related entity class.
+     * @param string $morphPrefix The prefix for morph columns (e.g., 'commentable' => commentable_id, commentable_type).
+     * @param string $localKey Local key on this entity (defaults to 'id').
+     * @return \SPPMod\SPPDB\Relations\MorphMany
+     */
+    protected function morphMany(string $related, string $morphPrefix, string $localKey = 'id'): \SPPMod\SPPDB\Relations\MorphMany
+    {
+        $foreignKey = $morphPrefix . '_id';
+        $morphTypeField = $morphPrefix . '_type';
+        return new \SPPMod\SPPDB\Relations\MorphMany($this, $related, $foreignKey, $morphTypeField, $localKey);
+    }
+
+    /**
+     * Derives a snake_case foreign key prefix from this entity's class name.
+     * e.g., StudentEnrollment => student_enrollment
+     *
+     * @return string
+     */
+    private function guessForeignKeyName(): string
+    {
+        $ref = new \ReflectionClass($this);
+        $shortName = $ref->getShortName();
+        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $shortName));
     }
 }
 class_alias('\\SPPMod\\SPPDB\\SPPEntity', '\\SPPMod\\SPPEntity\\SPPEntity');

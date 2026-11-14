@@ -21,7 +21,7 @@
     $view = $params->get('view');
     $data = $params->get('data');
     $engine = $params->get('engine');
-    $app = $params->get('app') ?: (class_exists('\\SPP\\Scheduler') ? \SPP\Scheduler::getContext() : 'Samvaad');
+    $app = $params->get('app') ?: (class_exists('\\SPP\\Scheduler') ? \SPP\Scheduler::getContext() : 'default');
 
     if ($engine === 'twig') {
         $params->set('output', \SPPMod\Drishyam\SPPTwig::render($view, $data));
@@ -48,7 +48,7 @@
     }
 
     if ($engine === 'blade' || $engine === null) {
-        $params->set('output', \SPPMod\Drishyam\SPPBlade::render($view, $data));
+        $params->set('output', \SPPMod\Drishyam\SPPBlade::render($view, $data, $app));
         $params->set('handled', true);
         $params->stopPropagation();
         return;

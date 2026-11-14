@@ -1,10 +1,8 @@
 /**
  * SPP SPA Router Engine (v3)
- * Advanced frontend routing with HTMX logic, Native Swipe Gestures, and Optimistic Offline DB Queuing natively cleanly properly implicitly smoothly naturally elegantly securely gracefully gracefully naturally implicitly logically functionally expertly intelligently implicitly.
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-
+(function() {
     const cache = new Map();
     const fetching = new Set();
     const offlineQueue = []; // Optimistic UI local array queue smartly securely intrinsically dynamically reliably inherently intelligently efficiently.
@@ -149,27 +147,16 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Core SPA Navigator Engine (Optimistic Queue Embedded)
      */
-    const activeControllers = new Map();
-
     async function navigate(url, pushState = true, method = 'GET', bodyData = null, fallbackTarget = null) {
         try {
             let data = null;
             const fetchUrl = buildSpaUrl(url);
 
-            const trackKey = method + ':' + fetchUrl.split('?')[0];
-            if (activeControllers.has(trackKey)) {
-                activeControllers.get(trackKey).abort();
-            }
-            const controller = new AbortController();
-            activeControllers.set(trackKey, controller);
-
             if (method === 'GET' && cache.has(fetchUrl)) {
                 data = cache.get(fetchUrl);
-                activeControllers.delete(trackKey);
             } else {
                 const options = {
                     method: method,
-                    signal: controller.signal,
                     headers: {
                         'X-SPP-Ajax': '1',
                         'Content-Type': method === 'POST' ? 'application/json' : undefined
@@ -180,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const response = await fetch(fetchUrl, options);
-                activeControllers.delete(trackKey);
                 if (!response.ok) {
                     console.error("SPPAjax Server Rejection:", response.status);
                     if (method === 'GET') window.location.href = url;
@@ -191,11 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (data.status === 'redirect' && data.redirect_url) {
-                const lowerUrl = data.redirect_url.trim().toLowerCase();
-                if (lowerUrl.startsWith('javascript:') || lowerUrl.startsWith('vbscript:') || lowerUrl.startsWith('data:')) {
-                    console.error("SPPAjax Blocked Unsafe Redirect");
-                    return;
-                }
                 return await navigate(data.redirect_url);
             }
 
@@ -242,33 +223,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch (error) {
-            if (error.name === 'AbortError') {
-                return; // Suppress cancelled request abort exceptions cleanly
-            }
             console.error("SPPAjax Execution Pipeline Dropped: ", error);
             
             // Queue Optimistic Transactions when physically offline natively logically systematically naturally organically elegantly dynamically. 
             if (!navigator.onLine && method === 'POST') {
                 console.warn("SPP PWA: App offline. Caching JSON execution securely gracefully appropriately optimally logically cleanly effortlessly seamlessly exactly systematically smartly naturally explicitly safely.");
                 offlineQueue.push({url, pushState, method, bodyData, fallbackTarget});
-                
-                // Attempt native Background Synchronization API registration to flush queue instantly upon background service resumption
-                if (navigator.serviceWorker && navigator.serviceWorker.ready) {
-                    navigator.serviceWorker.ready.then(reg => {
-                        if (reg.sync) {
-                            reg.sync.register('spp-flush').catch(() => {});
-                        }
-                    }).catch(() => {});
-                }
                 return;
             }
 
-            if (method === 'GET') {
-                const lowerFallback = url.trim().toLowerCase();
-                if (!lowerFallback.startsWith('javascript:') && !lowerFallback.startsWith('vbscript:') && !lowerFallback.startsWith('data:')) {
-                    window.location.href = url;
-                }
-            }
+            if (method === 'GET') window.location.href = url;
         }
     }
 
@@ -298,16 +262,64 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Isomorphic Named Route Registry & Reverse URL Generator
+    let namedRoutes = window.__SPP_ROUTES__ || {};
+
+    function route(name, params = {}, absolute = false) {
+        let routeDef = namedRoutes[name];
+        if (!routeDef) {
+            for (const [k, def] of Object.entries(namedRoutes)) {
+                if (k === name || k.endsWith('.' + name)) {
+                    routeDef = def;
+                    break;
+                }
+            }
+        }
+
+        if (!routeDef || !routeDef.path) {
+            console.warn(`[SPP Route] Route '${name}' not found.`);
+            return '#';
+        }
+
+        let path = routeDef.path;
+        const used = new Set();
+
+        path = path.replace(/\{([a-zA-Z0-9_]+)(?::[^\}]+)?\}/g, (_, paramName) => {
+            if (params && params[paramName] !== undefined) {
+                used.add(paramName);
+                return encodeURIComponent(params[paramName]);
+            }
+            return `{${paramName}}`;
+        });
+
+        // Append unused params as query string
+        const remaining = {};
+        if (params && typeof params === 'object') {
+            for (const [k, v] of Object.entries(params)) {
+                if (!used.has(k) && v !== null && v !== undefined && v !== '') {
+                    remaining[k] = v;
+                }
+            }
+        }
+        const qs = new URLSearchParams(remaining).toString();
+        if (qs) {
+            path += (path.includes('?') ? '&' : '?') + qs;
+        }
+
+        if (absolute) {
+            return window.location.origin + path;
+        }
+        return path;
+    }
+
+    function setRoutes(routesMap) {
+        namedRoutes = Object.assign({}, namedRoutes, routesMap);
+    }
+
     window.SPP = window.SPP || {};
     window.SPP.navigate = navigate;
-    
-    // Hyper-low-latency bidirectional QUIC HTTP/3 WebTransport pipeline factory
-    window.SPP.createWebTransport = async (url) => {
-        if (!window.WebTransport) {
-            throw new Error("WebTransport protocol is unsupported in this environment.");
-        }
-        const transport = new WebTransport(url);
-        await transport.ready;
-        return transport;
-    };
-});
+    window.SPP.prefetch = prefetch;
+    window.SPP.route = route;
+    window.SPP.setRoutes = setRoutes;
+    window.SPP.getRoutes = () => namedRoutes;
+})();

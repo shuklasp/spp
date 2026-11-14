@@ -79,10 +79,11 @@ export default class EntitiesView extends BaseComponent {
         if (headerActions) {
             if (activeMainTab === 'list') {
                 const defaultSource = 'table: my_table\nid_field: id\nattributes:\n  name:\n    type: varchar\n    length: 255';
-                const headerHtml = html`
-                    <button type="button" class="btn primary-btn btn-sm" @click=${() => this.openEditor('', defaultSource)}>+ New Entity</button>
+                headerActions.innerHTML = `
+                    <button type="button" class="btn primary-btn btn-sm" id="btn-new-entity">+ New Entity</button>
                 `;
-                headerActions.innerHTML = headerHtml.toString();
+                const btnNew = document.getElementById('btn-new-entity');
+                if (btnNew) btnNew.onclick = () => this.openEditor('', defaultSource);
             } else {
                 headerActions.innerHTML = '';
             }
@@ -586,7 +587,7 @@ export default class EntitiesView extends BaseComponent {
                         <label title="The PHP class name for your entity. Must be in PascalCase (e.g. StudentProfile).">Class Name ℹ️</label>
                         <input type="text" value="${this.state.currentEntityName}" 
                             @change=${(e) => { this.state.currentEntityName = e.target.value; }} 
-                            placeholder="e.g. Staff" ${this.state.currentEntityName ? 'disabled' : ''}>
+                            placeholder="e.g. Staff" ?disabled="${!!this.state.currentEntityName}">
                     </div>
                     <div class="input-group">
                         <label title="The physical database table name where this entity's records will be stored. Usually plural lowercase (e.g. student_profiles).">Database Table ℹ️</label>

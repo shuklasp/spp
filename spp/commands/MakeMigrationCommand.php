@@ -75,6 +75,15 @@ STUB;
 
         file_put_contents($targetPath, $content);
 
+        $this->recordFileProps($targetPath, [
+            'description' => "Database schema migration: {$className}",
+            'usage' => "Executed via php spp.php migrate",
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => ['tags' => ['migration', 'database', 'ddl']]
+        ]);
+
         echo "Success: Migration {$className} created at {$targetPath}\n";
     }
 }

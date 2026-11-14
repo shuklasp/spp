@@ -33,7 +33,7 @@ class IssueApiController extends \SPPMod\SPPView\ViewController
         $project = $this->config['projects'][$projectId];
         $issuesDir = $this->getIssuesDir($project);
 
-        $allIssues = $this->loadAllIssues($issuesDir);
+        $allIssues = $this->loadAllIssues($issuesDir, $project);
 
         // Filters
         $status = $_GET['status'] ?? null;
@@ -70,7 +70,7 @@ class IssueApiController extends \SPPMod\SPPView\ViewController
 
         $project = $this->config['projects'][$projectId];
         $issuesDir = $this->getIssuesDir($project);
-        $issue = $this->loadIssue($issuesDir, $issueId);
+        $issue = $this->loadIssue($issuesDir, $issueId, $project);
 
         if (!$issue) $this->jsonResponse(['error' => 'Issue not found'], 404);
 
@@ -110,7 +110,7 @@ class IssueApiController extends \SPPMod\SPPView\ViewController
             'time_logs' => [],
         ];
 
-        $this->saveIssue($issuesDir, $issueId, $issueData);
+        $this->saveIssue($issuesDir, $issueId, $issueData, $project);
         $this->logActivity($issuesDir, 'issue.created', $issueData['author'], $issueId, "Created '{$title}' via API");
 
         $this->jsonResponse(['id' => $issueId, 'issue' => $issueData], 201);

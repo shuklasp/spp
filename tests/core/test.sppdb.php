@@ -47,7 +47,7 @@ class SPPDBTest extends SPPTestCase
         $sql = $builder->toSql();
         $bindings = $builder->getBindings();
 
-        $this->assertTrue(strpos($sql, 'WHERE status = ?') !== false, "SQL should contain WHERE clause");
+        $this->assertTrue(preg_match('/WHERE\s+["`]?status["`]?\s*=\s*\?/', $sql) === 1, "SQL should contain WHERE clause");
         $this->assertEquals(1, count($bindings));
         $this->assertEquals('active', $bindings[0]);
     }
@@ -60,7 +60,7 @@ class SPPDBTest extends SPPTestCase
         $sql = $builder->toSql();
         $bindings = $builder->getBindings();
 
-        $this->assertTrue(strpos($sql, 'WHERE status = ? AND age > ?') !== false, "SQL should contain multiple WHERE clauses");
+        $this->assertTrue(preg_match('/WHERE\s+["`]?status["`]?\s*=\s*\?\s+AND\s+["`]?age["`]?\s*>\s*\?/', $sql) === 1, "SQL should contain multiple WHERE clauses");
         $this->assertEquals(['active', 18], $bindings);
     }
 
@@ -72,7 +72,7 @@ class SPPDBTest extends SPPTestCase
         $sql = $builder->toSql();
         $bindings = $builder->getBindings();
 
-        $this->assertTrue(strpos($sql, 'WHERE role = ? OR role = ?') !== false, "SQL should contain OR WHERE clause");
+        $this->assertTrue(preg_match('/WHERE\s+["`]?role["`]?\s*=\s*\?\s+OR\s+["`]?role["`]?\s*=\s*\?/', $sql) === 1, "SQL should contain OR WHERE clause");
         $this->assertEquals(['admin', 'moderator'], $bindings);
     }
 
@@ -84,7 +84,7 @@ class SPPDBTest extends SPPTestCase
             ->offset(5);
         $sql = $builder->toSql();
 
-        $this->assertTrue(strpos($sql, 'ORDER BY created_at DESC') !== false, "SQL should contain ORDER BY");
+        $this->assertTrue(preg_match('/ORDER BY\s+["`]?created_at["`]?\s+DESC/', $sql) === 1, "SQL should contain ORDER BY");
         $this->assertTrue(strpos($sql, 'LIMIT 10') !== false, "SQL should contain LIMIT");
         $this->assertTrue(strpos($sql, 'OFFSET 5') !== false, "SQL should contain OFFSET");
     }

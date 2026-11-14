@@ -338,4 +338,57 @@ When the data crosses into another runtime, application, worker, or browser cont
 - LiveComponent state-signing/checksum code
 - SPPView/Drishyam rendering implementations
 - `spp/core/Polyglot/`
+
+---
+
+## 10A.16 Declarative Capability Sandboxing & Static Taint Protection
+
+Modern enterprise security treats every third-party package and application directory as potentially compromised. To enforce zero-trust isolation at the filesystem layer, SPP introduces **declarative capability-based sandboxing** and **static data flow taint tracking** via the Manifest OS (`__spp_file_props.yml`).
+
+### 1. Deno-Style Capability Sandboxing (`ManifestSecurityGuard`)
+
+Directories declare explicit permissions in their local `__spp_file_props.yml` manifest under `capabilities`:
+
+```yaml
+capabilities:
+  allow_network:
+    - "https://api.stripe.com"
+  allow_env:
+    - "STRIPE_SECRET_KEY"
+  allow_filesystem:
+    - "var/uploads"
+  allow_shell: []
+```
+
+At runtime, `\SPPMod\SPPStorage\ManifestSecurityGuard` checks caller permissions before sensitive operations:
+
+```php
+use SPPMod\SPPStorage\ManifestSecurityGuard;
+
+// Blocks execution with SecurityException if hostname is not whitelisted
+ManifestSecurityGuard::assertCapability(__FILE__, 'allow_network', 'https://api.stripe.com/v1/charges');
+
+// Blocks execution if environment variable is not declared
+ManifestSecurityGuard::assertCapability(__FILE__, 'allow_env', 'STRIPE_SECRET_KEY');
+```
+
+If an installed package or rogue script attempts to open an outbound socket to an undeclared IP or read `/etc/passwd`, execution is halted immediately.
+
+### 2. Static Data Flow Taint Tracking (`ArchitecturalBoundaryLinter`)
+
+In addition to runtime guards, `\SPPMod\SPPStorage\ArchitecturalBoundaryLinter::checkTaintFlow()` performs static analysis across directory files to ensure untrusted user inputs (`$_GET`, `$_POST`, `$_REQUEST`, `php://input`) do not flow into dangerous command sinks (`shell_exec`, `exec`, `system`, `passthru`, `eval`) without passing through an authorized sanitizer declared in `taint_sanitizers`:
+
+```bash
+php spp.php props:lint --strict
+```
+
+### 3. Supply Chain Governance & SBOM Provenance
+
+Enterprise compliance requires complete visibility into software components. The framework generates cryptographic Software Bills of Materials adhering to CycloneDX 1.5 and SPDX 2.3 standards with SLSA Level 3 build provenance:
+
+```bash
+php spp.php props:sbom --format=cyclonedx --out=build/reports/sbom.json
+```
+
+This audits all workspace components, calculates SHA-256 digests, records software licenses, and validates capability boundaries against software supply chain attacks.
 - external-application integration modules/tutorials

@@ -18,6 +18,9 @@ class XdbController
         switch ($method) {
             case 'GET':
                 $where = $_GET['where'] ?? null;
+                if ($where && !preg_match('/^[a-zA-Z0-9_\s=><!.\'\"]+$/', $where)) {
+                    return ['error' => 'Invalid filter parameters'];
+                }
                 $results = $this->xdb->querySQL("SELECT * FROM $tableName" . ($where ? " WHERE $where" : ""));
                 return $results;
 

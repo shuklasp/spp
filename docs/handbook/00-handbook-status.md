@@ -81,7 +81,7 @@ A diagram must be useful, source-accurate, simple enough to understand, and vali
 
 ### Integration and security
 
-- `10-polyglot-and-external-applications.md` — Polyglot bridges and independent external applications.
+- `10-polyglot-and-external-applications.md` — Polyglot bridges, sovereign multi-language application hosting (Python, Node.js, Go, PHP-FPM, Static SPAs), subpath virtualization engine, cross-platform process supervision, ambient sensing SDKs, inter-app service mesh (`\SPP\Mesh`), and unified Developer Studio (`/sppdev#apps`).
 - `10-security-and-runtime-contracts.md` — Authentication/authorization boundaries, state integrity, rendering safety, and trust boundaries.
 
 ### Building applications
@@ -90,16 +90,18 @@ A diagram must be useful, source-accurate, simple enough to understand, and vali
 - `12-first-spp-application.md` — First application from zero framework knowledge.
 - `13-request-lifecycle.md` — What happens after a browser sends a request.
 - `14-middleware-and-request-pipeline.md` — Request-boundary processing.
-- `15-routing-and-request-dispatch.md` — Application selection, routing, and handler dispatch.
-- `16-database-and-storage.md` — SPPDB, adapters, XDB, caching, and storage boundaries.
+- `15-routing-and-request-dispatch.md` — Application selection, routing, handler dispatch, Single Domain Mode (zero-config copy-paste ready) vs Multi-Domain Mode (`DomainRouter`), multi-language ingress subpath virtualization (`SubpathGateway`, `SubpathVirtualizer`), domain application scoping (`domain:app:scope`), isolated applications, and application lifecycle uninstallation/backups (`AppUninstaller`).
+- `16-database-and-storage.md` — SPPDB, entities, relations, Next-Gen XDB & Apex multi-model database engine (Zero-Copy `.xbam` Flat Buffer, Dietz Pre/Post containment, MarkLogic Universal Inverted Index, native AI RAG subsystem with tree chunking, SQL:2011 bi-temporal time travel, cryptographic Merkle DAG ledger, reactive Hotwire Turbo Streams CDC, and advanced SQL dialect), and sovereign framework file services (`\SPP\File`, `putAtomic` staged lock protection, `\SPP\Storage`, pure-PHP S3/R2 cloud disks, virtual in-memory storage, fluent directory scanning, temporary signed URLs, and HTTP 206 partial content range streaming). Detailed architecture in `book-3-data-platform/08-xdb-architecture.md`.
 - `17-authentication-and-authorization.md` — Guards, sessions, rights, roles, and authorization.
 - `18-cache-logging-workflow.md` — Operational supporting systems.
-- `19-cli-and-developer-tooling.md` — CLI architecture and development workflow.
+- `19-cli-and-developer-tooling.md` — CLI architecture, development workflow, supervisor and mesh CLI tools (`app:start`, `app:status`, `app:logs`, `mesh:call`, `mesh:services`), and browser visual operations & developer workstations (SPPAdmin & SPPDev: Domain Architecture mode switcher, Universal Infrastructure & OS topology badge, App Studio Console with unified multi-language application catalog, process supervisor fleet, RPC sandbox, and event bus inspector).
 - `20-testing-and-debugging.md` — Tests and systematic runtime diagnosis.
+- `27-manifest-os-and-file-properties.md` — Declarative Manifest OS (`__spp_file_props.yml`), capability sandboxing, SQLite WAL compilation, SSR/hydration policies, multi-database routing, AST self-healing, and SBOM supply chain governance.
 
 ### Enterprise and migration
 
-- `21-enterprise-architecture-and-deployment.md` — Multiple applications, processes, protocols, polyglot services, and deployment topology.
+- `21-enterprise-architecture-and-deployment.md` — Multiple applications, processes, protocols, polyglot services, universal OS & infrastructure engine (`\SPP\Infra`), hosting topology adaptations (FHS, cPanel user home, Windows IIS, Docker, Kubernetes, Serverless), and deployment operating paradigms (Single Domain Copy-Paste vs. Multi-Domain Multi-Tenancy).
+- `72-sovereign-store-user-governance-and-baremetal-telemetry.md` — Sovereign App Store, publisher self-service registration, granular visibility tiers (public, personal, closed_group, team), SemVer package release management, vanity publisher profile pages, central moderation queue, and bare-metal Linux node operations console (`/admin/server`) tailored for zero-cPanel deployments (AlmaLinux 9).
 - `22-total-nerd-tutorial.md` — The same application evolved from plain PHP to SPP, LiveComponent, and SPPUX.
 - `23-coming-from-other-frameworks.md` — Conceptual migration guides for Laravel, Symfony, Django, Spring, ASP.NET, React, Vue, and Flutter readers.
 

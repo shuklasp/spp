@@ -81,6 +81,10 @@ class SPPViewForm_Element extends \SPPMod\SPPView\ViewTag
         $this->setAttribute('help', $text);
         return $this;
     }
+    public function getHelpText(): string
+    {
+        return $this->helpText;
+    }
     public function setGrouped(bool $grouped)
     {
         $this->isGrouped = $grouped;

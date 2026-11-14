@@ -27,7 +27,7 @@ php spp.php integration:install wordpress /wordpress --isolation=physical
 ## Step 3: The Virtual Database Cutover (The Magic Step)
 Now we wire the WordPress database to flow through the SPP Hypervisor (`VirtualPDO`).
 
-1. Export your existing WordPress MySQL database (using phpMyAdmin or `mysqldump`).
+1. Export your existing WordPress MySQL database (using `mysqldump` or standard export tools).
 2. Import that database into the SPP Database Server (name it `spp_guest_wordpress`).
 3. Open your `wp-config.php` file.
 4. Locate the `DB_HOST` constant and change it to the WebOS dummy connection string:

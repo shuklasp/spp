@@ -128,9 +128,19 @@ class SPPCacheManager
         }
     }
 
+    public static function delete(string $cid): bool
+    {
+        self::init();
+        if (class_exists('\\SPP\\Cache')) {
+            return \SPP\Cache::delete($cid);
+        }
+        return false;
+    }
+
     public static function clearAll()
     {
         self::init();
         \SPP\Cache::clear();
     }
 }
+

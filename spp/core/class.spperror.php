@@ -31,8 +31,9 @@ class SPPError extends \SPP\SPPObject
         E_USER_ERROR => 'User Error',
         E_USER_WARNING => 'User Warning',
         E_USER_NOTICE => 'User Notice',
-        E_STRICT => 'Runtime Notice',
-        E_RECOVERABLE_ERROR => 'Catchable Fatal Error'
+        E_RECOVERABLE_ERROR => 'Catchable Fatal Error',
+        E_DEPRECATED => 'Deprecated Notice',
+        E_USER_DEPRECATED => 'User Deprecated Notice'
     ];
     private $errors;
 
@@ -51,7 +52,6 @@ class SPPError extends \SPP\SPPObject
             E_USER_ERROR => [],
             E_USER_WARNING => [],
             E_USER_NOTICE => [],
-            E_STRICT => [],
             E_RECOVERABLE_ERROR => [],
             E_DEPRECATED => [],
             E_USER_DEPRECATED => [],

@@ -1,7 +1,14 @@
-.TH "workflow:process-timeouts" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "WORKFLOW-PROCESS-TIMEOUTS" 1 "October 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
 workflow:process-timeouts \- Process SLA timeouts on entities and trigger automatic escalation transitions
 .SH SYNOPSIS
 .B php spp.php workflow:process-timeouts
+[\fB\-\-dry\-run\fR]
 .SH DESCRIPTION
-Process SLA timeouts on entities and trigger automatic escalation transitions
+The \fBworkflow:process-timeouts\fR command monitors active workflow SLA deadlines recorded in the \fBspp_workflow_slas\fR table. When a deadline expires, it automatically executes the configured escalation transition on the entity, logging full audit lineage.
+.SH OPTIONS
+.TP
+\fB\-\-dry\-run\fR
+Simulate escalation checks without mutating entity state or purging SLA records.
+.SH UNDER THE HOOD
+Queries expired records from \fBspp_workflow_slas\fR, hydrates entities via \fBSPPEntity::find()\fR, verifies current state markings, and dispatches transitions via \fBSPPEntity::applyTransition()\fR.

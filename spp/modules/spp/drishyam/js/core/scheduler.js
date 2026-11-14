@@ -47,6 +47,10 @@ export function enqueue(job) {
  * Errors in individual jobs are caught and logged, allowing
  * remaining jobs to execute.
  */
+/** @type {number} Tracks nested flush cycles to prevent infinite loops */
+let _flushCycles = 0;
+const MAX_FLUSH_COUNT = 100;
+
 export function flush() {
     if (_isFlushing) return;
     _isFlushing = true;
@@ -70,9 +74,18 @@ export function flush() {
 
     _isFlushing = false;
 
-    // If new jobs were enqueued during flush, process them
+    // If new jobs were enqueued during flush, process them safely
     if (_queue.size > 0) {
+        _flushCycles++;
+        if (_flushCycles > MAX_FLUSH_COUNT) {
+            _queue.clear();
+            _flushCycles = 0;
+            console.error('[SPPUX Scheduler] Maximum flush cycle limit (100) exceeded. Detected infinite reactive update loop.');
+            return;
+        }
         flush();
+    } else {
+        _flushCycles = 0;
     }
 }
 

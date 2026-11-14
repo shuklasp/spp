@@ -22,12 +22,20 @@ class MakeReportCommand extends Command
     {
         $name = $this->getArgument($args, 0) ?? null;
         if (!$name) {
-            echo "Usage: php spp.php make:report <name>\n";
+            echo "Usage: php spp.php make:report <name> [--app=appname]\n";
             return;
         }
 
+        $app = null;
+        foreach ($args as $arg) {
+            if (str_starts_with($arg, '--app=')) {
+                $app = substr($arg, 6);
+            }
+        }
+        $app = $app ?? (class_exists('\\SPP\\Scheduler') ? \SPP\Scheduler::getContext() : 'default');
+
         $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '', strtolower($name));
-        $etcDir = SPP_APP_DIR . '/etc/sppreports';
+        $etcDir = defined('SPP_APP_DIR') ? SPP_APP_DIR . "/etc/apps/{$app}/reports" : 'etc/apps/' . $app . '/reports';
         $yamlFile = $etcDir . '/' . $safeName . '.yml';
 
         if (!is_dir($etcDir)) {
@@ -35,11 +43,27 @@ class MakeReportCommand extends Command
         }
 
         if (file_exists($yamlFile)) {
-            echo "Error: Report '{$safeName}' already exists.\n";
+            echo "Error: Report '{$safeName}' already exists at {$yamlFile}.\n";
             return;
         }
 
         $yamlContent = <<<YAML
+# =====================================================================================
+# SPP Framework - Declarative Report Definition: {$safeName}
+# =====================================================================================
+# Core Reporting Concepts:
+# 1. table: The primary database table to query.
+# 2. columns: Selected fields with optional aggregates (COUNT, SUM, AVG, MIN, MAX).
+# 3. joins: Relations to include (type: LEFT/INNER, table: related, on: join condition).
+# 4. filters: AND/OR boolean conditions evaluated securely with parameterized queries.
+# 5. group_by: Dimension fields for aggregated cross-tabulation and metric calculations.
+# 6. order_by: Default sort column and direction (ASC or DESC).
+#
+# USAGE IN APPS:
+# - In Controller: return \$this->report('{$safeName}', ['status' => 'active']);
+# - In Blade Template: @sppreport('{$safeName}')
+# - In BI Dashboard: @sppreport_chart('{$safeName}', ['type' => 'bar'])
+
 table: 'users'
 columns:
   - field: 'id'
@@ -76,53 +100,45 @@ YAML;
         echo "Success: SPPReport YAML configuration created at {$yamlFile}\n";
 
         // Generate partials file
-        $partialsDir = SPP_APP_DIR . '/partials/reports';
+        $partialsDir = defined('SPP_APP_DIR') ? SPP_APP_DIR . "/src/{$app}/pages/partials/reports" : "src/{$app}/pages/partials/reports";
         if (!is_dir($partialsDir)) {
             mkdir($partialsDir, 0777, true);
         }
-        $partialFile = $partialsDir . '/' . $safeName . '.php';
+        $partialFile = $partialsDir . '/' . $safeName . '.blade.php';
 
         if (!file_exists($partialFile)) {
             $partialContent = <<<PHP
-<?php
-/**
- * Partial View for Report: {$safeName}
- * Rendered without inline HTML logic, securely using PHP template directives.
- */
-?>
+{{-- External Report Partial: {$safeName} --}}
 <div class="spp-report-container" id="report-{$safeName}">
-    <h2>Report: <?= htmlspecialchars(\$org_name ?? 'SPP Report') ?></h2>
-    <?php if (!empty(\$data)): ?>
-        <table class="table table-striped">
+    <h3>Report: {{ \$report_name ?? '{$safeName}' }}</h3>
+    @if(!empty(\$data))
+        <table class="table table-striped table-hover">
             <thead>
                 <tr>
-                    <?php foreach (array_keys(\$data[0]) as \$col): ?>
-                        <th><?= htmlspecialchars(\$col) ?></th>
-                    <?php endforeach; ?>
+                    @foreach(array_keys(\$data[0]) as \$col)
+                        <th>{{ \$col }}</th>
+                    @endforeach
                 </tr>
             </thead>
             <tbody>
-                <?php foreach (\$data as \$row): ?>
+                @foreach(\$data as \$row)
                     <tr>
-                        <?php foreach (\$row as \$val): ?>
-                            <td><?= htmlspecialchars((string)\$val) ?></td>
-                        <?php endforeach; ?>
+                        @foreach(\$row as \$val)
+                            <td>{{ \$val }}</td>
+                        @endforeach
                     </tr>
-                <?php endforeach; ?>
+                @endforeach
             </tbody>
         </table>
-    <?php else: ?>
-        <p>No data found for this report.</p>
-    <?php endif; ?>
-    <div class="alert alert-warning">
-        <?= htmlspecialchars(\$confidentiality ?? 'Internal Use Only') ?>
-    </div>
+    @else
+        <p class="text-muted">No matching records found.</p>
+    @endif
 </div>
 PHP;
             file_put_contents($partialFile, $partialContent);
-            echo "Success: Report View Partial created at {$partialFile}\n";
+            echo "Success: External Report Partial created at {$partialFile}\n";
         }
 
-        echo "Tip: You can now test your report via the API or dashboard!\n";
+        echo "Tip: You can now view your report via \$this->report('{$safeName}') or @sppreport('{$safeName}')!\n";
     }
 }

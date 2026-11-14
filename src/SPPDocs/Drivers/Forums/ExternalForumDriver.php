@@ -44,4 +44,24 @@ class ExternalForumDriver implements ForumDriverInterface
     {
         return [];
     }
+
+    public function createThread(string $categoryId, array $threadData): ?array
+    {
+        return null;
+    }
+
+    public function postReply(string $threadId, array $replyData): ?array
+    {
+        return null;
+    }
+
+    public function markSolution(string $threadId, string $replyId): bool
+    {
+        return false;
+    }
+
+    public function addReaction(string $threadId, string $replyId, string $userId, string $reaction): bool
+    {
+        return false;
+    }
 }

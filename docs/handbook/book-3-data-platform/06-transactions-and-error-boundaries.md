@@ -14,16 +14,49 @@ Do not begin with the database API. Begin with the business operation.
 
 ```mermaid
 flowchart TD
-    A[Business operation] --> B[Transaction boundary]
+    A[Business operation] --> B[Outer Transaction Level 1]
     B --> C[Write 1]
-    B --> D[Write 2]
-    B --> E[Write 3]
-    C --> F[Commit or rollback]
-    D --> F
-    E --> F
+    B --> D[Savepoint Level 2]
+    D --> E[Nested Write 2]
+    D --> F{Nested Success?}
+    F -->|Yes| G[Release Savepoint]
+    F -->|No| H[Rollback to Savepoint]
+    G --> I[Outer Commit]
+    H --> I
 ```
 
-## 3. Important caution
+## 3. Nested Transactions & SQL Savepoints
+
+In modular enterprise applications, independent domain services often initiate transactions. In standard PDO, opening a nested transaction throws a fatal error.
+
+SPP implements SQL-92 **Savepoints** natively across MySQL, PostgreSQL, and SQLite:
+
+1. **Automatic Nested Savepoints**:
+   - The first `beginTransaction()` issues native SQL `BEGIN`.
+   - Subsequent nested calls increment `$transactions` and issue `SAVEPOINT transN`.
+   - Nested `commit()` issues `RELEASE SAVEPOINT transN`.
+   - Nested `rollBack()` issues `ROLLBACK TO SAVEPOINT transN` without killing the parent transaction!
+
+2. **Explicit Named Savepoints**:
+   ```php
+   $db = new \SPPMod\SPPDB\SPPDB();
+   $db->beginTransaction();
+   
+   $db->createSavepoint('order_placement');
+   try {
+       $db->exec_query("UPDATE inventory SET stock = stock - 1 WHERE id = ?", [$item]);
+       $db->releaseSavepoint('order_placement');
+   } catch (\Throwable $e) {
+       $db->rollbackToSavepoint('order_placement');
+   }
+   
+   $db->commit();
+   ```
+
+3. **Closure-based Retry Engine**:
+   `SPPDB::transaction(callable $callback, int $attempts = 1)` automatically re-attempts operations if transient database deadlocks or lock-wait timeouts are encountered.
+
+## 4. Important caution
 
 Do not infer transaction guarantees from the existence of a database wrapper. The actual SPPDB implementation and selected driver determine the available semantics.
 

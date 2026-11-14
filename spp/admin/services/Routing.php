@@ -5,7 +5,7 @@
 
 function live_Routing_ListPages($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
+    $appname = $params['appname'] ?? $params['context'] ?? ($_SESSION['spp_admin_selected_app'] ?? 'default');
     $pages = \SPP\Scheduler::withContext($appname, function () {
         return \SPPMod\SPPView\Pages::listPages();
     });
@@ -23,12 +23,47 @@ function live_Routing_ListPages($la, $params)
         $sources[$sourceKey]['items'][] = $p;
     }
 
+    if (!class_exists('\\SPPMod\\SPPRouter\\ManifestRouter')) {
+        $mrFile = dirname(__DIR__, 2) . '/modules/spp/spprouter/src/ManifestRouter.php';
+        if (file_exists($mrFile)) {
+            require_once $mrFile;
+        }
+    }
+    if (class_exists('\\SPPMod\\SPPRouter\\ManifestRouter')) {
+        try {
+            $manifestRoutes = \SPPMod\SPPRouter\ManifestRouter::getAllRoutes($appname);
+            if (!empty($manifestRoutes)) {
+                $mItems = [];
+                foreach ($manifestRoutes as $r) {
+                    $mItems[] = [
+                        'name' => $r['name'] ?? $r['path'],
+                        'url' => $r['path'],
+                        'target' => $r['controller'] ? ($r['controller'] . '@' . $r['action']) : '-',
+                        'methods' => implode(', ', (array)($r['methods'] ?? ['GET'])),
+                        'source' => $r['source'] ?? 'routes.yml',
+                        'source_path' => $r['file'] ?? 'routes.yml',
+                        'status' => $r['stability'] ?? 'active',
+                        'middleware' => implode(', ', (array)($r['middleware'] ?? [])),
+                        'feature_flag' => !empty($r['feature_flag']) ? json_encode($r['feature_flag']) : null
+                    ];
+                }
+                $sources['Unified Routes'] = [
+                    'label' => 'Unified Routes (routes.yml, #[Route], Manifests)',
+                    'type' => 'unified',
+                    'items' => $mItems
+                ];
+            }
+        } catch (\Throwable $e) {
+            // Ignore if cache loading fails
+        }
+    }
+
     $la->setData(['sources' => array_values($sources)]);
 }
 
 function live_Routing_SavePage($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
+    $appname = $params['appname'] ?? $params['context'] ?? ($_SESSION['spp_admin_selected_app'] ?? 'default');
     $name = $params['name'] ?? '';
     $url = $params['url'] ?? '';
     $source = $params['source'] ?? 'yaml';
@@ -45,7 +80,7 @@ function live_Routing_SavePage($la, $params)
 
 function live_Routing_RemovePage($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
+    $appname = $params['appname'] ?? $params['context'] ?? ($_SESSION['spp_admin_selected_app'] ?? 'default');
     $name = $params['name'] ?? '';
     $source = $params['source'] ?? 'yaml';
 
@@ -60,7 +95,7 @@ function live_Routing_RemovePage($la, $params)
 
 function live_Routing_ListServices($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
+    $appname = $params['appname'] ?? $params['context'] ?? ($_SESSION['spp_admin_selected_app'] ?? 'default');
     $services = \SPP\Scheduler::withContext($appname, function () {
         return \SPPMod\SPPAPI\SPPAjax::listServices();
     });
@@ -83,7 +118,7 @@ function live_Routing_ListServices($la, $params)
 
 function live_Routing_SaveService($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
+    $appname = $params['appname'] ?? $params['context'] ?? ($_SESSION['spp_admin_selected_app'] ?? 'default');
     $name = $params['name'] ?? '';
     $script = $params['script'] ?? '';
     $method = $params['method'] ?? 'POST';
@@ -101,7 +136,7 @@ function live_Routing_SaveService($la, $params)
 
 function live_Routing_RemoveService($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
+    $appname = $params['appname'] ?? $params['context'] ?? ($_SESSION['spp_admin_selected_app'] ?? 'default');
     $name = $params['name'] ?? '';
     $source = $params['source'] ?? 'yaml';
 

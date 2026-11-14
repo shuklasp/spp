@@ -42,16 +42,28 @@ if (!function_exists('live_Core_ListApps')) {
                 }
             }
 
+            $restr = class_exists('\SPP\Core\Router\DomainRouter') ? \SPP\Core\Router\DomainRouter::getAppRestrictions($d) : [];
+            $isDomainApp = !empty($restr['is_domain_app']) || !empty($meta['is_domain_app']);
+            $installedDomain = $restr['installed_domain'] ?? ($meta['installed_domain'] ?? null);
+            $domainOnly = !empty($restr['domain_only']) || !empty($meta['domain_only']);
+            $allowedDomains = $restr['allowed_domains'] ?? ($meta['allowed_domains'] ?? []);
+            $srcPath = $restr['src_path'] ?? ($meta['src_path'] ?? ($isDomainApp ? "domains/{$installedDomain}/src/{$d}" : "src/{$d}"));
+
             $apps[] = [
                 'name' => $d,
                 'title' => $meta['admin_title'] ?? ucfirst($d),
-                'icon' => $meta['admin_icon'] ?? '🛠️',
+                'icon' => $meta['admin_icon'] ?? ($isDomainApp ? '🌐' : '🛠️'),
                 'is_base' => ($d === ($settings['base_app'] ?? 'default')),
                 'db_config' => !empty($meta['db_config']),
                 'base_url' => $meta['base_url'] ?? '/' . $d,
                 'table_prefix' => $meta['table_prefix'] ?? '',
                 'shared_group' => $meta['shared_group'] ?? null,
-                'admin_menu' => $adminMenu
+                'admin_menu' => $adminMenu,
+                'is_domain_app' => $isDomainApp,
+                'installed_domain' => $installedDomain,
+                'domain_only' => $domainOnly,
+                'allowed_domains' => $allowedDomains,
+                'src_path' => $srcPath
             ];
         }
 
@@ -63,12 +75,29 @@ if (!function_exists('live_Core_RunCommand')) {
     function live_Core_RunCommand($la, $params)
     {
         $cmd = $params['command'] ?? '';
-        if (!$cmd)
+        if (!$cmd) {
             return $la->error("No command provided.");
+        }
 
-        // In a real environment, this would execute via SPPShell or similar
-        $la->notify("Executing: $cmd", "info");
-        $la->setData(['output' => "Command executed successfully.\nStatus: 0"]);
+        require_once __DIR__ . '/CommandBridge.php';
+        $res = \SPP\Admin\Services\CommandBridge::runShellCommand($cmd, $params['appname'] ?? 'default');
+        $la->setData($res);
+        if (empty($res['success']) && !empty($res['error'])) {
+            $la->error($res['error']);
+        }
+    }
+}
+
+if (!function_exists('live_Core_RunCommandStream')) {
+    function live_Core_RunCommandStream($la, $params)
+    {
+        $cmd = $params['command'] ?? '';
+        if (!$cmd) {
+            return $la->error("No command provided.");
+        }
+
+        require_once __DIR__ . '/CommandBridge.php';
+        \SPP\Admin\Services\CommandBridge::streamShellCommand($cmd, $params['appname'] ?? 'default');
     }
 }
 

@@ -40,6 +40,11 @@ abstract class EventHandler
         $this->handler_name = $this->event_name;
         $this->event_name = ($event_name == null) ? $this->handler_name : $event_name;
         
+        $subscribed = static::getSubscribedEvents();
+        if (!empty($subscribed) && class_exists('\\SPP\\SPPEvent', false)) {
+            \SPP\SPPEvent::registerSubscriber($this);
+        }
+
         if ($is_default) {
             $this->overrideHandler();
         } else {

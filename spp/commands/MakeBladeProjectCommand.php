@@ -429,6 +429,16 @@ PHP;
             file_put_contents($targetPagesDir . '/pages.yml', Yaml::dump($pagesYaml, 4, 2));
         }
 
+        // 9. Sync and generate directory manifests (__spp_file_props.yml)
+        if (!class_exists('\SPPMod\SPPStorage\FilePropsManager')) {
+            require_once defined('SPP_APP_DIR') ? SPP_APP_DIR . '/spp/modules/spp/sppstorage/src/FilePropsManager.php' : dirname(__DIR__, 2) . '/modules/spp/sppstorage/src/FilePropsManager.php';
+        }
+        \SPPMod\SPPStorage\FilePropsManager::syncDirectory(SPP_APP_DIR . "/src/{$appName}", true);
+        \SPPMod\SPPStorage\FilePropsManager::syncDirectory(SPP_APP_DIR . "/etc/apps/{$appName}", true);
+        if (is_dir(SPP_APP_DIR . "/resources/{$appName}")) {
+            \SPPMod\SPPStorage\FilePropsManager::syncDirectory(SPP_APP_DIR . "/resources/{$appName}", true);
+        }
+
         echo "\nSuccess! Integrated Blade project '{$appName}' created.\n";
         echo "Run it at: http://localhost/{$appName}_index.php or http://localhost/{$appName}\n";
     }

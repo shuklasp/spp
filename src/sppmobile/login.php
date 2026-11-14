@@ -195,7 +195,7 @@
         </form>
 
         <div class="footer">
-            Satya Studio Pro &bull; Enterprise Edition
+            Satya Portal Platform
         </div>
     </div>
 

@@ -25,9 +25,10 @@ class ModuleDisableCommand extends Command
     public function execute(array $args): void
     {
         $moduleName = $this->getArgument($args, 0) ?? null;
+        $appName = $this->getOption($args, 'app');
 
         if (!$moduleName) {
-            echo "Usage: php spp.php module:disable <modulename>\n";
+            echo "Usage: php spp.php module:disable <modulename> [--app=AppName]\n";
             return;
         }
 
@@ -36,9 +37,14 @@ class ModuleDisableCommand extends Command
             return;
         }
 
-        echo "🛑 Disabling module '{$moduleName}'...\n";
+        if ($appName) {
+            \SPP\Scheduler::setContext($appName);
+        }
+
+        $context = $appName ?: (\SPP\Scheduler::getContext() ?: 'default');
+        echo "🛑 Disabling module '{$moduleName}' for context [{$context}]...\n";
         try {
-            $res = ModuleInstaller::setModuleStatus($moduleName, 'inactive');
+            $res = ModuleInstaller::setModuleStatus($moduleName, 'inactive', $context);
             if ($res) {
                 echo "✅ Module deactivated and cache recompiled.\n";
             } else {

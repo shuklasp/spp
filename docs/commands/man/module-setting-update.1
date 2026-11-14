@@ -1,7 +1,24 @@
-.TH "module:setting:update" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "MODULE-SETTING-UPDATE" "1" "October 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
 module:setting:update \- Update a configuration setting for a specific module
 .SH SYNOPSIS
 .B php spp.php module:setting:update
+.I <modulename> <key> <value>
 .SH DESCRIPTION
-Update a configuration setting for a specific module
+\fBmodule:setting:update\fR validates and updates a configuration value for a target module,
+writing the change to the active application's module configuration file and invalidating
+cached configuration structures.
+.SH OPTIONS
+.TP
+.BR <modulename>
+Internal name or directory basename of the module.
+.TP
+.BR <key>
+Configuration setting key name.
+.TP
+.BR <value>
+New value to assign.
+.SH UNDER THE HOOD
+Validates schema definition, writes through \fBModuleConfigManager::setConfig()\fR, and clears cache.
+.SH AUTHOR
+Satya Prakash Shukla

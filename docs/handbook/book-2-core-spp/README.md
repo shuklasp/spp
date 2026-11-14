@@ -22,6 +22,7 @@ Book 1 explained why frameworks exist and how the major concepts fit together. B
 16. Reporting and Observability Integration
 17. Developer Scaffolds and Code Generation
 18. Runtime Debugging and Source Tracing
+19. Declarative Manifest OS, Directory Properties, and Capability Sandboxing
 
 ## Learning contract
 

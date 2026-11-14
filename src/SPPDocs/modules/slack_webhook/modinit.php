@@ -2,8 +2,9 @@
 
 namespace AppMod\SPPDocs\SlackWebhook;
 
-class SlackWebhookModule
-{
+if (!class_exists(__NAMESPACE__ . '\\SlackWebhookModule', false)) {
+    class SlackWebhookModule
+    {
     private static array $auditLog = [];
 
     /**
@@ -25,9 +26,10 @@ class SlackWebhookModule
         return $entry;
     }
 
-    public static function getAuditLog(): array
-    {
-        return self::$auditLog;
+        public static function getAuditLog(): array
+        {
+            return self::$auditLog;
+        }
     }
 }
 

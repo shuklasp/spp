@@ -7,3 +7,13 @@
 {"timestamp":1777647023.113534,"table":"books","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\spp\\sppxdb\/data\/ultimate_test\/books.xml"}}
 {"timestamp":1777647023.116224,"table":"authors","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\spp\\sppxdb\/data\/ultimate_test\/authors.xml"}}
 {"timestamp":1777647023.123294,"table":"authors","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\spp\\sppxdb\/data\/ultimate_test\/authors.xml"}}
+{"timestamp":1794045179.280554,"table":"authors","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\optional\\sppxdb\/data\/ultimate_test\/authors.xml"}}
+{"timestamp":1794045179.287963,"table":"books","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\optional\\sppxdb\/data\/ultimate_test\/books.xml"}}
+{"timestamp":1794045179.356699,"table":"books","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\optional\\sppxdb\/data\/ultimate_test\/books.xml"}}
+{"timestamp":1794045179.363027,"table":"authors","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\optional\\sppxdb\/data\/ultimate_test\/authors.xml"}}
+{"timestamp":1794045179.385991,"table":"authors","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\optional\\sppxdb\/data\/ultimate_test\/authors.xml"}}
+{"timestamp":1794048439.40743,"table":"authors","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\optional\\sppxdb\/data\/ultimate_test\/authors.xml"}}
+{"timestamp":1794048439.414913,"table":"books","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\optional\\sppxdb\/data\/ultimate_test\/books.xml"}}
+{"timestamp":1794048439.48079,"table":"books","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\optional\\sppxdb\/data\/ultimate_test\/books.xml"}}
+{"timestamp":1794048439.486759,"table":"authors","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\optional\\sppxdb\/data\/ultimate_test\/authors.xml"}}
+{"timestamp":1794048439.514629,"table":"authors","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\optional\\sppxdb\/data\/ultimate_test\/authors.xml"}}

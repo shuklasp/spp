@@ -16,14 +16,21 @@ class ExportController extends \SPPMod\SPPView\ViewController
     }
 
     #[Route('/export/book', method: 'GET')]
-    public function book()
+    #[Route('/export/book/{project}', method: 'GET')]
+    public function book($projectId = null)
     {
-        $projectId = $_GET['project'] ?? $_GET['project_id'] ?? '';
+        $rawProject = $projectId ?? ($this->routeParams['project'] ?? null) ?? $_GET['project'] ?? $_GET['project_id'] ?? '';
         $this->loadProjectConfig();
 
+        $projectId = $this->findProjectId($rawProject) ?? $rawProject;
+
         if (!$projectId || !isset($this->config['projects'][$projectId])) {
-            $keys = array_keys($this->config['projects'] ?? []);
-            $projectId = $keys[0] ?? '';
+            if (isset($this->config['projects']['book'])) {
+                $projectId = 'book';
+            } else {
+                $keys = array_keys($this->config['projects'] ?? []);
+                $projectId = $keys[0] ?? '';
+            }
         }
 
         if (!$projectId || !isset($this->config['projects'][$projectId])) {
@@ -36,7 +43,7 @@ class ExportController extends \SPPMod\SPPView\ViewController
 
         $book = BookExportService::compileBook($project, $projectId, $version);
 
-        return $this->render('export.book', [
+        return $this->render('export/book', [
             'projectId' => $projectId,
             'project_id' => $projectId,
             'project' => $project,
@@ -46,11 +53,61 @@ class ExportController extends \SPPMod\SPPView\ViewController
         ]);
     }
 
-    #[Route('/export/markdown', method: 'GET')]
-    public function markdown()
+    #[Route('/export/pdf', method: 'GET')]
+    #[Route('/export/pdf/{project}', method: 'GET')]
+    public function pdf($projectId = null)
     {
-        $projectId = $_GET['project'] ?? $_GET['project_id'] ?? '';
+        $rawProject = $projectId ?? ($this->routeParams['project'] ?? null) ?? $_GET['project'] ?? $_GET['project_id'] ?? '';
         $this->loadProjectConfig();
+
+        $projectId = $this->findProjectId($rawProject) ?? $rawProject;
+
+        if (!$projectId || !isset($this->config['projects'][$projectId])) {
+            if (isset($this->config['projects']['book'])) {
+                $projectId = 'book';
+            } else {
+                $keys = array_keys($this->config['projects'] ?? []);
+                $projectId = $keys[0] ?? '';
+            }
+        }
+
+        if (!$projectId || !isset($this->config['projects'][$projectId])) {
+            exit('Project not found');
+        }
+
+        $project = $this->config['projects'][$projectId];
+        \App\SPPDocs\Services\FeatureManager::requireFeature('book_export', $project, $projectId);
+        $version = $_GET['version'] ?? ($project['default_version'] ?? 'v1');
+
+        $book = BookExportService::compileBook($project, $projectId, $version);
+
+        return $this->render('export/book', [
+            'projectId' => $projectId,
+            'project_id' => $projectId,
+            'project' => $project,
+            'version' => $version,
+            'book' => $book,
+            'auto_print' => true,
+        ]);
+    }
+
+    #[Route('/export/markdown', method: 'GET')]
+    #[Route('/export/markdown/{project}', method: 'GET')]
+    public function markdown($projectId = null)
+    {
+        $rawProject = $projectId ?? ($this->routeParams['project'] ?? null) ?? $_GET['project'] ?? $_GET['project_id'] ?? '';
+        $this->loadProjectConfig();
+
+        $projectId = $this->findProjectId($rawProject) ?? $rawProject;
+
+        if (!$projectId || !isset($this->config['projects'][$projectId])) {
+            if (isset($this->config['projects']['book'])) {
+                $projectId = 'book';
+            } else {
+                $keys = array_keys($this->config['projects'] ?? []);
+                $projectId = $keys[0] ?? '';
+            }
+        }
 
         if (!$projectId || !isset($this->config['projects'][$projectId])) {
             exit('Project not found');

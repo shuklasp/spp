@@ -155,6 +155,43 @@
                 <input type="text" name="description" placeholder="Brief summary of this project" class="adm-form-input">
             </div>
 
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Project Paradigm</label>
+                    <select name="type" class="adm-form-select">
+                        <option value="docs" selected>📚 Documentation</option>
+                        <option value="app">📱 Application</option>
+                        <option value="module">📦 Module / Package</option>
+                        <option value="presentation">📊 Presentation</option>
+                    </select>
+                </div>
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Visibility Scope</label>
+                    <select name="visibility" class="adm-form-select">
+                        <option value="public" selected>🌐 Public (Showcase)</option>
+                        <option value="personal">🔒 Personal (Private)</option>
+                        <option value="closed_group">👥 Closed Group</option>
+                        <option value="team">🏢 Team</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="adm-form-group">
+                <label class="adm-form-label">Store Package Identifier (Optional)</label>
+                <input type="text" name="package_name" placeholder="e.g. satyalab/school1" class="adm-form-input">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Demo URL</label>
+                    <input type="url" name="demo_url" placeholder="https://..." class="adm-form-input">
+                </div>
+                <div class="adm-form-group">
+                    <label class="adm-form-label">Repository URL</label>
+                    <input type="url" name="repo_url" placeholder="https://github.com/..." class="adm-form-input">
+                </div>
+            </div>
+
             <div class="adm-form-group">
                 <label class="adm-form-label">Initial Storage Engine</label>
                 <select name="storage" class="adm-form-select">

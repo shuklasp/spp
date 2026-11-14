@@ -1,7 +1,39 @@
-.TH "make:form" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH MAKE:FORM 1 "October 2026" "SPP CLI Manual" "User Commands"
 .SH NAME
-make:form \- Create a new SPP form definition
+make:form \- Scaffold zero-code declarative YAML form definition or fluent PHP form class
 .SH SYNOPSIS
 .B php spp.php make:form
+.I <name>
+[\fB\-\-app\fR=\fIappname\fR]
+[\fB\-\-yaml\fR]
+[\fB\-\-php\fR]
 .SH DESCRIPTION
-Create a new SPP form definition
+The
+.B make:form
+command provisions form definitions in SPP. By default or with \fB\-\-yaml\fR, it generates a zero-code declarative YAML definition in \fBetc/apps/<appname>/forms/<name>.yml\fR.
+Declarative forms support standard inputs (text, email, password, number, tel, url, hidden, textarea, select, checkbox, radio, toggle, date, file, range, color),
+enterprise controls (signature, otp, tags, rating, repeater, editor, code, autocomplete, grid),
+zero-code validation (required, min, max, unique, regex, match, range, file extensions, remote),
+reactive modifiers (col, depends_on, computed, help, placeholder),
+honeypot bot defense, and dynamic workflow state transition bars.
+Passing \fB\-\-php\fR scaffolds a programmatic PHP form class adhering to the fluent builder API.
+.SH OPTIONS
+.TP
+.I <name>
+The name of the form to generate (e.g., contact, student_registration).
+.TP
+\fB\-\-app\fR=\fIappname\fR
+The target application context (e.g., school, default).
+.TP
+\fB\-\-yaml\fR
+Generate a declarative zero-code YAML form definition (default).
+.TP
+\fB\-\-php\fR
+Generate a programmatic PHP builder class.
+.SH UNDER THE HOOD
+.IP \(bu 2
+Resolves application directory at \fBetc/apps/<appname>/forms/\fR (YAML) or \fBsrc/<appname>/forms/\fR (PHP).
+.IP \(bu 2
+Compiles declarative schema or PHP builder stub with turnkey configuration.
+.IP \(bu 2
+Emits file metadata to \fB__spp_file_props.yml\fR.

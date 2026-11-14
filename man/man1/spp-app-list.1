@@ -1,16 +1,17 @@
-.TH SPP-app-list 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
+.TH "SPP-APP-LIST" 1 "November 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-spp-app-list \- List all registered SPP applications
+spp-app-list \- List all registered applications, distinguishing system portals from user applications
 .SH SYNOPSIS
-.B php spp.php app:list
-[OPTIONS]
+.B spp app:list
 .SH DESCRIPTION
-List all registered SPP applications
-.PP
+.B app:list
+scans the SPP application registry and filesystem to list all active applications.
+System-critical portals (\fBsppadmin\fR, \fBsppdev\fR, \fBdefault\fR) are classified under the \fBsystem\fR type with their Dev Mode status displayed.
+Modular packages nested under applications (such as \fBSPPDocs\fR sub-packages) are automatically rolled up and displayed as integrated package counts rather than separate standalone entries.
 .SH OPTIONS
-No explicit options statically detected.
+None.
 .SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Executes native PHP logic without major side-effects or external dependencies.
-.br
+.IP \(bu 2
+Reads \fIspp/etc/global-settings.yml\fR.
+.IP \(bu 2
+Traverses \fIsrc/*/packages/\fR to resolve internal package associations.

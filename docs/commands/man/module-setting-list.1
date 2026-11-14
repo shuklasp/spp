@@ -1,7 +1,19 @@
-.TH "module:setting:list" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "MODULE-SETTING-LIST" "1" "October 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-module:setting:list \- List all settings for a given module
+module:setting:list \- List all configuration settings for an SPP module
 .SH SYNOPSIS
 .B php spp.php module:setting:list
+.I <modulename>
 .SH DESCRIPTION
-List all settings for a given module
+\fBmodule:setting:list\fR inspects a module's manifest \fBsettings:\fR block and renders an
+ASCII table detailing each configurable parameter, its data type, active resolved value,
+and default fallback.
+.SH OPTIONS
+.TP
+.BR <modulename>
+Internal name or directory basename of the module.
+.SH UNDER THE HOOD
+Retrieves settings definition from \fBModule::getSettingsDefinition()\fR, queries
+\fBModuleConfigManager::getConfig()\fR across resolution layers, and renders via \fBCommand::table()\fR.
+.SH AUTHOR
+Satya Prakash Shukla

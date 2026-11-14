@@ -34,7 +34,12 @@ trait LiveValidatorTrait
     {
         $this->errors = [];
         $meta = class_exists(LiveComponent::class) ? LiveComponent::getParsedAttributes(static::class) : ['validationRules' => []];
-        $rulesToUse = $rules ?? array_merge($this->rules, $meta['validationRules'] ?? []);
+        $dynamicRules = [];
+        if (method_exists($this, 'rules')) {
+            $dyn = $this->rules();
+            if (is_array($dyn)) $dynamicRules = $dyn;
+        }
+        $rulesToUse = $rules ?? array_merge($this->rules, $meta['validationRules'] ?? [], $dynamicRules);
         
         $this->executeValidation($rulesToUse, $prefix);
         
@@ -93,7 +98,12 @@ trait LiveValidatorTrait
             }
         } else {
             $meta = class_exists(LiveComponent::class) ? LiveComponent::getParsedAttributes(static::class) : ['validationRules' => []];
-            $allRules = array_merge($this->rules, $meta['validationRules'] ?? []);
+            $dynamicRules = [];
+            if (method_exists($this, 'rules')) {
+                $dyn = $this->rules();
+                if (is_array($dyn)) $dynamicRules = $dyn;
+            }
+            $allRules = array_merge($this->rules, $meta['validationRules'] ?? [], $dynamicRules);
 
             if (isset($allRules[$field])) {
                 $this->executeValidation([$field => $allRules[$field]], $prefix);
@@ -137,12 +147,47 @@ trait LiveValidatorTrait
      */
     protected function executeValidation(array $rules, string $prefix = ''): void
     {
-        foreach ($rules as $field => $ruleString) {
+        $allData = [];
+        $ref = new ReflectionClass($this);
+        foreach ($ref->getProperties(ReflectionProperty::IS_PUBLIC) as $p) {
+            if ($p->isInitialized($this)) {
+                $allData[$p->getName()] = $p->getValue($this);
+            }
+        }
+
+        foreach ($rules as $field => $ruleDef) {
             $value = property_exists($this, $field) ? $this->$field : null;
-            $rulesArr = is_array($ruleString) ? $ruleString : explode('|', $ruleString);
+            $rulesArr = is_array($ruleDef) ? $ruleDef : explode('|', (string)$ruleDef);
             $errorKey = $prefix ? "{$prefix}.{$field}" : $field;
-            
+
             foreach ($rulesArr as $rule) {
+                // 1. RuleInterface instance or registered CustomRuleRegistry alias
+                $resolvedRule = null;
+                if ($rule instanceof \SPPMod\SPPView\Validation\RuleInterface) {
+                    $resolvedRule = $rule;
+                } elseif (is_string($rule) && class_exists('\\SPPMod\\SPPView\\Validation\\CustomRuleRegistry') && \SPPMod\SPPView\Validation\CustomRuleRegistry::has($rule)) {
+                    $resolvedRule = \SPPMod\SPPView\Validation\CustomRuleRegistry::resolve($rule);
+                }
+
+                if ($resolvedRule !== null) {
+                    if (!$resolvedRule->passes($field, $value, $allData)) {
+                        $this->errors[$errorKey] = $resolvedRule->message($field);
+                        break;
+                    }
+                    continue;
+                }
+
+                // 2. Closure / callable rule
+                if (is_callable($rule)) {
+                    $passes = $rule($field, $value, $allData);
+                    if (!$passes) {
+                        $this->errors[$errorKey] = ucfirst($field) . " is invalid.";
+                        break;
+                    }
+                    continue;
+                }
+
+                // 3. Built-in string rules
                 if ($rule === 'required' && ($value === null || $value === '')) {
                     $this->errors[$errorKey] = ucfirst($field) . " is required.";
                     break;
@@ -171,21 +216,21 @@ trait LiveValidatorTrait
                     $this->errors[$errorKey] = ucfirst($field) . " must be a valid URL.";
                     break;
                 }
-                if (str_starts_with($rule, 'in:')) {
+                if (is_string($rule) && str_starts_with($rule, 'in:')) {
                     $options = explode(',', substr($rule, 3));
                     if (!in_array((string)$value, $options, true)) {
                         $this->errors[$errorKey] = ucfirst($field) . " must be one of: " . implode(', ', $options) . ".";
                         break;
                     }
                 }
-                if (str_starts_with($rule, 'regex:')) {
+                if (is_string($rule) && str_starts_with($rule, 'regex:')) {
                     $pattern = substr($rule, 6);
                     if (!preg_match($pattern, (string)$value)) {
                         $this->errors[$errorKey] = ucfirst($field) . " format is invalid.";
                         break;
                     }
                 }
-                if (str_starts_with($rule, 'min:')) {
+                if (is_string($rule) && str_starts_with($rule, 'min:')) {
                     $min = (int) substr($rule, 4);
                     if (is_string($value) && strlen($value) < $min) {
                         $this->errors[$errorKey] = ucfirst($field) . " must be at least {$min} characters.";
@@ -195,7 +240,7 @@ trait LiveValidatorTrait
                         $this->errors[$errorKey] = ucfirst($field) . " must have at least {$min} items.";
                     }
                 }
-                if (str_starts_with($rule, 'max:')) {
+                if (is_string($rule) && str_starts_with($rule, 'max:')) {
                     $max = (int) substr($rule, 4);
                     if (is_string($value) && strlen($value) > $max) {
                         $this->errors[$errorKey] = ucfirst($field) . " must not exceed {$max} characters.";

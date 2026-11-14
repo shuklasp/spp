@@ -8,44 +8,15 @@ use App\SPPDocs\Services\FeatureManager;
 use SPP\App;
 use SPP\Response;
 
+use App\SPPDocs\Traits\ProjectAwareTrait;
+
 class ForumController extends \SPPMod\SPPView\ViewController
 {
-    private array $config;
+    use ProjectAwareTrait;
 
     public function __construct()
     {
-        $configFile = __DIR__ . '/../etc/sppdocs.yml';
-        $this->config = ['projects' => []];
-        
-        if (file_exists($configFile)) {
-            $mainConfig = Yaml::parseFile($configFile);
-            if (isset($mainConfig['projects']) && is_array($mainConfig['projects'])) {
-                foreach ($mainConfig['projects'] as $id => $projectConfigPath) {
-                    if (strpos($projectConfigPath, 'C:/') === 0 || strpos($projectConfigPath, 'c:/') === 0) {
-                        $projectConfigPath = str_replace(['C:/projects/apache/school1/', 'c:/projects/apache/school1/'], '', $projectConfigPath);
-                    }
-                    if (!str_starts_with($projectConfigPath, '/') && !str_contains($projectConfigPath, ':\\')) {
-                        $projectConfigPath = dirname(SPP_BASE_DIR) . '/' . $projectConfigPath;
-                    }
-                    if (file_exists($projectConfigPath)) {
-                        $this->config['projects'][$id] = Yaml::parseFile($projectConfigPath);
-                        $this->config['projects'][$id]['_config_path'] = $projectConfigPath;
-                    }
-                }
-            }
-        }
-    }
-
-    private function getForumsDir($project)
-    {
-        $dir = $project['forums_dir'] ?? dirname($project['_config_path']) . '/forums';
-        if (strpos($dir, 'C:/') === 0 || strpos($dir, 'c:/') === 0) {
-            $dir = str_replace(['C:/projects/apache/school1/', 'c:/projects/apache/school1/'], '', $dir);
-        }
-        if (!str_starts_with($dir, '/') && !str_contains($dir, ':\\')) {
-            $dir = SPP_BASE_DIR . '/' . $dir;
-        }
-        return $dir;
+        $this->loadProjectConfig();
     }
 
     private function getUser()

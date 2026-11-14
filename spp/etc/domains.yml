@@ -1,10 +1,17 @@
 # SPP Virtual Host Domain Mapping Configuration
-# Maps HTTP Host headers to specific SPP application contexts.
-# Supports exact hosts and wildcard subdomains.
+# Template configuration for multi-domain routing
 
+mode: single
+default_app: default
+virtual_host_mode: strict
+unmapped_subdomain_policy: block
+domain_only_apps: {}
 domains:
-  docs.localhost: SPPDocs
-  api.localhost: sppapi
-  lekhak.localhost: lekhak
-  "*.docs.localhost": SPPDocs
-  "*.spp.internal": SPPDocs
+  example.com:
+    type: primary
+    account: default
+    default_app: default
+    enabled_apps:
+      - default
+    canonical_host: example.com
+    routing_mode: spp_path

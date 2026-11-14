@@ -7,3 +7,4 @@ module:
   publicdesc: "Decoupled Routing Engine for HTTP dispatch."
   includes:
     - class.spprouter.php
+    - src/ManifestRouter.php

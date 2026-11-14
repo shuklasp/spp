@@ -442,6 +442,14 @@ class SPPDB
     }
 
     /**
+     * Returns the underlying PDO connection (alias for getPDO).
+     */
+    public function getConnection(): ?\PDO
+    {
+        return $this->getPDO();
+    }
+
+    /**
      * Returns a human-readable summary of the current connection.
      */
     public function getConnectionSummary(): string
@@ -832,15 +840,55 @@ class SPPDB
 
     public function beginTransaction(): bool
     {
-        return $this->adapter->beginTransaction();
+        $res = $this->adapter->beginTransaction();
+        if ($res && class_exists('\\SPP\\SPPEvent', false)) {
+            \SPP\SPPEvent::recordBeginTransaction();
+        }
+        return $res;
     }
     public function commit(): bool
     {
-        return $this->adapter->commit();
+        $res = $this->adapter->commit();
+        if ($res && class_exists('\\SPP\\SPPEvent', false)) {
+            \SPP\SPPEvent::recordCommit();
+        }
+        return $res;
     }
     public function rollBack(): bool
     {
-        return $this->adapter->rollBack();
+        $res = $this->adapter->rollBack();
+        if ($res && class_exists('\\SPP\\SPPEvent', false)) {
+            \SPP\SPPEvent::recordRollback();
+        }
+        return $res;
+    }
+
+    public function createSavepoint(string $name): void
+    {
+        if (method_exists($this->adapter, 'createSavepoint')) {
+            $this->adapter->createSavepoint($name);
+        }
+    }
+
+    public function releaseSavepoint(string $name): void
+    {
+        if (method_exists($this->adapter, 'releaseSavepoint')) {
+            $this->adapter->releaseSavepoint($name);
+        }
+    }
+
+    public function rollbackToSavepoint(string $name): void
+    {
+        if (method_exists($this->adapter, 'rollbackToSavepoint')) {
+            $this->adapter->rollbackToSavepoint($name);
+        }
+    }
+
+    public function getTransactionLevel(): int
+    {
+        return method_exists($this->adapter, 'getTransactionLevel') 
+            ? $this->adapter->getTransactionLevel() 
+            : 0;
     }
 
     /**

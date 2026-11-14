@@ -304,7 +304,15 @@ class SPPLive {
             }
         });
 
-        window.addEventListener('popstate', () => {
+        window.addEventListener('popstate', (e) => {
+            if (!e.state || !e.state.__spp_wire_nav__) return;
+            if (e.state.url) {
+                try {
+                    const prev = new URL(e.state.url, window.location.origin);
+                    const curr = new URL(window.location.href, window.location.origin);
+                    if (prev.pathname === curr.pathname && prev.search === curr.search) return;
+                } catch (err) {}
+            }
             this.navigate(window.location.href, false);
         });
     }
@@ -314,7 +322,7 @@ class SPPLive {
         
         // Save scroll position for current URL
         if (pushState) {
-            history.replaceState({ scrollY: window.scrollY }, '', window.location.href);
+            history.pushState({ __spp_wire_nav__: true, scrollY: window.scrollY, url }, '', url);
         }
         
         const processHtml = (html) => {
@@ -628,6 +636,24 @@ class SPPLive {
             console.log('[SPPLive] SSE Stream active:', e.data);
         });
 
+        this.eventSource.addEventListener('spplive_degrade', (e) => {
+            console.warn('[SPPLive] SSE Stream degraded to polling:', e.data);
+            if (this.eventSource) {
+                this.eventSource.close();
+                this.eventSource = null;
+                this.useSSE = false;
+            }
+        });
+
+        this.eventSource.addEventListener('spplive_error', (e) => {
+            console.warn('[SPPLive] SSE stream error, closing:', e.data);
+            if (this.eventSource) {
+                this.eventSource.close();
+                this.eventSource = null;
+                this.useSSE = false;
+            }
+        });
+
         this.eventSource.onerror = () => {
             console.log('[SPPLive] SSE Connection error. Browser will auto-reconnect or fallback.');
             // Let the browser handle EventSource reconnect natively
@@ -926,7 +952,8 @@ class SPPLive {
             if (data.html) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = data.html.trim();
-                const newEl = tempDiv.firstChild;
+                const newEl = tempDiv.firstElementChild;
+                if (!newEl) return;
                 
                 newEl.setAttribute('wire:id', id);
                 newEl.setAttribute('wire:state', JSON.stringify(data.state));
@@ -1012,7 +1039,7 @@ class SPPLive {
             if (data.events && Array.isArray(data.events)) {
                 data.events.forEach(evt => {
                     let target = 'global';
-                    if (evt.params.length > 0 && typeof evt.params[evt.params.length - 1] === 'string' && evt.params[evt.params.length - 1].startsWith('target:')) {
+                    if (Array.isArray(evt.params) && evt.params.length > 0 && typeof evt.params[evt.params.length - 1] === 'string' && evt.params[evt.params.length - 1].startsWith('target:')) {
                         target = evt.params.pop().substring(7);
                     }
                     

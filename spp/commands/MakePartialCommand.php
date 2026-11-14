@@ -140,6 +140,20 @@ PARTIAL;
         }
         
         file_put_contents($filePath, $content);
+
+        $this->recordFileProps($filePath, [
+            'description' => "External view partial template: " . basename($filePath),
+            'usage' => "Rendered via @spppartial or ViewController::renderPartial()",
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => [
+                'tags' => ['view', 'partial', $ext],
+                'engine' => str_ends_with(strtolower($filePath), '.blade.php') ? 'blade' : ($ext === 'php' ? 'php' : ($ext === 'js' ? 'js' : 'html')),
+                'required_props' => []
+            ]
+        ]);
+
         echo "Success: External partial template created at {$filePath}\n";
     }
 }

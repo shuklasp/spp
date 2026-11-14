@@ -448,3 +448,58 @@ export class SPPStore {
         });
     }
 }
+
+// ─── React / Vue Style Composition Hooks ─────────────────────────
+
+/**
+ * React-style useState hook backed by fine-grained Signal.
+ * Returns [getter, setter, signalInstance].
+ * Calling getter() inside an effect / template auto-subscribes.
+ * 
+ * @example
+ * const [count, setCount] = useState(0);
+ * setCount(count() + 1);
+ */
+export function useState(initialValue) {
+    const sig = new Signal(initialValue);
+    const getter = () => sig.value;
+    const setter = (next) => {
+        sig.value = typeof next === 'function' ? next(sig.value) : next;
+    };
+    return [getter, setter, sig];
+}
+
+/**
+ * Vue-style ref() creating a standalone reactive Signal.
+ * 
+ * @example
+ * const count = ref(0);
+ * count.value++;
+ */
+export function ref(initialValue) {
+    return new Signal(initialValue);
+}
+
+/**
+ * Vue / React style computed value.
+ * Lazily evaluated and cached until dependencies mutate.
+ * 
+ * @param {Function} getter
+ * @returns {Function} Function returning the computed value
+ */
+export function useComputed(getter) {
+    const comp = new Computed(getter);
+    return () => comp.value;
+}
+
+/**
+ * React-style useEffect hook.
+ * Executes immediately and re-executes whenever accessed Signals/Computed mutate.
+ * 
+ * @param {Function} effectFn
+ * @returns {Function} Dispose / unsubscribe function
+ */
+export function useEffect(effectFn) {
+    return effect(effectFn);
+}
+

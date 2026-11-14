@@ -4,59 +4,109 @@
         "icon": "👋",
         "component": "views/dashboard.js"
     },
+    "domains": {
+        "title": "Virtual Hosts & Domains",
+        "icon": "🌐",
+        "component": "views/domains.js"
+    },
+    "fleet": {
+        "title": "Fleet & DNS Cluster",
+        "icon": "🌐",
+        "component": "views/fleet.js"
+    },
+    "files": {
+        "title": "File Manager & Storage",
+        "icon": "📁",
+        "component": "views/files.js"
+    },
+    "deploy": {
+        "title": "Deployments & Backups",
+        "icon": "🚀",
+        "component": "views/deploy.js"
+    },
+    "mail": {
+        "title": "e-Vaarta Mail Server",
+        "icon": "📬",
+        "component": "views/mail.js"
+    },
+    "database": {
+        "title": "Database Studio",
+        "icon": "🗄️",
+        "component": "views/database.js"
+    },
     "identity": {
         "title": "Identity & Access (IAM)",
         "icon": "🛡️",
         "component": "views/identity.js"
     },
-    "database": {
-        "title": "Database & Storage",
-        "icon": "🗄️",
-        "component": "views/database.js"
+    "shield": {
+        "title": "Security & Firewall",
+        "icon": "🛡️",
+        "component": "views/shield.js"
     },
-    "apps": {
-        "title": "Applications & Deployments",
-        "icon": "📱",
-        "component": "views/apps.js"
+    "server": {
+        "title": "Server & Process Workstation",
+        "icon": "🖥️",
+        "component": "views/server.js"
+    },
+    "runtime": {
+        "title": "PHP & Runtime Environments",
+        "icon": "⚙️",
+        "component": "views/runtime.js"
+    },
+    "cron": {
+        "title": "Scheduled Tasks & Queue",
+        "icon": "⏱️",
+        "component": "views/cron.js"
+    },
+    "metrics": {
+        "title": "Metrics & Analytics",
+        "icon": "📊",
+        "component": "views/metrics.js"
     },
     "system": {
         "title": "Observability & Diagnostics",
         "icon": "🖥️",
         "component": "views/system.js"
     },
-    "commands": {
-        "title": "CLI Command Center",
-        "icon": "⚡",
-        "component": "views/commands.js"
+    "terminal": {
+        "title": "Web Terminal",
+        "icon": "⬛",
+        "component": "views/terminal.js"
+    },
+    "apps": {
+        "title": "Applications & Modules",
+        "icon": "📱",
+        "component": "views/apps.js"
+    },
+    "reseller": {
+        "title": "Resellers & Multi-Tenancy",
+        "icon": "👥",
+        "component": "views/reseller.js"
+    },
+    "apptoolkit": {
+        "title": "CMS & App Marketplace",
+        "icon": "📦",
+        "component": "views/apptoolkit.js"
     },
     "api_keys": {
         "title": "API Keys & Integrations",
         "icon": "🔑",
         "component": "views/identity.js"
     },
-    "xdb": {
-        "title": "XML Database (XDB)",
-        "icon": "🗄️",
-        "component": "views/database.js"
+    "apm": {
+        "title": "Native In-Panel APM & Flame Graph Profiler",
+        "icon": "🔥",
+        "component": "views/apm.js"
     },
-    "entities": {
-        "title": "Entities & Schemas",
-        "icon": "🏗️",
-        "component": "views/database.js"
+    "commands": {
+        "title": "CLI Command Center",
+        "icon": "⚡",
+        "component": "views/commands.js"
     },
-    "interdb": {
-        "title": "InterDB Data Mesh",
-        "icon": "🕸️",
-        "component": "views/database.js"
-    },
-    "lifecycle": {
-        "title": "Deployments & Lifecycle",
-        "icon": "🔄",
-        "component": "views/apps.js"
-    },
-    "trace": {
-        "title": "Event Tracing & Telemetry",
-        "icon": "🐛",
-        "component": "views/system.js"
+    "reports": {
+        "title": "Reports Studio & Analytics",
+        "icon": "📊",
+        "component": "views/reports.js"
     }
 }

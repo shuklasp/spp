@@ -181,10 +181,10 @@ export default class DocsView extends BaseComponent {
         const tree = this.buildNestedTree();
         
         return html`
-            <div style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <div style="padding: 15px; border-bottom: 1px solid var(--glass-border);">
                 <input type="text" placeholder="Search codebase..." .value=${this.state.searchQuery} @input=${e => {
                     this.setState({ searchQuery: e.target.value.toLowerCase() });
-                }} style="width: 100%; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; outline: none; transition: border-color 0.2s;" />
+                }} style="width: 100%; padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-bright); outline: none; transition: border-color 0.2s;" />
             </div>
             <div style="padding: 10px 0;">
                 ${this.renderTreeNode(tree)}
@@ -245,40 +245,40 @@ export default class DocsView extends BaseComponent {
             ${c.docblock ? html`<div class="doc-block">${c.docblock}</div>` : ''}
 
             ${(c.constants && c.constants.length > 0) ? html`
-                <h2 style="margin-top: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Constants</h2>
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 20px;">
+                <h2 style="margin-top: 40px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">Constants</h2>
+                <div style="background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 8px; padding: 20px;">
                     ${c.constants.map(constObj => html`
-                        <div style="margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">
+                        <div style="margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">
                             <div style="font-family: monospace; font-size: 1.1rem; color: var(--text-primary);">
                                 <span class="badge badge-${constObj.visibility}">${constObj.visibility}</span>
                                 ${constObj.inherited_from ? html`<span class="badge badge-inherited" title="Inherited from ${constObj.inherited_from}">inherited</span>` : ''}
                                 <span style="color: #38bdf8;">${constObj.name}</span> = <span style="color: #a3e635;">${constObj.value}</span>;
                             </div>
-                            ${constObj.docblock ? html`<div class="doc-block" style="margin: 10px 0 0 0; padding: 10px; background: rgba(0,0,0,0.1); border-left-color: var(--text-secondary);">${constObj.docblock}</div>` : ''}
+                            ${constObj.docblock ? html`<div class="doc-block" style="margin: 10px 0 0 0; padding: 10px; background: var(--input-bg); border-left-color: var(--text-secondary);">${constObj.docblock}</div>` : ''}
                         </div>
                     `)}
                 </div>
             ` : ''}
 
             ${(c.properties && c.properties.length > 0) ? html`
-                <h2 style="margin-top: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Properties</h2>
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 20px;">
+                <h2 style="margin-top: 40px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">Properties</h2>
+                <div style="background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 8px; padding: 20px;">
                     ${c.properties.map(prop => html`
-                        <div style="margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">
+                        <div style="margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">
                             <div style="font-family: monospace; font-size: 1.1rem; color: var(--text-primary);">
                                 <span class="badge badge-${prop.visibility}">${prop.visibility}</span>
                                 ${prop.static ? html`<span class="badge badge-static">static</span>` : ''}
                                 ${prop.inherited_from ? html`<span class="badge badge-inherited" title="Inherited from ${prop.inherited_from}">inherited</span>` : ''}
                                 ${this.linkType(prop.type)} <span style="color: #38bdf8;">$${prop.name}</span>
                             </div>
-                            ${prop.docblock ? html`<div class="doc-block" style="margin: 10px 0 0 0; padding: 10px; background: rgba(0,0,0,0.1); border-left-color: var(--text-secondary);">${prop.docblock}</div>` : ''}
+                            ${prop.docblock ? html`<div class="doc-block" style="margin: 10px 0 0 0; padding: 10px; background: var(--input-bg); border-left-color: var(--text-secondary);">${prop.docblock}</div>` : ''}
                         </div>
                     `)}
                 </div>
             ` : ''}
 
             ${(c.methods && c.methods.length > 0) ? html`
-                <h2 style="margin-top: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Methods</h2>
+                <h2 style="margin-top: 40px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">Methods</h2>
                 ${c.methods.map(method => html`
                     <div class="method-card">
                         <h3>
@@ -289,7 +289,7 @@ export default class DocsView extends BaseComponent {
                             ${method.name}(${method.parameters.map((p, idx) => html`${p.type ? html`${this.linkType(p.type)} ` : ''}$${p.name}${p.optional ? ' = null' : ''}${idx < method.parameters.length - 1 ? ', ' : ''}`)}): ${this.linkType(method.return_type)}
                         </h3>
                         ${method.docblock ? html`
-                            <div class="doc-block" style="margin: 10px 0 0 0; padding: 10px; background: rgba(0,0,0,0.1); border-left-color: var(--text-secondary);">
+                            <div class="doc-block" style="margin: 10px 0 0 0; padding: 10px; background: var(--input-bg); border-left-color: var(--text-secondary);">
                                 ${method.docblock}
                             </div>
                         ` : ''}
@@ -330,28 +330,28 @@ export default class DocsView extends BaseComponent {
             <style>
                 /* Premium Glassmorphism UI */
                 .glass-panel {
-                    background: rgba(15, 23, 42, 0.4);
+                    background: var(--card-bg);
                     backdrop-filter: blur(16px);
                     -webkit-backdrop-filter: blur(16px);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                    border: 1px solid var(--glass-border);
+                    box-shadow: var(--shadow-md);
                     border-radius: 12px;
                 }
                 .glass-panel::-webkit-scrollbar { width: 6px; }
-                .glass-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-                .glass-panel::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+                .glass-panel::-webkit-scrollbar-thumb { background: var(--btn-soft-bg); border-radius: 3px; }
+                .glass-panel::-webkit-scrollbar-thumb:hover { background: var(--primary-low); }
 
                 /* Tree Styles */
-                .tree-category { font-weight: 600; padding: 10px 12px; color: var(--text-primary); font-size: 0.9rem; letter-spacing: 0.02em; border-bottom: 1px solid rgba(255,255,255,0.03); margin-top: 5px; cursor: pointer; transition: background 0.2s; border-radius: 6px; }
-                .tree-category:hover { background: rgba(255,255,255,0.05); }
+                .tree-category { font-weight: 600; padding: 10px 12px; color: var(--text-primary); font-size: 0.9rem; letter-spacing: 0.02em; border-bottom: 1px solid var(--glass-border); margin-top: 5px; cursor: pointer; transition: background 0.2s; border-radius: 6px; }
+                .tree-category:hover { background: var(--btn-soft-bg); }
                 .tree-item { padding: 8px 12px; cursor: pointer; color: var(--text-secondary); font-size: 0.9rem; border-left: 3px solid transparent; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 0 6px 6px 0; margin: 2px 0; }
-                .tree-item:hover { background: rgba(255,255,255,0.03); color: var(--text-primary); transform: translateX(2px); }
-                .tree-item.active { background: linear-gradient(90deg, rgba(var(--primary-rgb), 0.15) 0%, transparent 100%); border-left-color: var(--primary); font-weight: 600; color: #fff; }
+                .tree-item:hover { background: var(--btn-soft-bg); color: var(--text-primary); transform: translateX(2px); }
+                .tree-item.active { background: var(--primary-low); border-left-color: var(--primary); font-weight: 600; color: var(--primary); }
                 
                 /* Details Styles */
-                .doc-block { background: rgba(0,0,0,0.2); padding: 20px; border-left: 4px solid var(--primary); margin: 20px 0; border-radius: 8px; font-family: 'JetBrains Mono', monospace; white-space: pre-wrap; color: var(--text-secondary); box-shadow: inset 0 2px 10px rgba(0,0,0,0.1); }
-                .method-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); padding: 24px; border-radius: 12px; margin-bottom: 20px; transition: transform 0.2s, box-shadow 0.2s; }
-                .method-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); }
+                .doc-block { background: var(--input-bg); padding: 16px 20px; border-left: 4px solid var(--primary); margin: 16px 0; border-radius: 8px; font-family: 'JetBrains Mono', monospace; white-space: pre-wrap; color: var(--text-bright); border: 1px solid var(--glass-border); border-left: 4px solid var(--primary); box-shadow: inset 0 2px 6px rgba(0,0,0,0.04); }
+                .method-card { background: var(--card-bg); border: 1px solid var(--glass-border); padding: 24px; border-radius: 12px; margin-bottom: 20px; transition: transform 0.2s, box-shadow 0.2s; }
+                .method-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--primary); background: var(--card-bg); }
                 .method-card h3 { margin: 0 0 12px 0; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); font-size: 1.1rem; }
                 
                 /* Badges */

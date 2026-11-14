@@ -42,6 +42,16 @@ class MakeControllerCommand extends BaseMakeCommand
             'namespace' => $namespace,
             'className' => $className,
             'routeName' => $routeName
+        ], [
+            'description' => "Controller: {$className}",
+            'usage' => "Handles HTTP requests for /{$routeName}",
+            'stability' => 'stable',
+            'author' => 'SPP Developer',
+            'review_date' => date('Y-m-d'),
+            'attributes' => [
+                'tags' => ['controller', strtolower($routeName)],
+                'route' => "/{$routeName}"
+            ]
         ]);
 
         if ($success) {

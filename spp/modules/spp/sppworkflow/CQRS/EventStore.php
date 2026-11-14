@@ -47,6 +47,14 @@ class EventStore
     }
 
     /**
+     * Alias for append() to support convenient developer-friendly event logging.
+     */
+    public static function logEvent(string $entityType, string $entityId, string $eventType, array $payload = [], array $metadata = []): void
+    {
+        self::append($entityType, $entityId, $eventType, $payload, $metadata);
+    }
+
+    /**
      * Dispatch to asynchronous high-throughput buffer to prevent OS file LOCK_EX bottlenecks.
      */
     private static function appendToLog(array $eventRecord): void

@@ -43,10 +43,26 @@ abstract class WizardController extends ResourceController
         $initialState = $this->getInitialState();
 
         $contextData = ['comment' => 'Wizard started'];
-        if ($entity instanceof \SPPMod\SPPDB\SPPEntity || (class_exists('\\SPPMod\\SPPDB\\SPPEntity') && is_subclass_of($entity, '\\SPPMod\\SPPDB\\SPPEntity'))) {
-            $entity->applyTransition($initialState, null, 'Wizard started', $contextData);
-        } else {
-            \SPPMod\SPPWorkflow\SPPWorkflowManager::applyTransition($entity, $initialState, null, 'Wizard started', $contextData);
+        try {
+            if ($entity instanceof \SPPMod\SPPDB\SPPEntity || (class_exists('\\SPPMod\\SPPDB\\SPPEntity') && is_subclass_of($entity, '\\SPPMod\\SPPDB\\SPPEntity'))) {
+                if ($entity->canTransition($initialState)) {
+                    $entity->applyTransition($initialState, null, 'Wizard started', $contextData);
+                } else {
+                    $entity->setWorkflowStatus($initialState);
+                }
+            } else {
+                if (\SPPMod\SPPWorkflow\SPPWorkflowManager::canTransition($entity, $initialState)) {
+                    \SPPMod\SPPWorkflow\SPPWorkflowManager::applyTransition($entity, $initialState, null, 'Wizard started', $contextData);
+                } elseif (method_exists($entity, 'set')) {
+                    $entity->set('status', $initialState);
+                } elseif (isset($entity->status)) {
+                    $entity->status = $initialState;
+                }
+            }
+        } catch (\Throwable $e) {
+            if (method_exists($entity, 'setWorkflowStatus')) {
+                $entity->setWorkflowStatus($initialState);
+            }
         }
         $this->saveWizardEntity($entity);
 
@@ -160,13 +176,29 @@ abstract class WizardController extends ResourceController
     protected function getInitialState(): string
     {
         $workflow = SPPWorkflowManager::getWorkflow($this->entityType, $this->bundle);
-        return $workflow['states'][0] ?? 'step_1';
+        if (!$workflow || empty($workflow['states'])) {
+            return 'step_1';
+        }
+        if (isset($workflow['initial_state'])) {
+            return (string)$workflow['initial_state'];
+        }
+        $states = $workflow['states'];
+        if (array_is_list($states)) {
+            return (string)($states[0] ?? 'step_1');
+        }
+        return (string)(array_key_first($states) ?? 'step_1');
     }
 
     protected function getFinalState(): string
     {
         $workflow = SPPWorkflowManager::getWorkflow($this->entityType, $this->bundle);
-        $states = $workflow['states'] ?? ['completed'];
-        return end($states);
+        if (!$workflow || empty($workflow['states'])) {
+            return 'completed';
+        }
+        $states = $workflow['states'];
+        if (array_is_list($states)) {
+            return (string)end($states);
+        }
+        return (string)(array_key_last($states) ?? 'completed');
     }
 }

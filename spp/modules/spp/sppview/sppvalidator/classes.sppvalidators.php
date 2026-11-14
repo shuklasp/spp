@@ -74,7 +74,7 @@ class SPP_Validator_MinLengthValidator extends SPP_Single_validator
     public function __construct(?\SPPMod\SPPView\ViewTag $elem = null, $min = 0, $errorholder = 'nameerror', $msg = 'Field too short!')
     {
         parent::__construct($elem, $errorholder, $msg, 'validateMinLength');
-        $this->applicabletags = ['input'];
+        $this->applicabletags = ['input', 'textarea'];
         $this->minlength = $min;
     }
 
@@ -103,7 +103,7 @@ class SPP_Validator_MaxLengthValidator extends SPP_Single_validator
     public function __construct(?\SPPMod\SPPView\ViewTag $elem = null, $max = 0, $errorholder = 'nameerror', $msg = 'Field too long!')
     {
         parent::__construct($elem, $errorholder, $msg, 'validateMaxLength');
-        $this->applicabletags = ['input'];
+        $this->applicabletags = ['input', 'textarea'];
         $this->maxlength = $max;
     }
 
@@ -281,7 +281,8 @@ class SPP_Validator_UniqueValidator extends SPP_Single_validator
 
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable($this->table);
-        $query = "SELECT COUNT(*) as count FROM {$table} WHERE {$this->column} = :val";
+        $col = class_exists('\\SPP\\Core\\SchemaValidator') ? \SPP\Core\SchemaValidator::escapeIdentifier($this->column) : '`' . str_replace('`', '', $this->column) . '`';
+        $query = "SELECT COUNT(*) as count FROM {$table} WHERE {$col} = :val";
         $params = [':val' => $value];
 
         if ($this->excludeId !== null) {
@@ -289,12 +290,57 @@ class SPP_Validator_UniqueValidator extends SPP_Single_validator
             $params[':id'] = $this->excludeId;
         }
 
-        $res = $db->execute_query($query, $params);
-        if (($res[0]['count'] ?? 0) > 0) {
-            if (!$this->silent) {
-                ViewPage::addClass($this->element->getAttribute('id'), 'errorclass');
-                \SPP\SPPError::triggerUserError($this->msg);
+        try {
+            $res = $db->execute_query($query, $params);
+            if (($res[0]['count'] ?? 0) > 0) {
+                if (!$this->silent) {
+                    ViewPage::addClass($this->element->getAttribute('id'), 'errorclass');
+                    \SPP\SPPError::triggerUserError($this->msg);
+                }
+                return false;
             }
+        } catch (\Throwable $e) {
+            return true;
+        }
+        return true;
+    }
+}
+
+/**
+ * Exists validator: checks if value exists in a database table.
+ */
+class SPP_Validator_ExistsValidator extends SPP_Single_validator
+{
+    public string $table = '';
+    public string $column = '';
+
+    public function __construct(?\SPPMod\SPPView\ViewTag $elem = null, string $table = '', string $column = '', $errorholder = 'nameerror', $msg = 'The selected record does not exist.')
+    {
+        parent::__construct($elem, $errorholder, $msg, 'undefined');
+        $this->table = $table;
+        $this->column = $column;
+    }
+
+    public function validate(mixed $value): bool
+    {
+        if ($value === null || $value === '') {
+            return true;
+        }
+
+        try {
+            $db = new \SPPMod\SPPDB\SPPDB();
+            $table = \SPPMod\SPPDB\SPPDB::sppTable($this->table);
+            $col = class_exists('\\SPP\\Core\\SchemaValidator') ? \SPP\Core\SchemaValidator::escapeIdentifier($this->column) : '`' . str_replace('`', '', $this->column) . '`';
+            $query = "SELECT COUNT(*) as count FROM {$table} WHERE {$col} = :val";
+            $res = $db->execute_query($query, [':val' => $value]);
+            if (($res[0]['count'] ?? 0) === 0) {
+                if (!$this->silent) {
+                    ViewPage::addClass($this->element->getAttribute('id'), 'errorclass');
+                    \SPP\SPPError::triggerUserError($this->msg);
+                }
+                return false;
+            }
+        } catch (\Throwable $e) {
             return false;
         }
         return true;
@@ -1115,27 +1161,78 @@ class SPP_Validator_WorkflowGuardValidator extends SPP_Single_validator
 
     public function validate(mixed $value): bool
     {
-        if (empty($value)) {
-            return false;
+        // 1. Inspect bound entity if attached to form or tag context
+        $entity = null;
+        if (isset($this->element) && method_exists($this->element, 'getBoundEntity')) {
+            $entity = $this->element->getBoundEntity();
         }
-        if (class_exists('\\SPPMod\\SPPDB\\SPPEntity') && !empty($this->entityType)) {
+        if (!$entity && class_exists('\\SPP\\Registry') && \SPP\Registry::isRegistered('__bound_form_entity')) {
+            $entity = \SPP\Registry::get('__bound_form_entity');
+        }
+        if (!$entity && isset($GLOBALS['spp_current_bound_entity'])) {
+            $entity = $GLOBALS['spp_current_bound_entity'];
+        }
+
+        // 2. If entityType is set and value is a numeric or sovereign ID, attempt load
+        if (!$entity && class_exists('\\SPPMod\\SPPDB\\SPPEntity') && !empty($this->entityType) && (is_numeric($value) || (is_string($value) && str_contains($value, '-')))) {
             try {
                 $entity = \SPPMod\SPPDB\SPPEntity::load($this->entityType, $value);
-                if ($entity) {
-                    $status = method_exists($entity, 'getWorkflowState') ? $entity->getWorkflowState() : ($entity->status ?? 'draft');
-                    if (is_array($status)) {
-                        return in_array($this->requiredState, $status);
-                    }
-                    return $status === $this->requiredState;
-                }
             } catch (\Exception $e) {
-                return false;
+                $entity = null;
             }
         }
+
+        if ($entity && is_object($entity)) {
+            $status = method_exists($entity, 'getWorkflowState') ? $entity->getWorkflowState() : ($entity->status ?? 'draft');
+            $statuses = is_array($status) ? $status : [$status];
+
+            // If required state is explicitly specified
+            if (!empty($this->requiredState)) {
+                return in_array($this->requiredState, $statuses, true);
+            }
+
+            // If no required state specified, reject terminal/locked states
+            foreach ($statuses as $st) {
+                if (in_array(strtolower((string)$st), ['completed', 'archived', 'rejected', 'closed', 'cancelled'], true)) {
+                    if (!$this->silent) {
+                        \SPP\SPPError::triggerUserError($this->msg ?: 'Entity is locked in a terminal workflow state.');
+                    }
+                    return false;
+                }
+            }
+            return true;
+        }
+
         return true;
     }
 }
 
 class SPPWorkflowGuardValidator extends SPP_Validator_WorkflowGuardValidator
 {
+}
+
+/**
+ * Honeypot validator: ensures hidden anti-spam honeypot field is left blank.
+ * If filled by a bot, validation fails immediately.
+ */
+class SPP_Validator_HoneypotValidator extends SPP_Single_validator
+{
+    public function __construct(?\SPPMod\SPPView\ViewTag $elem = null, $errorholder = 'honeypoterror', $msg = 'Spam submission detected.')
+    {
+        parent::__construct($elem, $errorholder, $msg, 'validateHoneypot');
+    }
+
+    public function validate(mixed $value): bool
+    {
+        // Must be empty for legitimate human submissions
+        return empty($value);
+    }
+}
+
+class SPPHoneypotValidator extends SPP_Validator_HoneypotValidator
+{
+}
+
+if (!class_exists('\\SPPHoneypotValidator')) {
+    class_alias('\\SPPMod\\SPPView\\SPPHoneypotValidator', '\\SPPHoneypotValidator');
 }
