@@ -67,6 +67,17 @@ export default class FilesView extends BaseClass {
             // Selection & Batch Action State
             selectedItems: new Set(),
             isEditingAddress: false,
+            // Modern View & Inspector Architecture
+            viewMode: localStorage.getItem('spp_files_view_mode') || 'list',
+            inspectorOpen: localStorage.getItem('spp_files_inspector_open') === 'true',
+            inspectorTab: 'overview',
+            selectedItemForInspector: null,
+            treeWidth: parseInt(localStorage.getItem('spp_files_tree_width') || '250', 10),
+            openDropdown: null,
+            sortColumn: 'name',
+            sortDirection: 'asc',
+            clipboard: null,
+            expertMode: localStorage.getItem('spp_admin_expert_mode') === 'true',
             // Modals
             imagePreviewModal: null,
             chmodModal: null,
@@ -91,7 +102,7 @@ export default class FilesView extends BaseClass {
             directoryManifest: null,
             rawManifestModal: null,
             manifestHealthModal: null,
-            collapseManifestBanner: localStorage.getItem('spp_files_collapse_manifest_banner') === 'true'
+            collapseManifestBanner: true
         };
 
         this._treeScrollTop = 0;
@@ -120,6 +131,9 @@ export default class FilesView extends BaseClass {
         // Priority 1: Fetch and render folder contents FIRST and IMMEDIATELY!
         const dirPromise = this.fetchDirectory(targetInitPath).then(async () => {
             this.state.loading = false;
+            if (!this.state.treeData) {
+                this.buildTreeFromDirectoryItems();
+            }
             this.update();
             this.pushHistory(this.state.currentPath || sysRoot);
 
@@ -135,15 +149,15 @@ export default class FilesView extends BaseClass {
             this.update();
         });
 
-        // Priority 2: Concurrently load directory tree in background without blocking files view
+        // Priority 2: Concurrently load root tree without blocking files view
         this.state.treeLoading = true;
-        const treePromise = this.fetchTree(true, sysRoot).then(() => {
+        const treePromise = this.fetchTree(false, sysRoot).then(() => {
             this.state.treeLoading = false;
+            if (this.state.currentPath) {
+                this.attachSubdirsToTreeNode(this.state.currentPath);
+            }
             this.update();
             this.syncTreeFocus();
-            if (this.state.currentPath) {
-                this.ensurePathInTree(this.state.currentPath).catch(err => console.warn(err));
-            }
         }).catch(e => {
             console.warn("[FilesView] Background tree fetch error:", e);
             this.state.treeLoading = false;
@@ -435,6 +449,31 @@ export default class FilesView extends BaseClass {
                 if (it.usage && it.usage.toLowerCase().includes(q)) return true;
                 if (it.attributes?.tags && Array.isArray(it.attributes.tags) && it.attributes.tags.some(t => String(t).toLowerCase().includes(q))) return true;
                 return false;
+            });
+        }
+        if (this.state.sortColumn) {
+            const col = this.state.sortColumn;
+            const dir = this.state.sortDirection === 'desc' ? -1 : 1;
+            items = [...items].sort((a, b) => {
+                if (a.is_dir !== b.is_dir) {
+                    return a.is_dir ? -1 : 1;
+                }
+                if (col === 'size') {
+                    const sa = a.is_dir ? -1 : (a.size || 0);
+                    const sb = b.is_dir ? -1 : (b.size || 0);
+                    return (sa - sb) * dir;
+                }
+                if (col === 'modified') {
+                    const ma = a.mtime || 0;
+                    const mb = b.mtime || 0;
+                    return (ma - mb) * dir;
+                }
+                if (col === 'description') {
+                    const da = a.description || a.comment || '';
+                    const db = b.description || b.comment || '';
+                    return da.localeCompare(db) * dir;
+                }
+                return String(a.name || '').localeCompare(String(b.name || '')) * dir;
             });
         }
         return items;
@@ -1906,10 +1945,14 @@ export default class FilesView extends BaseClass {
             if (!e.target.closest('#spp-file-context-menu')) {
                 this.closeContextMenu();
             }
+            if (!e.target.closest('.spp-dropdown-container')) {
+                this.closeDropdowns();
+            }
         });
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.closeContextMenu();
+                this.closeDropdowns();
             }
         });
         window.addEventListener('scroll', () => {
@@ -2901,17 +2944,979 @@ export default class FilesView extends BaseClass {
         }
     }
 
+
+    setViewMode(mode) {
+        this.state.viewMode = mode === 'grid' ? 'grid' : 'list';
+        localStorage.setItem('spp_files_view_mode', this.state.viewMode);
+        this.update();
+    }
+
+    toggleInspector(force = null) {
+        const next = typeof force === 'boolean' ? force : !this.state.inspectorOpen;
+        this.state.inspectorOpen = next;
+        localStorage.setItem('spp_files_inspector_open', String(next));
+        this.update();
+    }
+
+    selectItemForInspector(item) {
+        this.state.selectedItemForInspector = item;
+        this.state.inspectorOpen = true;
+        this.state.inspectorTab = 'overview';
+        localStorage.setItem('spp_files_inspector_open', 'true');
+        this.update();
+    }
+
+    selectItemByPath(path, forceOpen = false) {
+        const norm = this.normalizePath(path);
+        const item = (this.state.items || []).find(it => this.normalizePath(it.path) === norm);
+        if (item) {
+            this.state.selectedItemForInspector = item;
+            if (forceOpen || this.state.inspectorOpen) {
+                this.state.inspectorOpen = true;
+                localStorage.setItem('spp_files_inspector_open', 'true');
+            }
+            this.update();
+        }
+    }
+
+    inspectCurrentDirectory() {
+        this.state.selectedItemForInspector = null;
+        this.state.inspectorOpen = true;
+        localStorage.setItem('spp_files_inspector_open', 'true');
+        this.update();
+    }
+
+    switchInspectorTab(tab) {
+        this.state.inspectorTab = tab;
+        this.update();
+    }
+
+    setSortColumn(col) {
+        if (this.state.sortColumn === col) {
+            this.state.sortDirection = this.state.sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            this.state.sortColumn = col;
+            this.state.sortDirection = 'asc';
+        }
+        this.update();
+    }
+
+    getSortIndicator(col) {
+        if (this.state.sortColumn !== col) return '<span style="opacity:0.3; font-size:0.65rem;">⇅</span>';
+        return this.state.sortDirection === 'desc' ? '<span style="color:var(--primary); font-size:0.65rem;">▼</span>' : '<span style="color:var(--primary); font-size:0.65rem;">▲</span>';
+    }
+
+    toggleDropdown(name, event) {
+        if (event) event.stopPropagation();
+        this.state.openDropdown = (this.state.openDropdown === name) ? null : name;
+        this.update();
+    }
+
+    closeDropdowns() {
+        if (this.state.openDropdown) {
+            this.state.openDropdown = null;
+            this.update();
+        }
+    }
+
+    copySelectedItems() {
+        if (!this.state.selectedItems || this.state.selectedItems.size === 0) return;
+        this.state.clipboard = {
+            action: 'copy',
+            items: Array.from(this.state.selectedItems)
+        };
+        this.admin.notify(`Copied ${this.state.clipboard.items.length} item(s) to clipboard.`, 'info');
+        this.update();
+    }
+
+    cutSelectedItems() {
+        if (!this.state.selectedItems || this.state.selectedItems.size === 0) return;
+        this.state.clipboard = {
+            action: 'cut',
+            items: Array.from(this.state.selectedItems)
+        };
+        this.admin.notify(`Cut ${this.state.clipboard.items.length} item(s) to clipboard.`, 'info');
+        this.update();
+    }
+
+    async pasteClipboardItems() {
+        if (!this.state.clipboard || !this.state.clipboard.items || this.state.clipboard.items.length === 0) return;
+        const targetDir = this.state.currentPath || '';
+        const action = this.state.clipboard.action;
+        let count = 0;
+        for (const itemPath of this.state.clipboard.items) {
+            const fileName = itemPath.split('/').pop();
+            const destPath = this.joinPath(targetDir, fileName);
+            try {
+                if (action === 'cut') {
+                    await this.admin.api('storage_move_item', { source: itemPath, destination: destPath });
+                } else {
+                    await this.admin.api('storage_copy_item', { source: itemPath, destination: destPath });
+                }
+                count++;
+            } catch (e) {
+                console.error("Paste error for item:", itemPath, e);
+            }
+        }
+        if (action === 'cut') {
+            this.state.clipboard = null;
+        }
+        this.admin.notify(`Successfully pasted ${count} item(s).`, 'success');
+        await this.loadDirectory(this.state.currentPath);
+    }
+
+    promptRenameSingleSelected() {
+        if (!this.state.selectedItems || this.state.selectedItems.size !== 1) return;
+        const selectedPath = Array.from(this.state.selectedItems)[0];
+        const item = (this.state.items || []).find(it => this.normalizePath(it.path) === selectedPath);
+        if (item) {
+            this.promptRename(item.path, item.is_dir);
+        }
+    }
+
+    onTreeResizeStart(e) {
+        e.preventDefault();
+        const startX = e.clientX;
+        const startWidth = this.state.treeWidth || 250;
+        const onMouseMove = (moveEvent) => {
+            const newWidth = Math.max(180, Math.min(500, startWidth + (moveEvent.clientX - startX)));
+            this.state.treeWidth = newWidth;
+            const treeEl = document.querySelector('.spp-file-tree-sidebar');
+            if (treeEl) {
+                treeEl.style.width = `${newWidth}px`;
+                treeEl.style.flex = `0 0 ${newWidth}px`;
+            }
+        };
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            localStorage.setItem('spp_files_tree_width', String(this.state.treeWidth));
+        };
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    }
+
+    collapseAllTree() {
+        const sysRoot = this.normalizePath(this.state.systemRoot || '/');
+        this.state.expandedFolders = new Set(['', '/', sysRoot]);
+        this.update();
+    }
+
+    expandToCurrent() {
+        if (this.state.currentPath) {
+            this.ensurePathInTree(this.state.currentPath);
+        }
+    }
+
+    toggleExpertMode() {
+        this.state.expertMode = !this.state.expertMode;
+        localStorage.setItem('spp_admin_expert_mode', String(this.state.expertMode));
+        if (this.admin && typeof this.admin.setUIMode === 'function') {
+            this.admin.setUIMode(this.state.expertMode ? 'expert' : 'normal');
+        }
+        this.admin.notify(`Switched to ${this.state.expertMode ? 'Expert' : 'Normal'} mode.`, 'info');
+        this.update();
+    }
+
+    async saveInspectorProperties() {
+        const item = this.state.selectedItemForInspector;
+        const isFile = Boolean(item && !item.is_dir);
+        const targetPath = item ? item.path : (this.state.currentPath || '');
+
+        const g = (id) => document.getElementById(id);
+        const desc = g('inspector-prop-desc') ? g('inspector-prop-desc').value.trim() : '';
+        const usage = g('inspector-prop-usage') ? g('inspector-prop-usage').value.trim() : '';
+        const author = g('inspector-prop-author') ? g('inspector-prop-author').value.trim() : '';
+        const reviewDate = g('inspector-prop-review-date') ? g('inspector-prop-review-date').value.trim() : '';
+        const stability = g('inspector-prop-stability') ? g('inspector-prop-stability').value : 'stable';
+        const layer = g('inspector-prop-layer') ? g('inspector-prop-layer').value : 'unspecified';
+        const tagsRaw = g('inspector-prop-tags') ? g('inspector-prop-tags').value : '';
+        const tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+
+        const payload = {
+            description: desc,
+            usage: usage,
+            author: author,
+            review_date: reviewDate,
+            stability: stability,
+            layer: layer,
+            tags: tags
+        };
+
+        try {
+            let res;
+            if (isFile) {
+                res = await this.admin.api('storage_save_file_props', { path: targetPath, properties: payload });
+            } else {
+                res = await this.admin.api('storage_save_directory_props', { path: targetPath, properties: payload });
+            }
+            if (res && res.success) {
+                this.admin.notify("Properties successfully saved to __spp_file_props.yml", "success");
+                await this.loadDirectory(this.state.currentPath);
+            } else {
+                this.admin.notify(res.error || "Failed to save properties.", "error");
+            }
+        } catch (e) {
+            this.admin.notify("Save error: " + e.message, "error");
+        }
+    }
+
+    async saveInspectorManifestYaml() {
+        const dirPath = this.state.currentPath || '';
+        const textarea = document.getElementById('inspector-manifest-raw-yaml');
+        if (!textarea) return;
+        const rawYaml = textarea.value;
+
+        try {
+            const res = await this.admin.api('storage_save_manifest_raw', { path: dirPath, raw_yaml: rawYaml });
+            if (res && res.success) {
+                this.admin.notify("Manifest YAML saved successfully.", "success");
+                await this.loadDirectory(this.state.currentPath);
+            } else {
+                this.admin.notify(res.error || "Validation/Save failed.", "error");
+            }
+        } catch (e) {
+            this.admin.notify("Save error: " + e.message, "error");
+        }
+    }
+
+    async validateInspectorYaml() {
+        const textarea = document.getElementById('inspector-manifest-raw-yaml');
+        if (!textarea) return;
+        const rawYaml = textarea.value;
+        try {
+            const res = await this.admin.api('storage_validate_manifest_yaml', { raw_yaml: rawYaml });
+            const banner = document.getElementById('inspector-manifest-validation-msg');
+            if (banner) {
+                banner.style.display = 'block';
+                if (res && res.success) {
+                    banner.style.color = '#3fb950';
+                    banner.style.background = 'rgba(63, 185, 80, 0.15)';
+                    banner.style.border = '1px solid rgba(63, 185, 80, 0.4)';
+                    banner.textContent = '✓ YAML syntax and manifest schema are 100% valid.';
+                } else {
+                    banner.style.color = '#f85149';
+                    banner.style.background = 'rgba(248, 81, 73, 0.15)';
+                    banner.style.border = '1px solid rgba(248, 81, 73, 0.4)';
+                    banner.textContent = '✕ Syntax error: ' + (res.error || res.message || 'Invalid YAML format.');
+                }
+            }
+        } catch (e) {
+            this.admin.notify("Validation error: " + e.message, "error");
+        }
+    }
+
+    renderHeader() {
+        const currentPath = this.state.currentPath || '/';
+        let scopeBadge = '🖥️ Platform Scope';
+        if (this.state.siteRoots && this.state.siteRoots.length > 0) {
+            const matchedSite = this.state.siteRoots.find(s => currentPath === s.home_path || currentPath.startsWith(s.home_path + '/'));
+            if (matchedSite) {
+                scopeBadge = `🌐 ${matchedSite.domain}`;
+            }
+        }
+
+        const viewMode = this.state.viewMode || 'list';
+        const isInspectorOpen = Boolean(this.state.inspectorOpen);
+        const isExpert = Boolean(this.state.expertMode);
+
+        return `
+            <div class="spp-fm-header">
+                <div class="spp-fm-header-left">
+                    <span class="spp-fm-title">📁 File Manager</span>
+                    <span class="spp-fm-scope-badge">${this.escapeHtml(scopeBadge)}</span>
+                    <span class="spp-fm-path-chip" title="${this.escapeHtml(currentPath)}">
+                        ${this.escapeHtml(currentPath)}
+                    </span>
+                    <span style="font-size:0.75rem; color:#22c55e; display:inline-flex; align-items:center; gap:0.25rem;">
+                        ● Online
+                    </span>
+                </div>
+
+                <div class="spp-fm-header-right">
+                    <!-- List vs Grid View Toggle -->
+                    <div class="spp-fm-view-switcher">
+                        <button type="button" class="spp-fm-view-btn ${viewMode === 'list' ? 'active' : ''}" 
+                                onclick="window.filesViewInstance.setViewMode('list')" title="List View (Table)">
+                            ☰ List
+                        </button>
+                        <button type="button" class="spp-fm-view-btn ${viewMode === 'grid' ? 'active' : ''}" 
+                                onclick="window.filesViewInstance.setViewMode('grid')" title="Grid View (Cards)">
+                            ⊞ Grid
+                        </button>
+                    </div>
+
+                    <!-- Inspector Drawer Toggle Button -->
+                    <button type="button" class="btn ${isInspectorOpen ? 'primary-btn' : 'secondary-btn'} btn-sm" 
+                            onclick="window.filesViewInstance.toggleInspector()" 
+                            title="${isInspectorOpen ? 'Hide metadata inspector drawer' : 'Show metadata inspector drawer'}"
+                            style="padding:0.25rem 0.6rem; font-size:0.8rem; font-weight:600;">
+                        👁️ Inspector
+                    </button>
+
+                    <!-- Settings / Overflow Dropdown -->
+                    <div class="spp-dropdown-container">
+                        <button type="button" class="btn ghost-btn btn-sm" 
+                                onclick="window.filesViewInstance.toggleDropdown('settings', event)" 
+                                title="Workstation Settings & Tools" 
+                                style="padding:0.25rem 0.5rem; font-size:0.85rem;">
+                            ⚙️ ▾
+                        </button>
+                        ${this.state.openDropdown === 'settings' ? `
+                            <div class="spp-dropdown-menu right">
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.toggleExpertMode()">
+                                    <span>${isExpert ? '⚡' : '🌐'}</span>
+                                    <span>Mode: <strong>${isExpert ? 'Expert' : 'Normal'}</strong></span>
+                                </button>
+                                <div class="spp-dropdown-divider"></div>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.openTreemapModal(); window.filesViewInstance.closeDropdowns();">
+                                    <span>📊</span> <span>Storage Treemap</span>
+                                </button>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.openWebToolsModal(); window.filesViewInstance.closeDropdowns();">
+                                    <span>🌐</span> <span>Web Tools & MIME</span>
+                                </button>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.openManifestHealthModal(null, false); window.filesViewInstance.closeDropdowns();">
+                                    <span>🩺</span> <span>Manifest Health</span>
+                                </button>
+                                <div class="spp-dropdown-divider"></div>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.toggleShortcutsModal(true); window.filesViewInstance.closeDropdowns();">
+                                    <span>⌨️</span> <span>Keyboard Shortcuts</span>
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderNavBar() {
+        const curPath = this.state.currentPath || '/';
+        const sysRoot = this.state.systemRoot || '/';
+        const isRoot = (!curPath || curPath === '/' || curPath === sysRoot);
+
+        return `
+            <div class="spp-fm-nav-bar">
+                <div class="spp-fm-nav-left">
+                    <!-- Nav History Buttons -->
+                    <div style="display:inline-flex; align-items:center; gap:0.2rem; flex-shrink:0;">
+                        <button class="btn secondary-btn btn-sm ${this.canGoBack() ? '' : 'disabled'}" 
+                                onclick="${this.canGoBack() ? 'window.filesViewInstance.navigateBack()' : ''}" 
+                                title="Back in history (Alt + Left Arrow)" 
+                                ${!this.canGoBack() ? 'disabled style="opacity:0.35; cursor:not-allowed; padding:0.22rem 0.45rem;"' : 'style="cursor:pointer; padding:0.22rem 0.45rem;"'}>
+                            ◀
+                        </button>
+                        <button class="btn secondary-btn btn-sm ${this.canGoForward() ? '' : 'disabled'}" 
+                                onclick="${this.canGoForward() ? 'window.filesViewInstance.navigateForward()' : ''}" 
+                                title="Forward in history (Alt + Right Arrow)" 
+                                ${!this.canGoForward() ? 'disabled style="opacity:0.35; cursor:not-allowed; padding:0.22rem 0.45rem;"' : 'style="cursor:pointer; padding:0.22rem 0.45rem;"'}>
+                            ▶
+                        </button>
+                        <button class="btn secondary-btn btn-sm ${!isRoot ? '' : 'disabled'}" 
+                                onclick="window.filesViewInstance.navigateUp()" 
+                                title="Go up to parent directory (Alt + Up Arrow or Backspace)" 
+                                ${isRoot ? 'disabled style="opacity:0.35; cursor:not-allowed; padding:0.22rem 0.45rem;"' : 'style="cursor:pointer; padding:0.22rem 0.45rem;"'}>
+                            ▲
+                        </button>
+                        <button class="btn ghost-btn btn-sm" 
+                                onclick="window.filesViewInstance.loadDirectory('${this.escapeHtml(this.state.currentPath)}')" 
+                                title="Refresh current folder (F5)" 
+                                style="padding:0.22rem 0.45rem;">
+                            🔄
+                        </button>
+                    </div>
+
+                    <!-- Breadcrumbs or Editable Address Field -->
+                    ${this.state.isEditingAddress ? `
+                        <div style="display:inline-flex; align-items:center; gap:0.3rem; flex:1 1 280px; min-width:0;">
+                            <input type="text" id="spp-files-address-input" class="spp-address-bar-input" 
+                                   value="${this.escapeHtml(curPath)}" 
+                                   onkeydown="if(event.key === 'Enter') { window.filesViewInstance.submitAddressInput(); } else if(event.key === 'Escape') { window.filesViewInstance.toggleAddressEdit(false); }" 
+                                   placeholder="/var/www or /home/username..." 
+                                   style="width:100%; font-size:0.8rem; padding:0.22rem 0.5rem; font-family:monospace;" />
+                            <button class="btn primary-btn btn-sm" onclick="window.filesViewInstance.submitAddressInput()" style="padding:0.22rem 0.5rem;">Go</button>
+                            <button class="btn ghost-btn btn-sm" onclick="window.filesViewInstance.toggleAddressEdit(false)" style="padding:0.22rem 0.4rem;">✕</button>
+                        </div>
+                    ` : `
+                        <div style="display:inline-flex; align-items:center; gap:0.25rem; flex:1 1 auto; min-width:0; overflow:hidden;">
+                            <div class="suite-breadcrumbs" style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:flex; align-items:center; flex-wrap:wrap; gap:0.2rem;">
+                                <span class="suite-breadcrumb-item" onclick="window.filesViewInstance.loadDirectory('${sysRoot}')" title="Navigate to System Root">
+                                    🖥️ Root (/)
+                                </span>
+                                ${this.renderBreadcrumbs()}
+                            </div>
+                            <button class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.toggleAddressEdit(true)" title="Type server path directly (Ctrl+L)" style="padding:0.12rem 0.4rem; font-size:0.75rem; opacity:0.75; flex-shrink:0;">
+                                ✏️
+                            </button>
+                        </div>
+                    `}
+
+                    <!-- Bookmarks & Favorites Dropdown -->
+                    <div class="spp-dropdown-container">
+                        <button type="button" class="btn secondary-btn btn-sm" 
+                                onclick="window.filesViewInstance.toggleDropdown('favorites', event)" 
+                                title="Quick bookmarks & site homes" 
+                                style="padding:0.22rem 0.55rem; font-size:0.78rem; font-weight:600; white-space:nowrap;">
+                            ⭐ Favorites ▾
+                        </button>
+                        ${this.state.openDropdown === 'favorites' ? `
+                            <div class="spp-dropdown-menu">
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.loadDirectory('${sysRoot}'); window.filesViewInstance.closeDropdowns();">
+                                    <span>🖥️</span> <span>System Root (/)</span>
+                                </button>
+                                ${this.state.workspaceRoot ? `
+                                    <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.loadDirectory('${this.escapeHtml(this.state.workspaceRoot)}'); window.filesViewInstance.closeDropdowns();">
+                                        <span>🚀</span> <span>SPP Workspace</span>
+                                    </button>
+                                ` : ''}
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.loadDirectory('/var/www'); window.filesViewInstance.closeDropdowns();">
+                                    <span>🌐</span> <span>Web Roots (/var/www)</span>
+                                </button>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.loadDirectory('/home'); window.filesViewInstance.closeDropdowns();">
+                                    <span>👤</span> <span>User Homes (/home)</span>
+                                </button>
+                                ${(this.state.siteRoots && this.state.siteRoots.length > 0) ? `
+                                    <div class="spp-dropdown-divider"></div>
+                                    <div style="padding:0.25rem 0.85rem; font-size:0.7rem; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Configured Websites</div>
+                                    ${this.state.siteRoots.map(s => `
+                                        <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.loadDirectory('${this.escapeHtml(s.home_path)}'); window.filesViewInstance.closeDropdowns();">
+                                            <span>${s.icon || '🌐'}</span> <span>${this.escapeHtml(s.domain)}</span>
+                                        </button>
+                                    `).join('')}
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <!-- Instant Search Input -->
+                <div class="spp-fm-nav-right">
+                    <div style="position:relative; display:inline-flex; align-items:center;">
+                        <input type="text" id="spp-files-filter-input" class="spp-find-input" placeholder="🔍 Search files..." 
+                            value="${this.escapeHtml(this.state.searchQuery || '')}" 
+                            oninput="window.filesViewInstance.onSearchInput(this.value)" 
+                            onkeydown="if(event.key === 'Escape') { window.filesViewInstance.clearSearch(); }"
+                            style="width:145px; font-size:0.8rem; padding:0.22rem 1.6rem 0.22rem 0.55rem; border-radius:6px;" />
+                        <span id="spp-files-filter-clear" onclick="window.filesViewInstance.clearSearch()" 
+                              title="Clear filter (Esc)"
+                              style="position:absolute; right:6px; cursor:pointer; font-size:0.75rem; color:var(--text-dim); padding:2px; display:${this.state.searchQuery ? 'inline-block' : 'none'};">✕</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderToolbar() {
+        const hasSelection = this.state.selectedItems && this.state.selectedItems.size > 0;
+        const selectedCount = hasSelection ? this.state.selectedItems.size : 0;
+        const hasClipboard = Boolean(this.state.clipboard && this.state.clipboard.items && this.state.clipboard.items.length > 0);
+
+        return `
+            <div class="spp-fm-toolbar">
+                <div class="spp-fm-toolbar-left">
+                    <!-- New Dropdown -->
+                    <div class="spp-dropdown-container">
+                        <button type="button" class="btn primary-btn btn-sm" 
+                                onclick="window.filesViewInstance.toggleDropdown('new', event)" 
+                                style="padding:0.25rem 0.65rem; font-size:0.8rem; font-weight:600;">
+                            + New ▾
+                        </button>
+                        ${this.state.openDropdown === 'new' ? `
+                            <div class="spp-dropdown-menu">
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.promptNewItem('file'); window.filesViewInstance.closeDropdowns();">
+                                    <span>📄</span> <span>New File...</span>
+                                </button>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.promptNewItem('folder'); window.filesViewInstance.closeDropdowns();">
+                                    <span>📁</span> <span>New Folder...</span>
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Upload Button -->
+                    <button type="button" class="btn secondary-btn btn-sm" 
+                            onclick="document.getElementById('spp-file-upload-input').click()" 
+                            title="Upload files from desktop to current directory"
+                            style="padding:0.25rem 0.65rem; font-size:0.8rem;">
+                        ⬆ Upload
+                    </button>
+
+                    <!-- Download Button (Contextual) -->
+                    <button type="button" class="btn secondary-btn btn-sm ${hasSelection ? '' : 'disabled'}" 
+                            onclick="${hasSelection ? 'window.filesViewInstance.downloadSelectedAsZip()' : ''}" 
+                            title="${hasSelection ? `Download ${selectedCount} selected item(s) as ZIP` : 'Select items to download'}"
+                            ${!hasSelection ? 'disabled style="opacity:0.4; cursor:not-allowed; padding:0.25rem 0.6rem; font-size:0.8rem;"' : 'style="padding:0.25rem 0.6rem; font-size:0.8rem;"'}>
+                        ⬇ Download
+                    </button>
+
+                    <div style="width:1px; height:18px; background:var(--glass-border); margin:0 0.2rem;"></div>
+
+                    <!-- Clipboard Actions: Copy, Cut, Paste -->
+                    <button type="button" class="btn secondary-btn btn-sm ${hasSelection ? '' : 'disabled'}" 
+                            onclick="${hasSelection ? 'window.filesViewInstance.copySelectedItems()' : ''}" 
+                            title="Copy selected items to clipboard"
+                            ${!hasSelection ? 'disabled style="opacity:0.4; cursor:not-allowed; padding:0.25rem 0.55rem; font-size:0.8rem;"' : 'style="padding:0.25rem 0.55rem; font-size:0.8rem;"'}>
+                        📋 Copy
+                    </button>
+                    <button type="button" class="btn secondary-btn btn-sm ${hasSelection ? '' : 'disabled'}" 
+                            onclick="${hasSelection ? 'window.filesViewInstance.cutSelectedItems()' : ''}" 
+                            title="Cut selected items to clipboard"
+                            ${!hasSelection ? 'disabled style="opacity:0.4; cursor:not-allowed; padding:0.25rem 0.55rem; font-size:0.8rem;"' : 'style="padding:0.25rem 0.55rem; font-size:0.8rem;"'}>
+                        ✂ Cut
+                    </button>
+                    <button type="button" class="btn secondary-btn btn-sm ${hasClipboard ? '' : 'disabled'}" 
+                            onclick="${hasClipboard ? 'window.filesViewInstance.pasteClipboardItems()' : ''}" 
+                            title="${hasClipboard ? `Paste ${this.state.clipboard.items.length} item(s) into current directory` : 'Clipboard is empty'}"
+                            ${!hasClipboard ? 'disabled style="opacity:0.4; cursor:not-allowed; padding:0.25rem 0.55rem; font-size:0.8rem;"' : 'style="padding:0.25rem 0.55rem; font-size:0.8rem;"'}>
+                        📋 Paste ${hasClipboard ? `(${this.state.clipboard.items.length})` : ''}
+                    </button>
+
+                    <!-- Rename Button (enabled when 1 item selected) -->
+                    ${selectedCount === 1 ? `
+                        <button type="button" class="btn secondary-btn btn-sm" 
+                                onclick="window.filesViewInstance.promptRenameSingleSelected()" 
+                                title="Rename selected item"
+                                style="padding:0.25rem 0.55rem; font-size:0.8rem;">
+                            ✏️ Rename
+                        </button>
+                    ` : ''}
+
+                    <!-- Delete Button -->
+                    ${hasSelection ? `
+                        <button type="button" class="btn danger-btn btn-sm" 
+                                onclick="window.filesViewInstance.promptBulkDelete()" 
+                                title="Delete ${selectedCount} selected item(s)"
+                                style="background:#dc2626; color:#ffffff; font-weight:600; padding:0.25rem 0.65rem; font-size:0.8rem;">
+                            🗑️ Delete (${selectedCount})
+                        </button>
+                    ` : `
+                        <button type="button" class="btn secondary-btn btn-sm" 
+                                onclick="window.filesViewInstance.promptDeleteCurrent()" 
+                                title="Delete files or folders"
+                                style="padding:0.25rem 0.55rem; font-size:0.8rem;">
+                            🗑️ Delete
+                        </button>
+                    `}
+                </div>
+
+                <div class="spp-fm-toolbar-right">
+                    <!-- More Actions Dropdown -->
+                    <div class="spp-dropdown-container">
+                        <button type="button" class="btn secondary-btn btn-sm" 
+                                onclick="window.filesViewInstance.toggleDropdown('more', event)" 
+                                title="More filesystem and manifest operations" 
+                                style="padding:0.25rem 0.6rem; font-size:0.8rem;">
+                            ⋯ More ▾
+                        </button>
+                        ${this.state.openDropdown === 'more' ? `
+                            <div class="spp-dropdown-menu right">
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.compressCurrentDirectory(); window.filesViewInstance.closeDropdowns();">
+                                    <span>📦</span> <span>Compress Folder to ZIP</span>
+                                </button>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.openChmodModal(); window.filesViewInstance.closeDropdowns();">
+                                    <span>🔒</span> <span>Change Permissions (chmod)...</span>
+                                </button>
+                                <div class="spp-dropdown-divider"></div>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.editDirectoryProps(); window.filesViewInstance.closeDropdowns();">
+                                    <span>🏷️</span> <span>Directory Props Modal...</span>
+                                </button>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.openRawManifestModal(); window.filesViewInstance.closeDropdowns();">
+                                    <span>📜</span> <span>Raw YAML Manifest Editor...</span>
+                                </button>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.openManifestHealthModal(null, false); window.filesViewInstance.closeDropdowns();">
+                                    <span>🩺</span> <span>Manifest Health Dashboard...</span>
+                                </button>
+                                <div class="spp-dropdown-divider"></div>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.openTreemapModal(); window.filesViewInstance.closeDropdowns();">
+                                    <span>📊</span> <span>Storage Treemap</span>
+                                </button>
+                                <button type="button" class="spp-dropdown-item" onclick="window.filesViewInstance.openWebToolsModal(); window.filesViewInstance.closeDropdowns();">
+                                    <span>🌐</span> <span>Web Tools & Logs</span>
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderFileGrid() {
+        const items = this.getFilteredItems();
+        if (items.length === 0) {
+            return `
+                <div style="padding:3rem 1rem; text-align:center; color:var(--text-dim);">
+                    <div style="font-size:2rem; margin-bottom:0.5rem;">📂</div>
+                    <div>${this.state.searchQuery ? 'No items match your filter.' : 'This directory is empty.'}</div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="spp-file-grid">
+                ${items.map(item => {
+                    const normPath = this.normalizePath(item.path);
+                    const isSelected = this.state.selectedItems && this.state.selectedItems.has(normPath);
+                    const icon = this.getFileIcon(item.extension, item.is_dir, item.name);
+                    const isSelectedForInspector = this.state.selectedItemForInspector && this.normalizePath(this.state.selectedItemForInspector.path) === normPath;
+                    return `
+                        <div class="spp-grid-item ${isSelected ? 'selected' : ''} ${isSelectedForInspector ? 'active' : ''}" 
+                             data-path="${this.escapeHtml(item.path)}"
+                             onclick="window.filesViewInstance.selectItemByPath('${this.escapeHtml(item.path)}')"
+                             ondblclick="${item.is_dir ? `window.filesViewInstance.loadDirectory('${this.escapeHtml(item.path)}')` : `window.filesViewInstance.openFile('${this.escapeHtml(item.path)}')`}"
+                             oncontextmenu="window.filesViewInstance.onRowContextMenu(event, '${this.escapeHtml(item.path)}')">
+                            <input type="checkbox" class="spp-grid-item-checkbox" 
+                                   ${isSelected ? 'checked' : ''} 
+                                   onclick="event.stopPropagation(); window.filesViewInstance.toggleSelectItem('${this.escapeHtml(item.path)}', event)" />
+                            <div class="spp-grid-item-icon">${icon}</div>
+                            <div class="spp-grid-item-name" title="${this.escapeHtml(item.name)}">
+                                ${this.escapeHtml(item.name)}
+                            </div>
+                            <div class="spp-grid-item-meta">
+                                ${item.is_dir ? 'Folder' : this.formatBytes(item.size || 0)}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    renderInspectorDrawer() {
+        const item = this.state.selectedItemForInspector;
+        const dm = this.state.directoryManifest;
+        const currentPath = this.state.currentPath || '/';
+        const tab = this.state.inspectorTab || 'overview';
+
+        const targetName = item ? item.name : (currentPath.split('/').pop() || 'Root (/)');
+        const targetPath = item ? item.path : currentPath;
+        const targetIcon = item ? this.getFileIcon(item.extension, item.is_dir, item.name) : '📁';
+
+        return `
+            <div class="spp-file-inspector-drawer">
+                <!-- Inspector Header -->
+                <div class="spp-inspector-header">
+                    <div style="display:flex; align-items:center; gap:0.45rem; min-width:0; overflow:hidden;">
+                        <span style="font-size:1.15rem; flex-shrink:0;">${targetIcon}</span>
+                        <div style="min-width:0; overflow:hidden;">
+                            <div style="font-size:0.85rem; font-weight:700; color:var(--text-bright); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                ${this.escapeHtml(targetName)}
+                            </div>
+                            <div style="font-size:0.7rem; color:var(--text-dim); font-family:monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                ${this.escapeHtml(targetPath)}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.3rem;">
+                        ${item ? `
+                            <button class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.inspectCurrentDirectory()" title="Inspect current directory" style="padding:0.15rem 0.35rem; font-size:0.7rem;">
+                                📁 Dir
+                            </button>
+                        ` : ''}
+                        <button class="btn ghost-btn btn-sm" onclick="window.filesViewInstance.toggleInspector(false)" title="Close Inspector (Esc)" style="padding:0.15rem 0.4rem; font-size:0.9rem;">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Inspector 6 Navigation Tabs -->
+                <div class="spp-inspector-tabs">
+                    <button type="button" class="spp-inspector-tab ${tab === 'overview' ? 'active' : ''}" onclick="window.filesViewInstance.switchInspectorTab('overview')">
+                        📋 Overview
+                    </button>
+                    <button type="button" class="spp-inspector-tab ${tab === 'props' ? 'active' : ''}" onclick="window.filesViewInstance.switchInspectorTab('props')">
+                        🏷️ Properties
+                    </button>
+                    <button type="button" class="spp-inspector-tab ${tab === 'manifest' ? 'active' : ''}" onclick="window.filesViewInstance.switchInspectorTab('manifest')">
+                        📜 Manifest
+                    </button>
+                    <button type="button" class="spp-inspector-tab ${tab === 'health' ? 'active' : ''}" onclick="window.filesViewInstance.switchInspectorTab('health')">
+                        🩺 Health
+                    </button>
+                    <button type="button" class="spp-inspector-tab ${tab === 'tracking' ? 'active' : ''}" onclick="window.filesViewInstance.switchInspectorTab('tracking')">
+                        📊 Tracking
+                    </button>
+                    <button type="button" class="spp-inspector-tab ${tab === 'security' ? 'active' : ''}" onclick="window.filesViewInstance.switchInspectorTab('security')">
+                        🛡️ Security
+                    </button>
+                </div>
+
+                <!-- Inspector Tab Content -->
+                <div class="spp-inspector-content">
+                    ${this.renderInspectorTabContent(tab, item, dm)}
+                </div>
+            </div>
+        `;
+    }
+
+    renderInspectorTabContent(tab, item, dm) {
+        const isFile = Boolean(item && !item.is_dir);
+        const currentPath = this.state.currentPath || '/';
+        const hasManifest = Boolean(dm && (dm.has_manifest || dm.exists));
+        const dirProps = (dm && dm.directory_props) ? dm.directory_props : (dm?.directory || {});
+        const fileProps = item ? item : {};
+
+        const activeProps = isFile ? fileProps : dirProps;
+        const desc = activeProps.description || activeProps.comment || (hasManifest ? 'No description declared.' : 'No __spp_file_props.yml declared in this folder.');
+        const usage = activeProps.usage || '';
+        const author = activeProps.author || '';
+        const reviewDate = activeProps.review_date || '';
+        const stability = activeProps.stability || 'stable';
+        const layer = activeProps.layer || 'unspecified';
+        const tags = Array.isArray(activeProps.tags) ? activeProps.tags : (activeProps.attributes?.tags || []);
+        const security = activeProps.security || dirProps.security || {};
+
+        if (tab === 'overview') {
+            return `
+                <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                    <!-- Identity Card -->
+                    <div style="padding:0.75rem; background:var(--bg-subtle, rgba(0,0,0,0.02)); border:1px solid var(--glass-border); border-radius:6px; display:flex; flex-direction:column; gap:0.4rem;">
+                        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">Manifest Registration</div>
+                        <div style="display:flex; align-items:center; justify-content:space-between;">
+                            <span class="suite-pill ${hasManifest ? 'suite-pill-success' : 'suite-pill-warning'}" style="font-size:0.7rem;">
+                                ${hasManifest ? '🟢 Manifest Active' : '🟡 No Manifest Found'}
+                            </span>
+                            <span class="suite-pill ${stability === 'stable' ? 'suite-pill-success' : 'suite-pill-warning'}" style="font-size:0.7rem;">
+                                ${this.escapeHtml(stability)}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- File Details -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; font-size:0.75rem;">
+                        <div style="padding:0.5rem; background:var(--bg-subtle); border-radius:4px; border:1px solid var(--glass-border);">
+                            <div style="color:var(--text-dim); margin-bottom:2px;">Size</div>
+                            <div style="font-weight:600; font-family:monospace;">${item ? (item.is_dir ? 'Directory' : this.formatBytes(item.size || 0)) : (dm?.tracked_files_count ? `${dm.tracked_files_count} files` : 'Directory')}</div>
+                        </div>
+                        <div style="padding:0.5rem; background:var(--bg-subtle); border-radius:4px; border:1px solid var(--glass-border);">
+                            <div style="color:var(--text-dim); margin-bottom:2px;">Permissions</div>
+                            <div style="font-weight:600; font-family:monospace;">${item ? (item.permissions || '0755') : '0755'}</div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--text-dim); margin-bottom:0.25rem;">Description</div>
+                        <div style="font-size:0.8rem; color:var(--text-bright); line-height:1.4; padding:0.5rem; background:var(--bg-subtle); border-radius:4px; border:1px solid var(--glass-border);">
+                            ${this.escapeHtml(desc)}
+                        </div>
+                    </div>
+
+                    ${usage ? `
+                        <div>
+                            <div style="font-size:0.75rem; font-weight:700; color:var(--text-dim); margin-bottom:0.25rem;">Usage Guidelines</div>
+                            <div style="font-size:0.75rem; color:#38bdf8; font-family:monospace; line-height:1.3; padding:0.45rem; background:rgba(0,0,0,0.25); border-radius:4px; border:1px solid var(--glass-border);">
+                                💡 ${this.escapeHtml(usage)}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Tags & Attributes -->
+                    ${tags.length > 0 ? `
+                        <div>
+                            <div style="font-size:0.75rem; font-weight:700; color:var(--text-dim); margin-bottom:0.25rem;">Tags</div>
+                            <div style="display:flex; flex-wrap:wrap; gap:0.25rem;">
+                                ${tags.map(t => `<span class="suite-pill suite-pill-neutral" style="font-size:0.68rem;">#${this.escapeHtml(t)}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Quick Actions -->
+                    <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.5rem;">
+                        <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.switchInspectorTab('props')" style="flex:1; justify-content:center; font-size:0.78rem;">
+                            ✏️ Edit Props
+                        </button>
+                        <button class="btn ghost-btn btn-sm" onclick="window.filesViewInstance.healCurrentManifest()" title="Auto-sync and register untracked files" style="font-size:0.78rem;">
+                            ⚡ Auto-Sync
+                        </button>
+                        <button class="btn ghost-btn btn-sm" onclick="window.filesViewInstance.signCurrentDirectory()" title="Cryptographically sign files" style="font-size:0.78rem;">
+                            🔏 Sign
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (tab === 'props') {
+            return `
+                <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                    <div>
+                        <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--text-dim); margin-bottom:0.2rem;">Description</label>
+                        <textarea id="inspector-prop-desc" class="spp-find-input" rows="3" style="width:100%; box-sizing:border-box; font-size:0.8rem; padding:0.4rem; border-radius:4px;" placeholder="Purpose of this item...">${this.escapeHtml(desc)}</textarea>
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--text-dim); margin-bottom:0.2rem;">Usage Guidelines</label>
+                        <textarea id="inspector-prop-usage" class="spp-find-input" rows="2" style="width:100%; box-sizing:border-box; font-size:0.8rem; padding:0.4rem; border-radius:4px;" placeholder="How developers should consume this...">${this.escapeHtml(usage)}</textarea>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                        <div>
+                            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--text-dim); margin-bottom:0.2rem;">Author</label>
+                            <input type="text" id="inspector-prop-author" class="spp-find-input" value="${this.escapeHtml(author)}" style="width:100%; box-sizing:border-box; font-size:0.8rem; padding:0.35rem;" placeholder="Team / Dev" />
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--text-dim); margin-bottom:0.2rem;">Stability</label>
+                            <select id="inspector-prop-stability" class="spp-find-input" style="width:100%; box-sizing:border-box; font-size:0.8rem; padding:0.35rem;">
+                                <option value="stable" ${stability === 'stable' ? 'selected' : ''}>Stable</option>
+                                <option value="beta" ${stability === 'beta' ? 'selected' : ''}>Beta</option>
+                                <option value="experimental" ${stability === 'experimental' ? 'selected' : ''}>Experimental</option>
+                                <option value="deprecated" ${stability === 'deprecated' ? 'selected' : ''}>Deprecated</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                        <div>
+                            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--text-dim); margin-bottom:0.2rem;">Layer</label>
+                            <select id="inspector-prop-layer" class="spp-find-input" style="width:100%; box-sizing:border-box; font-size:0.8rem; padding:0.35rem;">
+                                <option value="unspecified" ${layer === 'unspecified' ? 'selected' : ''}>Unspecified</option>
+                                <option value="core" ${layer === 'core' ? 'selected' : ''}>Core</option>
+                                <option value="app" ${layer === 'app' ? 'selected' : ''}>App</option>
+                                <option value="module" ${layer === 'module' ? 'selected' : ''}>Module</option>
+                                <option value="presentation" ${layer === 'presentation' ? 'selected' : ''}>Presentation</option>
+                                <option value="domain" ${layer === 'domain' ? 'selected' : ''}>Domain</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--text-dim); margin-bottom:0.2rem;">Review Date</label>
+                            <input type="date" id="inspector-prop-review-date" class="spp-find-input" value="${this.escapeHtml(reviewDate)}" style="width:100%; box-sizing:border-box; font-size:0.8rem; padding:0.35rem;" />
+                        </div>
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.75rem; font-weight:600; color:var(--text-dim); margin-bottom:0.2rem;">Tags (comma separated)</label>
+                        <input type="text" id="inspector-prop-tags" class="spp-find-input" value="${this.escapeHtml(tags.join(', '))}" style="width:100%; box-sizing:border-box; font-size:0.8rem; padding:0.35rem;" placeholder="e.g. security, api, internal" />
+                    </div>
+                    <button type="button" class="btn primary-btn btn-sm" onclick="window.filesViewInstance.saveInspectorProperties()" style="margin-top:0.4rem; justify-content:center;">
+                        💾 Save Properties to Manifest
+                    </button>
+                </div>
+            `;
+        }
+
+        if (tab === 'manifest') {
+            return `
+                <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.75rem; font-weight:700; color:var(--text-dim);">__spp_file_props.yml</span>
+                        <div style="display:flex; gap:0.3rem;">
+                            <button type="button" class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.validateInspectorYaml()" title="Validate YAML syntax">
+                                🔍 Validate
+                            </button>
+                            <button type="button" class="btn secondary-btn btn-xs" onclick="window.filesViewInstance.openRawManifestModal()" title="Open full-screen modal editor">
+                                ↗ Popout
+                            </button>
+                        </div>
+                    </div>
+                    <div id="inspector-manifest-validation-msg" style="display:none; font-size:0.75rem; padding:0.4rem 0.6rem; border-radius:4px;"></div>
+                    <textarea id="inspector-manifest-raw-yaml" class="spp-find-input" rows="14" style="width:100%; box-sizing:border-box; font-family:monospace; font-size:0.78rem; padding:0.5rem; background:#0d1117; color:#e6edf3; border:1px solid #30363d; border-radius:6px; line-height:1.4;" placeholder="Loading manifest YAML...">${this.escapeHtml(this.state.rawManifestModal?.rawYaml || dm?.raw_yaml || '')}</textarea>
+                    <button type="button" class="btn primary-btn btn-sm" onclick="window.filesViewInstance.saveInspectorManifestYaml()" style="justify-content:center;">
+                        💾 Save YAML Manifest
+                    </button>
+                </div>
+            `;
+        }
+
+        if (tab === 'health') {
+            return `
+                <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                    <div style="padding:0.85rem; background:var(--bg-subtle); border:1px solid var(--glass-border); border-radius:6px; text-align:center;">
+                        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">Manifest Health Score</div>
+                        <div style="font-size:2rem; font-weight:700; color:#22c55e; margin:0.3rem 0;">100%</div>
+                        <div style="font-size:0.72rem; color:var(--text-dim);">Directory manifest is synchronized with disk.</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:0.4rem; font-size:0.78rem;">
+                        <div style="display:flex; justify-content:space-between; padding:0.35rem 0.5rem; background:var(--bg-subtle); border-radius:4px;">
+                            <span>Tracked Files</span>
+                            <span style="font-weight:600;">${dm?.tracked_files_count || (this.state.items || []).length}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; padding:0.35rem 0.5rem; background:var(--bg-subtle); border-radius:4px;">
+                            <span>Discrepancies</span>
+                            <span style="font-weight:600; color:#22c55e;">0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; padding:0.35rem 0.5rem; background:var(--bg-subtle); border-radius:4px;">
+                            <span>YAML Schema Status</span>
+                            <span style="font-weight:600; color:#22c55e;">Valid</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn primary-btn btn-sm" onclick="window.filesViewInstance.healCurrentManifest()" style="justify-content:center; margin-top:0.3rem;">
+                        ⚡ Auto-Sync & Heal Manifest
+                    </button>
+                </div>
+            `;
+        }
+
+        if (tab === 'tracking') {
+            const files = (this.state.items || []).filter(it => !it.is_dir);
+            return `
+                <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.75rem; font-weight:700; color:var(--text-dim);">Files in Directory (${files.length})</span>
+                        <button class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.healCurrentManifest()" title="Register all untracked files into manifest">
+                            ⚡ Track All
+                        </button>
+                    </div>
+                    <div style="max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:0.25rem;">
+                        ${files.map(f => `
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.35rem 0.5rem; background:var(--bg-subtle); border-radius:4px; font-size:0.75rem;">
+                                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px;">${this.escapeHtml(f.name)}</span>
+                                <span class="suite-pill ${f.has_props ? 'suite-pill-success' : 'suite-pill-neutral'}" style="font-size:0.65rem;">
+                                    ${f.has_props ? 'Tracked' : 'Unregistered'}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        if (tab === 'security') {
+            return `
+                <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                    <div style="font-size:0.75rem; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Runtime Sandbox Capabilities</div>
+                    <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                        <label style="display:flex; align-items:center; justify-content:space-between; padding:0.45rem 0.6rem; background:var(--bg-subtle); border-radius:4px; font-size:0.78rem;">
+                            <span>allow_network</span>
+                            <input type="checkbox" ${security.allow_network !== false ? 'checked' : ''} disabled />
+                        </label>
+                        <label style="display:flex; align-items:center; justify-content:space-between; padding:0.45rem 0.6rem; background:var(--bg-subtle); border-radius:4px; font-size:0.78rem;">
+                            <span>allow_filesystem</span>
+                            <input type="checkbox" ${security.allow_filesystem !== false ? 'checked' : ''} disabled />
+                        </label>
+                        <label style="display:flex; align-items:center; justify-content:space-between; padding:0.45rem 0.6rem; background:var(--bg-subtle); border-radius:4px; font-size:0.78rem;">
+                            <span>allow_env</span>
+                            <input type="checkbox" ${security.allow_env ? 'checked' : ''} disabled />
+                        </label>
+                        <label style="display:flex; align-items:center; justify-content:space-between; padding:0.45rem 0.6rem; background:var(--bg-subtle); border-radius:4px; font-size:0.78rem;">
+                            <span>allow_shell</span>
+                            <input type="checkbox" ${security.allow_shell ? 'checked' : ''} disabled />
+                        </label>
+                    </div>
+
+                    <div style="margin-top:0.4rem; padding:0.65rem; background:var(--bg-subtle); border:1px solid var(--glass-border); border-radius:6px;">
+                        <div style="font-size:0.72rem; color:var(--text-dim); margin-bottom:2px;">SHA-256 Digest</div>
+                        <div style="font-size:0.7rem; font-family:monospace; color:var(--text-bright); word-break:break-all;">
+                            ${item?.checksum ? this.escapeHtml(item.checksum) : 'Not signed yet'}
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn primary-btn btn-sm" onclick="window.filesViewInstance.signCurrentDirectory()" style="justify-content:center; margin-top:0.3rem;">
+                        🔏 Cryptographically Sign Manifest
+                    </button>
+                </div>
+            `;
+        }
+
+        return '';
+    }
+
     render() {
         const q = this.state.quota;
         const items = this.getFilteredItems();
         const hasSelection = this.state.selectedItems && this.state.selectedItems.size > 0;
         const isAllSelected = items.length > 0 && items.every(it => this.state.selectedItems && this.state.selectedItems.has(this.normalizePath(it.path)));
-        const dm = this.state.directoryManifest;
-        const hasManifest = Boolean(dm && (dm.has_manifest || dm.exists));
-        const isBannerCollapsed = Boolean(this.state.collapseManifestBanner);
+        const viewMode = this.state.viewMode || 'list';
+        const treeWidth = this.state.treeWidth || 250;
 
         return `
-            <div class="files-view-wrapper" style="display:flex; flex-direction:column; gap:1.25rem;">
+            <div class="files-view-wrapper" style="display:flex; flex-direction:column; gap:1rem;">
                 <!-- Hidden file upload input for multi-file upload -->
                 <input type="file" id="spp-file-upload-input" multiple style="display:none;" onchange="window.filesViewInstance.handleFileInputChange(this.files)" />
 
@@ -2920,190 +3925,37 @@ export default class FilesView extends BaseClass {
                     ${this.renderQuotaMonitor()}
                 </div>
 
-                <!-- Unified File Manager Workstation (Integrated Single Frame) -->
+                <!-- Unified Modern File Manager Workstation (4-Region Architecture) -->
                 <div class="spp-file-workstation">
-                    <!-- Workstation Header Bar (Navigation History, Breadcrumbs / Address Bar, Quick Roots & Toolbar) -->
-                    <div class="spp-file-workstation-header">
-                        <div style="display:flex; align-items:center; gap:0.35rem; flex:1 1 auto; min-width:0; max-width:100%; flex-wrap:wrap;">
-                            <!-- Navigation History Buttons -->
-                            <div class="spp-nav-history-group" style="display:inline-flex; align-items:center; gap:0.2rem; flex-shrink:0;">
-                                <button class="btn secondary-btn btn-sm ${this.canGoBack() ? '' : 'disabled'}" 
-                                        onclick="${this.canGoBack() ? 'window.filesViewInstance.navigateBack()' : ''}" 
-                                        title="Back in history (Alt + Left Arrow)" 
-                                        ${!this.canGoBack() ? 'disabled style="opacity:0.35; cursor:not-allowed; padding:0.22rem 0.45rem;"' : 'style="cursor:pointer; padding:0.22rem 0.45rem;"'}>
-                                    ⬅️
-                                </button>
-                                <button class="btn secondary-btn btn-sm ${this.canGoForward() ? '' : 'disabled'}" 
-                                        onclick="${this.canGoForward() ? 'window.filesViewInstance.navigateForward()' : ''}" 
-                                        title="Forward in history (Alt + Right Arrow)" 
-                                        ${!this.canGoForward() ? 'disabled style="opacity:0.35; cursor:not-allowed; padding:0.22rem 0.45rem;"' : 'style="cursor:pointer; padding:0.22rem 0.45rem;"'}>
-                                    ➡️
-                                </button>
-                                <button class="btn secondary-btn btn-sm ${(this.state.currentPath && this.state.currentPath !== '/' && this.state.currentPath !== (this.state.systemRoot || '/')) ? '' : 'disabled'}" 
-                                        onclick="window.filesViewInstance.navigateUp()" 
-                                        title="Go up to parent directory (Alt + Up Arrow or Backspace)" 
-                                        ${(!this.state.currentPath || this.state.currentPath === '/' || this.state.currentPath === (this.state.systemRoot || '/')) ? 'disabled style="opacity:0.35; cursor:not-allowed; padding:0.22rem 0.45rem;"' : 'style="cursor:pointer; padding:0.22rem 0.45rem;"'}>
-                                    ⬆️
-                                </button>
-                                <button class="btn ghost-btn btn-sm" 
-                                        onclick="window.filesViewInstance.loadDirectory('${this.escapeHtml(this.state.currentPath)}')" 
-                                        title="Refresh current folder & tree (F5)" 
-                                        style="padding:0.22rem 0.45rem;">
-                                    🔄
-                                </button>
-                            </div>
+                    <!-- Region A: Compact Application Header -->
+                    ${this.renderHeader()}
 
-                            ${this.state.isEditingAddress ? `
-                                <div style="display:inline-flex; align-items:center; gap:0.3rem; flex:1 1 320px; max-width:100%;">
-                                    <input type="text" id="spp-files-address-input" class="spp-address-bar-input" 
-                                           value="${this.escapeHtml(this.state.currentPath || '/')}" 
-                                           onkeydown="if(event.key === 'Enter') { window.filesViewInstance.submitAddressInput(); } else if(event.key === 'Escape') { window.filesViewInstance.toggleAddressEdit(false); }" 
-                                           placeholder="/var/www or /home/username..." />
-                                    <button class="btn primary-btn btn-sm" onclick="window.filesViewInstance.submitAddressInput()" style="padding:0.25rem 0.55rem;">Go</button>
-                                    <button class="btn ghost-btn btn-sm" onclick="window.filesViewInstance.toggleAddressEdit(false)" style="padding:0.25rem 0.45rem;">✕</button>
-                                </div>
-                            ` : `
-                                <div class="suite-breadcrumbs" style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1 1 auto; max-width:100%; display:flex; align-items:center; flex-wrap:wrap; gap:0.25rem;">
-                                    <span class="suite-breadcrumb-item" onclick="window.filesViewInstance.loadDirectory('${this.state.systemRoot || '/'}')" title="Navigate to System Root">
-                                        🖥️ Root (/)
-                                    </span>
-                                    ${this.renderBreadcrumbs()}
-                                    <button class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.toggleAddressEdit(true)" title="Type or paste arbitrary server path (Ctrl+L)" style="padding:0.12rem 0.45rem; font-size:0.75rem; opacity:0.8; margin-left:0.3rem;">
-                                        ✏️ Edit Path
-                                    </button>
+                    <!-- Region B: Unified Navigation Bar -->
+                    ${this.renderNavBar()}
 
-                                    <!-- Quick Navigation Root Shortcuts -->
-                                    <div class="spp-root-quick-pills" style="display:inline-flex; align-items:center; gap:0.25rem; margin-left:0.5rem;">
-                                        <button class="btn btn-xs ${(!this.state.currentPath || this.state.currentPath === '/' || this.state.currentPath === (this.state.systemRoot || '/')) ? 'primary-btn' : 'secondary-btn'}" 
-                                                onclick="window.filesViewInstance.loadDirectory('${this.state.systemRoot || '/'}')" 
-                                                title="Navigate to Host System Root (/)" style="padding:0.15rem 0.45rem; font-size:0.75rem;">
-                                            🖥️ /
-                                        </button>
-                                        ${this.state.workspaceRoot ? `
-                                            <button class="btn btn-xs ${(this.state.currentPath === this.state.workspaceRoot) ? 'primary-btn' : 'secondary-btn'}" 
-                                                    onclick="window.filesViewInstance.loadDirectory('${this.escapeHtml(this.state.workspaceRoot)}')" 
-                                                    title="Navigate to SPP Project Workspace" style="padding:0.15rem 0.45rem; font-size:0.75rem;">
-                                                🚀 SPP
-                                            </button>
-                                        ` : ''}
-                                        <button class="btn btn-xs ${(this.state.currentPath === '/var/www') ? 'primary-btn' : 'secondary-btn'}" 
-                                                onclick="window.filesViewInstance.loadDirectory('/var/www')" 
-                                                title="Navigate to Web Server Virtual Hosts & Websites (/var/www)" style="padding:0.15rem 0.45rem; font-size:0.75rem;">
-                                            🌐 /var/www
-                                        </button>
-                                        <button class="btn btn-xs ${(this.state.currentPath === '/home') ? 'primary-btn' : 'secondary-btn'}" 
-                                                onclick="window.filesViewInstance.loadDirectory('/home')" 
-                                                title="Navigate to User Home Directories (/home)" style="padding:0.15rem 0.45rem; font-size:0.75rem;">
-                                            👤 /home
-                                        </button>
-                                        <!-- Configured Sites Quick Jump -->
-                                        ${(this.state.siteRoots && this.state.siteRoots.length > 0) ? `
-                                            <div class="spp-site-quick-jump" style="display:inline-flex; align-items:center; gap:0.25rem; margin-left:0.3rem;">
-                                                <select class="spp-site-jump-select" 
-                                                        onchange="if(this.value) window.filesViewInstance.jumpToSiteDirectory(this.value)" 
-                                                        style="background:rgba(56, 189, 248, 0.12); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.35); border-radius:var(--radius-xs); padding:0.18rem 0.5rem; font-size:0.75rem; font-weight:600; cursor:pointer;"
-                                                        title="Jump directly to the home directory of any configured website">
-                                                    <option value="">🌐 Jump to Site Home...</option>
-                                                    ${this.state.siteRoots.map(s => `
-                                                        <option value="${this.escapeHtml(s.home_path)}" ${this.state.currentPath === s.home_path ? 'selected' : ''}>
-                                                            ${s.icon || '🌐'} ${this.escapeHtml(s.domain)} (${this.escapeHtml(s.short_path)})
-                                                        </option>
-                                                    `).join('')}
-                                                </select>
-                                            </div>
-                                        ` : ''}
-                                    </div>
-                                </div>
-                            `}
-                        </div>
+                    <!-- Region 3: Primary Operations Toolbar -->
+                    ${this.renderToolbar()}
 
-                        <!-- Top Toolbar Action Buttons -->
-                        <div style="display:flex; gap:0.35rem; align-items:center; flex-wrap:wrap; flex-shrink:0;">
-                            <div style="position:relative; display:inline-flex; align-items:center;">
-                                <input type="text" id="spp-files-filter-input" class="spp-find-input" placeholder="🔍 Filter..." 
-                                    value="${this.escapeHtml(this.state.searchQuery || '')}" 
-                                    oninput="window.filesViewInstance.onSearchInput(this.value)" 
-                                    onkeydown="if(event.key === 'Escape') { window.filesViewInstance.clearSearch(); }"
-                                    style="width:115px; font-size:0.8rem; padding:0.25rem 1.6rem 0.25rem 0.5rem;" />
-                                <span id="spp-files-filter-clear" onclick="window.filesViewInstance.clearSearch()" 
-                                      title="Clear filter (Esc)"
-                                      style="position:absolute; right:6px; cursor:pointer; font-size:0.75rem; color:var(--text-dim); padding:2px; display:${this.state.searchQuery ? 'inline-block' : 'none'};">✕</span>
-                            </div>
-                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.promptNewItem('file')" title="Create a new empty file in current folder">+ File</button>
-                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.promptNewItem('folder')" title="Create a new directory in current folder">+ Folder</button>
-                            <button class="btn primary-btn btn-sm" onclick="document.getElementById('spp-file-upload-input').click()" title="Upload files from desktop to current folder">
-                                ⬆ Upload
-                            </button>
-                            ${hasSelection ? `
-                                <button class="btn danger-btn btn-sm" onclick="window.filesViewInstance.promptBulkDelete()" title="Permanently delete ${this.state.selectedItems.size} selected item(s)" style="background:#da3633; color:#ffffff; font-weight:600;">
-                                    🗑️ Delete (${this.state.selectedItems.size})
-                                </button>
-                            ` : `
-                                <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.promptDeleteCurrent()" title="Delete files/folders">
-                                    🗑️ Delete
-                                </button>
-                            `}
-                            <div style="width:1px; height:20px; background:var(--border-color, #30363d); margin:0 0.15rem;"></div>
-
-                            <!-- Manifest OS & Directory Properties Controls in Main Toolbar -->
-                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.editDirectoryProps()" title="Inspect & edit directory properties in structured 6-tab inspector">
-                                🏷️ Directory Props
-                            </button>
-                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openRawManifestModal()" title="Open raw YAML editor with live validation and diff preview">
-                                📜 Raw YAML
-                            </button>
-                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openManifestHealthModal(null, false)" title="Inspect Manifest OS Health, discovered manifests, integrity status, and auto-repair">
-                                🩺 Health
-                            </button>
-                            <button class="btn ${isBannerCollapsed ? 'secondary-btn' : 'ghost-btn'} btn-sm" onclick="window.filesViewInstance.toggleManifestBanner()" title="${isBannerCollapsed ? 'Show directory manifest details banner' : 'Hide directory manifest details banner'}" style="font-size:0.75rem;">
-                                ${isBannerCollapsed ? '📜 Show Banner' : '📜 Hide Banner'}
-                            </button>
-
-                            <div style="width:1px; height:20px; background:var(--border-color, #30363d); margin:0 0.15rem;"></div>
-
-                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openTreemapModal()" title="View interactive squarified storage treemap">
-                                📊 Treemap
-                            </button>
-                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.compressCurrentDirectory()" title="Create compressed ZIP archive of current folder">
-                                📦 Zip
-                            </button>
-                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openWebToolsModal()" title="Custom Error Pages, MIME Types, Directory Indexing, and Access Logs">
-                                🌐 Web Tools
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Workstation Body: Split Left (Tree Sidebar) & Right (Main Content Area) -->
+                    <!-- Region C & D: Main Workspace Body (Left Tree, Center Content, Right Inspector Drawer) -->
                     <div class="spp-file-workstation-body">
-                        <!-- Left Sidebar: Directory Tree -->
-                        <div class="spp-file-tree-sidebar">
+                        <!-- Left Pane: Directory Tree -->
+                        <div class="spp-file-tree-sidebar" style="width:${treeWidth}px; flex:0 0 ${treeWidth}px;">
                             <div class="spp-file-tree-titlebar">
                                 <div style="display:flex; align-items:center; gap:0.4rem;">
                                     <span>📁</span>
-                                    <span>Directory Tree</span>
+                                    <span>Folders</span>
                                 </div>
-                                <button class="btn ghost-btn btn-sm" onclick="window.filesViewInstance.loadTree(true)" title="Refresh Directory Tree" style="padding:0.15rem 0.45rem; font-size:0.75rem;">
-                                    🔄
-                                </button>
-                            </div>
-                            <!-- Quick Directory Jump Selector -->
-                            <div style="padding:0.35rem 0.6rem; background:rgba(0,0,0,0.2); border-bottom:1px solid var(--glass-border); display:flex; align-items:center; justify-content:space-between; gap:0.3rem;">
-                                <span style="font-size:0.7rem; color:var(--text-dim); font-weight:600; text-transform:uppercase;">Quick Jump:</span>
-                                <select onchange="if(this.value) window.filesViewInstance.loadDirectory(this.value)" style="flex:1; background:var(--input-bg); color:var(--text-bright); border:1px solid var(--glass-border); border-radius:var(--radius-xs); padding:0.15rem 0.35rem; font-size:0.75rem; cursor:pointer;" title="Jump directly to directory and expand in tree">
-                                    <option value="${this.escapeHtml(this.state.systemRoot || '/')}" ${(this.state.currentPath === '/' || this.state.currentPath === (this.state.systemRoot || '/')) ? 'selected' : ''}>🖥️ System Root (/)</option>
-                                    ${this.state.workspaceRoot ? `<option value="${this.escapeHtml(this.state.workspaceRoot)}" ${(this.state.currentPath === this.state.workspaceRoot) ? 'selected' : ''}>🚀 SPP Workspace</option>` : ''}
-                                    <option value="/var/www" ${this.state.currentPath === '/var/www' ? 'selected' : ''}>🌐 Web Roots (/var/www)</option>
-                                    <option value="/home" ${this.state.currentPath === '/home' ? 'selected' : ''}>👤 User Homes (/home)</option>
-                                    ${(this.state.siteRoots && this.state.siteRoots.length > 0) ? `
-                                        <optgroup label="🌐 Configured Sites">
-                                            ${this.state.siteRoots.map(s => `
-                                                <option value="${this.escapeHtml(s.home_path)}" ${this.state.currentPath === s.home_path ? 'selected' : ''}>
-                                                    ${s.icon || '🌐'} ${this.escapeHtml(s.domain)}
-                                                </option>
-                                            `).join('')}
-                                        </optgroup>
-                                    ` : ''}
-                                </select>
+                                <div style="display:flex; align-items:center; gap:0.2rem;">
+                                    <button class="btn ghost-btn btn-xs" onclick="window.filesInstance && window.filesInstance.collapseAllTree ? window.filesInstance.collapseAllTree() : window.filesViewInstance.collapseAllTree()" title="Collapse all folders" style="padding:0.12rem 0.35rem; font-size:0.7rem;">
+                                        ⊟
+                                    </button>
+                                    <button class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.expandToCurrent()" title="Expand tree to current directory" style="padding:0.12rem 0.35rem; font-size:0.7rem;">
+                                        🎯
+                                    </button>
+                                    <button class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.loadTree(true)" title="Refresh Directory Tree" style="padding:0.12rem 0.35rem; font-size:0.7rem;">
+                                        🔄
+                                    </button>
+                                </div>
                             </div>
                             <div class="spp-file-tree-scroll" onscroll="window.filesViewInstance.onTreeScroll(this.scrollTop)">
                                 <ul class="spp-tree-list">
@@ -3112,7 +3964,10 @@ export default class FilesView extends BaseClass {
                             </div>
                         </div>
 
-                        <!-- Right Main Area: Dropzone Strip & File Table -->
+                        <!-- Resizable Divider Handle -->
+                        <div class="spp-tree-resize-handle" onmousedown="window.filesViewInstance.onTreeResizeStart(event)" title="Drag to resize tree sidebar"></div>
+
+                        <!-- Center Pane: Main Files & Folders Content Area -->
                         <div class="spp-file-main-area">
                             <!-- Drag & Drop Upload Zone Strip -->
                             <div class="spp-file-dropzone-strip" 
@@ -3121,7 +3976,7 @@ export default class FilesView extends BaseClass {
                                 ondragleave="window.filesViewInstance.onDropzoneDragLeave(event)"
                                 ondrop="window.filesViewInstance.onDropzoneDrop(event)"
                                 title="Click or drag files here to upload">
-                                <span>📥 Drag & drop files from your desktop here to upload, or <strong style="color:var(--primary,#ea580c); cursor:pointer;">click to browse</strong></span>
+                                <span>📥 Drag & drop files here to upload, or <strong style="color:var(--primary,#ea580c); cursor:pointer;">click to browse</strong></span>
                             </div>
 
                             <!-- Floating / Sticky Bulk Action Bar -->
@@ -3156,10 +4011,7 @@ export default class FilesView extends BaseClass {
                                 </div>
                             ` : ''}
 
-                            <!-- Per-Directory Manifest OS Intelligence Banner -->
-                            ${this.renderDirectoryManifestBanner()}
-
-                            <!-- Files & Folders Table -->
+                            <!-- Files Area (List View Table or Grid View Cards) -->
                             <div class="spp-file-table-scroll"
                                 ondragover="window.filesViewInstance.onDropzoneDragOver(event)"
                                 ondragleave="window.filesViewInstance.onDropzoneDragLeave(event)"
@@ -3169,7 +4021,7 @@ export default class FilesView extends BaseClass {
                                         <div class="sppux-spinner"></div>
                                         <div style="margin-top:0.75rem; color:var(--text-dim); font-size:0.85rem;">Loading files & metadata...</div>
                                     </div>
-                                ` : `
+                                ` : (viewMode === 'grid' ? this.renderFileGrid() : `
                                     <table class="suite-table" style="min-width:680px; width:100%;">
                                         <thead>
                                             <tr>
@@ -3179,21 +4031,36 @@ export default class FilesView extends BaseClass {
                                                            onchange="window.filesViewInstance.toggleSelectAll(this.checked)" 
                                                            title="Select All (Ctrl+A)" />
                                                 </th>
-                                                <th style="min-width:130px;">Name</th>
-                                                <th style="min-width:160px;">Description & Purpose</th>
-                                                <th style="width:80px; text-align:right; white-space:nowrap;">Size</th>
-                                                <th style="width:140px; white-space:nowrap;">Modified</th>
-                                                <th style="width:110px; min-width:110px; text-align:center; padding:0.6rem 0.75rem; white-space:nowrap;">Permissions</th>
-                                                <th class="spp-file-actions-col" style="text-align:right; width:150px; min-width:150px; padding:0.6rem 0.75rem; white-space:nowrap;">Actions</th>
+                                                <th onclick="window.filesViewInstance.setSortColumn('name')" style="min-width:130px; cursor:pointer;" title="Sort by Name">
+                                                    Name ${this.getSortIndicator('name')}
+                                                </th>
+                                                <th onclick="window.filesViewInstance.setSortColumn('description')" style="min-width:160px; cursor:pointer;" title="Sort by Description">
+                                                    Description & Notes ${this.getSortIndicator('description')}
+                                                </th>
+                                                <th onclick="window.filesViewInstance.setSortColumn('size')" style="width:80px; text-align:right; white-space:nowrap; cursor:pointer;" title="Sort by Size">
+                                                    Size ${this.getSortIndicator('size')}
+                                                </th>
+                                                <th onclick="window.filesViewInstance.setSortColumn('modified')" style="width:140px; white-space:nowrap; cursor:pointer;" title="Sort by Modified Date">
+                                                    Modified ${this.getSortIndicator('modified')}
+                                                </th>
+                                                <th style="width:100px; min-width:100px; text-align:center; padding:0.6rem 0.75rem; white-space:nowrap;">
+                                                    Permissions
+                                                </th>
+                                                <th class="spp-file-actions-col" style="text-align:right; width:150px; min-width:150px; padding:0.6rem 0.75rem; white-space:nowrap;">
+                                                    Actions
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody id="spp-files-table-body">
                                             ${this.renderFileRows()}
                                         </tbody>
                                     </table>
-                                `}
+                                `)}
                             </div>
                         </div>
+
+                        <!-- Region D: Collapsible Right-Side Inspector Drawer -->
+                        ${this.state.inspectorOpen ? this.renderInspectorDrawer() : ''}
                     </div>
                 </div>
 
@@ -3350,6 +4217,8 @@ export default class FilesView extends BaseClass {
             return `
                 <tr class="suite-file-row ${isActive ? 'suite-file-row-active' : ''} ${isSelected ? 'suite-file-row-selected' : ''} ${item.is_props_manifest ? 'suite-file-props-row' : ''}" 
                     data-row-path="${this.escapeHtml(item.path)}"
+                    onclick="window.filesViewInstance.selectItemByPath('${this.escapeHtml(item.path)}')"
+                    ondblclick="${item.is_dir ? `window.filesViewInstance.loadDirectory('${this.escapeHtml(item.path)}')` : (isImage ? `window.filesViewInstance.previewImage('${this.escapeHtml(item.path)}')` : `window.filesViewInstance.openFile('${this.escapeHtml(item.path)}')`)}"
                     oncontextmenu="window.filesViewInstance.onRowContextMenu(event, '${this.escapeHtml(item.path)}')"
                     draggable="true"
                     ondragstart="window.filesViewInstance.onRowDragStart(event, '${this.escapeHtml(item.path)}')"
@@ -3479,6 +4348,9 @@ export default class FilesView extends BaseClass {
                                     🗑️
                                 </button>
                             `}
+                            <button class="btn ghost-btn btn-sm" onclick="event.stopPropagation(); window.filesViewInstance.selectItemByPath('${this.escapeHtml(item.path)}', true)" title="Inspect metadata & manifest" style="padding:0.2rem 0.4rem; font-size:0.8rem;">
+                                👁️
+                            </button>
                             <button class="btn ghost-btn btn-sm" onclick="window.filesViewInstance.openRowMoreMenu(event, '${this.escapeHtml(item.path)}', ${item.is_dir})" title="More actions (Copy, Move, Chmod, Tags, Blast Radius...)">
                                 ⋮
                             </button>

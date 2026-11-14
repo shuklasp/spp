@@ -460,7 +460,7 @@ class StorageAdminService
             $propEntry = null;
             if ($isDir) {
                 $propEntry = $propsData['directories'][$entry] ?? ($propsData[$entry] ?? null);
-                if (empty($propEntry)) {
+                if (empty($propEntry) && count($entries) <= 30) {
                     $subManifestFile = $full . DIRECTORY_SEPARATOR . '__spp_file_props.yml';
                     if (file_exists($subManifestFile)) {
                         $subManifest = \SPPMod\SPPStorage\FilePropsManager::loadManifest($full);
