@@ -50,12 +50,12 @@ export default class DomainsView extends BaseClass {
                 unmappedSubdomainPolicy: 'strict',
                 apps: [],
                 // Simulator state
-                simHost: (window.location.hostname && !/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname) && window.location.hostname !== 'localhost') ? window.location.hostname : 'satyalab.net',
+                simHost: (window.location.hostname && !/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname) && window.location.hostname !== 'localhost') ? window.location.hostname : 'example.com',
                 simPath: '/',
                 simResult: null,
                 simulating: false,
                 // SSL Inspector & AutoSSL state
-                sslHost: (window.location.hostname && !/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname) && window.location.hostname !== 'localhost') ? window.location.hostname : 'satyalab.net',
+                sslHost: (window.location.hostname && !/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname) && window.location.hostname !== 'localhost') ? window.location.hostname : 'example.com',
                 sslResult: null,
                 checkingSsl: false,
                 autoSslResult: null,
@@ -71,7 +71,7 @@ export default class DomainsView extends BaseClass {
                 certbotResult: null,
                 issuingCertbot: false,
                 // DNS Diagnostics state
-                dnsHost: (window.location.hostname && !/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname) && window.location.hostname !== 'localhost') ? window.location.hostname : 'satyalab.net',
+                dnsHost: (window.location.hostname && !/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname) && window.location.hostname !== 'localhost') ? window.location.hostname : 'example.com',
                 dnsType: 'ANY',
                 dnsTrace: false,
                 dnsResult: null,
@@ -82,13 +82,13 @@ export default class DomainsView extends BaseClass {
                 savingProxy: false,
                 probingProxy: false,
                 // DNS Zone Editor state
-                zoneDomain: (window.location.hostname && !/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname) && window.location.hostname !== 'localhost') ? window.location.hostname : 'satyalab.net',
+                zoneDomain: (window.location.hostname && !/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname) && window.location.hostname !== 'localhost') ? window.location.hostname : 'example.com',
                 zoneData: null,
                 loadingZone: false,
                 zoneSearch: '',
                 domainApps: [],
                 allAppsList: [],
-                propagationHost: (window.location.hostname && !/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname) && window.location.hostname !== 'localhost') ? window.location.hostname : 'satyalab.net',
+                propagationHost: (window.location.hostname && !/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname) && window.location.hostname !== 'localhost') ? window.location.hostname : 'example.com',
                 propagationType: 'A',
                 propagationResults: null,
                 checkingPropagation: false,
@@ -312,17 +312,17 @@ export default class DomainsView extends BaseClass {
                     <div class="input-group">
                         <label>
                             Domain Name <span style="color:var(--danger)">*</span>
-                            <span class="spp-help-tip" data-tooltip-title="Website Domain Name" data-tooltip="The web address visitors type to open your website." data-tooltip-example="e.g. satyalab.net or vshiksha.com">?</span>
+                            <span class="spp-help-tip" data-tooltip-title="Website Domain Name" data-tooltip="The web address visitors type to open your website." data-tooltip-example="e.g. example.com or mysite.org">?</span>
                         </label>
-                        <input type="text" id="dom-pattern" value="${this.escapeHtml(domain?.pattern || '')}" data-original-pattern="${this.escapeHtml(domain?.pattern || '')}" placeholder="e.g. satyalab.net or vshiksha.com" required>
+                        <input type="text" id="dom-pattern" value="${this.escapeHtml(domain?.pattern || '')}" data-original-pattern="${this.escapeHtml(domain?.pattern || '')}" placeholder="e.g. example.com or mysite.org" required>
                     </div>
                     <div class="input-group">
                         <label>
                             Linux User Account
-                            <span class="spp-help-tip" data-tooltip-title="User Home Isolation" data-tooltip="Linux system user account (e.g. satyalab) that owns all domain apps and persistent sppdata.">?</span>
+                            <span class="spp-help-tip" data-tooltip-title="User Home Isolation" data-tooltip="Linux system user account (e.g. webuser) that owns all domain apps and persistent sppdata.">?</span>
                         </label>
                         <div style="display:flex; gap:0.5rem;">
-                            <input type="text" id="dom-account" value="${this.escapeHtml(domain?.account || 'default')}" placeholder="e.g. satyalab">
+                            <input type="text" id="dom-account" value="${this.escapeHtml(domain?.account || 'default')}" placeholder="e.g. webuser or default">
                             <button type="button" class="btn secondary-btn btn-sm" id="dom-btn-autofill-user" title="Auto-populate User Home Apps and sppdata Paths">⚡ Auto Paths</button>
                         </div>
                     </div>
@@ -335,14 +335,14 @@ export default class DomainsView extends BaseClass {
                             Domain Apps Directory (<code style="font-size:0.75rem;">app_dir</code>)
                             <span class="spp-help-tip" data-tooltip="Custom directory in user home hosting applications for this domain.">?</span>
                         </label>
-                        <input type="text" id="dom-app-dir" value="${this.escapeHtml(domain?.app_dir || '')}" placeholder="e.g. /home/satyalab/domains/satyalab.net/apps" style="font-size:0.85rem; font-family:monospace;">
+                        <input type="text" id="dom-app-dir" value="${this.escapeHtml(domain?.app_dir || '')}" placeholder="e.g. /home/webuser/domains/example.com/apps" style="font-size:0.85rem; font-family:monospace;">
                     </div>
                     <div class="input-group">
                         <label style="font-size:0.85rem;">
                             Persistent Data Directory (<code style="font-size:0.75rem;">data_dir</code>)
                             <span class="spp-help-tip" data-tooltip="User home sppdata root preserving sovereign storage per domain and app.">?</span>
                         </label>
-                        <input type="text" id="dom-data-dir" value="${this.escapeHtml(domain?.data_dir || '')}" placeholder="e.g. /home/satyalab/domains/satyalab.net/sppdata" style="font-size:0.85rem; font-family:monospace;">
+                        <input type="text" id="dom-data-dir" value="${this.escapeHtml(domain?.data_dir || '')}" placeholder="e.g. /home/webuser/domains/example.com/sppdata" style="font-size:0.85rem; font-family:monospace;">
                     </div>
                 </div>
 
@@ -395,7 +395,7 @@ export default class DomainsView extends BaseClass {
                             <div class="input-group">
                                 <label style="font-size:0.8rem;">External Root Directory Path <span style="color:var(--danger)">*</span></label>
                                 <div style="display:flex; gap:0.4rem;">
-                                    <input type="text" id="dom-root-target-path" value="${this.escapeHtml(nonSppTargetPath)}" placeholder="e.g. /home/satyalab/addon_domains/vshiksha.com/home10" style="font-family:monospace; font-size:0.85rem;">
+                                    <input type="text" id="dom-root-target-path" value="${this.escapeHtml(nonSppTargetPath)}" placeholder="e.g. /home/webuser/addon_domains/mysite.com/home10 or /var/www/site" style="font-family:monospace; font-size:0.85rem;">
                                     <button type="button" class="btn secondary-btn btn-sm" id="dom-btn-probe-root">Probe</button>
                                 </div>
                             </div>
@@ -438,7 +438,7 @@ export default class DomainsView extends BaseClass {
                             </div>
                             <div>
                                 <label style="font-size:0.75rem; color:var(--text-dim);">Target Path / App Name</label>
-                                <input type="text" id="new-sub-target" placeholder="/home/satyalab/... or AppName" style="font-size:0.8rem; font-family:monospace;">
+                                <input type="text" id="new-sub-target" placeholder="/var/www/site or AppName" style="font-size:0.8rem; font-family:monospace;">
                             </div>
                             <div>
                                 <label style="font-size:0.75rem; color:var(--text-dim);">Index</label>
@@ -457,9 +457,9 @@ export default class DomainsView extends BaseClass {
                 <div class="input-group">
                     <label>
                         Alternative Addresses / Aliases (Optional)
-                        <span class="spp-help-tip" data-tooltip-title="Domain Aliases" data-tooltip="Additional domain names that point to this same website, separated by commas." data-tooltip-example="e.g. www.satyalab.net, portal.satyalab.net">?</span>
+                        <span class="spp-help-tip" data-tooltip-title="Domain Aliases" data-tooltip="Additional domain names that point to this same website, separated by commas." data-tooltip-example="e.g. www.example.com, portal.example.com">?</span>
                     </label>
-                    <input type="text" id="dom-aliases" value="${this.escapeHtml(aliasesStr)}" placeholder="e.g. www.satyalab.net, portal.satyalab.net">
+                    <input type="text" id="dom-aliases" value="${this.escapeHtml(aliasesStr)}" placeholder="e.g. www.example.com, portal.example.com">
                 </div>
 
                 <!-- Section 7: Toggles -->
@@ -520,15 +520,21 @@ export default class DomainsView extends BaseClass {
         const domDataDirInput = document.getElementById('dom-data-dir');
         const autoPathsBtn = document.getElementById('dom-btn-autofill-user');
 
-        // Real-time helper: suggest linux account when typing domain pattern if empty or default
-        if (domPatternInput && !isEdit) {
+        // Real-time helper: dynamically update account & path placeholders when typing domain name
+        if (domPatternInput) {
             domPatternInput.addEventListener('input', () => {
                 const pat = domPatternInput.value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-                if (pat && (!domAccountInput.value || domAccountInput.value === 'default')) {
-                    const apex = pat.split('.')[0];
-                    if (apex && apex !== 'www') {
+                if (pat) {
+                    const apex = pat.split('.')[0] !== 'www' ? pat.split('.')[0] : (pat.split('.')[1] || 'webuser');
+                    if (!domAccountInput.value || domAccountInput.value === 'default') {
                         domAccountInput.placeholder = `e.g. ${apex}`;
                     }
+                    if (domAppDirInput) domAppDirInput.placeholder = `e.g. /home/${apex}/domains/${pat}/apps`;
+                    if (domDataDirInput) domDataDirInput.placeholder = `e.g. /home/${apex}/domains/${pat}/sppdata`;
+                } else {
+                    if (domAccountInput) domAccountInput.placeholder = 'e.g. webuser or default';
+                    if (domAppDirInput) domAppDirInput.placeholder = 'e.g. /home/webuser/domains/example.com/apps';
+                    if (domDataDirInput) domDataDirInput.placeholder = 'e.g. /home/webuser/domains/example.com/sppdata';
                 }
             });
         }
@@ -1072,7 +1078,7 @@ export default class DomainsView extends BaseClass {
                             <div class="suite-stat-value">${this.state.totalDomains}</div>
                             <div class="suite-stat-label">
                                 Websites & Domains
-                                <span class="spp-help-tip" data-tooltip-title="Websites & Domains" data-tooltip="Total number of website domain names connected to this server." data-tooltip-example="e.g. satyalab.net, school.local" data-tooltip-rec="Click '+ Add Website' to connect another domain.">?</span>
+                                <span class="spp-help-tip" data-tooltip-title="Websites & Domains" data-tooltip="Total number of website domain names connected to this server." data-tooltip-example="e.g. example.com, mysite.org" data-tooltip-rec="Click '+ Add Website' to connect another domain.">?</span>
                             </div>
                         </div>
                     </div>
@@ -1082,7 +1088,7 @@ export default class DomainsView extends BaseClass {
                             <div class="suite-stat-value">${sslCount}</div>
                             <div class="suite-stat-label">
                                 Secure (HTTPS)
-                                <span class="spp-help-tip" data-tooltip-title="SSL / HTTPS Security" data-tooltip="Websites protected with bank-grade encryption and secure padlock icon in visitors' browsers." data-tooltip-example="https://satyalab.net" data-tooltip-rec="Recommended for all public sites.">?</span>
+                                <span class="spp-help-tip" data-tooltip-title="SSL / HTTPS Security" data-tooltip="Websites protected with bank-grade encryption and secure padlock icon in visitors' browsers." data-tooltip-example="https://example.com" data-tooltip-rec="Recommended for all public sites.">?</span>
                             </div>
                         </div>
                     </div>
@@ -1102,7 +1108,7 @@ export default class DomainsView extends BaseClass {
                             <div class="suite-stat-value">${this.state.totalAddons || 0}</div>
                             <div class="suite-stat-label">
                                 Secondary Domains
-                                <span class="spp-help-tip" data-tooltip-title="Secondary / Addon Domains" data-tooltip="Additional independent domains hosted on separate isolated hosting accounts on this server." data-tooltip-example="e.g. alumni.satyalab.net">?</span>
+                                <span class="spp-help-tip" data-tooltip-title="Secondary / Addon Domains" data-tooltip="Additional independent domains hosted on separate isolated hosting accounts on this server." data-tooltip-example="e.g. blog.example.com">?</span>
                             </div>
                         </div>
                     </div>
@@ -1383,7 +1389,7 @@ export default class DomainsView extends BaseClass {
                             <tr>
                                 <th>
                                     Domain Name
-                                    <span class="spp-help-tip" data-tooltip-title="Domain Name" data-tooltip="The web address visitors enter in their browser." data-tooltip-example="e.g. satyalab.net, school.local">?</span>
+                                    <span class="spp-help-tip" data-tooltip-title="Domain Name" data-tooltip="The web address visitors enter in their browser." data-tooltip-example="e.g. example.com, mysite.org">?</span>
                                 </th>
                                 <th>
                                     Main Web Application
@@ -1616,7 +1622,7 @@ export default class DomainsView extends BaseClass {
                                             <button type="button" class="btn ghost-btn btn-xs" style="padding:0.1rem 0.35rem; font-size:0.65rem;" onclick="window.domainsViewInstance.addDomainSan('mail')">+ mail</button>
                                         </div>
                                     </div>
-                                    <input type="text" id="certbot-domains-input" value="${this.escapeHtml(this.state.sslHost ? (this.state.sslHost.includes('satyalab.net') ? 'satyalab.net, www.satyalab.net, vps.satyalab.net' : this.state.sslHost) : 'satyalab.net, www.satyalab.net, vps.satyalab.net')}" placeholder="e.g. satyalab.net, www.satyalab.net, vps.satyalab.net">
+                                    <input type="text" id="certbot-domains-input" value="${this.escapeHtml(this.state.sslHost ? (this.state.sslHost !== 'example.com' ? `${this.state.sslHost}, www.${this.state.sslHost}` : 'example.com, www.example.com') : ((this.state.domains?.[0]?.pattern) ? `${this.state.domains[0].pattern}, www.${this.state.domains[0].pattern}` : 'example.com, www.example.com'))}" placeholder="e.g. example.com, www.example.com">
                                 </div>
 
                                 <!-- Pre-flight DNS Verification Tool -->
@@ -1644,7 +1650,7 @@ export default class DomainsView extends BaseClass {
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
                                     <div class="input-group">
                                         <label>Contact Email</label>
-                                        <input type="email" id="certbot-email-input" value="admin@satyalab.net" placeholder="admin@domain.com">
+                                        <input type="email" id="certbot-email-input" value="${this.escapeHtml('admin@' + (this.state.sslHost || (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com')))}" placeholder="admin@example.com">
                                     </div>
                                     <div class="input-group">
                                         <label>Authenticator Method</label>
@@ -2147,7 +2153,7 @@ export default class DomainsView extends BaseClass {
     }
 
     async runDnsPreflight() {
-        const input = document.getElementById('certbot-domains-input')?.value.trim() || 'satyalab.net';
+        const input = document.getElementById('certbot-domains-input')?.value.trim() || (this.state.sslHost || (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com'));
         this.setState({ checkingPreflight: true, preflightResults: null });
         this.update();
         try {
@@ -2167,7 +2173,7 @@ export default class DomainsView extends BaseClass {
     }
 
     async issueCertbotSsl() {
-        const domainsInput = document.getElementById('certbot-domains-input')?.value.trim() || 'satyalab.net';
+        const domainsInput = document.getElementById('certbot-domains-input')?.value.trim() || (this.state.sslHost || (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com'));
         const email = document.getElementById('certbot-email-input')?.value.trim() || '';
         const method = document.getElementById('certbot-method-select')?.value || 'apache';
         const staging = document.getElementById('certbot-staging-toggle')?.checked || false;
@@ -2213,7 +2219,7 @@ export default class DomainsView extends BaseClass {
         const input = document.getElementById('certbot-domains-input');
         if (!input) return;
         const current = input.value.split(',').map(s => s.trim()).filter(Boolean);
-        const apex = current[0] || 'satyalab.net';
+        const apex = current[0] || (this.state.sslHost || (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com'));
         const cleanApex = apex.replace(/^www\./, '').replace(/^vps\./, '').replace(/^mail\./, '');
         const newDomain = sub ? `${sub}.${cleanApex}` : cleanApex;
         if (!current.includes(newDomain)) {
@@ -2246,11 +2252,12 @@ export default class DomainsView extends BaseClass {
     }
 
     async loadZone(domain) {
-        let dom = domain || this.state.zoneDomain || 'satyalab.net';
+        const defaultFallbackDom = (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com');
+        let dom = domain || this.state.zoneDomain || defaultFallbackDom;
         if (dom === 'school.local' || dom.endsWith('.local') || dom === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(dom)) {
             dom = (this.state.availableZones && this.state.availableZones.length > 0)
                 ? this.state.availableZones[0]
-                : 'satyalab.net';
+                : defaultFallbackDom;
         }
         this.setState({ loadingZone: true, zoneDomain: dom });
         this.update();
@@ -2288,7 +2295,7 @@ export default class DomainsView extends BaseClass {
     }
 
     async syncZoneToBind(domain) {
-        const dom = domain || this.state.zoneDomain || 'satyalab.net';
+        const dom = domain || this.state.zoneDomain || (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com');
         this.setState({ syncingBind: true });
         this.admin.notify(`Syncing RFC 1035 zone '${dom}' to host BIND9 daemon...`, "info");
         this.update();
@@ -2353,7 +2360,7 @@ export default class DomainsView extends BaseClass {
     }
 
     async checkRegistryGlue(domain) {
-        const dom = domain || this.state.zoneDomain || 'satyalab.net';
+        const dom = domain || this.state.zoneDomain || (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com');
         this.setState({ checkingGlue: true });
         this.admin.notify(`Querying authoritative root TLD (a.gtld-servers.net) and registry WHOIS for '${dom}'...`, "info");
         this.update();
@@ -2711,7 +2718,6 @@ export default class DomainsView extends BaseClass {
         const allDomainOptions = [
             ...new Set([
                 this.state.zoneDomain,
-                'satyalab.net',
                 ...(this.state.availableZones || []),
                 ...(this.state.domains || []).map(d => d.pattern || d.domain),
                 ...(this.state.addonDomains || []).map(a => a.domain)
@@ -3503,7 +3509,7 @@ export default class DomainsView extends BaseClass {
 
         const currentType = record?.type || 'A';
         const typeDescriptions = {
-            'A': 'A — Points Domain to IPv4 Server IP (e.g. 103.211.202.147)',
+            'A': 'A — Points Domain to IPv4 Server IP (e.g. 192.0.2.1)',
             'AAAA': 'AAAA — Points Domain to IPv6 Address',
             'CNAME': 'CNAME — Nickname / Alias (e.g. points www to domain)',
             'MX': 'MX — Mail Exchange (Routes incoming emails to mail server)',
@@ -3530,7 +3536,7 @@ export default class DomainsView extends BaseClass {
                     <div class="input-group">
                         <label>
                             Host / Subdomain Name <span style="color:var(--danger)">*</span>
-                            <span class="spp-help-tip" data-tooltip-title="Host Name" data-tooltip="Use '@' to point your main root domain (e.g. satyalab.net). Use a prefix like 'www' or 'mail' for subdomains." data-tooltip-example="@ or www or mail">?</span>
+                            <span class="spp-help-tip" data-tooltip-title="Host Name" data-tooltip="Use '@' to point your main root domain (e.g. example.com). Use a prefix like 'www' or 'mail' for subdomains." data-tooltip-example="@ or www or mail">?</span>
                         </label>
                         <input type="text" id="rec-name" value="${this.escapeHtml(record?.name || '@')}" placeholder="e.g. @ or www or mail" required>
                         <small style="color:var(--text-dim)">Use '@' for main root domain, or a prefix like 'www' or 'mail'</small>
@@ -3652,9 +3658,9 @@ export default class DomainsView extends BaseClass {
                 <div class="input-group">
                     <label>
                         Server IPv4 Address <span style="color:var(--danger)">*</span>
-                        <span class="spp-help-tip" data-tooltip-title="Server IPv4 Address" data-tooltip="The public IPv4 address of your server where web visitors should be sent." data-tooltip-example="e.g. 103.211.202.147" data-tooltip-rec="Enter your server's public IP.">?</span>
+                        <span class="spp-help-tip" data-tooltip-title="Server IPv4 Address" data-tooltip="The public IPv4 address of your server where web visitors should be sent." data-tooltip-example="e.g. 192.0.2.1" data-tooltip-rec="Enter your server's public IP.">?</span>
                     </label>
-                    <input type="text" id="rec-val-ip" value="${this.escapeHtml(record?.value || '')}" placeholder="e.g. 103.211.202.147" required>
+                    <input type="text" id="rec-val-ip" value="${this.escapeHtml(record?.value || '')}" placeholder="e.g. 192.0.2.1" required>
                     <small style="color:var(--text-dim)">Points your website to this server machine.</small>
                 </div>
             `;
@@ -3674,9 +3680,9 @@ export default class DomainsView extends BaseClass {
                 <div class="input-group">
                     <label>
                         ${isCname ? 'Target Hostname (Alias For)' : 'Authoritative Nameserver'} <span style="color:var(--danger)">*</span>
-                        <span class="spp-help-tip" data-tooltip-title="${isCname ? 'CNAME Target' : 'Nameserver'}" data-tooltip="${isCname ? 'The destination domain name that this alias forwards to.' : 'The domain name of the authoritative nameserver.'}" data-tooltip-example="${isCname ? 'e.g. satyalab.net or ghs.googlehosted.com' : 'e.g. ns1.satyalab.net'}">?</span>
+                        <span class="spp-help-tip" data-tooltip-title="${isCname ? 'CNAME Target' : 'Nameserver'}" data-tooltip="${isCname ? 'The destination domain name that this alias forwards to.' : 'The domain name of the authoritative nameserver.'}" data-tooltip-example="${isCname ? 'e.g. example.com or ghs.googlehosted.com' : 'e.g. ns1.example.com'}">?</span>
                     </label>
-                    <input type="text" id="rec-val-target" value="${this.escapeHtml(record?.target || record?.value || '')}" placeholder="${isCname ? 'e.g. satyalab.net or ghs.googlehosted.com' : 'e.g. ns1.satyalab.net'}" required>
+                    <input type="text" id="rec-val-target" value="${this.escapeHtml(record?.target || record?.value || '')}" placeholder="${isCname ? 'e.g. example.com or ghs.googlehosted.com' : 'e.g. ns1.example.com'}" required>
                     <small style="color:var(--text-dim)">${isCname ? 'Must be a valid domain or subdomain name (do not enter an IP address).' : 'Fully qualified nameserver hostname.'}</small>
                 </div>
             `;
@@ -3686,9 +3692,9 @@ export default class DomainsView extends BaseClass {
                     <div class="input-group">
                         <label>
                             Mail Server Target <span style="color:var(--danger)">*</span>
-                            <span class="spp-help-tip" data-tooltip-title="Mail Server Target" data-tooltip="The domain name of the mail server that receives incoming emails for your domain." data-tooltip-example="e.g. mail.satyalab.net or aspmx.l.google.com">?</span>
+                            <span class="spp-help-tip" data-tooltip-title="Mail Server Target" data-tooltip="The domain name of the mail server that receives incoming emails for your domain." data-tooltip-example="e.g. mail.example.com or aspmx.l.google.com">?</span>
                         </label>
-                        <input type="text" id="rec-val-target" value="${this.escapeHtml(record?.target || record?.value || '')}" placeholder="e.g. mail.satyalab.net" required>
+                        <input type="text" id="rec-val-target" value="${this.escapeHtml(record?.target || record?.value || '')}" placeholder="e.g. mail.example.com" required>
                         <small style="color:var(--text-dim)">Domain name of the email exchange host (do not use IP).</small>
                     </div>
                     <div class="input-group">
@@ -3705,9 +3711,9 @@ export default class DomainsView extends BaseClass {
                 <div class="input-group">
                     <label>
                         TXT Record Content <span style="color:var(--danger)">*</span>
-                        <span class="spp-help-tip" data-tooltip-title="TXT Value" data-tooltip="Text string used for domain verification, SPF / DKIM / DMARC email authentication, and security." data-tooltip-example="v=spf1 ip4:103.211.202.147 ~all">?</span>
+                        <span class="spp-help-tip" data-tooltip-title="TXT Value" data-tooltip="Text string used for domain verification, SPF / DKIM / DMARC email authentication, and security." data-tooltip-example="v=spf1 ip4:192.0.2.1 ~all">?</span>
                     </label>
-                    <textarea id="rec-val-text" rows="3" style="width:100%; padding:0.5rem; background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); border-radius:var(--radius-sm);" placeholder="e.g. v=spf1 ip4:103.211.202.147 ~all">${this.escapeHtml(record?.value || '')}</textarea>
+                    <textarea id="rec-val-text" rows="3" style="width:100%; padding:0.5rem; background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); border-radius:var(--radius-sm);" placeholder="e.g. v=spf1 ip4:192.0.2.1 ~all">${this.escapeHtml(record?.value || '')}</textarea>
                     <small style="color:var(--text-dim)">Commonly used for SPF records, Google Search Console, or SSL verification tokens.</small>
                 </div>
             `;
@@ -3780,21 +3786,20 @@ export default class DomainsView extends BaseClass {
         const modal = document.getElementById('modal-container');
         document.getElementById('modal-title').textContent = '⚡ Scaffold DNS Zone for Domain';
 
-        const defaultDomain = this.state.zoneDomain && this.state.zoneDomain !== 'school.local' ? this.state.zoneDomain : 'satyalab.net';
-        const detectedIp = (/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname)) ? window.location.hostname : '103.185.75.240';
+        const defaultDomain = this.state.zoneDomain && this.state.zoneDomain !== 'school.local' 
+            ? this.state.zoneDomain 
+            : ((this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com'));
+        const detectedIp = (/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname)) ? window.location.hostname : (this.state.preflightResults?.server_ip || '192.0.2.1');
 
         const domainOptions = [
             ...new Set([
-                'satyalab.net',
-                'satyalab.com',
-                'vshiksha.com',
-                'vshiksha.in',
-                'indiwiki.net',
-                'lekhak.org',
                 ...(this.state.domains || []).map(d => d.pattern || d.domain),
                 ...(this.state.addonDomains || []).map(a => a.domain)
             ])
         ].filter(Boolean);
+        if (domainOptions.length === 0) {
+            domainOptions.push('example.com', 'mysite.org');
+        }
 
         const datalistOptions = domainOptions.map(d => `<option value="${this.escapeHtml(d)}">`).join('');
 
@@ -3806,7 +3811,7 @@ export default class DomainsView extends BaseClass {
 
                 <div class="input-group">
                     <label style="font-weight:700; color:var(--text-bright);">Target Domain Name <span style="color:var(--danger)">*</span></label>
-                    <input type="text" id="scaffold-domain-input" list="domain-suggestions" value="${this.escapeHtml(defaultDomain)}" placeholder="e.g. satyalab.net" style="width:100%; padding:0.6rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); font-size:0.95rem; font-weight:600;">
+                    <input type="text" id="scaffold-domain-input" list="domain-suggestions" value="${this.escapeHtml(defaultDomain)}" placeholder="e.g. example.com" style="width:100%; padding:0.6rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); font-size:0.95rem; font-weight:600;">
                     <datalist id="domain-suggestions">
                         ${datalistOptions}
                     </datalist>
@@ -3815,7 +3820,7 @@ export default class DomainsView extends BaseClass {
 
                 <div class="input-group">
                     <label style="font-weight:700; color:var(--text-bright);">Server Target IPv4 Address <span style="color:var(--danger)">*</span></label>
-                    <input type="text" id="scaffold-ip-input" value="${this.escapeHtml(detectedIp)}" placeholder="e.g. 103.185.75.240" style="width:100%; padding:0.6rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:#38bdf8; font-family:monospace; font-size:0.95rem;">
+                    <input type="text" id="scaffold-ip-input" value="${this.escapeHtml(detectedIp)}" placeholder="e.g. 192.0.2.1" style="width:100%; padding:0.6rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:#38bdf8; font-family:monospace; font-size:0.95rem;">
                     <small style="color:var(--text-dim)">The public IP address where A records (@, www, mail, ns1, ns2, vps) will point.</small>
                 </div>
 
@@ -3922,7 +3927,7 @@ export default class DomainsView extends BaseClass {
     async resetZoneDefaults() {
         if (!confirm(`Are you sure you want to reset DNS zone for '${this.state.zoneDomain}' to defaults? This will erase custom records.`)) return;
 
-        const defaultIp = (/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname)) ? window.location.hostname : '103.185.75.240';
+        const defaultIp = (/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname)) ? window.location.hostname : (this.state.preflightResults?.server_ip || '192.0.2.1');
         const serverIp = prompt(`Enter Server Target IPv4 address for '${this.state.zoneDomain}':`, defaultIp);
         if (!serverIp) return;
 
@@ -4500,7 +4505,8 @@ export default class DomainsView extends BaseClass {
             
             let zones = [];
             let records = [];
-            let activeCfDomain = this.state.activeCfDomain || this.state.zoneDomain || 'satyalab.net';
+            const defaultCfDom = this.state.activeCfDomain || this.state.zoneDomain || (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com');
+            let activeCfDomain = defaultCfDom;
 
             if (cfSettings.has_token) {
                 // Fetch available zones
@@ -4549,9 +4555,9 @@ export default class DomainsView extends BaseClass {
         const isConnected = !!(cf.enabled && cf.has_token);
         const zones = this.state.cfZones || [];
         const records = this.state.cfRecords || [];
-        const activeDomain = this.state.activeCfDomain || 'satyalab.net';
+        const activeDomain = this.state.activeCfDomain || this.state.zoneDomain || (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com');
 
-        const zoneSelectOptions = (zones.length > 0 ? zones.map(z => z.name) : [activeDomain, 'satyalab.net']).map(d => `
+        const zoneSelectOptions = (zones.length > 0 ? zones.map(z => z.name) : [activeDomain]).map(d => `
             <option value="${this.escapeHtml(d)}" ${d === activeDomain ? 'selected' : ''}>${this.escapeHtml(d)}</option>
         `).join('');
 
@@ -4632,7 +4638,7 @@ export default class DomainsView extends BaseClass {
                     </div>
                 </div>
 
-                <!-- 2. Instant Subdomain Auto-Provisioner (The ptable.satyalab.net 1-Click Solver) -->
+                <!-- 2. Instant Subdomain Auto-Provisioner -->
                 <div class="suite-glass-card spp-setting-banner" style="padding:1.5rem; border:1px solid rgba(245,158,11,0.35);">
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
                         <div>
@@ -4648,11 +4654,11 @@ export default class DomainsView extends BaseClass {
                     <div style="display:grid; grid-template-columns:2fr 1.5fr 1fr auto; gap:0.75rem; align-items:end;">
                         <div class="input-group" style="margin:0;">
                             <label style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-dim);">Subdomain FQDN</label>
-                            <input type="text" id="cf-quick-subdomain" class="suite-input" placeholder="e.g. ptable.satyalab.net" style="padding:0.6rem 0.8rem; font-size:0.85rem; border-radius:var(--radius-sm);">
+                            <input type="text" id="cf-quick-subdomain" class="suite-input" placeholder="e.g. portal.example.com" style="padding:0.6rem 0.8rem; font-size:0.85rem; border-radius:var(--radius-sm);">
                         </div>
                         <div class="input-group" style="margin:0;">
                             <label style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-dim);">Server Target IP</label>
-                            <input type="text" id="cf-quick-ip" class="suite-input" placeholder="Auto-detected server IP" value="${this.escapeHtml(window.location.hostname === 'satyalab.net' ? '103.211.202.147' : '')}" style="padding:0.6rem 0.8rem; font-size:0.85rem; border-radius:var(--radius-sm);">
+                            <input type="text" id="cf-quick-ip" class="suite-input" placeholder="Auto-detected server IP" value="${this.escapeHtml(this.state.preflightResults?.server_ip || (/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname) ? window.location.hostname : ''))}" style="padding:0.6rem 0.8rem; font-size:0.85rem; border-radius:var(--radius-sm);">
                         </div>
                         <div class="input-group" style="margin:0; display:flex; flex-direction:column; justify-content:center;">
                             <label style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-dim); margin-bottom:0.4rem;">Cloudflare Proxy</label>
@@ -4851,7 +4857,7 @@ export default class DomainsView extends BaseClass {
         const proxied = proxiedInput ? proxiedInput.checked : true;
 
         if (!hostname) {
-            this.admin.notify('Please enter a subdomain (e.g. ptable.satyalab.net).', 'error');
+            this.admin.notify('Please enter a subdomain (e.g. portal.example.com).', 'error');
             return;
         }
 
@@ -4882,8 +4888,9 @@ export default class DomainsView extends BaseClass {
         }
 
         try {
+            const defaultDomain = this.state.activeCfDomain || this.state.zoneDomain || (this.state.domains?.[0]?.pattern) || 'example.com';
             const res = await this.admin.api('domains_cf_delete_record', {
-                domain: this.state.activeCfDomain || 'satyalab.net',
+                domain: defaultDomain,
                 record_id: recordId
             });
 
@@ -4899,13 +4906,14 @@ export default class DomainsView extends BaseClass {
     }
 
     async purgeCloudflareCache() {
-        if (!confirm(`Purge all global edge cache for ${this.state.activeCfDomain || 'this domain'} on Cloudflare?`)) {
+        const defaultDomain = this.state.activeCfDomain || this.state.zoneDomain || (this.state.domains?.[0]?.pattern) || 'example.com';
+        if (!confirm(`Purge all global edge cache for ${defaultDomain} on Cloudflare?`)) {
             return;
         }
 
         try {
             const res = await this.admin.api('domains_cf_purge_cache', {
-                domain: this.state.activeCfDomain || 'satyalab.net',
+                domain: defaultDomain,
                 purge_everything: true
             });
 
@@ -4920,7 +4928,7 @@ export default class DomainsView extends BaseClass {
     }
 
     async syncCloudflareRecords() {
-        const domain = this.state.activeCfDomain || 'satyalab.net';
+        const domain = this.state.activeCfDomain || this.state.zoneDomain || (this.state.domains?.[0]?.pattern) || 'example.com';
         this.admin.notify(`Syncing records from Cloudflare for ${domain}...`, 'info');
 
         try {

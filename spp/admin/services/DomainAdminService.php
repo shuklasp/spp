@@ -1156,7 +1156,7 @@ class DomainAdminService
             }
         }
 
-        return !empty($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '103.185.75.240';
+        return !empty($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : ($_SERVER['LOCAL_ADDR'] ?? (gethostbyname(gethostname()) ?: '127.0.0.1'));
     }
 
     /**
@@ -2416,8 +2416,8 @@ class DomainAdminService
      * or project base (domains/<domain>/apps).
      * Initializes __spp_file_props.yml contract in each directory.
      *
-     * @param string $domain Domain name (e.g. satyalab.net)
-     * @param string $account Linux user account (e.g. satyalab, or default)
+     * @param string $domain Domain name (e.g. example.com)
+     * @param string $account Linux user account (e.g. webuser, or default)
      * @param string|null $appDir Custom apps directory override
      * @param string|null $dataDir Custom sppdata directory override
      * @param bool $createDirs Whether to physically scaffold the directories and contracts on disk
@@ -3244,10 +3244,9 @@ class DomainAdminService
 
         // Detect expected host public IP if not provided
         if (empty($expectedIp)) {
-            $expectedIp = $_SERVER['SERVER_ADDR'] ?? null;
+            $expectedIp = self::detectHostPublicIp();
             if (empty($expectedIp) || $expectedIp === '127.0.0.1' || $expectedIp === '::1') {
-                // Try resolving via external check
-                $expectedIp = '103.185.75.240'; // Server target IP
+                $expectedIp = $_SERVER['SERVER_ADDR'] ?? ($_SERVER['LOCAL_ADDR'] ?? (gethostbyname(gethostname()) ?: '127.0.0.1'));
             }
         }
 

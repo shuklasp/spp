@@ -110,7 +110,7 @@ export default class FilesView extends BaseClass {
 
         this._treeScrollTop = 0;
 
-        // Check hash query params (e.g. #files?path=/var/www/satyalab.net or #files?domain=satyalab.net)
+        // Check hash query params (e.g. #files?path=/var/www/example.com or #files?domain=example.com)
         const hash = window.location.hash || '';
         let initialPath = '';
         let pendingDomain = '';
