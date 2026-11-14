@@ -1358,14 +1358,31 @@ function getAdminUserScopes(): array {
             // Context switch may cause sessionVarExists to fail; fall back to root or default session bucket
         }
 
-        // If not found in active context, inspect default context bucket
-        if ($userId === null && isset($_SESSION['__default_sppsession']['vars'])) {
-            $defVars = $_SESSION['__default_sppsession']['vars'];
-            $userId = $defVars['__user_id__']['val'] ?? null;
-            $username = $defVars['__username__']['val'] ?? $username;
-            $roleId = $defVars['__role_id__']['val'] ?? $roleId;
-            if (!empty($defVars['__sppauth_user__']['val'])) {
-                $sppauthUser = $defVars['__sppauth_user__']['val'];
+        // If not found in active context, inspect session buckets (e.g. __sppadmin_sppsession, __default_sppsession, or any __*_sppsession)
+        if ($userId === null || empty($username)) {
+            $buckets = ['__sppadmin_sppsession', '__default_sppsession'];
+            foreach ($buckets as $b) {
+                if (isset($_SESSION[$b]['vars']) && is_array($_SESSION[$b]['vars'])) {
+                    $defVars = $_SESSION[$b]['vars'];
+                    $userId = $userId ?? ($defVars['__user_id__']['val'] ?? null);
+                    $username = !empty($username) ? $username : ($defVars['__username__']['val'] ?? ($defVars['spp_admin_user']['val'] ?? ''));
+                    $roleId = $roleId ?? ($defVars['__role_id__']['val'] ?? null);
+                    if (empty($sppauthUser) && !empty($defVars['__sppauth_user__']['val'])) {
+                        $sppauthUser = $defVars['__sppauth_user__']['val'];
+                    }
+                }
+            }
+            if (($userId === null || empty($username)) && isset($_SESSION) && is_array($_SESSION)) {
+                foreach ($_SESSION as $k => $v) {
+                    if (is_array($v) && isset($v['vars']) && is_array($v['vars'])) {
+                        $userId = $userId ?? ($v['vars']['__user_id__']['val'] ?? null);
+                        $username = !empty($username) ? $username : ($v['vars']['__username__']['val'] ?? ($v['vars']['spp_admin_user']['val'] ?? ''));
+                        $roleId = $roleId ?? ($v['vars']['__role_id__']['val'] ?? null);
+                        if (empty($sppauthUser) && !empty($v['vars']['__sppauth_user__']['val'])) {
+                            $sppauthUser = $v['vars']['__sppauth_user__']['val'];
+                        }
+                    }
+                }
             }
         }
 
