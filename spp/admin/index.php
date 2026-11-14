@@ -200,14 +200,6 @@ $instanceName = basename($servingDir);
         <aside class="sidebar">
             <div class="sidebar-header">
                 <span class="logo-text">SPP <span>Admin</span></span>
-                <div class="ui-mode-switcher" id="ui-mode-switcher" title="Toggle between Normal (Site) and Expert (Server) mode">
-                    <button type="button" class="ui-mode-pill active-mode" id="btn-mode-normal" onclick="admin.setUIMode('normal')" title="Normal Mode: Site & App Management">
-                        <span>🌐</span> Normal
-                    </button>
-                    <button type="button" class="ui-mode-pill" id="btn-mode-expert" onclick="admin.setUIMode('expert')" title="Expert Mode: Full Sovereign Server Operations">
-                        <span>⚡</span> Expert
-                    </button>
-                </div>
             </div>
             <!-- Sovereign Instance Serving Directory Identifier -->
             <div class="sidebar-instance-card" title="Serving Directory: <?php echo htmlspecialchars($servingDir); ?>&#10;Identifies this active SPP copy on the server. Click to copy path.">
