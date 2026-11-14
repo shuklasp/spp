@@ -1704,11 +1704,19 @@ class SPPAdmin {
         }
     }
 
-    openModal(title, content = '', actions = []) {
-        this._activeModal = SPPUX.openModal(title, content, actions.length ? actions : [
-            { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
-            { label: 'Save Changes', type: 'primary', fn: () => this.saveCurrentModal() }
-        ]);
+    openModal(title, content = '', actions = null) {
+        let finalActions;
+        if (actions === null || actions === undefined) {
+            finalActions = [
+                { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
+                { label: 'Save Changes', type: 'primary', fn: () => this.saveCurrentModal() }
+            ];
+        } else if (Array.isArray(actions)) {
+            finalActions = actions.length > 0 ? actions : [];
+        } else {
+            finalActions = [actions];
+        }
+        this._activeModal = SPPUX.openModal(title, content, finalActions);
         if (this.viewInstance) this.viewInstance._registerGlobalHandlers();
         return this._activeModal;
     }

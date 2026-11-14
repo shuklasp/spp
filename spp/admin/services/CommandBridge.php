@@ -3158,12 +3158,14 @@ class CommandBridge
 
             case 'storage_manifest_health':
             case 'files_manifest_health':
-                return StorageAdminService::getManifestHealth($params['path'] ?? '');
+                $recursive = !empty($params['recursive']);
+                return StorageAdminService::getManifestHealth($params['path'] ?? '', $recursive);
 
             case 'storage_heal_manifest':
             case 'files_heal_manifest':
             case 'props_heal':
-                return StorageAdminService::healManifest($params['path'] ?? '');
+                $recursive = !empty($params['recursive']);
+                return StorageAdminService::healManifest($params['path'] ?? '', $recursive);
 
             case 'storage_compile_manifests':
             case 'files_compile_manifests':

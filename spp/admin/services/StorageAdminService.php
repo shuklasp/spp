@@ -1072,7 +1072,7 @@ class StorageAdminService
     /**
      * Evaluates comprehensive Manifest OS health score and issues for a directory tree.
      */
-    public static function getManifestHealth(string $relativePath = '', bool $recursive = true): array
+    public static function getManifestHealth(string $relativePath = '', bool $recursive = false): array
     {
         if (!class_exists('\SPPMod\SPPStorage\FilePropsManager')) {
             require_once dirname(__DIR__, 2) . '/modules/spp/sppstorage/src/FilePropsManager.php';

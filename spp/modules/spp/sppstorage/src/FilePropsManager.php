@@ -2446,12 +2446,14 @@ class FilePropsManager
             $manifestFiles = [];
             if (!file_exists($manifestFile)) {
                 $missingManifests++;
-                $details[] = [
-                    'type' => 'missing_manifest',
-                    'severity' => 'info',
-                    'directory' => $relDir,
-                    'message' => "Directory '{$relDir}' has no __spp_file_props.yml manifest."
-                ];
+                if (count($details) < 200) {
+                    $details[] = [
+                        'type' => 'missing_manifest',
+                        'severity' => 'info',
+                        'directory' => $relDir,
+                        'message' => "Directory '{$relDir}' has no __spp_file_props.yml manifest."
+                    ];
+                }
             } else {
                 $manifestsDiscovered++;
                 $raw = @file_get_contents($manifestFile);
@@ -2460,24 +2462,28 @@ class FilePropsManager
                     $parsed = Yaml::parse((string)$raw);
                     if (!is_array($parsed)) {
                         $invalidYaml++;
-                        $details[] = [
-                            'type' => 'invalid_yaml',
-                            'severity' => 'error',
-                            'directory' => $relDir,
-                            'message' => "Manifest in '{$relDir}' is not a valid YAML mapping."
-                        ];
+                        if (count($details) < 200) {
+                            $details[] = [
+                                'type' => 'invalid_yaml',
+                                'severity' => 'error',
+                                'directory' => $relDir,
+                                'message' => "Manifest in '{$relDir}' is not a valid YAML mapping."
+                            ];
+                        }
                         $parsed = null;
                     } else {
                         $validManifests++;
                     }
                 } catch (Throwable $e) {
                     $invalidYaml++;
-                    $details[] = [
-                        'type' => 'invalid_yaml',
-                        'severity' => 'error',
-                        'directory' => $relDir,
-                        'message' => "YAML parse exception in '{$relDir}': " . $e->getMessage()
-                    ];
+                    if (count($details) < 200) {
+                        $details[] = [
+                            'type' => 'invalid_yaml',
+                            'severity' => 'error',
+                            'directory' => $relDir,
+                            'message' => "YAML parse exception in '{$relDir}': " . $e->getMessage()
+                        ];
+                    }
                     $parsed = null;
                 }
 
@@ -2494,26 +2500,30 @@ class FilePropsManager
                             $realPath = $currentDir . DIRECTORY_SEPARATOR . $fName;
                             if (!file_exists($realPath)) {
                                 $orphanedEntries++;
-                                $details[] = [
-                                    'type' => 'orphaned_file',
-                                    'severity' => 'warning',
-                                    'directory' => $relDir,
-                                    'file' => $fName,
-                                    'message' => "File '{$fName}' is tracked in manifest but missing on disk."
-                                ];
+                                if (count($details) < 200) {
+                                    $details[] = [
+                                        'type' => 'orphaned_file',
+                                        'severity' => 'warning',
+                                        'directory' => $relDir,
+                                        'file' => $fName,
+                                        'message' => "File '{$fName}' is tracked in manifest but missing on disk."
+                                    ];
+                                }
                             } else {
                                 // Check stale review date
                                 $revDate = $fMeta['review_date'] ?? ($fMeta['attributes']['review_date'] ?? null);
                                 if (!empty($revDate) && $revDate < $today) {
                                     $staleEntries++;
-                                    $details[] = [
-                                        'type' => 'stale_review',
-                                        'severity' => 'info',
-                                        'directory' => $relDir,
-                                        'file' => $fName,
-                                        'review_date' => $revDate,
-                                        'message' => "File '{$fName}' review date ({$revDate}) has passed."
-                                    ];
+                                    if (count($details) < 200) {
+                                        $details[] = [
+                                            'type' => 'stale_review',
+                                            'severity' => 'info',
+                                            'directory' => $relDir,
+                                            'file' => $fName,
+                                            'review_date' => $revDate,
+                                            'message' => "File '{$fName}' review date ({$revDate}) has passed."
+                                        ];
+                                    }
                                 }
 
                                 // Check integrity if checksum declared
@@ -2522,15 +2532,17 @@ class FilePropsManager
                                     $actual = @hash_file('sha256', $realPath);
                                     if ($actual !== $checksum) {
                                         $integrityTampered++;
-                                        $details[] = [
-                                            'type' => 'integrity_tampered',
-                                            'severity' => 'critical',
-                                            'directory' => $relDir,
-                                            'file' => $fName,
-                                            'expected_checksum' => $checksum,
-                                            'actual_checksum' => $actual,
-                                            'message' => "Integrity violation: '{$fName}' checksum mismatch."
-                                        ];
+                                        if (count($details) < 200) {
+                                            $details[] = [
+                                                'type' => 'integrity_tampered',
+                                                'severity' => 'critical',
+                                                'directory' => $relDir,
+                                                'file' => $fName,
+                                                'expected_checksum' => $checksum,
+                                                'actual_checksum' => $actual,
+                                                'message' => "Integrity violation: '{$fName}' checksum mismatch."
+                                            ];
+                                        }
                                     } else {
                                         $integrityVerified++;
                                     }
@@ -2553,13 +2565,15 @@ class FilePropsManager
                 $itemPath = $currentDir . DIRECTORY_SEPARATOR . $de;
                 if (is_file($itemPath) && !isset($manifestFiles[$de])) {
                     $untrackedFiles++;
-                    $details[] = [
-                        'type' => 'untracked_file',
-                        'severity' => 'info',
-                        'directory' => $relDir,
-                        'file' => $de,
-                        'message' => "File '{$de}' is untracked in directory manifest."
-                    ];
+                    if (count($details) < 200) {
+                        $details[] = [
+                            'type' => 'untracked_file',
+                            'severity' => 'info',
+                            'directory' => $relDir,
+                            'file' => $de,
+                            'message' => "File '{$de}' is untracked in directory manifest."
+                        ];
+                    }
                 }
 
                 if ($recursive && is_dir($itemPath) && !in_array($de, self::DEFAULT_IGNORED_DIRS, true) && !str_starts_with($de, '.')) {
@@ -2586,6 +2600,7 @@ class FilePropsManager
             'score' => $healthScore,
             'directories_scanned' => $scannedDirs,
             'manifests_discovered' => $manifestsDiscovered,
+            'total_manifests' => $manifestsDiscovered,
             'valid_manifests' => $validManifests,
             'missing_manifests' => $missingManifests,
             'invalid_yaml' => $invalidYaml,
@@ -2594,10 +2609,13 @@ class FilePropsManager
             'stale_entries' => $staleEntries,
             'integrity_verified' => $integrityVerified,
             'integrity_tampered' => $integrityTampered,
+            'integrity_failures' => $integrityTampered,
             'capability_policies' => $capabilityDeclarations,
+            'total_issues' => ($missingManifests + $untrackedFiles + $invalidYaml + $orphanedEntries + $staleEntries + $integrityTampered),
             'summary' => [
                 'directories_scanned' => $scannedDirs,
                 'manifests_discovered' => $manifestsDiscovered,
+                'total_manifests' => $manifestsDiscovered,
                 'valid_manifests' => $validManifests,
                 'missing_manifests' => $missingManifests,
                 'invalid_yaml' => $invalidYaml,
@@ -2606,9 +2624,10 @@ class FilePropsManager
                 'stale_entries' => $staleEntries,
                 'integrity_verified' => $integrityVerified,
                 'integrity_tampered' => $integrityTampered,
+                'integrity_failures' => $integrityTampered,
                 'capability_policies' => $capabilityDeclarations
             ],
-            'details' => $details
+            'details' => array_slice($details, 0, 100)
         ];
     }
 

@@ -133,6 +133,8 @@ class SPPAdmin {
         this.user = null;
         this.theme = localStorage.getItem('spp_admin_theme') || 'night';
         this.selectedApp = localStorage.getItem('spp_admin_selected_app') || 'default';
+        this.selectedDomain = localStorage.getItem('spp_admin_selected_domain') || 'default';
+        this.availableDomains = [];
         this.uiMode = localStorage.getItem('spp_admin_ui_mode') || 'normal';
         
         // Initialize Global Root Store with proper context values
@@ -141,6 +143,7 @@ class SPPAdmin {
             window.spp_root_store = new StoreClass({
                 user: null,
                 selectedApp: this.selectedApp,
+                selectedDomain: this.selectedDomain,
                 theme: this.theme
             });
         }
@@ -289,6 +292,7 @@ class SPPAdmin {
             Promise.all([
                 this.loadRoutes(),
                 this.loadApps(),
+                this.loadDomains(),
                 this.loadAdminPermissions()
             ]).catch(e => console.warn("Background sync warning:", e));
             return;
@@ -1554,6 +1558,115 @@ class SPPAdmin {
         }
     }
 
+    async loadDomains() {
+        try {
+            const res = await this.api('domains_list');
+            if (res.success && (res.domains || res.data?.domains)) {
+                this.availableDomains = res.domains || res.data.domains || [];
+                // If selected domain is not in list and not default, normalize
+                const exists = this.availableDomains.some(d => (d.pattern || d.id || d.name) === this.selectedDomain);
+                if (!exists && this.selectedDomain !== 'default' && this.availableDomains.length > 0) {
+                    this.selectedDomain = this.availableDomains[0].pattern || this.availableDomains[0].id || 'default';
+                }
+                this.renderDomainSelector();
+                this.updateHeaderDomainChip();
+            }
+        } catch (err) {
+            console.error('Failed to load domains:', err);
+        }
+    }
+
+    renderDomainSelector() {
+        const container = document.getElementById('domain-selector-container');
+        if (!container) return;
+
+        const domains = this.availableDomains || [];
+        const options = [
+            `<option value="default" ${this.selectedDomain === 'default' ? 'selected' : ''}>🌐 Platform Scope (Default)</option>`
+        ];
+
+        domains.forEach(d => {
+            const name = d.pattern || d.id || d.name || 'unnamed';
+            if (name === 'default') return;
+            const isSelected = this.selectedDomain === name;
+            options.push(`<option value="${this.escapeAttr(name)}" ${isSelected ? 'selected' : ''}>🌐 ${this.escapeHtml(name)}</option>`);
+        });
+
+        container.innerHTML = `
+            <div class="sidebar-selector-wrap" style="padding: 0 1rem; margin-bottom: 0.5rem;">
+                <label style="display:block; font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.35rem; letter-spacing: 0.1em; padding-left: 2px;">Domain Scope</label>
+                <select class="domain-context-select" onchange="admin.onDomainContextChange(this.value)" style="width: 100%; font-size: 0.75rem; background: var(--bg-card-glass); border: 1px solid var(--glass-border); color: var(--text-bright); border-radius: 4px; padding: 4px 6px;">
+                    ${options.join('')}
+                </select>
+            </div>
+        `;
+    }
+
+    updateHeaderDomainChip() {
+        const chip = document.getElementById('header-domain-scope-chip');
+        const label = document.getElementById('header-domain-label');
+        if (!chip || !label) return;
+
+        const isPlatform = !this.selectedDomain || this.selectedDomain === 'default';
+        label.textContent = isPlatform ? 'Platform Scope' : `Domain: ${this.selectedDomain}`;
+        chip.title = isPlatform ? 'Platform Scope (All domains) - Click to switch domain' : `Active Domain: ${this.selectedDomain} - Click to switch domain`;
+    }
+
+    async onDomainContextChange(domainId) {
+        this.selectedDomain = domainId || 'default';
+        localStorage.setItem('spp_admin_selected_domain', this.selectedDomain);
+        this.renderDomainSelector();
+        this.updateHeaderDomainChip();
+
+        // Notify active view if it supports context changes
+        if (this.currentViewInstance && typeof this.currentViewInstance.onDomainChange === 'function') {
+            await this.currentViewInstance.onDomainChange(this.selectedDomain);
+        } else if (this.currentViewInstance && typeof this.currentViewInstance.onInit === 'function') {
+            await this.currentViewInstance.onInit();
+            if (typeof this.currentViewInstance.update === 'function') this.currentViewInstance.update();
+        } else {
+            this.loadView(this.currentView);
+        }
+    }
+
+    openDomainSwitcherModal() {
+        const domains = this.availableDomains || [];
+        const domainItems = [
+            { id: 'default', name: 'Platform Scope (Default)', path: 'domains/default' },
+            ...domains.map(d => ({ id: d.pattern || d.id || d.name, name: d.pattern || d.id || d.name, path: d.path || `domains/${d.pattern || d.id}` }))
+        ];
+
+        const html = `
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <p style="font-size:0.85rem; color:var(--text-dim); margin:0;">
+                    Select an active domain execution context. Administrative operations will be scoped and isolated to the selected domain.
+                </p>
+                <div style="display:grid; grid-template-columns:1fr; gap:8px; max-height:360px; overflow-y:auto;">
+                    ${domainItems.map(d => {
+                        const active = this.selectedDomain === d.id;
+                        return `
+                            <div onclick="admin.onDomainContextChange('${this.escapeAttr(d.id)}'); admin.closeModal();" style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-radius:6px; border:1px solid ${active ? 'var(--primary, #6366f1)' : 'rgba(255,255,255,0.08)'}; background:${active ? 'rgba(99,102,241,0.15)' : 'rgba(0,0,0,0.2)'}; cursor:pointer; transition:all 0.2s ease;">
+                                <div>
+                                    <strong style="color:var(--text-bright); display:flex; align-items:center; gap:6px;">
+                                        🌐 ${this.escapeHtml(d.name)}
+                                    </strong>
+                                    <span style="font-size:0.75rem; color:var(--text-dim); font-family:monospace;">${this.escapeHtml(d.path)}</span>
+                                </div>
+                                <div>
+                                    ${active ? '<span class="badge" style="background:var(--primary, #6366f1); color:white; font-size:0.7rem; padding:2px 8px; border-radius:10px;">ACTIVE</span>' : '<button type="button" class="btn ghost-btn btn-sm">Switch</button>'}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+
+        this.openModal('🌐 Switch Domain Context', html, [
+            { label: 'Close', type: 'secondary', fn: (m) => m.close() }
+        ]);
+    }
+
     renderAppSelector() {
         const container = document.getElementById('app-selector-container');
         if (!container) return;
@@ -1701,6 +1814,9 @@ class SPPAdmin {
         if (shouldLock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
         try {
             params.appname = this.selectedApp;
+            if (!params.domain) {
+                params.domain = this.selectedDomain || 'default';
+            }
             // Unify with SPPUX.api which handles LiveAction instructions automatically
             const res = await SPPUX.api(action, params);
             if (res.errors_html) this.handleApiErrors(res);
@@ -1719,9 +1835,15 @@ class SPPAdmin {
                 if (!actionOrFormData.has('appname')) {
                     actionOrFormData.append('appname', this.selectedApp);
                 }
+                if (!actionOrFormData.has('domain')) {
+                    actionOrFormData.append('domain', this.selectedDomain || 'default');
+                }
                 res = await SPPUX.apiPost(actionOrFormData);
             } else {
                 params.appname = this.selectedApp;
+                if (!params.domain) {
+                    params.domain = this.selectedDomain || 'default';
+                }
                 res = await SPPUX.api(actionOrFormData, params);
             }
             if (res.errors_html) this.handleApiErrors(res);
@@ -1864,11 +1986,19 @@ class SPPAdmin {
         }
     }
 
-    openModal(title, content = '', actions = []) {
-        this._activeModal = SPPUX.openModal(title, content, actions.length ? actions : [
-            { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
-            { label: 'Save Changes', type: 'primary', fn: () => this.saveCurrentModal() }
-        ]);
+    openModal(title, content = '', actions = null) {
+        let finalActions;
+        if (actions === null || actions === undefined) {
+            finalActions = [
+                { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
+                { label: 'Save Changes', type: 'primary', fn: () => this.saveCurrentModal() }
+            ];
+        } else if (Array.isArray(actions)) {
+            finalActions = actions.length > 0 ? actions : [];
+        } else {
+            finalActions = [actions];
+        }
+        this._activeModal = SPPUX.openModal(title, content, finalActions);
         if (this.viewInstance) this.viewInstance._registerGlobalHandlers();
         return this._activeModal;
     }

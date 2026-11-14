@@ -3022,7 +3022,7 @@ export default class FilesView extends BaseClass {
                             <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openTreemapModal()" title="View interactive squarified storage treemap">
                                 📊 Treemap
                             </button>
-                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openManifestHealthModal()" title="Inspect Manifest OS Health, discovered manifests, integrity status, and auto-repair">
+                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openManifestHealthModal(null, false)" title="Inspect Manifest OS Health, discovered manifests, integrity status, and auto-repair">
                                 🩺 Manifest Health
                             </button>
                             <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.compressCurrentDirectory()" title="Create compressed ZIP archive of current folder">
@@ -3986,7 +3986,7 @@ export default class FilesView extends BaseClass {
                         <button class="btn secondary-btn btn-xs" onclick="window.filesViewInstance.openRawManifestModal()" title="Open raw YAML editor with live validation and diff preview">
                             📜 Raw YAML
                         </button>
-                        <button class="btn secondary-btn btn-xs" onclick="window.filesViewInstance.openManifestHealthModal()" title="View Manifest OS Health dashboard">
+                        <button class="btn secondary-btn btn-xs" onclick="window.filesViewInstance.openManifestHealthModal(null, false)" title="View Manifest OS Health dashboard">
                             🩺 Health
                         </button>
                         <button class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.healCurrentManifest()" title="Heal and synchronize untracked files into manifest">
@@ -4179,22 +4179,27 @@ export default class FilesView extends BaseClass {
         `;
     }
 
-    async openManifestHealthModal(scopePath = null) {
+    async openManifestHealthModal(scopePath = null, recursive = false) {
         const targetPath = scopePath !== null ? scopePath : (this.state.currentPath || '');
         this.setState({
             manifestHealthModal: {
                 path: targetPath,
+                recursive: recursive,
                 loading: true,
                 health: null
             }
         });
         this.update();
         try {
-            const res = await this.admin.api('storage_manifest_health', { path: targetPath });
+            const res = await this.admin.api('storage_manifest_health', { 
+                path: targetPath, 
+                recursive: recursive ? 1 : 0 
+            });
             const data = (res.success && res.data) ? res.data : res;
             this.setState({
                 manifestHealthModal: {
                     path: targetPath,
+                    recursive: recursive,
                     loading: false,
                     health: data
                 }
@@ -4219,7 +4224,7 @@ export default class FilesView extends BaseClass {
                 this.admin.notify(res.message || "Manifest healed and synchronized.", "success");
                 await this.loadDirectory(this.state.currentPath);
                 if (this.state.manifestHealthModal) {
-                    await this.openManifestHealthModal(path);
+                    await this.openManifestHealthModal(path, this.state.manifestHealthModal.recursive || false);
                 }
             } else {
                 this.admin.notify(res.error || "Heal failed.", "error");
@@ -4289,8 +4294,9 @@ export default class FilesView extends BaseClass {
         if (!m) return '';
 
         const h = m.health || {};
-        const score = h.score !== undefined ? h.score : 100;
+        const score = h.score !== undefined ? h.score : (h.health_score !== undefined ? h.health_score : 100);
         const scoreColor = score >= 90 ? '#2ea043' : (score >= 70 ? '#e3b341' : '#f85149');
+        const isRecursive = Boolean(m.recursive);
 
         return `
             <div class="spp-shortcuts-modal-overlay" style="position:fixed; inset:0; z-index:999999; background:rgba(2, 6, 23, 0.8); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1rem;" onclick="if(event.target === this) window.filesViewInstance.closeManifestHealthModal();">
@@ -4309,19 +4315,26 @@ export default class FilesView extends BaseClass {
                                 <div class="sppux-spinner"></div>
                                 <div style="margin-top:0.75rem; color:var(--text-dim); font-size:0.85rem;">Evaluating manifests and file integrity...</div>
                             </div>
+                        ` : h.error ? `
+                            <div style="padding:1.25rem; background:rgba(248,81,73,0.1); border:1px solid rgba(248,81,73,0.4); border-radius:8px; color:#f85149; font-size:0.85rem;">
+                                ⚠️ <strong>Health Evaluation Failed:</strong> ${this.escapeHtml(h.error || 'Unknown error occurred')}
+                            </div>
                         ` : `
                             <!-- Overall Health Score Card -->
                             <div style="padding:1.25rem; background:rgba(0,0,0,0.3); border:1px solid #30363d; border-radius:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
                                 <div>
                                     <div style="font-size:0.8rem; color:#8b949e; text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">Overall Manifest Health</div>
                                     <div style="font-size:1.8rem; font-weight:700; color:${scoreColor}; margin-top:0.2rem;">${score}%</div>
-                                    <div style="font-size:0.75rem; color:#8b949e; margin-top:0.2rem;">Scope: <code>${this.escapeHtml(m.path || 'Workspace Root')}</code></div>
+                                    <div style="font-size:0.75rem; color:#8b949e; margin-top:0.2rem;">
+                                        Scope: <code>${this.escapeHtml(m.path || 'Workspace Root')}</code>
+                                        <span class="badge" style="background:#21262d; color:#8b949e; font-size:0.65rem; margin-left:0.35rem; padding:1px 6px; border-radius:4px;">${isRecursive ? 'Recursive' : 'Directory'}</span>
+                                    </div>
                                 </div>
                                 <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-                                    <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openManifestHealthModal('${this.escapeHtml(this.state.currentPath || '')}')">
+                                    <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openManifestHealthModal('${this.escapeHtml(this.state.currentPath || '')}', false)">
                                         🔍 Scan Directory
                                     </button>
-                                    <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openManifestHealthModal('')">
+                                    <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openManifestHealthModal('', true)">
                                         🌐 Scan Workspace
                                     </button>
                                     <button class="btn primary-btn btn-sm" onclick="window.filesViewInstance.healCurrentManifest()">
@@ -4334,7 +4347,7 @@ export default class FilesView extends BaseClass {
                             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem;">
                                 <div style="padding:0.75rem 1rem; background:#161b22; border:1px solid #30363d; border-radius:6px;">
                                     <div style="font-size:0.75rem; color:#8b949e;">Manifests Discovered</div>
-                                    <div style="font-size:1.25rem; font-weight:700; color:#f0f6fc; margin-top:0.2rem;">${h.total_manifests || 0}</div>
+                                    <div style="font-size:1.25rem; font-weight:700; color:#f0f6fc; margin-top:0.2rem;">${h.total_manifests || h.manifests_discovered || 0}</div>
                                 </div>
                                 <div style="padding:0.75rem 1rem; background:#161b22; border:1px solid #30363d; border-radius:6px;">
                                     <div style="font-size:0.75rem; color:#8b949e;">Valid Manifests</div>
@@ -4354,9 +4367,37 @@ export default class FilesView extends BaseClass {
                                 </div>
                                 <div style="padding:0.75rem 1rem; background:#161b22; border:1px solid #30363d; border-radius:6px;">
                                     <div style="font-size:0.75rem; color:#8b949e;">Integrity Failures</div>
-                                    <div style="font-size:1.25rem; font-weight:700; color:${(h.integrity_failures || 0) > 0 ? '#f85149' : '#2ea043'}; margin-top:0.2rem;">${h.integrity_failures || 0}</div>
+                                    <div style="font-size:1.25rem; font-weight:700; color:${(h.integrity_failures || h.integrity_tampered || 0) > 0 ? '#f85149' : '#2ea043'}; margin-top:0.2rem;">${h.integrity_failures || h.integrity_tampered || 0}</div>
                                 </div>
                             </div>
+
+                            <!-- Discovered Issues & Discrepancies -->
+                            ${Array.isArray(h.details) && h.details.length > 0 ? `
+                                <div style="margin-top:0.5rem;">
+                                    <div style="font-size:0.8rem; font-weight:600; color:#c9d1d9; margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+                                        <span>Discovered Issues (${h.details.length}${h.total_issues && h.total_issues > h.details.length ? ` of ${h.total_issues}` : ''})</span>
+                                        <span style="font-size:0.7rem; color:#8b949e;">Auto-resolvable with Heal & Auto-Sync</span>
+                                    </div>
+                                    <div style="max-height:220px; overflow-y:auto; border:1px solid #30363d; border-radius:6px; background:#0d1117;">
+                                        ${h.details.slice(0, 50).map(d => {
+                                            const sevColor = d.severity === 'critical' ? '#f85149' : (d.severity === 'warning' ? '#e3b341' : '#58a6ff');
+                                            return `
+                                                <div style="padding:0.5rem 0.75rem; border-bottom:1px solid #21262d; font-size:0.78rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+                                                    <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden;">
+                                                        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${sevColor}; flex-shrink:0;"></span>
+                                                        <span style="color:#e6edf3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${this.escapeHtml(d.message || d.type)}</span>
+                                                    </div>
+                                                    <span style="font-size:0.7rem; color:#8b949e; font-family:monospace; flex-shrink:0;">${this.escapeHtml(d.directory || '')}</span>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            ` : `
+                                <div style="padding:0.75rem; background:rgba(46,160,67,0.1); border:1px solid rgba(46,160,67,0.3); border-radius:6px; color:#2ea043; font-size:0.8rem; display:flex; align-items:center; gap:0.5rem;">
+                                    <span>✓</span> <span>All audited files and directories conform to Manifest OS contracts.</span>
+                                </div>
+                            `}
                         `}
                     </div>
 
