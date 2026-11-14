@@ -90,7 +90,8 @@ export default class FilesView extends BaseClass {
             contextMenu: null,
             directoryManifest: null,
             rawManifestModal: null,
-            manifestHealthModal: null
+            manifestHealthModal: null,
+            collapseManifestBanner: localStorage.getItem('spp_files_collapse_manifest_banner') === 'true'
         };
 
         this._treeScrollTop = 0;
@@ -112,35 +113,42 @@ export default class FilesView extends BaseClass {
         // Render initial unified workstation frame
         this.update();
 
-        // Step 1: Immediately fetch root tree and current directory
-        try {
-            const sysRoot = this.state.systemRoot || '/';
-            // Always fetch root tree first so treeData is rooted at host system root
-            await this.fetchTree(true, sysRoot);
+        // Step 1: Immediately fetch current directory and root tree in PARALLEL
+        const sysRoot = this.state.systemRoot || '/';
+        const targetInitPath = initialPath || this.state.workspaceRoot || this.state.currentPath || '';
 
-            // Default to SPP workspace root for immediate project development when no specific path is requested
-            const targetInitPath = initialPath || this.state.workspaceRoot || this.state.currentPath || '';
-            await this.fetchDirectory(targetInitPath);
-            
-            // If a domain jump was requested, switch to its resolved home directory
+        // Priority 1: Fetch and render folder contents FIRST and IMMEDIATELY!
+        const dirPromise = this.fetchDirectory(targetInitPath).then(async () => {
+            this.state.loading = false;
+            this.update();
+            this.pushHistory(this.state.currentPath || sysRoot);
+
             if (pendingDomain && this.state.siteRoots) {
                 const targetSite = this.state.siteRoots.find(s => s.domain === pendingDomain || s.pattern === pendingDomain);
                 if (targetSite && targetSite.home_path && targetSite.home_path !== this.state.currentPath) {
                     await this.loadDirectory(targetSite.home_path);
                 }
-            } else if (this.state.currentPath) {
-                await this.ensurePathInTree(this.state.currentPath);
             }
-
-            this.pushHistory(this.state.currentPath || sysRoot);
-        } catch (e) {
-            console.error("[FilesView] Failed to load directory:", e);
-        } finally {
+        }).catch(e => {
+            console.error("[FilesView] Failed to load initial directory:", e);
             this.state.loading = false;
+            this.update();
+        });
+
+        // Priority 2: Concurrently load directory tree in background without blocking files view
+        this.state.treeLoading = true;
+        const treePromise = this.fetchTree(true, sysRoot).then(() => {
             this.state.treeLoading = false;
             this.update();
             this.syncTreeFocus();
-        }
+            if (this.state.currentPath) {
+                this.ensurePathInTree(this.state.currentPath).catch(err => console.warn(err));
+            }
+        }).catch(e => {
+            console.warn("[FilesView] Background tree fetch error:", e);
+            this.state.treeLoading = false;
+            this.update();
+        });
 
         // Step 2: Concurrently fetch quota in background without blocking workstation rendering
         this.fetchQuota().then(() => {
@@ -508,13 +516,14 @@ export default class FilesView extends BaseClass {
         this.update();
         this.syncTreeFocus();
 
-        // Ensure tree hierarchy is expanded and loaded for this directory
-        await this.ensurePathInTree(normPath);
-
+        // Priority 1: Fetch and render folder files IMMEDIATELY!
         await this.fetchDirectory(normPath);
         this.setState({ loading: false });
         this.update();
         this.syncTreeFocus();
+
+        // Priority 2: Asynchronously ensure tree branch is expanded in background without blocking files view
+        this.ensurePathInTree(normPath).catch(err => console.warn("[FilesView] Tree sync error:", err));
     }
 
     async ensurePathInTree(targetPath) {
@@ -551,6 +560,7 @@ export default class FilesView extends BaseClass {
         this.state.expandedFolders = exp;
 
         // Traverse down treeData ensuring each ancestor level has its children loaded
+        let treeChanged = false;
         for (const seg of segments) {
             let node = this.findNode(this.state.treeData, seg);
             if (!node || (!node.children || node.children.length === 0)) {
@@ -558,6 +568,7 @@ export default class FilesView extends BaseClass {
                     const res = await this.admin.api('storage_tree', { root: seg, depth: 1 });
                     const data = (res && res.success && res.data) ? res.data : (res || {});
                     if (res && res.success && data.tree) {
+                        treeChanged = true;
                         if (node) {
                             node.children = data.tree.children || [];
                             node.has_children = (node.children.length > 0);
@@ -590,7 +601,17 @@ export default class FilesView extends BaseClass {
                 }
             }
         }
+        if (treeChanged) {
+            this.update();
+        }
         this.syncTreeSelection();
+    }
+
+    toggleManifestBanner(forceState = null) {
+        const nextState = (forceState !== null) ? Boolean(forceState) : !this.state.collapseManifestBanner;
+        this.state.collapseManifestBanner = nextState;
+        localStorage.setItem('spp_files_collapse_manifest_banner', String(nextState));
+        this.update();
     }
 
     async ensureTreeNodeLoaded(targetPath) {
@@ -2885,6 +2906,9 @@ export default class FilesView extends BaseClass {
         const items = this.getFilteredItems();
         const hasSelection = this.state.selectedItems && this.state.selectedItems.size > 0;
         const isAllSelected = items.length > 0 && items.every(it => this.state.selectedItems && this.state.selectedItems.has(this.normalizePath(it.path)));
+        const dm = this.state.directoryManifest;
+        const hasManifest = Boolean(dm && (dm.has_manifest || dm.exists));
+        const isBannerCollapsed = Boolean(this.state.collapseManifestBanner);
 
         return `
             <div class="files-view-wrapper" style="display:flex; flex-direction:column; gap:1.25rem;">
@@ -3019,11 +3043,26 @@ export default class FilesView extends BaseClass {
                                     🗑️ Delete
                                 </button>
                             `}
-                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openTreemapModal()" title="View interactive squarified storage treemap">
-                                📊 Treemap
+                            <div style="width:1px; height:20px; background:var(--border-color, #30363d); margin:0 0.15rem;"></div>
+
+                            <!-- Manifest OS & Directory Properties Controls in Main Toolbar -->
+                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.editDirectoryProps()" title="Inspect & edit directory properties in structured 6-tab inspector">
+                                🏷️ Directory Props
+                            </button>
+                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openRawManifestModal()" title="Open raw YAML editor with live validation and diff preview">
+                                📜 Raw YAML
                             </button>
                             <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openManifestHealthModal(null, false)" title="Inspect Manifest OS Health, discovered manifests, integrity status, and auto-repair">
-                                🩺 Manifest Health
+                                🩺 Health
+                            </button>
+                            <button class="btn ${isBannerCollapsed ? 'secondary-btn' : 'ghost-btn'} btn-sm" onclick="window.filesViewInstance.toggleManifestBanner()" title="${isBannerCollapsed ? 'Show directory manifest details banner' : 'Hide directory manifest details banner'}" style="font-size:0.75rem;">
+                                ${isBannerCollapsed ? '📜 Show Banner' : '📜 Hide Banner'}
+                            </button>
+
+                            <div style="width:1px; height:20px; background:var(--border-color, #30363d); margin:0 0.15rem;"></div>
+
+                            <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.openTreemapModal()" title="View interactive squarified storage treemap">
+                                📊 Treemap
                             </button>
                             <button class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.compressCurrentDirectory()" title="Create compressed ZIP archive of current folder">
                                 📦 Zip
@@ -3938,13 +3977,21 @@ export default class FilesView extends BaseClass {
     }
 
     renderDirectoryManifestBanner() {
+        if (this.state.collapseManifestBanner) {
+            return '';
+        }
+
         const dm = this.state.directoryManifest;
+        if (this.state.loading && !dm) {
+            return '';
+        }
+
         const path = this.state.currentPath || '/';
-        const hasManifest = Boolean(dm && dm.has_manifest);
-        const isValid = Boolean(dm && dm.manifest_valid);
-        const status = dm ? dm.manifest_status : (hasManifest ? 'valid' : 'missing');
-        const props = (dm && dm.directory_props) ? dm.directory_props : {};
-        const fileCount = dm ? (dm.file_count_in_manifest || 0) : 0;
+        const hasManifest = Boolean(dm && (dm.has_manifest || dm.exists));
+        const isValid = Boolean(dm && (dm.manifest_valid || dm.valid));
+        const status = dm ? (dm.manifest_status || dm.status) : (hasManifest ? 'valid' : 'missing');
+        const props = (dm && dm.directory_props) ? dm.directory_props : (dm?.directory || dm?.props?.directory || {});
+        const fileCount = dm ? (dm.file_count_in_manifest !== undefined ? dm.file_count_in_manifest : (dm.files_count !== undefined ? dm.files_count : (dm.files ? Object.keys(dm.files).length : 0))) : 0;
         
         let badgeClass = 'suite-pill-success';
         let badgeLabel = '🟢 Manifest Active';
@@ -3965,7 +4012,7 @@ export default class FilesView extends BaseClass {
         const security = props.security || {};
 
         return `
-            <div class="spp-directory-manifest-banner" style="margin-bottom:0.75rem; padding:0.75rem 1rem; background:rgba(15, 23, 42, 0.7); border:1px solid rgba(56, 189, 248, 0.22); border-radius:8px; backdrop-filter:blur(6px); display:flex; flex-direction:column; gap:0.6rem;">
+            <div class="spp-directory-manifest-banner" style="margin-bottom:0.75rem; padding:0.75rem 1rem; background:rgba(15, 23, 42, 0.7); border:1px solid rgba(56, 189, 248, 0.22); border-radius:8px; backdrop-filter:blur(6px); display:flex; flex-direction:column; gap:0.6rem; position:relative;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem;">
                     <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
                         <span style="font-size:1.2rem;">📜</span>
@@ -3994,6 +4041,9 @@ export default class FilesView extends BaseClass {
                         </button>
                         <button class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.signCurrentDirectory()" title="Cryptographically sign all files in this directory with SHA-256 integrity digests">
                             🔏 Sign
+                        </button>
+                        <button class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.toggleManifestBanner(true)" title="Collapse this banner to save vertical space" style="color:var(--text-dim); margin-left:0.25rem;">
+                            ✕
                         </button>
                     </div>
                 </div>
