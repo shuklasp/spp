@@ -1,0 +1,9 @@
+# SPP Generic Virtual Host Domain Mapping Configuration Template
+# Copied to etc/domains.yml when configuration is required.
+
+mode: single
+default_app: default
+virtual_host_mode: strict
+unmapped_subdomain_policy: block
+domain_only_apps: {}
+domains: {}

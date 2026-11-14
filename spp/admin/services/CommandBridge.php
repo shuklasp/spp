@@ -3263,7 +3263,8 @@ class CommandBridge
             case 'storage_manifest_health':
             case 'files_manifest_health':
                 $recursive = !empty($params['recursive']);
-                return StorageAdminService::getManifestHealth($params['path'] ?? '', $recursive);
+                $verifyIntegrity = !empty($params['verify_integrity']);
+                return StorageAdminService::getManifestHealth($params['path'] ?? '', $recursive, $verifyIntegrity);
 
             case 'storage_heal_manifest':
             case 'files_heal_manifest':
@@ -3382,7 +3383,7 @@ class CommandBridge
                 return StorageAdminService::downloadFile($params['path'] ?? '');
 
             case 'storage_tree':
-                return StorageAdminService::getDirectoryTree($params['root'] ?? '', (int)($params['depth'] ?? 3));
+                return StorageAdminService::getDirectoryTree($params['root'] ?? '', (int)($params['depth'] ?? 1));
 
             case 'storage_roots':
             case 'files_roots':

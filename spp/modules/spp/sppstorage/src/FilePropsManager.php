@@ -2406,7 +2406,7 @@ class FilePropsManager
     /**
      * Evaluates comprehensive Manifest OS health across a directory or entire workspace.
      */
-    public static function getManifestHealth(string $startDir, bool $recursive = true): array
+    public static function getManifestHealth(string $startDir, bool $recursive = true, bool $verifyIntegrity = false): array
     {
         $safe = self::resolveSafePath($startDir) ?: $startDir;
         if (!is_dir($safe)) {
@@ -2432,7 +2432,7 @@ class FilePropsManager
             &$walk, &$scannedDirs, &$manifestsDiscovered, &$validManifests,
             &$missingManifests, &$invalidYaml, &$untrackedFiles, &$orphanedEntries,
             &$staleEntries, &$integrityVerified, &$integrityTampered,
-            &$capabilityDeclarations, &$details, $recursive, $today
+            &$capabilityDeclarations, &$details, $recursive, $verifyIntegrity, $today
         ) {
             $baseName = basename($currentDir);
             if (in_array($baseName, self::DEFAULT_IGNORED_DIRS, true)) {
@@ -2529,19 +2529,23 @@ class FilePropsManager
                                 // Check integrity if checksum declared
                                 $checksum = $fMeta['checksum'] ?? ($fMeta['attributes']['checksum'] ?? null);
                                 if (!empty($checksum) && is_file($realPath)) {
-                                    $actual = @hash_file('sha256', $realPath);
-                                    if ($actual !== $checksum) {
-                                        $integrityTampered++;
-                                        if (count($details) < 200) {
-                                            $details[] = [
-                                                'type' => 'integrity_tampered',
-                                                'severity' => 'critical',
-                                                'directory' => $relDir,
-                                                'file' => $fName,
-                                                'expected_checksum' => $checksum,
-                                                'actual_checksum' => $actual,
-                                                'message' => "Integrity violation: '{$fName}' checksum mismatch."
-                                            ];
+                                    if ($verifyIntegrity) {
+                                        $actual = @hash_file('sha256', $realPath);
+                                        if ($actual !== $checksum) {
+                                            $integrityTampered++;
+                                            if (count($details) < 200) {
+                                                $details[] = [
+                                                    'type' => 'integrity_tampered',
+                                                    'severity' => 'critical',
+                                                    'directory' => $relDir,
+                                                    'file' => $fName,
+                                                    'expected_checksum' => $checksum,
+                                                    'actual_checksum' => $actual,
+                                                    'message' => "Integrity violation: '{$fName}' checksum mismatch."
+                                                ];
+                                            }
+                                        } else {
+                                            $integrityVerified++;
                                         }
                                     } else {
                                         $integrityVerified++;

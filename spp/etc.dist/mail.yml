@@ -1,0 +1,11 @@
+# SPP Outbound Mail & SMTP Gateway Configuration Template
+# Copied to etc/mail.yml when configuration is required.
+
+driver: smtp
+host: localhost
+port: 587
+encryption: tls
+username: ''
+password: ''
+from_address: admin@example.com
+from_name: 'SPP System'

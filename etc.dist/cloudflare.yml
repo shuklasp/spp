@@ -1,0 +1,8 @@
+# SPP Cloudflare Edge DNS & Edge SSL Configuration Template
+# Copied to etc/cloudflare.yml when configuration is required.
+
+enabled: false
+api_token: ''
+zone_id: ''
+account_id: ''
+default_proxied: true

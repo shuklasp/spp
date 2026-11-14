@@ -1,0 +1,4 @@
+# SPP Default Database Configuration Template
+default:
+  driver: sqlite
+  database: var/db/default.sqlite

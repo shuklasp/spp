@@ -1,5 +1,5 @@
 default_environment: production
-token: ''
+token: secret-test-token-123
 environments:
   production:
     url: 'https://example.com/'
@@ -8,12 +8,24 @@ environments:
     url: 'https://staging.example.com/'
     token: ''
 protected:
-  - '.env'
+  - .env
   - '.env.*'
-  - 'etc/domains.yml'
-  - 'etc/domains.local.yml'
-  - 'spp/etc/domains.yml'
-  - 'spp/etc/domains.local.yml'
+  - etc/domains.yml
+  - etc/domains.local.yml
+  - spp/etc/domains.yml
+  - spp/etc/domains.local.yml
+  - etc/global-settings.yml
+  - spp/etc/global-settings.yml
+  - etc/dns-domains.yml
+  - etc/dns-providers.yml
+  - etc/cloudflare.yml
+  - etc/mail.yml
+  - etc/backup_vault.yml
+  - etc/watchdog.yml
+  - etc/apps.yml
+  - etc/db.yml
+  - etc/.server_secret
+  - spp/etc/.server_secret
   - 'etc/apps/**'
   - 'domains/**'
   - 'data/**'
@@ -36,4 +48,17 @@ exclude:
   - 'sppdata/**'
   - 'storage/**'
   - 'uploads/**'
-
+  - etc/domains.yml
+  - etc/global-settings.yml
+  - etc/dns-domains.yml
+  - etc/dns-providers.yml
+  - etc/cloudflare.yml
+  - etc/mail.yml
+  - etc/backup_vault.yml
+  - etc/watchdog.yml
+  - etc/apps.yml
+  - etc/db.yml
+  - etc/.server_secret
+  - spp/etc/.server_secret
+  - '*.local.yml'
+  - '*.local.yaml'

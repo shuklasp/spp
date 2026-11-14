@@ -1,0 +1,5 @@
+# SPP Unified DNS Provider Accounts & Credential Vault Template
+# Copied to etc/dns-providers.yml when configuration is required.
+
+version: 2
+accounts: {}

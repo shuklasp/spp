@@ -1,0 +1,4 @@
+# SPP Unified Multi-Provider DNS Domain Mappings Template
+# Copied to etc/dns-domains.yml when configuration is required.
+
+domains: {}

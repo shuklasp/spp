@@ -1,0 +1,10 @@
+# SPP Sovereign Backup Vault Configuration Template
+enabled: true
+destinations:
+  local:
+    driver: local
+    path: var/backups
+retention:
+  daily: 7
+  weekly: 4
+  monthly: 12

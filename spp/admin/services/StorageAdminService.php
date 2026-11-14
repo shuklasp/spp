@@ -1263,13 +1263,13 @@ class StorageAdminService
     /**
      * Evaluates comprehensive Manifest OS health score and issues for a directory tree.
      */
-    public static function getManifestHealth(string $relativePath = '', bool $recursive = false): array
+    public static function getManifestHealth(string $relativePath = '', bool $recursive = false, bool $verifyIntegrity = false): array
     {
         if (!class_exists('\SPPMod\SPPStorage\FilePropsManager')) {
             require_once dirname(__DIR__, 2) . '/modules/spp/sppstorage/src/FilePropsManager.php';
         }
         $target = !empty($relativePath) ? (self::resolveSafePath($relativePath) ?: $relativePath) : self::getWorkspaceRoot();
-        return \SPPMod\SPPStorage\FilePropsManager::getManifestHealth($target, $recursive);
+        return \SPPMod\SPPStorage\FilePropsManager::getManifestHealth($target, $recursive, $verifyIntegrity);
     }
 
     /**
@@ -2109,7 +2109,7 @@ class StorageAdminService
      * Recursively builds a folder tree hierarchy for the left pane navigation.
      * Supports full system root navigation or workspace root scoping.
      */
-    public static function getDirectoryTree(string $root = '', int $maxDepth = 3): array
+    public static function getDirectoryTree(string $root = '', int $maxDepth = 1): array
     {
         $targetDir = self::resolveSafePath($root);
         if (!$targetDir || !is_dir($targetDir)) {
@@ -2117,20 +2117,26 @@ class StorageAdminService
         }
 
         $baseDir = realpath(defined('SPP_APP_DIR') ? SPP_APP_DIR : dirname(__DIR__, 3));
+        $sysRoot = self::getSystemRoot();
+        $normTarget = rtrim(str_replace('\\', '/', $targetDir), '/');
+        $normSysRoot = rtrim(str_replace('\\', '/', $sysRoot), '/');
+        $isSystemRoot = ($normTarget === $normSysRoot || $normTarget === '' || $normTarget === '/');
+
         $ignored = [
-            '.git', '.svn', '.hg', 'vendor', 'node_modules', 'var/cache',
-            'storage/framework', '.dist', '.gemini', '.vs', '.vscode', '.idea',
-            'bin', 'obj', 'coverage', '.tempmediaStorage'
+            '.git', '.svn', '.hg', 'vendor', 'node_modules', 'var', 'spp/var', 'var/cache',
+            'storage/framework', '.dist', 'dist', '.gemini', '.agents', '.vs', '.vscode', '.idea',
+            'bin', 'obj', 'coverage', '.tempmediaStorage', 'scratch', 'brain',
+            'Windows', 'Program Files', 'Program Files (x86)', '$Recycle.Bin', 'System Volume Information', 'Recovery', 'AppData'
         ];
 
-        // Default to depth 1 for sub-25ms responsiveness; subfolders lazy-load on demand
-        $depth = max(1, min(3, $maxDepth));
+        // High responsiveness: default depth 1 for sub-20ms returns; system root is always capped at 1
+        $depth = $isSystemRoot ? 1 : max(1, min(2, $maxDepth));
         $tree = self::scanFolderRecursive($targetDir, $baseDir, $ignored, 0, $depth);
 
         return [
             'success' => true,
             'tree' => $tree,
-            'system_root' => self::getSystemRoot(),
+            'system_root' => $sysRoot,
             'workspace_root' => self::getWorkspaceRoot(),
             'available_roots' => self::getAvailableRoots(),
             'site_roots' => self::getConfiguredSiteRoots()
@@ -2190,7 +2196,7 @@ class StorageAdminService
         }
 
         while (($entry = readdir($handle)) !== false) {
-            if ($entry === '.' || $entry === '..' || in_array($entry, $ignored, true)) {
+            if ($entry === '.' || $entry === '..' || in_array($entry, $ignored, true) || str_starts_with($entry, '.')) {
                 continue;
             }
 

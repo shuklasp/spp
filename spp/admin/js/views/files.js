@@ -3417,6 +3417,7 @@ export default class FilesView extends BaseClass {
         const hasSelection = this.state.selectedItems && this.state.selectedItems.size > 0;
         const selectedCount = hasSelection ? this.state.selectedItems.size : 0;
         const hasClipboard = Boolean(this.state.clipboard && this.state.clipboard.items && this.state.clipboard.items.length > 0);
+        const hasManifest = Boolean(this.state.directoryManifest && (this.state.directoryManifest.exists || this.state.directoryManifest.files || this.state.directoryManifest.directory));
 
         return `
             <div class="spp-fm-toolbar">
@@ -3507,6 +3508,37 @@ export default class FilesView extends BaseClass {
                 </div>
 
                 <div class="spp-fm-toolbar-right">
+                    <!-- Directory Manifest & Props Pill -->
+                    ${hasManifest ? `
+                        <div class="spp-manifest-toolbar-badge" 
+                             onclick="window.filesViewInstance.editDirectoryProps()" 
+                             title="Directory manifest is active. Click to view/edit Directory Props and SLA.">
+                            <span style="font-size:0.85rem;">📜</span>
+                            <span class="spp-badge-text">Props</span>
+                            <span class="spp-badge-status-dot online"></span>
+                        </div>
+                        <button type="button" class="btn secondary-btn btn-sm" 
+                                onclick="window.filesViewInstance.healCurrentManifest()" 
+                                title="Auto-Sync directory files with __spp_file_props.yml contract"
+                                style="padding:0.25rem 0.55rem; font-size:0.8rem;">
+                            ⚡ Auto-Sync
+                        </button>
+                    ` : `
+                        <div class="spp-manifest-toolbar-badge unconfigured" 
+                             onclick="window.filesViewInstance.healCurrentManifest()" 
+                             title="No __spp_file_props.yml in this folder. Click to auto-generate contract.">
+                            <span style="font-size:0.85rem;">⚠️</span>
+                            <span class="spp-badge-text">No Props</span>
+                            <span class="spp-badge-action-link">+ Init</span>
+                        </div>
+                        <button type="button" class="btn secondary-btn btn-sm" 
+                                onclick="window.filesViewInstance.editDirectoryProps()" 
+                                title="Configure Directory Props and Security Contract"
+                                style="padding:0.25rem 0.55rem; font-size:0.8rem;">
+                            🏷️ Props
+                        </button>
+                    `}
+
                     <!-- More Actions Dropdown -->
                     <div class="spp-dropdown-container">
                         <button type="button" class="btn secondary-btn btn-sm" 

@@ -1,0 +1,6 @@
+# SPP System Health & Daemon Watchdog Configuration Template
+enabled: true
+check_interval: 60
+services:
+  mysql: true
+  redis: false

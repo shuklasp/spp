@@ -26,6 +26,7 @@ class DeployPushCommand extends Command
         $globalAppsOnly = false;
         $frameworkOnly = false;
         $includeFramework = true;
+        $withConfig = false;
         $silent = false;
         $quiet = false;
         $excludeRules = [];
@@ -104,6 +105,9 @@ class DeployPushCommand extends Command
             if ($arg === '--no-framework') {
                 $includeFramework = false;
             }
+            if ($arg === '--with-config') {
+                $withConfig = true;
+            }
             if ($arg === '--bundle') {
                 $manifestPath = $rootDir . '/bundle-manifest.json';
                 if (file_exists($manifestPath)) {
@@ -157,9 +161,14 @@ class DeployPushCommand extends Command
                     $scope[] = "public/{$sApp}";
                 }
 
-                // 3. Framework Core Inclusion
+                // 3. Framework Core Inclusion (generic templates in etc.dist, never overwrite effective live configs)
                 if ($includeFramework) {
-                    $scope = array_merge($scope, ['spp', 'public', 'index.php', 'spp.php', 'router.php', 'install.php', 'setup.php', 'setup.sh', '.htaccess', 'bundle-manifest.json', 'etc/global-settings.yml', 'etc/domains.yml']);
+                    $frameworkCore = ['spp', 'public', 'index.php', 'spp.php', 'router.php', 'install.php', 'setup.php', 'setup.sh', '.htaccess', 'bundle-manifest.json', 'etc.dist'];
+                    if ($withConfig) {
+                        $frameworkCore[] = 'etc/global-settings.yml';
+                        $frameworkCore[] = 'etc/domains.yml';
+                    }
+                    $scope = array_merge($scope, $frameworkCore);
                 }
             }
         }
@@ -250,6 +259,9 @@ class DeployPushCommand extends Command
             if (!$noFiles) {
                 if (!$silent) echo "🔍 Scanning local workspace files...\n";
                 $scanner = new \SPPMod\SPPDeploy\Scanner\ProjectScanner();
+                if ($withConfig) {
+                    $scanner->setIncludeConfig(true);
+                }
                 $localHashes = $scanner->scan($rootDir, $scope, $excludeRules);
                 if (!$silent) echo "   > " . count($localHashes) . " local file signatures indexed.\n";
             }

@@ -3,6 +3,14 @@ namespace SPPMod\SPPDeploy\Scanner;
 
 class ProjectScanner
 {
+    private bool $includeConfig = false;
+
+    public function setIncludeConfig(bool $include): self
+    {
+        $this->includeConfig = $include;
+        return $this;
+    }
+
     private array $excludePatterns = [
         '#^/\.git#',
         '#^/vendor#',
@@ -159,6 +167,19 @@ class ProjectScanner
         // Whitelist public package repositories (var/packages or dist/packages)
         if (str_starts_with($cleanRel, 'var/packages') || str_starts_with($cleanRel, 'dist/packages')) {
             return false;
+        }
+
+        // Isolate live effective config files (etc/domains.yml, etc/global-settings.yml, etc.)
+        if (!$this->includeConfig) {
+            if (!class_exists('\\SPP\\Core\\Config\\ConfigIsolationManager', false)) {
+                $cim = dirname(__DIR__, 5) . '/core/Config/ConfigIsolationManager.php';
+                if (file_exists($cim)) {
+                    require_once $cim;
+                }
+            }
+            if (class_exists('\\SPP\\Core\\Config\\ConfigIsolationManager') && \SPP\Core\Config\ConfigIsolationManager::isProtectedConfigFile($cleanRel)) {
+                return true;
+            }
         }
 
         foreach ($this->excludePatterns as $pattern) {

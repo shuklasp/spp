@@ -1,0 +1,62 @@
+# SPP Generic Framework Settings Configuration Template
+# Copied to etc/global-settings.yml when configuration is required.
+
+profile: production
+
+shared_groups:
+  core:
+    table_prefix: spp_
+    entities:
+      - users
+      - roles
+      - rights
+      - userroles
+      - roleright
+      - loginrec
+      - remember_tokens
+      - migrations
+      - login_attempts
+      - personal_access_tokens
+      - oauth_providers
+      - sppauth_audit_log
+      - magic_links
+      - webauthn_credentials
+      - oauth_clients
+      - oauth_tokens
+      - sppgroup
+      - sppgroupmember
+
+apps:
+  default:
+    base_url: /default
+    table_prefix: ''
+    shared_group: core
+    etc_path: ''
+    src_path: ''
+    app_init: ''
+  sppadmin:
+    base_url: /sppadmin
+    table_prefix: ''
+    shared_group: core
+    etc_path: etc
+    src_path: spp/admin
+    app_init: init.php
+  sppdev:
+    base_url: /sppdev
+    table_prefix: ''
+    shared_group: core
+    etc_path: etc
+    src_path: spp/dev
+    app_init: init.php
+
+base_app: default
+
+settings:
+  site_name: 'Satya Portal Pack'
+  debug: false
+  compulsory_modules:
+    - sppauth
+    - sppdb
+    - sppconfig
+    - sppview
+    - drishyam

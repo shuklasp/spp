@@ -401,6 +401,13 @@ class DomainRouter
         }
 
         if (!$configFound && !self::$explicitModeSet) {
+            // Seed effective etc/domains.yml from generic distribution template if available
+            if (class_exists('\\SPP\\Core\\Config\\ConfigIsolationManager')) {
+                $seeded = \SPP\Core\Config\ConfigIsolationManager::ensureEffectiveConfig('domains.yml');
+                if (file_exists($seeded)) {
+                    self::$activeConfigFile = $seeded;
+                }
+            }
             // No etc/domains.yml found: automatically operate in Single Domain Mode.
             // Copy-pasting works out of the box with zero configuration on any host/IP.
             self::$domainMode = self::DOMAIN_MODE_SINGLE;
@@ -901,6 +908,7 @@ class DomainRouter
      */
     public static function setGlobalDefaultApp(string $appName): void
     {
+        self::loadConfig();
         self::$globalDefaultApp = trim($appName);
     }
 
@@ -983,7 +991,11 @@ class DomainRouter
     {
         $targetFile = $path ?: (self::$activeConfigFile ?: (defined('SPP_APP_DIR') ? SPP_APP_DIR . '/etc/domains.yml' : null));
         if (!$targetFile) {
-            return false;
+            if (class_exists('\\SPP\\Core\\Config\\ConfigIsolationManager')) {
+                $targetFile = \SPP\Core\Config\ConfigIsolationManager::ensureEffectiveConfig('domains.yml');
+            } else {
+                return false;
+            }
         }
 
         $dir = dirname($targetFile);

@@ -345,6 +345,22 @@ class Receiver
             }
         }
 
+        // Filter out protected effective configuration files from updates and deletions
+        if (!class_exists('\\SPP\\Core\\Config\\ConfigIsolationManager', false)) {
+            $cim = dirname(__DIR__, 5) . '/core/Config/ConfigIsolationManager.php';
+            if (file_exists($cim)) {
+                require_once $cim;
+            }
+        }
+        if (class_exists('\\SPP\\Core\\Config\\ConfigIsolationManager')) {
+            $diff['files']['update'] = array_values(array_filter($diff['files']['update'], function ($p) {
+                return !\SPP\Core\Config\ConfigIsolationManager::isProtectedConfigFile($p);
+            }));
+            $diff['files']['delete'] = array_values(array_filter($diff['files']['delete'], function ($p) {
+                return !\SPP\Core\Config\ConfigIsolationManager::isProtectedConfigFile($p);
+            }));
+        }
+
         // Process DB hashes
         $clientDbHashes = $input['hashes']['db'] ?? [];
         foreach ($clientDbHashes as $table => $hash) {
@@ -530,6 +546,15 @@ class Receiver
             $failedDeletions = [];
             foreach ($diff['files']['delete'] as $path) {
                 // Safeguard: Never delete protected or excluded files on live target
+                if (!class_exists('\\SPP\\Core\\Config\\ConfigIsolationManager', false)) {
+                    $cim = dirname(__DIR__, 5) . '/core/Config/ConfigIsolationManager.php';
+                    if (file_exists($cim)) {
+                        require_once $cim;
+                    }
+                }
+                if (class_exists('\\SPP\\Core\\Config\\ConfigIsolationManager') && \SPP\Core\Config\ConfigIsolationManager::isProtectedConfigFile($path)) {
+                    continue;
+                }
                 foreach ($protectedRules as $rule) {
                     $cleanRule = ltrim((string)$rule, '/');
                     if (fnmatch($cleanRule, $path, FNM_CASEFOLD) || fnmatch($rule, '/' . $path, FNM_CASEFOLD) || (!str_contains($rule, '/') && fnmatch($rule, basename($path), FNM_CASEFOLD))) {
@@ -581,6 +606,10 @@ class Receiver
                                 }
                             }
                             if (file_exists($dest)) {
+                                if (class_exists('\\SPP\\Core\\Config\\ConfigIsolationManager') && \SPP\Core\Config\ConfigIsolationManager::isProtectedConfigFile($entry)) {
+                                    // Invariant: Never overwrite existing live instance configuration
+                                    continue;
+                                }
                                 @chmod($dest, 0666);
                             }
                             if ($fileBytes !== false) {
@@ -759,6 +788,11 @@ class Receiver
             }
             if (function_exists('opcache_reset')) {
                 @opcache_reset();
+            }
+
+            // Ensure any newly deployed generic configuration templates have effective counterparts initialized if missing
+            if (class_exists('\\SPP\\Core\\Config\\ConfigIsolationManager')) {
+                \SPP\Core\Config\ConfigIsolationManager::ensureAllEffectiveConfigs($projectRoot);
             }
 
             self::logDeployment("SUCCESS: Updated $filesCount file(s) and $dbCount table(s). Backup: $backupResult. Hooks: " . count($hooksOutput), [

@@ -56,6 +56,10 @@ class App extends \SPP\SPPObject implements \Psr\Container\ContainerInterface
         self::$instances[$appname] = $this;
         \SPP\Registry::register('__apps=>' . $appname . '=>status', self::APP_EXEC);
 
+        if (class_exists('\\SPP\\Core\\Context\\ContextManager')) {
+            \SPP\Core\Context\ContextManager::getOrCreate($appname, $this);
+        }
+
         if ($init_level >= 1) {
             \SPP\Scheduler::regProc($this);
             if (!\SPP\Scheduler::hasContext() || \SPP\Scheduler::getContext() === $appname) {
@@ -161,6 +165,9 @@ class App extends \SPP\SPPObject implements \Psr\Container\ContainerInterface
                 $settings = require $cacheFile;
             } else {
                 $path = SPP_ETC_DIR . '/global-settings.yml';
+                if (!file_exists($path) && class_exists('\\SPP\\Core\\Config\\ConfigIsolationManager')) {
+                    $path = \SPP\Core\Config\ConfigIsolationManager::ensureEffectiveConfig('global-settings.yml', SPP_ETC_DIR);
+                }
                 if (file_exists($path)) {
                     $rawContent = file_get_contents($path);
                     if (str_starts_with($rawContent, "\xEF\xBB\xBF")) {
@@ -619,12 +626,31 @@ class App extends \SPP\SPPObject implements \Psr\Container\ContainerInterface
 
     public function getAppSrcDir(): string
     {
-        $srcPath = self::getAppConf('src_path', $this->_attributes['appname']);
+        $appName = $this->_attributes['appname'];
+
+        // Delegate to canonical PathResolver when available
+        if (class_exists('\\SPP\\Core\\Domain\\PathResolver')) {
+            $resolver = \SPP\Core\Domain\PathResolver::getInstance();
+            if (class_exists('\\SPP\\Core\\Domain\\DomainContextResolver') && \SPP\Core\Domain\DomainContextResolver::has()) {
+                $domId = \SPP\Core\Domain\DomainContextResolver::current()->getDomainId();
+                $domAppPath = $resolver->getDomainAppPath($appName, $domId);
+                if (is_dir($domAppPath)) {
+                    return $domAppPath;
+                }
+            }
+
+            $globalAppPath = $resolver->getGlobalAppPath($appName);
+            if (is_dir($globalAppPath)) {
+                return $globalAppPath;
+            }
+        }
+
+        $srcPath = self::getAppConf('src_path', $appName);
         if ($srcPath !== null && $srcPath !== '') {
             // src is always relative to SPP_APP_DIR (rooted at APP_BASE_DIR)
             return $this->resolvePath($srcPath, SPP_APP_DIR);
         }
-        return $this->resolvePath('src/' . $this->_attributes['appname'], SPP_APP_DIR);
+        return $this->resolvePath('src/' . $appName, SPP_APP_DIR);
     }
 
 
