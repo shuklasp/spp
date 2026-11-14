@@ -181,4 +181,35 @@ class DomainAutoPathsAndScaffoldingParikshakTest extends SPPTestCase
             DomainAdminService::deleteDomain($domainName);
         }
     }
+
+    public function testSaveDomainRenameWithOriginalPattern(): void
+    {
+        $oldDomain = 'old-typo-' . bin2hex(random_bytes(3)) . '.net';
+        $newDomain = 'new-correct-' . bin2hex(random_bytes(3)) . '.net';
+
+        try {
+            // First save initial domain with typo
+            $save1 = DomainAdminService::saveDomain($oldDomain, [
+                'account' => 'testuser',
+                'default_app' => 'default',
+            ]);
+            $this->assertTrue($save1['success']);
+            $this->assertArrayHasKey($oldDomain, DomainRouter::getAllDomains());
+
+            // Now rename to new domain using original_pattern
+            $save2 = DomainAdminService::saveDomain($newDomain, [
+                'original_pattern' => $oldDomain,
+                'account' => 'testuser',
+                'default_app' => 'default',
+            ]);
+            $this->assertTrue($save2['success']);
+
+            $allDomains = DomainRouter::getAllDomains();
+            $this->assertArrayNotHasKey($oldDomain, $allDomains, 'Old typo domain must be removed');
+            $this->assertArrayHasKey($newDomain, $allDomains, 'New correct domain must exist');
+        } finally {
+            DomainAdminService::deleteDomain($oldDomain);
+            DomainAdminService::deleteDomain($newDomain);
+        }
+    }
 }

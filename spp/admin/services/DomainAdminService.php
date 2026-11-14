@@ -352,6 +352,12 @@ class DomainAdminService
             }
         }
 
+        // If renaming an existing domain mapping, remove the original pattern
+        $origPattern = !empty($data['original_pattern']) ? strtolower(trim((string)$data['original_pattern'])) : null;
+        if ($origPattern !== null && $origPattern !== '' && $origPattern !== $pattern) {
+            DomainRouter::removeDomain($origPattern);
+        }
+
         DomainRouter::setDomain($pattern, $config);
 
         if (isset($data['set_as_global_default']) && $data['set_as_global_default']) {

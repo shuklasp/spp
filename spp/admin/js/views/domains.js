@@ -314,7 +314,7 @@ export default class DomainsView extends BaseClass {
                             Domain Name <span style="color:var(--danger)">*</span>
                             <span class="spp-help-tip" data-tooltip-title="Website Domain Name" data-tooltip="The web address visitors type to open your website." data-tooltip-example="e.g. satyalab.net or vshiksha.com">?</span>
                         </label>
-                        <input type="text" id="dom-pattern" value="${this.escapeHtml(domain?.pattern || '')}" placeholder="e.g. satyalab.net or vshiksha.com" ${isEdit ? 'readonly style="opacity:0.7;"' : ''} required>
+                        <input type="text" id="dom-pattern" value="${this.escapeHtml(domain?.pattern || '')}" data-original-pattern="${this.escapeHtml(domain?.pattern || '')}" placeholder="e.g. satyalab.net or vshiksha.com" required>
                     </div>
                     <div class="input-group">
                         <label>
@@ -735,8 +735,10 @@ export default class DomainsView extends BaseClass {
             saveBtn.textContent = 'Saving...';
 
             try {
+                const origPattern = document.getElementById('dom-pattern')?.getAttribute('data-original-pattern') || null;
                 const res = await this.admin.api('domain_save', {
                     pattern: pattern,
+                    original_pattern: origPattern,
                     account: account,
                     app_dir: appDir,
                     data_dir: dataDir,
