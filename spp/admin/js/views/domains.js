@@ -619,14 +619,23 @@ export default class DomainsView extends BaseClass {
             }
             resEl.innerHTML = `<span style="color:#38bdf8;">Probing path...</span>`;
             try {
-                const probe = await this.admin.api('domains_subapp_probe', { target_path: p });
-                if (probe.valid) {
-                    resEl.innerHTML = `<span style="color:#34d399;">✅ Valid: <strong>${this.escapeHtml(probe.framework)}</strong> (Readable: yes, Entry: ${probe.index_file})</span>`;
-                    if (probe.index_file) {
-                        document.getElementById('dom-root-index').value = probe.index_file;
+                const res = await this.admin.api('domains_subapp_probe', { target_path: p });
+                const probe = (res && res.data && typeof res.data === 'object' && ('valid' in res.data || 'framework' in res.data || 'exists' in res.data)) ? res.data : (res || {});
+                const isValid = Boolean(probe.valid || res.valid || (res.success && (probe.exists || probe.framework)));
+                if (isValid) {
+                    const framework = probe.framework || res.framework || 'Generic PHP / Static';
+                    const indexFile = probe.index_file || res.index_file || 'index.php';
+                    const readable = (probe.readable !== false) ? 'yes' : 'restricted';
+                    resEl.innerHTML = `<span style="color:#34d399;">✅ Valid: <strong>${this.escapeHtml(framework)}</strong> (Readable: ${readable}, Entry: ${this.escapeHtml(indexFile)})</span>`;
+                    if (indexFile) {
+                        const indexInput = document.getElementById('dom-root-index');
+                        if (indexInput && (!indexInput.value || indexInput.value === 'index.php')) {
+                            indexInput.value = indexFile;
+                        }
                     }
                 } else {
-                    resEl.innerHTML = `<span style="color:#f87171;">❌ ${this.escapeHtml(probe.error || 'Path invalid or not accessible')}</span>`;
+                    const errMsg = probe.error || res.error || res.message || 'Path invalid or not accessible';
+                    resEl.innerHTML = `<span style="color:#f87171;">❌ ${this.escapeHtml(errMsg)}</span>`;
                 }
             } catch (err) {
                 resEl.innerHTML = `<span style="color:#f87171;">Probe error: ${this.escapeHtml(err.message)}</span>`;
@@ -643,14 +652,22 @@ export default class DomainsView extends BaseClass {
             }
             resEl.innerHTML = `<span style="color:#38bdf8;">Probing...</span>`;
             try {
-                const probe = await this.admin.api('domains_subapp_probe', { target_path: p });
-                if (probe.valid) {
-                    resEl.innerHTML = `<span style="color:#34d399;">✅ ${this.escapeHtml(probe.framework)} (${probe.index_file})</span>`;
-                    if (probe.index_file) {
-                        document.getElementById('new-sub-index').value = probe.index_file;
+                const res = await this.admin.api('domains_subapp_probe', { target_path: p });
+                const probe = (res && res.data && typeof res.data === 'object' && ('valid' in res.data || 'framework' in res.data || 'exists' in res.data)) ? res.data : (res || {});
+                const isValid = Boolean(probe.valid || res.valid || (res.success && (probe.exists || probe.framework)));
+                if (isValid) {
+                    const framework = probe.framework || res.framework || 'Generic PHP / Static';
+                    const indexFile = probe.index_file || res.index_file || 'index.php';
+                    resEl.innerHTML = `<span style="color:#34d399;">✅ Valid: <strong>${this.escapeHtml(framework)}</strong> (${this.escapeHtml(indexFile)})</span>`;
+                    if (indexFile) {
+                        const idxInput = document.getElementById('new-sub-index');
+                        if (idxInput && (!idxInput.value || idxInput.value === 'index.php')) {
+                            idxInput.value = indexFile;
+                        }
                     }
                 } else {
-                    resEl.innerHTML = `<span style="color:#f87171;">❌ ${this.escapeHtml(probe.error || 'Invalid path')}</span>`;
+                    const errMsg = probe.error || res.error || res.message || 'Invalid path';
+                    resEl.innerHTML = `<span style="color:#f87171;">❌ ${this.escapeHtml(errMsg)}</span>`;
                 }
             } catch (err) {
                 resEl.innerHTML = `<span style="color:#f87171;">Probe error: ${this.escapeHtml(err.message)}</span>`;
@@ -786,10 +803,15 @@ export default class DomainsView extends BaseClass {
     probeSubAppModal(path) {
         if (!path) return;
         this.admin.api('domains_subapp_probe', { target_path: path }).then(res => {
-            if (res.valid) {
-                this.admin.notify(`✅ ${res.framework} (Index: ${res.index_file}, Readable: yes)`, "success");
+            const probe = (res && res.data && typeof res.data === 'object' && ('valid' in res.data || 'framework' in res.data || 'exists' in res.data)) ? res.data : (res || {});
+            const isValid = Boolean(probe.valid || res.valid || (res.success && (probe.exists || probe.framework)));
+            if (isValid) {
+                const framework = probe.framework || res.framework || 'Generic PHP / Static';
+                const indexFile = probe.index_file || res.index_file || 'index.php';
+                this.admin.notify(`✅ ${framework} (Index: ${indexFile}, Readable: yes)`, "success");
             } else {
-                this.admin.notify(`❌ ${res.error || 'Path inaccessible'}`, "error");
+                const errMsg = probe.error || res.error || res.message || 'Path inaccessible';
+                this.admin.notify(`❌ ${errMsg}`, "error");
             }
         }).catch(err => {
             this.admin.notify("Probe error: " + err.message, "error");

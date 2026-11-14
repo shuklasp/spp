@@ -347,8 +347,13 @@ class DomainAdminService
             return ['success' => false, 'error' => 'External application path or entry file is invalid.'];
         }
         foreach ($config['sub_apps'] as $route => $subApp) {
-            if (!self::validRoute('/' . trim((string)$route, '/')) || !self::safeConfigValue((string)($subApp['target_path'] ?? '')) || !self::validEntryFile((string)($subApp['index'] ?? 'index.php'))) {
-                return ['success' => false, 'error' => 'A sub-route contains an invalid route, target path, or entry file.'];
+            $isNonSppSub = ($subApp['type'] ?? '') === 'non_spp';
+            $targetPath = (string)($subApp['target_path'] ?? '');
+            if (!self::validRoute('/' . trim((string)$route, '/'))) {
+                return ['success' => false, 'error' => "Invalid route syntax for sub-route '{$route}'."];
+            }
+            if ($isNonSppSub && (!self::safeConfigValue($targetPath) || !self::validEntryFile((string)($subApp['index'] ?? 'index.php')))) {
+                return ['success' => false, 'error' => 'A sub-route contains an invalid target path or entry file.'];
             }
         }
 
@@ -473,21 +478,28 @@ class DomainAdminService
         if (class_exists('\\SPP\\Core\\Server\\NonSppAppHandler')) {
             $probe = \SPP\Core\Server\NonSppAppHandler::probeApp($cleanPath);
         } else {
-            $exists = file_exists($cleanPath);
+            $exists = @file_exists($cleanPath);
             $probe = [
-                'valid' => $exists && is_dir($cleanPath),
+                'success' => $exists && @is_dir($cleanPath),
+                'valid' => $exists && @is_dir($cleanPath),
                 'exists' => $exists,
-                'readable' => $exists && is_readable($cleanPath),
-                'writable' => $exists && is_writable($cleanPath),
+                'readable' => $exists && @is_readable($cleanPath),
+                'writable' => $exists && @is_writable($cleanPath),
                 'type' => $exists ? 'php' : 'not_found',
                 'framework' => $exists ? 'Generic PHP' : 'Missing Directory',
                 'version' => null,
                 'index_file' => 'index.php',
+                'clean_path' => $cleanPath,
                 'error' => $exists ? null : "Directory does not exist: {$cleanPath}"
             ];
         }
-        $probe['clean_path'] = $cleanPath;
-        $probe['has_props'] = file_exists($cleanPath . '/__spp_file_props.yml');
+        $probe['clean_path'] = $probe['clean_path'] ?? $cleanPath;
+        $probe['has_props'] = @file_exists($cleanPath . '/__spp_file_props.yml');
+        $probe['valid'] = !empty($probe['valid']);
+        $probe['success'] = !empty($probe['valid']);
+        if (empty($probe['valid']) && empty($probe['error'])) {
+            $probe['error'] = 'Directory does not exist or is not readable: ' . $cleanPath;
+        }
         return $probe;
     }
 

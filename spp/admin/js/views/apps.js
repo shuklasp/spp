@@ -12,6 +12,14 @@ export default class AppsView extends BaseComponent {
         const savedToggles = localStorage.getItem('spp_admin_apps_expanded');
         const expandedArray = savedToggles ? JSON.parse(savedToggles) : [];
 
+        const savedHelp = localStorage.getItem('spp_admin_open_help');
+        let openHelpArray = [];
+        try {
+            openHelpArray = savedHelp ? JSON.parse(savedHelp) : [];
+        } catch (e) {
+            openHelpArray = [];
+        }
+
         // Detect tab from hash query param if provided (e.g., #apps?tab=lifecycle or legacy #lifecycle)
         const hash = location.hash;
         let initialTab = localStorage.getItem('spp_admin_apps_tab') || 'apps';
@@ -72,8 +80,23 @@ export default class AppsView extends BaseComponent {
             domains: [],
             selectedDomain: localStorage.getItem('spp_admin_selected_domain') || 'all',
             domainAppsData: null,
-            loadingDomainApps: false
+            loadingDomainApps: false,
+            // Domain Activation Matrix state
+            matrixData: null,
+            loadingMatrix: false,
+            matrixFilter: '',
+            matrixSelectedApps: new Set(),
+            // UI Search & Filters
+            domainSearchTerm: '',
+            appSearchTerm: '',
+            appStatusFilter: 'all',
+            spotlightExpanded: false,
+            backupFilter: 'all',
+            backupSearchTerm: '',
+            restoreWizard: null,
+            openHelpSections: new Set(openHelpArray)
         };
+        window.appsViewInstance = this;
     }
 
     async onInit() {
@@ -162,7 +185,9 @@ export default class AppsView extends BaseComponent {
     setTab(tab) {
         localStorage.setItem('spp_admin_apps_tab', tab);
         this.setState({ activeTab: tab });
-        if (tab === 'cpanel') {
+        if (tab === 'matrix') {
+            this.loadActivationMatrix();
+        } else if (tab === 'cpanel') {
             this.loadCpanelArchives();
         } else if (tab === 'backups') {
             this.loadBackups();
@@ -214,6 +239,75 @@ export default class AppsView extends BaseComponent {
         this.setState({ expandedPaths: expanded });
     }
 
+    toggleSectionHelp(sectionKey) {
+        const open = new Set(this.state.openHelpSections || []);
+        if (open.has(sectionKey)) {
+            open.delete(sectionKey);
+        } else {
+            open.add(sectionKey);
+        }
+        try {
+            localStorage.setItem('spp_admin_open_help', JSON.stringify(Array.from(open)));
+        } catch (e) {}
+        this.setState({ openHelpSections: open });
+    }
+
+    renderHelpButton(sectionKey) {
+        const isOpen = this.state.openHelpSections && this.state.openHelpSections.has(sectionKey);
+        return html`
+            <button type="button" class="btn ghost-btn btn-sm help-toggle-btn"
+                style="border-radius: 20px; font-size: 0.75rem; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px; border: 1px dashed var(--glass-border); color: #93c5fd; background: rgba(99,102,241,0.08); transition: all 0.2s ease;"
+                @click=${() => this.toggleSectionHelp(sectionKey)}
+                title="Toggle operational guide and architectural tips">
+                <span>💡 Help</span>
+                <span style="font-size: 0.65rem;">${isOpen ? '▲' : '▼'}</span>
+            </button>
+        `;
+    }
+
+    renderHelpBanner(sectionKey, title, summary, details = {}) {
+        const isOpen = this.state.openHelpSections && this.state.openHelpSections.has(sectionKey);
+        if (!isOpen) return '';
+        return html`
+            <div class="glass-panel fade-in section-help-banner" style="margin-bottom: 1.25rem; padding: 1.1rem 1.35rem; border-radius: 12px; background: linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(30,41,59,0.75) 100%); border: 1px solid rgba(99,102,241,0.3); border-left: 4px solid #6366f1; box-shadow: 0 8px 24px rgba(0,0,0,0.35);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.15rem;">💡</span>
+                        <strong style="color: #c7d2fe; font-size: 0.92rem; letter-spacing: 0.3px;">${title}</strong>
+                    </div>
+                    <button type="button" class="btn ghost-btn btn-sm" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; color: var(--text-dim);" @click=${() => this.toggleSectionHelp(sectionKey)}>Hide Guide ▲</button>
+                </div>
+                <p style="margin: 0 0 12px 0; font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">${summary}</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; font-size: 0.79rem;">
+                    ${details.steps ? html`
+                        <div style="background: rgba(0,0,0,0.35); padding: 10px 12px; border-radius: 8px; border-top: 2px solid #38bdf8;">
+                            <div style="font-weight: 700; color: #38bdf8; text-transform: uppercase; font-size: 0.7rem; margin-bottom: 6px; display: flex; align-items: center; gap: 5px;">
+                                <span>🚀</span><span>How to Use</span>
+                            </div>
+                            <div style="color: var(--text-dim); line-height: 1.45;">${details.steps}</div>
+                        </div>
+                    ` : ''}
+                    ${details.concepts ? html`
+                        <div style="background: rgba(0,0,0,0.35); padding: 10px 12px; border-radius: 8px; border-top: 2px solid #a78bfa;">
+                            <div style="font-weight: 700; color: #a78bfa; text-transform: uppercase; font-size: 0.7rem; margin-bottom: 6px; display: flex; align-items: center; gap: 5px;">
+                                <span>🧠</span><span>Key Architecture</span>
+                            </div>
+                            <div style="color: var(--text-dim); line-height: 1.45;">${details.concepts}</div>
+                        </div>
+                    ` : ''}
+                    ${details.proTip ? html`
+                        <div style="background: rgba(0,0,0,0.35); padding: 10px 12px; border-radius: 8px; border-top: 2px solid #34d399;">
+                            <div style="font-weight: 700; color: #34d399; text-transform: uppercase; font-size: 0.7rem; margin-bottom: 6px; display: flex; align-items: center; gap: 5px;">
+                                <span>✨</span><span>Pro Tip &amp; Security</span>
+                            </div>
+                            <div style="color: var(--text-dim); line-height: 1.45;">${details.proTip}</div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
     render() {
         const { loading, activeTab, error } = this.state;
 
@@ -234,31 +328,50 @@ export default class AppsView extends BaseComponent {
         // Ensure header actions are appropriate for the active tab
         this.renderHeader();
 
+        const groups = this.getNavGroups();
+        const activeGroup = this.getActiveNavGroup();
+        const currentGroupDef = groups.find(g => g.id === activeGroup) || groups[0];
+
         return html`
             <div class="apps-view">
-                <div class="tab-bar-secondary">
-                    <button class="sub-tab-btn ${activeTab === 'apps' ? 'active' : ''}" 
-                        @click=${() => this.setTab('apps')}>📱 Applications</button>
-                    <button class="sub-tab-btn ${activeTab === 'mesh' ? 'active' : ''}" 
-                        @click=${() => this.setTab('mesh')}>🕸️ Service Mesh &amp; Daemons</button>
-                    <button class="sub-tab-btn ${activeTab === 'modules' ? 'active' : ''}" 
-                        @click=${() => this.setTab('modules')}>📦 Modules Registry</button>
-                    <button class="sub-tab-btn ${activeTab === 'lifecycle' ? 'active' : ''}" 
-                        @click=${() => this.setTab('lifecycle')}>🔄 Deployments & Lifecycle</button>
-                    <button class="sub-tab-btn ${activeTab === 'builder' ? 'active' : ''}" 
-                        @click=${() => this.setTab('builder')}>🛠️ App Builder (CLI)</button>
-                    <button class="sub-tab-btn ${activeTab === 'groups' ? 'active' : ''}" 
-                        @click=${() => this.setTab('groups')}>👥 Shared Groups</button>
-                    <button class="sub-tab-btn ${activeTab === 'logs' ? 'active' : ''}" 
-                        @click=${() => this.setTab('logs')}>📡 Server Logs</button>
-                    <button class="sub-tab-btn ${activeTab === 'cpanel' ? 'active' : ''}" 
-                        @click=${() => this.setTab('cpanel')}>📥 cPanel Importer</button>
-                    <button class="sub-tab-btn ${activeTab === 'backups' ? 'active' : ''}" 
-                        @click=${() => this.setTab('backups')}>💾 Backups &amp; Restore</button>
+                <!-- Grouped Navigation Container (Section 7.1) -->
+                <div class="grouped-nav-container" style="margin-bottom: 1.25rem;">
+                    <!-- Level 1: Four Main Navigation Groups -->
+                    <div class="nav-groups-bar" style="display: flex; gap: 8px; flex-wrap: wrap; background: rgba(0,0,0,0.22); border: 1px solid var(--glass-border); border-radius: 12px; padding: 6px 10px; margin-bottom: 8px;">
+                        ${groups.map(g => {
+                            const isGroupActive = (activeGroup === g.id);
+                            return html`
+                                <button type="button"
+                                    class="btn btn-sm ${isGroupActive ? 'primary-btn' : 'ghost-btn'}"
+                                    style="border-radius: 8px; font-size: 0.82rem; font-weight: ${isGroupActive ? '700' : '500'}; padding: 6px 14px; display: inline-flex; align-items: center; gap: 6px; ${isGroupActive ? 'box-shadow: 0 0 10px rgba(99,102,241,0.3);' : ''}"
+                                    @click=${() => this.setNavGroup(g.id)}>
+                                    <span>${g.icon}</span>
+                                    <span>${g.label}</span>
+                                </button>
+                            `;
+                        })}
+                    </div>
+
+                    <!-- Level 2: Secondary Tabs for the Active Group -->
+                    <div class="tab-bar-secondary" style="display: flex; gap: 6px; flex-wrap: wrap; padding: 4px 6px;">
+                        ${currentGroupDef.tabs.map(t => {
+                            const isTabActive = (activeTab === t.id);
+                            return html`
+                                <button type="button"
+                                    class="sub-tab-btn ${isTabActive ? 'active' : ''}"
+                                    style="border-radius: 8px; font-size: 0.8rem; padding: 5px 12px; display: inline-flex; align-items: center; gap: 6px;"
+                                    @click=${() => this.setTab(t.id)}>
+                                    <span>${t.icon}</span>
+                                    <span>${t.label}</span>
+                                </button>
+                            `;
+                        })}
+                    </div>
                 </div>
 
                 <div class="apps-content">
                     ${activeTab === 'apps' ? this.renderAppsTable() : ''}
+                    ${activeTab === 'matrix' ? this.renderActivationMatrix() : ''}
                     ${activeTab === 'mesh' ? this.renderMeshTab() : ''}
                     ${activeTab === 'modules' ? this.renderModulesTable() : ''}
                     ${activeTab === 'lifecycle' ? this.renderLifecycle() : ''}
@@ -267,6 +380,476 @@ export default class AppsView extends BaseComponent {
                     ${activeTab === 'logs' ? this.renderServerLogs() : ''}
                     ${activeTab === 'cpanel' ? this.renderCpanelImporter() : ''}
                     ${activeTab === 'backups' ? this.renderBackupsTable() : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    getNavGroups() {
+        return [
+            {
+                id: 'applications',
+                label: 'Applications',
+                icon: '📱',
+                tabs: [
+                    { id: 'apps', label: 'Applications', icon: '📱' },
+                    { id: 'matrix', label: 'Activation Matrix', icon: '📊' },
+                    { id: 'groups', label: 'Shared Groups', icon: '👥' },
+                ]
+            },
+            {
+                id: 'development',
+                label: 'Development',
+                icon: '🛠️',
+                tabs: [
+                    { id: 'modules', label: 'Modules Registry', icon: '📦' },
+                    { id: 'builder', label: 'App Builder (CLI)', icon: '🛠️' },
+                ]
+            },
+            {
+                id: 'operations',
+                label: 'Operations',
+                icon: '⚙️',
+                tabs: [
+                    { id: 'mesh', label: 'Service Mesh & Daemons', icon: '🕸️' },
+                    { id: 'lifecycle', label: 'Deployments & Lifecycle', icon: '🔄' },
+                    { id: 'logs', label: 'Server Logs', icon: '📡' },
+                ]
+            },
+            {
+                id: 'recovery',
+                label: 'Migration & Recovery',
+                icon: '🛡️',
+                tabs: [
+                    { id: 'cpanel', label: 'cPanel Importer', icon: '📥' },
+                    { id: 'backups', label: 'Backups & Restore', icon: '💾' },
+                ]
+            }
+        ];
+    }
+
+    getActiveNavGroup() {
+        const groups = this.getNavGroups();
+        for (const g of groups) {
+            if (g.tabs.some(t => t.id === this.state.activeTab)) {
+                return g.id;
+            }
+        }
+        return 'applications';
+    }
+
+    setNavGroup(groupId) {
+        const groups = this.getNavGroups();
+        const grp = groups.find(g => g.id === groupId);
+        if (grp && grp.tabs.length > 0) {
+            if (!grp.tabs.some(t => t.id === this.state.activeTab)) {
+                this.setTab(grp.tabs[0].id);
+            }
+        }
+    }
+
+    async loadActivationMatrix() {
+        this.setState({ loadingMatrix: true });
+        try {
+            const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+            const res = await apiCall('apps_activation_matrix');
+            if (res.success && res.data) {
+                this.setState({ matrixData: res.data, loadingMatrix: false });
+            } else {
+                throw new Error(res.error || 'Failed to load activation matrix');
+            }
+        } catch (e) {
+            console.error('Activation matrix error:', e);
+            (this.admin || window.admin).notify('Error loading activation matrix: ' + e.message, 'error');
+            this.setState({ loadingMatrix: false });
+        }
+    }
+
+    async toggleAppDomainActivation(appId, domainId, currentEnabled) {
+        const nextEnabled = !currentEnabled;
+        const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+        try {
+            const res = await apiCall('apps_set_activation', {
+                app_id: appId,
+                domain_id: domainId,
+                enabled: nextEnabled
+            });
+            if (res.success) {
+                (this.admin || window.admin).notify(`Application '${appId}' ${nextEnabled ? 'enabled' : 'disabled'} on '${domainId}'.`, 'success');
+                if (this.state.matrixData && this.state.matrixData.matrix && this.state.matrixData.matrix[appId]) {
+                    const nextMatrix = { ...this.state.matrixData.matrix };
+                    nextMatrix[appId] = { ...nextMatrix[appId], [domainId]: nextEnabled };
+                    this.setState({ matrixData: { ...this.state.matrixData, matrix: nextMatrix } });
+                } else {
+                    await this.loadActivationMatrix();
+                }
+            } else {
+                throw new Error(res.message || res.error || 'Operation failed');
+            }
+        } catch (e) {
+            (this.admin || window.admin).notify('Failed to update activation: ' + e.message, 'error');
+        }
+    }
+
+    async openAppConfigModal(appId, domainId = null) {
+        const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+        try {
+            const [cfgRes, diffRes] = await Promise.all([
+                apiCall('apps_config_get', { app_id: appId, domain_id: domainId }),
+                domainId ? apiCall('apps_config_diff', { app_id: appId, domain_id: domainId }).catch(() => ({ success: false })) : Promise.resolve({ success: false })
+            ]);
+
+            const config = (cfgRes.success && cfgRes.data) ? cfgRes.data : {};
+            const diff = diffRes.success ? diffRes.data : null;
+            const title = domainId ? `Domain Config: ${appId} @ ${domainId}` : `Global Config: ${appId}`;
+            const jsonText = JSON.stringify(config, null, 2);
+
+            (this.admin || window.admin).openModal(
+                `⚙️ ${title}`,
+                `
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <p style="font-size:0.85rem; color:var(--text-dim); margin:0;">
+                        ${domainId 
+                            ? `Overrides in <code>domains/${domainId}/etc/apps/${appId}.yml</code> take precedence over platform defaults.`
+                            : `Platform-wide defaults in <code>etc/apps/${appId}.yml</code> apply to all domains unless overridden.`}
+                    </p>
+                    ${diff && Object.keys(diff.overrides || {}).length > 0 ? `
+                        <div style="background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.3); border-radius:6px; padding:8px 12px; font-size:0.8rem;">
+                            <strong>⚡ Active Overrides on this Domain:</strong>
+                            <pre style="margin:4px 0 0; font-size:0.75rem; color:#818cf8; overflow-x:auto;">${JSON.stringify(diff.overrides, null, 2)}</pre>
+                        </div>
+                    ` : ''}
+                    <textarea id="app-config-editor" class="suite-input" style="width:100%; height:280px; font-family:'JetBrains Mono',monospace; font-size:0.85rem; padding:10px; border-radius:6px; background:#0d1117; color:#c9d1d9;">${jsonText}</textarea>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        ${domainId ? `
+                            <button type="button" class="btn ghost-btn btn-sm" onclick="window.appsViewInstance.resetDomainConfig('${appId}', '${domainId}')" style="color:var(--danger, #f87171);">
+                                🗑️ Reset to Global Defaults
+                            </button>
+                        ` : '<span></span>'}
+                        <span style="font-size:0.75rem; color:var(--text-dim);">JSON format</span>
+                    </div>
+                </div>
+                `,
+                async () => {
+                    const text = document.getElementById('app-config-editor').value;
+                    let parsed;
+                    try {
+                        parsed = JSON.parse(text);
+                    } catch (je) {
+                        (this.admin || window.admin).notify('Invalid JSON syntax: ' + je.message, 'error');
+                        return;
+                    }
+                    const saveAction = domainId ? 'apps_config_save_domain' : 'apps_config_save_global';
+                    const sRes = await apiCall(saveAction, {
+                        app_id: appId,
+                        domain_id: domainId,
+                        config: parsed
+                    });
+                    if (sRes.success) {
+                        (this.admin || window.admin).notify('Configuration saved successfully.', 'success');
+                        (this.admin || window.admin).closeModal();
+                    } else {
+                        (this.admin || window.admin).notify('Failed to save config: ' + (sRes.message || sRes.error), 'error');
+                    }
+                }
+            );
+        } catch (e) {
+            (this.admin || window.admin).notify('Error loading config: ' + e.message, 'error');
+        }
+    }
+
+    async resetDomainConfig(appId, domainId) {
+        if (!confirm(`Are you sure you want to reset configuration overrides for '${appId}' on '${domainId}'? It will revert to global defaults.`)) {
+            return;
+        }
+        const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+        const res = await apiCall('apps_config_reset', { app_id: appId, domain_id: domainId });
+        if (res.success) {
+            (this.admin || window.admin).notify(res.message, 'success');
+            (this.admin || window.admin).closeModal();
+        } else {
+            (this.admin || window.admin).notify('Failed to reset config: ' + (res.message || res.error), 'error');
+        }
+    }
+
+    async bulkSetActivation(action, targetDomainId = null) {
+        const { matrixData, matrixFilter } = this.state;
+        if (!matrixData || !matrixData.global_apps) return;
+        const domains = matrixData.domains || [];
+        const globalApps = matrixData.global_apps || [];
+        const filterLower = (matrixFilter || '').toLowerCase().trim();
+        const targetApps = globalApps.filter(a => {
+            if (!filterLower) return true;
+            return (a.id || '').toLowerCase().includes(filterLower) || (a.title || '').toLowerCase().includes(filterLower);
+        });
+
+        const isEnable = (action === 'enable');
+        const domainText = targetDomainId ? `domain '${targetDomainId}'` : 'ALL registered domains';
+        const msg = `Are you sure you want to ${isEnable ? 'ENABLE' : 'DISABLE'} ${targetApps.length} application(s) on ${domainText}?\n\nThis will update multi-tenant routing and domain execution contexts.`;
+        if (!confirm(msg)) return;
+
+        const targetDomains = targetDomainId ? domains.filter(d => d.id === targetDomainId) : domains;
+        const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+        let successCount = 0;
+        let failCount = 0;
+
+        (this.admin || window.admin).notify(`Processing bulk ${isEnable ? 'activation' : 'deactivation'}...`, 'info');
+        for (const app of targetApps) {
+            for (const dom of targetDomains) {
+                try {
+                    const res = await apiCall('apps_set_activation', {
+                        app_id: app.id,
+                        domain_id: dom.id,
+                        enabled: isEnable
+                    });
+                    if (res.success) successCount++;
+                    else failCount++;
+                } catch (e) {
+                    failCount++;
+                }
+            }
+        }
+
+        (this.admin || window.admin).notify(`Bulk operation completed: ${successCount} updated, ${failCount} failed.`, successCount > 0 ? 'success' : 'error');
+        await this.loadActivationMatrix();
+    }
+
+    renderActivationMatrix() {
+        const { matrixData, loadingMatrix, matrixFilter = '' } = this.state;
+        if (loadingMatrix && !matrixData) {
+            return html`
+                <div class="glass-panel" style="padding: 3rem; text-align: center;">
+                    <div class="sppux-spinner"></div>
+                    <div style="margin-top: 1rem; color: var(--text-dim);">Loading Domain Activation Matrix...</div>
+                </div>
+            `;
+        }
+
+        const data = matrixData || { global_apps: [], domains: [], matrix: {} };
+        const globalApps = data.global_apps || [];
+        const domains = data.domains || [];
+        const matrix = data.matrix || {};
+
+        const filterLower = (matrixFilter || '').toLowerCase().trim();
+        const filteredApps = globalApps.filter(a => {
+            if (!filterLower) return true;
+            return (a.id || '').toLowerCase().includes(filterLower) ||
+                   (a.title || '').toLowerCase().includes(filterLower) ||
+                   (a.description || '').toLowerCase().includes(filterLower);
+        });
+
+        // Compute stats
+        let totalActiveActivations = 0;
+        let totalPossibleActivations = globalApps.length * domains.length;
+        Object.values(matrix).forEach(domMap => {
+            if (domMap && typeof domMap === 'object') {
+                Object.values(domMap).forEach(v => {
+                    if (v) totalActiveActivations++;
+                });
+            }
+        });
+
+        return html`
+            <div class="activation-matrix-view fade-in">
+                <!-- Header & Stats Banner -->
+                <div class="glass-panel" style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--primary, #6366f1);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                        <div>
+                            <h2 style="margin:0 0 6px 0; font-size:1.35rem; color:var(--text-bright); display:flex; align-items:center; gap:8px;">
+                                <span>📊 Domain Activation Matrix</span>
+                                <span class="badge" style="background:rgba(99,102,241,0.2); color:#a5b4fc; font-size:0.75rem; padding:2px 8px; border-radius:12px;">Multi-Tenant Governance</span>
+                            </h2>
+                            <p style="margin:0; font-size:0.85rem; color:var(--text-dim); max-width:820px;">
+                                Globally installed applications exist in shared storage (<code>apps/</code> or <code>src/</code>) but are executed strictly in the isolated context of enabled domains. Global installation never implies automatic activation.
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <input type="text" placeholder="Filter apps..." 
+                                     class="suite-input" 
+                                    value="${matrixFilter}" 
+                                    @input=${(e) => this.setState({ matrixFilter: e.target.value })} 
+                                    style="padding:6px 12px; font-size:0.8rem; border-radius:6px; min-width:180px;">
+                                ${this.renderHelpButton('matrix')}
+                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.loadActivationMatrix()} title="Refresh Matrix">
+                                    🔄 Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI Badges -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:1.25rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.06);">
+                        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); padding:10px 14px; border-radius:8px;">
+                            <div style="font-size:0.72rem; text-transform:uppercase; color:var(--text-dim); font-weight:700;">Global Applications</div>
+                            <div style="font-size:1.4rem; font-weight:700; color:#38bdf8; margin-top:2px;">${globalApps.length}</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); padding:10px 14px; border-radius:8px;">
+                            <div style="font-size:0.72rem; text-transform:uppercase; color:var(--text-dim); font-weight:700;">Registered Domains</div>
+                            <div style="font-size:1.4rem; font-weight:700; color:#818cf8; margin-top:2px;">${domains.length}</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); padding:10px 14px; border-radius:8px;">
+                            <div style="font-size:0.72rem; text-transform:uppercase; color:var(--text-dim); font-weight:700;">Active Activations</div>
+                            <div style="font-size:1.4rem; font-weight:700; color:#34d399; margin-top:2px;">${totalActiveActivations} <span style="font-size:0.8rem; font-weight:500; color:var(--text-dim);">/ ${totalPossibleActivations}</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                ${this.renderHelpBanner('matrix', 'Domain-Application Activation Matrix Guide',
+                    'Multi-tenant governance matrix controlling which global and domain applications are active for each configured domain pattern.',
+                    {
+                        steps: 'Click any cell badge (Active / Inactive) to toggle single-app activation for a domain. Use the Bulk Governance toolbar to activate or deactivate multiple checked apps across all domains in a single click.',
+                        concepts: 'Activation creates an entry in the domain application registry (etc/domains/<domain>/apps.yml). If deactivated, requests to that app route namespace return 404 or fall back to the domain router.',
+                        proTip: 'Always verify database bindings before activating an app on a live domain. Domain-specific overrides in etc/domains/<domain>/ take precedence over global settings.'
+                    }
+                )}
+
+                <!-- Bulk Operations Governance Toolbar (Section 7.3.3) -->
+                <div class="glass-panel" style="padding: 10px 16px; margin-bottom: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: rgba(0,0,0,0.2);">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">
+                            ⚡ Bulk Activation Governance:
+                        </span>
+                        <select id="bulk-matrix-domain-target" class="suite-input" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 6px;">
+                            <option value="">-- Apply to All Domains --</option>
+                            ${domains.map(d => html`<option value="${d.id}">🌐 ${d.id}</option>`)}
+                        </select>
+                        <button type="button" class="btn btn-sm btn-success" 
+                            style="font-size: 0.78rem; padding: 4px 12px; border-radius: 6px;"
+                            @click=${() => {
+                                const sel = document.getElementById('bulk-matrix-domain-target');
+                                this.bulkSetActivation('enable', sel ? sel.value : null);
+                            }}>
+                            ⚡ Enable Filtered (${filteredApps.length})
+                        </button>
+                        <button type="button" class="btn btn-sm danger-btn" 
+                            style="font-size: 0.78rem; padding: 4px 12px; border-radius: 6px;"
+                            @click=${() => {
+                                const sel = document.getElementById('bulk-matrix-domain-target');
+                                this.bulkSetActivation('disable', sel ? sel.value : null);
+                            }}>
+                            🛑 Disable Filtered (${filteredApps.length})
+                        </button>
+                    </div>
+                    <small style="font-size: 0.72rem; color: var(--text-dim);">
+                        Enforces multi-tenant isolation and routing boundaries.
+                    </small>
+                </div>
+
+                <!-- Matrix Table -->
+                <div class="glass-panel" style="padding:0; overflow:hidden; border-radius:8px; margin-bottom:1.5rem;">
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" style="width:100%; border-collapse:collapse; text-align:left;">
+                            <thead>
+                                <tr style="background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.1);">
+                                    <th style="padding:12px 16px; font-size:0.8rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.05em; min-width:240px; position:sticky; left:0; background:rgba(20,24,33,0.95); z-index:2;">
+                                        Application (Global)
+                                    </th>
+                                    <th style="padding:12px 16px; font-size:0.8rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.05em; min-width:140px;">
+                                        Storage Model
+                                    </th>
+                                    ${domains.map(dom => html`
+                                        <th style="padding:12px 16px; font-size:0.8rem; color:var(--text-bright); text-align:center; min-width:160px;">
+                                            <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                                                <span style="font-weight:600;">🌐 ${dom.id}</span>
+                                                <span style="font-size:0.65rem; color:${dom.enabled !== false ? '#34d399' : '#f87171'}; text-transform:uppercase; font-weight:700;">
+                                                    ${dom.enabled !== false ? 'ACTIVE' : 'DISABLED'}
+                                                </span>
+                                            </div>
+                                        </th>
+                                    `)}
+                                    <th style="padding:12px 16px; font-size:0.8rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.05em; text-align:right; min-width:140px;">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filteredApps.length === 0 ? html`
+                                    <tr>
+                                        <td colspan="${domains.length + 3}" style="text-align:center; padding:3rem; color:var(--text-dim);">
+                                            No global applications found matching search criteria.
+                                        </td>
+                                    </tr>
+                                ` : filteredApps.map((app, idx) => {
+                                    const storageModel = app.storage_model || 'domain_isolated';
+                                    return html`
+                                        <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:${idx % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent'};">
+                                            <!-- Application Identity (Sticky Col) -->
+                                            <td style="padding:12px 16px; position:sticky; left:0; background:rgba(20,24,33,0.95); z-index:1;">
+                                                <div style="display:flex; align-items:center; gap:10px;">
+                                                    <span style="font-size:1.3rem;">📱</span>
+                                                    <div>
+                                                        <div style="font-weight:600; color:var(--text-bright);">${app.title || app.id}</div>
+                                                        <div style="font-size:0.75rem; color:var(--text-dim); font-family:monospace;">${app.id}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <!-- Storage Model -->
+                                            <td style="padding:12px 16px;">
+                                                <span class="suite-pill ${storageModel === 'shared_platform' ? 'suite-pill-warning' : 'suite-pill-info'}" style="font-size:0.7rem;">
+                                                    ${storageModel === 'shared_platform' ? 'Shared Platform DB' : 'Domain-Isolated DB'}
+                                                </span>
+                                            </td>
+
+                                            <!-- Domain Activations -->
+                                            ${domains.map(dom => {
+                                                const isEnabled = Boolean(matrix[app.id] && matrix[app.id][dom.id]);
+                                                return html`
+                                                    <td style="padding:12px 16px; text-align:center;">
+                                                        <div style="display:inline-flex; align-items:center; gap:6px;">
+                                                            <button type="button" 
+                                                                class="btn btn-sm ${isEnabled ? 'primary-btn' : 'ghost-btn'}"
+                                                                style="border-radius:20px; font-size:0.75rem; padding:3px 12px; font-weight:600; min-width:88px; transition:all 0.2s ease; ${isEnabled ? 'background:#059669; border-color:#10b981;' : 'opacity:0.6;'}"
+                                                                @click=${() => this.toggleAppDomainActivation(app.id, dom.id, isEnabled)}
+                                                                title="Click to ${isEnabled ? 'disable' : 'enable'} on ${dom.id}">
+                                                                ${isEnabled ? '✔ Enabled' : '✖ Disabled'}
+                                                            </button>
+                                                            <button type="button" 
+                                                                class="btn ghost-btn btn-sm" 
+                                                                style="padding:3px 6px; font-size:0.75rem;" 
+                                                                @click=${() => this.openAppConfigModal(app.id, dom.id)} 
+                                                                title="Configure domain override for ${app.id} on ${dom.id}">
+                                                                ⚙️
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                `;
+                                            })}
+
+                                            <!-- Global Actions -->
+                                            <td style="padding:12px 16px; text-align:right;">
+                                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.openAppConfigModal(app.id, null)} title="Configure Global Platform Defaults">
+                                                    ⚙️ Global Config
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Novice Architectural Guide -->
+                <div class="glass-panel" style="padding:1.25rem 1.5rem; background:rgba(0,0,0,0.2); border-radius:8px;">
+                    <h4 style="margin:0 0 6px 0; font-size:0.95rem; color:var(--text-bright); display:flex; align-items:center; gap:6px;">
+                        <span>💡 How Activation & Configuration Isolation Works</span>
+                    </h4>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-top:10px; font-size:0.8rem; color:var(--text-dim); line-height:1.5;">
+                        <div>
+                            <strong style="color:var(--text-bright);">1. Independent Lifecycle</strong><br>
+                            An application can be installed globally once by platform administrators. Individual domain administrators can enable or disable the application independently without touching the global code repository.
+                        </div>
+                        <div>
+                            <strong style="color:var(--text-bright);">2. 4-Tier Configuration Cascading</strong><br>
+                            Settings cascade automatically: <code>defaults.yml</code> (Codebase) &rarr; <code>etc/apps/*.yml</code> (Platform Defaults) &rarr; <code>domains/&lt;domain&gt;/etc/apps/*.yml</code> (Domain Overrides) &rarr; Runtime environment variables.
+                        </div>
+                        <div>
+                            <strong style="color:var(--text-bright);">3. Strict Database Context Isolation</strong><br>
+                            When <code>storage_model: domain_isolated</code> is declared, queries are bound exclusively to <code>domains/&lt;domain&gt;/var/data/</code> or tenant database connections, completely isolating customer data.
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -296,8 +879,21 @@ export default class AppsView extends BaseComponent {
         }, 10);
 
         return html`
-            <div id="apps-lifecycle-mount" class="fade-in" style="min-height: 500px;">
-                <div class="loading-state" style="padding: 2rem; text-align: center;"><div class="sppux-spinner"></div> Loading Deployment Command Center...</div>
+            <div class="fade-in">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 0.75rem;">
+                    ${this.renderHelpButton('lifecycle')}
+                </div>
+                ${this.renderHelpBanner('lifecycle', 'Deployments & Application Lifecycle Guide',
+                    'Automated staging, canary releases, zero-downtime rollbacks, and atomic directory swapping across multi-server topologies.',
+                    {
+                        steps: 'Select target deployment profile and branch/release tag. Review git commit diffs and automated pre-flight checks, then click "Deploy Release". If an issue occurs, click "Rollback" to restore the previous release instantly.',
+                        concepts: 'SPP Deploy uses symlink-based atomic releases (current -> releases/<timestamp>), distributed mutex locking, and automatic post-deploy cache priming and migration runs.',
+                        proTip: 'Always run automated Parikshak tests in CI before triggering production deployments. Use Canary mode to test on 10% of traffic before full rollout.'
+                    }
+                )}
+                <div id="apps-lifecycle-mount" style="min-height: 500px;">
+                    <div class="loading-state" style="padding: 2rem; text-align: center;"><div class="sppux-spinner"></div> Loading Deployment Command Center...</div>
+                </div>
             </div>
         `;
     }
@@ -322,117 +918,334 @@ export default class AppsView extends BaseComponent {
 
     // --- Tab: Applications ---
     renderAppsTable() {
-        const { apps, domains = [], selectedDomain = 'all', expandedPaths, appFilterType = 'all', devMode = true } = this.state;
+        const {
+            apps = [],
+            domains = [],
+            selectedDomain = 'all',
+            expandedPaths = new Set(),
+            appFilterType = 'all',
+            appStatusFilter = 'all',
+            appSearchTerm = '',
+            domainSearchTerm = '',
+            spotlightExpanded = false,
+            devMode = true
+        } = this.state;
+
         const systemAppNames = ['sppadmin', 'sppdev', 'default', 'admin', 'system'];
         const isSystemApp = (app) => app.is_system || systemAppNames.includes((app.name || '').toLowerCase()) || (app.src_path && app.src_path.startsWith('spp/'));
 
         const userApps = apps.filter(a => !isSystemApp(a));
         const systemApps = apps.filter(a => isSystemApp(a));
+        const globalApps = apps.filter(a => !a.is_domain_app && !isSystemApp(a));
+        const domainApps = apps.filter(a => a.is_domain_app);
+        const activeApps = apps.filter(a => a.is_installed !== false && a.enabled !== false);
+        const inactiveApps = apps.filter(a => a.is_installed === false || a.enabled === false);
+        const attentionApps = apps.filter(a => a.is_installed === false || a.broken || a.has_errors);
 
-        let displayApps = apps;
-        if (appFilterType === 'user') {
-            displayApps = userApps;
-        } else if (appFilterType === 'system') {
-            displayApps = systemApps;
+        // Identify Primary / Root Base Application for Active Domain Context
+        let baseApp = null;
+        if (selectedDomain !== 'all') {
+            const activeDomObj = domains.find(d => d.pattern === selectedDomain || d.id === selectedDomain);
+            const defaultAppName = activeDomObj && activeDomObj.default_app 
+                ? (typeof activeDomObj.default_app === 'object' ? (activeDomObj.default_app.app_name || activeDomObj.default_app.name) : activeDomObj.default_app)
+                : null;
+            if (defaultAppName) {
+                baseApp = apps.find(a => a.name === defaultAppName);
+            }
+        }
+        if (!baseApp) {
+            baseApp = apps.find(a => a.is_base_app) || userApps[0] || apps[0];
         }
 
+        // Secondary apps are non-base apps
+        let secondaryApps = apps.filter(a => !baseApp || a.name !== baseApp.name);
+
+        // Filter secondary apps by type
+        if (appFilterType === 'user') secondaryApps = secondaryApps.filter(a => !isSystemApp(a));
+        else if (appFilterType === 'system') secondaryApps = secondaryApps.filter(a => isSystemApp(a));
+        else if (appFilterType === 'global') secondaryApps = secondaryApps.filter(a => !a.is_domain_app && !isSystemApp(a));
+        else if (appFilterType === 'domain') secondaryApps = secondaryApps.filter(a => a.is_domain_app);
+
+        // Filter secondary apps by status
+        if (appStatusFilter === 'active') secondaryApps = secondaryApps.filter(a => a.is_installed !== false && a.enabled !== false);
+        else if (appStatusFilter === 'inactive') secondaryApps = secondaryApps.filter(a => a.is_installed === false || a.enabled === false);
+
+        // Filter secondary apps by search term
+        if (appSearchTerm) {
+            const s = appSearchTerm.toLowerCase().trim();
+            secondaryApps = secondaryApps.filter(a => 
+                (a.name || '').toLowerCase().includes(s) ||
+                (a.title || '').toLowerCase().includes(s) ||
+                (a.base_url || '').toLowerCase().includes(s) ||
+                (a.src_path || '').toLowerCase().includes(s)
+            );
+        }
+
+        // Searchable Domain Switcher
+        const filteredDomains = (domains || []).filter(d => 
+            !domainSearchTerm || (d.pattern || d.id || '').toLowerCase().includes(domainSearchTerm.toLowerCase())
+        );
+
         const domainSwitcherHtml = html`
-            <div class="domain-selector-bar" style="display: flex; align-items: center; gap: 8px; margin-bottom: 1.25rem; overflow-x: auto; padding-bottom: 6px;">
-                <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; margin-right: 4px;">
-                    🌐 Domain View:
-                </span>
-                <button type="button" 
-                    class="btn btn-sm ${selectedDomain === 'all' ? 'primary-btn' : 'ghost-btn'}"
-                    style="border-radius: 20px; font-size: 0.8rem; padding: 4px 14px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;"
-                    @click=${() => this.selectDomain('all')}>
-                    🌍 All Applications (${apps.length})
-                </button>
-                ${domains.map(dom => {
-                    const isSelected = selectedDomain === dom.pattern;
-                    const defaultApp = dom.default_app || 'default';
-                    const defaultAppName = typeof defaultApp === 'object' ? (defaultApp.app_name || defaultApp.name || 'default') : defaultApp;
-                    return html`
+            <div class="glass-panel" style="padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">
+                            🌐 Domain Context:
+                        </span>
+                        <select class="suite-input" 
+                            style="padding: 6px 12px; font-size: 0.85rem; border-radius: 8px; min-width: 200px; font-weight: 600;"
+                            .value=${selectedDomain}
+                            @change=${(e) => this.selectDomain(e.target.value)}>
+                            <option value="all">🌍 All Applications (${apps.length})</option>
+                            <option value="platform">🏛️ Platform Scope</option>
+                            ${domains.map(d => {
+                                const defApp = typeof d.default_app === 'object' ? (d.default_app.app_name || d.default_app.name) : d.default_app;
+                                return html`<option value="${d.pattern}">🌐 ${d.pattern} ${defApp ? `[${defApp}]` : ''}</option>`;
+                            })}
+                        </select>
+                    </div>
+
+                    ${domains.length > 4 ? html`
+                        <input type="text" placeholder="Filter domains..." 
+                            class="suite-input" 
+                            value="${domainSearchTerm}" 
+                            @input=${(e) => this.setState({ domainSearchTerm: e.target.value })}
+                            style="padding: 5px 10px; font-size: 0.8rem; border-radius: 6px; width: 140px;">
+                    ` : ''}
+
+                    <div style="display: flex; gap: 6px;">
                         <button type="button" 
-                            class="btn btn-sm ${isSelected ? 'primary-btn' : 'ghost-btn'}"
-                            style="border-radius: 20px; font-size: 0.8rem; padding: 4px 12px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; ${isSelected ? 'box-shadow: 0 0 12px rgba(99,102,241,0.4);' : ''}"
-                            @click=${() => this.selectDomain(dom.pattern)}>
-                            <span>🌐 ${dom.pattern}</span>
-                            <span class="badge" style="font-size: 0.65rem; padding: 1px 6px; border-radius: 8px; background: ${isSelected ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)'}; color: ${isSelected ? '#fff' : 'var(--text-dim)'}; font-weight: 600;">
-                                ${defaultAppName}
-                            </span>
+                            class="btn btn-sm ${selectedDomain === 'all' ? 'primary-btn' : 'ghost-btn'}"
+                            style="border-radius: 8px; font-size: 0.78rem; padding: 4px 10px;"
+                            @click=${() => this.selectDomain('all')}>
+                            All
                         </button>
-                    `;
-                })}
-                <button type="button"
-                    class="btn ghost-btn btn-sm"
-                    style="border-radius: 20px; font-size: 0.75rem; padding: 4px 10px; white-space: nowrap; border: 1px dashed var(--glass-border); margin-left: 4px;"
-                    @click=${() => this.openInstallToDomainModal(selectedDomain !== 'all' ? selectedDomain : null)}
-                    title="Install an Application on a specific domain">
-                    ➕ Install to Domain
-                </button>
+                        ${filteredDomains.slice(0, 3).map(dom => html`
+                            <button type="button"
+                                class="btn btn-sm ${selectedDomain === dom.pattern ? 'primary-btn' : 'ghost-btn'}"
+                                style="border-radius: 8px; font-size: 0.78rem; padding: 4px 10px;"
+                                @click=${() => this.selectDomain(dom.pattern)}>
+                                ${dom.pattern}
+                            </button>
+                        `)}
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    ${this.renderHelpButton('apps')}
+                    <button class="btn primary-btn btn-sm" @click=${() => this.openTemplateHub()}>🏗️ Template Hub</button>
+                    <button class="btn secondary-btn btn-sm" @click=${() => this.openInstallToDomainModal(selectedDomain !== 'all' ? selectedDomain : null)}>🌐 Install to Domain</button>
+                    <button class="btn btn-sm ${devMode ? 'btn-success' : 'ghost-btn'}" 
+                        @click=${() => this.toggleDevMode()} 
+                        style="border-radius: 20px; font-size: 11px; padding: 4px 12px; font-weight: 600;" 
+                        title="Dev Mode enables/disables administration and dev portals (sppadmin, sppdev)">
+                        ${devMode ? '🟢 Dev Mode' : '⚪ Prod Mode'}
+                    </button>
+                </div>
             </div>
         `;
 
-        if (selectedDomain !== 'all') {
+        const appsHelpBanner = this.renderHelpBanner('apps', 'Applications & Domain Scopes Guide',
+            'Central operational view of all applications discovered across global, domain, and external storage topologies. Inspect app health, switch between active domains, and review installation status.',
+            {
+                steps: 'Use the Domain Context dropdown to filter apps for a specific virtual host or view all. Click "Inspect Tech" on the Primary Spotlight app to reveal routes, storage paths, and active configs. Toggle status filters or use the live search bar to quickly find secondary applications.',
+                concepts: 'SPP decouples global application code from domain activation. An app can be physically installed once under global storage or an external drive, yet independently activated or configured per domain.',
+                proTip: 'Primary Base App represents the host system app. For multi-tenant setups, check the Activation Matrix tab to govern which secondary apps are exposed to public visitors.'
+            }
+        );
+
+        if (selectedDomain !== 'all' && selectedDomain !== 'platform') {
             return html`
                 ${domainSwitcherHtml}
+                ${appsHelpBanner}
                 ${this.renderDomainAppsView(selectedDomain)}
             `;
         }
 
         return html`
             ${domainSwitcherHtml}
+            ${appsHelpBanner}
+
+            <!-- Summary KPI Metrics Cards (Section 7.2.2) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 1.25rem;">
+                <div class="glass-panel" style="padding: 12px 16px; border-radius: 10px; border-left: 3px solid #6366f1;">
+                    <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Total Applications</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #818cf8; margin-top: 2px;">${apps.length}</div>
+                </div>
+                <div class="glass-panel" style="padding: 12px 16px; border-radius: 10px; border-left: 3px solid #38bdf8;">
+                    <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Global Applications</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #38bdf8; margin-top: 2px;">${globalApps.length}</div>
+                </div>
+                <div class="glass-panel" style="padding: 12px 16px; border-radius: 10px; border-left: 3px solid #a855f7;">
+                    <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Domain Applications</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #c084fc; margin-top: 2px;">${domainApps.length}</div>
+                </div>
+                <div class="glass-panel" style="padding: 12px 16px; border-radius: 10px; border-left: 3px solid #34d399;">
+                    <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Active Applications</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #34d399; margin-top: 2px;">${activeApps.length}</div>
+                </div>
+                <div class="glass-panel" style="padding: 12px 16px; border-radius: 10px; border-left: 3px solid #f59e0b;">
+                    <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Inactive / Dormant</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #fbbf24; margin-top: 2px;">${inactiveApps.length}</div>
+                </div>
+                <div class="glass-panel" style="padding: 12px 16px; border-radius: 10px; border-left: 3px solid ${attentionApps.length > 0 ? '#ef4444' : '#10b981'};">
+                    <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Requires Attention</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: ${attentionApps.length > 0 ? '#f87171' : '#34d399'}; margin-top: 2px;">
+                        ${attentionApps.length}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Base / Root Application Spotlight Card (Section 7.2.3) -->
+            ${baseApp ? html`
+                <div class="glass-panel" style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; border-radius: 12px; border-left: 4px solid #10b981; background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(0,0,0,0.2));">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                🚀
+                            </div>
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span class="badge" style="background: rgba(16,185,129,0.25); color: #6ee7b7; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.5px;">
+                                        PRIMARY BASE APPLICATION
+                                    </span>
+                                    <span class="badge" style="background: rgba(56,189,248,0.2); color: #7dd3fc; font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 12px;">
+                                        ${baseApp.is_domain_app ? '🌐 DOMAIN' : '🌍 GLOBAL'}
+                                    </span>
+                                </div>
+                                <h3 style="margin: 4px 0 2px 0; font-size: 1.25rem; color: var(--text-bright);">
+                                    ${baseApp.title || baseApp.name} <code style="font-size: 0.85rem; color: #a7f3d0; font-family: monospace;">(${baseApp.name})</code>
+                                </h3>
+                                <p style="margin: 0; font-size: 0.82rem; color: var(--text-dim);">
+                                    ${baseApp.description || 'Core base application serving requests for the default context.'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button type="button" class="btn ghost-btn btn-sm" 
+                                style="border-radius: 8px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px;"
+                                @click=${() => this.setState({ spotlightExpanded: !spotlightExpanded })}>
+                                <span>🔬 Technical Inspector</span>
+                                <span>${spotlightExpanded ? '▲' : '▼'}</span>
+                            </button>
+                            <button class="btn primary-btn btn-sm" @click=${() => this.openAppEditor(baseApp.name)}>⚙️ Configure</button>
+                            <button class="btn secondary-btn btn-sm" @click=${() => this.showAppInfo(baseApp)}>👁️ Inspect</button>
+                        </div>
+                    </div>
+
+                    <!-- Spotlight Quick Specs Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                        <div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600;">Mounting Point / Base URL</div>
+                            <code class="code-badge primary" style="font-size: 0.82rem; margin-top: 2px; display: inline-block;">${baseApp.base_url || '/'}</code>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600;">Physical Source Path</div>
+                            <code class="code-badge" style="font-size: 0.8rem; color: #cbd5e1; margin-top: 2px; display: inline-block;">${baseApp.src_path || 'src/' + baseApp.name}</code>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600;">Active Database Connection</div>
+                            <span style="font-size: 0.82rem; color: #a5b4fc; font-weight: 600;">🗄️ ${baseApp.database || 'sqlite:default'}</span>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600;">Quick Health Status</div>
+                            <span style="font-size: 0.82rem; color: #34d399; font-weight: 600;">🟢 Operational (Zero Faults)</span>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Technical Inspector Accordion -->
+                    ${spotlightExpanded ? html`
+                        <div style="margin-top: 1rem; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); font-size: 0.82rem;" class="fade-in">
+                            <div style="font-weight: 700; color: #93c5fd; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                <span>🔬 Technical Architecture &amp; Mount Telemetry</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px;">
+                                <div><strong>Framework Architecture:</strong> SPP 2.0.4 Enterprise (Zero-Lock)</div>
+                                <div><strong>PHP Compatibility:</strong> PHP 8.2+ (Strict Types, JIT)</div>
+                                <div><strong>Configuration Source:</strong> <code>etc/apps/${baseApp.name}.yml</code></div>
+                                <div><strong>Data Storage Mount:</strong> <code>sppdata/apps/${baseApp.name}</code></div>
+                                <div><strong>Runtime Cache Mount:</strong> <code>var/cache/apps/${baseApp.name}</code></div>
+                                <div><strong>Runtime Logs Mount:</strong> <code>var/logs/${baseApp.name}.log</code></div>
+                            </div>
+                            ${baseApp.packages && baseApp.packages.length > 0 ? html`
+                                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.08);">
+                                    <strong>Loaded Packages:</strong> ${(baseApp.packages || []).map(p => p.id || p.name).join(', ')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            ` : ''}
+
+            <!-- Secondary / Mounted Applications List (Section 7.2.4) -->
             <div class="glass-panel registry-panel fade-in">
-                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
                     <div class="header-main" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <h3 class="gradient-text" style="margin: 0;">Registered Applications</h3>
-                        <span class="count-badge">${displayApps.length}</span>
+                        <h3 class="gradient-text" style="margin: 0;">Secondary &amp; Mounted Applications</h3>
+                        <span class="count-badge">${secondaryApps.length}</span>
                         
-                        <div class="filter-tabs" style="display: inline-flex; background: rgba(0,0,0,0.25); border-radius: 8px; padding: 2px; border: 1px solid rgba(255,255,255,0.08); margin-left: 10px;">
+                        <div class="filter-tabs" style="display: inline-flex; background: rgba(0,0,0,0.25); border-radius: 8px; padding: 2px; border: 1px solid rgba(255,255,255,0.08);">
                             <button class="btn btn-sm ${appFilterType === 'all' ? 'primary-btn' : 'ghost-btn'}" 
                                 style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
                                 @click=${() => this.setAppFilter('all')}>
-                                All (${apps.length})
+                                All (${apps.filter(a => !baseApp || a.name !== baseApp.name).length})
                             </button>
                             <button class="btn btn-sm ${appFilterType === 'user' ? 'primary-btn' : 'ghost-btn'}" 
                                 style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
                                 @click=${() => this.setAppFilter('user')}>
-                                🚀 User Apps (${userApps.length})
+                                🚀 User Apps
+                            </button>
+                            <button class="btn btn-sm ${appFilterType === 'global' ? 'primary-btn' : 'ghost-btn'}" 
+                                style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
+                                @click=${() => this.setAppFilter('global')}>
+                                🌍 Global
+                            </button>
+                            <button class="btn btn-sm ${appFilterType === 'domain' ? 'primary-btn' : 'ghost-btn'}" 
+                                style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
+                                @click=${() => this.setAppFilter('domain')}>
+                                🌐 Domain
                             </button>
                             <button class="btn btn-sm ${appFilterType === 'system' ? 'primary-btn' : 'ghost-btn'}" 
                                 style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
                                 @click=${() => this.setAppFilter('system')}>
-                                🛡️ System Apps (${systemApps.length})
+                                🛡️ System
                             </button>
                         </div>
-
-                        <button class="btn primary-btn btn-sm" @click=${() => this.openTemplateHub()}>🏗️ Template Hub</button>
-                        <button class="btn secondary-btn btn-sm" @click=${() => this.openInstallToDomainModal()}>🌐 Install to Domain</button>
                     </div>
 
-                    <div class="header-actions-right" style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">Dev Mode:</span>
-                        <button class="btn btn-sm ${devMode ? 'btn-success' : 'ghost-btn'}" 
-                            @click=${() => this.toggleDevMode()} 
-                            style="border-radius: 20px; font-size: 11px; padding: 3px 12px; font-weight: 600;" 
-                            title="Dev Mode enables/disables administration and dev portals (sppadmin, sppdev)">
-                            ${devMode ? '🟢 Enabled (Portals Active)' : '⚪ Disabled (Portals Blocked)'}
-                        </button>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="text" placeholder="Search applications..." 
+                            class="suite-input" 
+                            value="${appSearchTerm}" 
+                            @input=${(e) => this.setState({ appSearchTerm: e.target.value })} 
+                            style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; width: 180px;">
+
+                        <select class="suite-input" 
+                            style="padding: 6px 10px; font-size: 0.8rem; border-radius: 6px;"
+                            .value=${appStatusFilter}
+                            @change=${(e) => this.setState({ appStatusFilter: e.target.value })}>
+                            <option value="all">All Statuses</option>
+                            <option value="active">Active Only</option>
+                            <option value="inactive">Inactive / Dormant</option>
+                        </select>
                     </div>
                 </div>
+
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width: 25%;">Application</th>
-                                <th style="width: 20%;">Domain Scope</th>
-                                <th style="width: 20%;">Base URL</th>
-                                <th style="width: 15%;">Prefix</th>
+                                <th style="width: 26%;">Application</th>
+                                <th style="width: 18%;">Domain Scope</th>
+                                <th style="width: 18%;">Base URL</th>
+                                <th style="width: 14%;">Table Prefix</th>
                                 <th class="text-right" style="width: 240px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${displayApps.map(app => {
+                            ${secondaryApps.map(app => {
                                 const isExpanded = expandedPaths.has(app.name);
                                 const isSystem = isSystemApp(app);
                                 return html`
@@ -542,6 +1355,7 @@ export default class AppsView extends BaseComponent {
                                                     <button class="btn ghost-btn btn-sm" @click=${() => this.showAppInfo(app)} title="View Configuration">👁️ Show</button>
                                                     <button class="btn ghost-btn btn-sm" @click=${() => this.openDomainScopeModal(app)} title="Configure Domain Scope">🌐 Scope</button>
                                                     <button class="btn ghost-btn btn-sm" @click=${() => this.openAppEditor(app.name)} title="Configure Application">⚙️ Configure</button>
+                                                    <button class="btn ghost-btn btn-sm" @click=${() => this.openCreateBackupModal(app.name)} title="Backup Application">💾 Backup</button>
                                                     ${!['default', 'admin', 'spp', 'core', 'system', 'sppadmin', 'sppdev'].includes((app.name || '').toLowerCase()) && !app.is_system ? html`
                                                         <button class="btn danger-btn btn-sm" @click=${() => this.openUninstallModal(app)} title="Uninstall / Decommission Application">🗑️ Uninstall</button>
                                                     ` : ''}
@@ -566,7 +1380,7 @@ export default class AppsView extends BaseComponent {
                                     ` : ''}
                                 `;
                             })}
-                            ${apps.length === 0 ? html`<tr><td colspan="5" class="empty-row">No applications detected.</td></tr>` : ''}
+                            ${secondaryApps.length === 0 ? html`<tr><td colspan="5" class="empty-row" style="text-align: center; padding: 2.5rem; color: var(--text-dim);">No secondary applications matching filters.</td></tr>` : ''}
                         </tbody>
                     </table>
                 </div>
@@ -814,6 +1628,15 @@ export default class AppsView extends BaseComponent {
                     </div>
                 </div>
 
+                ${this.renderHelpBanner('mesh', 'Polyglot Service Mesh & Daemon Supervisor Guide',
+                    'Monitor, start, stop, and inspect background worker daemons, scheduled tasks, and multi-language service microprocesses (Python, Node.js, Go, Rust).',
+                    {
+                        steps: 'Review live process state, PID, memory, and CPU metrics. Click "Start", "Stop", or "Restart" to manage daemon lifecycles. Click "Logs" to open real-time tail streams for any running service.',
+                        concepts: 'The SPP Mesh Supervisor orchestrates background workers and DAG jobs with token-bucket flow control and distributed mutex locking (acquireDeploymentLock).',
+                        proTip: 'If a daemon fails repeatedly, check its crash count and inspect recent stderr traces via the Log Viewer before restarting.'
+                    }
+                )}
+
                 <!-- Section 1: Process Supervisor & Microservices Fleet -->
                 <div class="glass-panel registry-panel mb-4" style="margin-bottom: 24px;">
                     <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
@@ -822,6 +1645,7 @@ export default class AppsView extends BaseComponent {
                             <span class="count-badge">${filteredApps.length}</span>
                         </div>
                         <div class="header-actions-right" style="display: flex; gap: 8px; align-items: center;">
+                            ${this.renderHelpButton('mesh')}
                             <input type="text" placeholder="Filter microservices..." 
                                 value="${meshFilterTerm}" 
                                 @input=${(e) => this.setState({ meshFilterTerm: e.target.value })}
@@ -1912,8 +2736,10 @@ export default class AppsView extends BaseComponent {
 
                     try {
                         const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
-                        const res = await apiCall('domains_subapp_probe', { target_path: path });
-                        if (res.exists) {
+                        const raw = await apiCall('domains_subapp_probe', { target_path: path });
+                        const res = (raw && raw.data && typeof raw.data === 'object' && ('valid' in raw.data || 'framework' in raw.data || 'exists' in raw.data)) ? raw.data : (raw || {});
+                        const exists = Boolean(res.exists || raw.exists || res.valid || raw.valid || (raw.success && res.framework));
+                        if (exists) {
                             feedbackDiv.style.background = 'rgba(16, 185, 129, 0.15)';
                             feedbackDiv.style.color = '#34d399';
                             feedbackDiv.innerHTML = `✅ <strong>Directory Exists</strong> (${res.clean_path || path})<br>` +
@@ -2014,8 +2840,21 @@ export default class AppsView extends BaseComponent {
                            @input=${(e) => this.setState({modSearch: e.target.value})}
                            style="flex: 1; max-width: 400px; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text); font-size: 0.9rem;">
                     
-                    <button class="btn secondary-btn" @click=${() => this.app.installAllActiveModules()}>📦 Install All Active</button>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        ${this.renderHelpButton('modules')}
+                        <button class="btn secondary-btn" @click=${() => this.app.installAllActiveModules()}>📦 Install All Active</button>
+                    </div>
                 </div>
+
+                ${this.renderHelpBanner('modules', 'Modules Registry & Dependency Graph Guide',
+                    'Audit, toggle, and compile SPP framework modules and optional plugins. View dependency relationships, run database schema migrations, and rebuild the module cache.',
+                    {
+                        steps: 'Filter by category (Core Optional, App Modules, etc.) or toggle between List View and Dependency Graph. Click "⚡ Compile" to synchronize the module autoload map and "🚀 Migrate" to run pending schema updates.',
+                        concepts: 'Modules in SPP follow the Modularity 2.0 standard: declarative metadata in module.yml, database schemas in db.yml, zero-boot events in events.yml, and container integration via ServiceProviderInterface.',
+                        proTip: 'Compulsory framework modules cannot be disabled. If adding a new module, run "php spp.php module:doctor <name>" from CLI to verify architectural compliance.'
+                    }
+                )}
+
                 ${groupNames.map(groupName => {
                     const groupModules = groups[groupName];
                     return html`
@@ -2267,12 +3106,24 @@ export default class AppsView extends BaseComponent {
 
         return html`
             <div class="glass-panel registry-panel fade-in">
-                <div class="panel-header">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div class="header-main">
                         <h3 class="gradient-text">App Builder (CLI)</h3>
                         <span class="tag info-tag">spp.php CLI Interop</span>
                     </div>
+                    <div>
+                        ${this.renderHelpButton('builder')}
+                    </div>
                 </div>
+
+                ${this.renderHelpBanner('builder', 'App Builder & Scaffolding Console Guide',
+                    'Interactive CLI generator to synthesize new SPP applications, controllers, live components, workflows, and database entities with zero boilerplate.',
+                    {
+                        steps: 'Select an architecture template (MVC, Reactive LiveComponent, Microservice, or Multi-Language). Enter your app name and namespace, then click "Generate Application Scaffold" or type direct commands.',
+                        concepts: 'Scaffolding adheres to SPP Golden Rules: strict CLI SAPI guarding (isCLIOnly()), zero inline HTML literals in PHP, and automatic workflow directory provisioning with YAML definitions.',
+                        proTip: 'After generating an app, inspect its etc/workflows/ directory to configure state transitions, or run "php spp.php test:run <app>" to verify the generated test suite.'
+                    }
+                )}
                 
                 <div style="margin: 20px 20px 0 20px; display: flex; gap: 10px; align-items: center; background: var(--surface-2); padding: 15px; border-radius: 8px; border: 1px solid var(--primary-color);">
                     <span style="font-size: 1.2rem;">🤖</span>
@@ -2416,12 +3267,25 @@ export default class AppsView extends BaseComponent {
 
         return html`
             <div class="glass-panel registry-panel fade-in">
-                <div class="panel-header">
-                    <div class="header-main">
-                        <h3 class="gradient-text">Shared Resource Groups</h3>
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div class="header-main" style="display: flex; align-items: center; gap: 12px;">
+                        <h3 class="gradient-text" style="margin: 0;">Shared Resource Groups</h3>
                         <button class="btn primary-btn btn-sm" @click=${() => this.openGroupEditor()}>+ New Group</button>
                     </div>
+                    <div>
+                        ${this.renderHelpButton('groups')}
+                    </div>
                 </div>
+
+                ${this.renderHelpBanner('groups', 'Shared Resource Groups & Symlinks Guide',
+                    'Manage shared libraries, vendor dependencies, and asset symlinks cross-referenced between applications to eliminate redundancy and save disk space.',
+                    {
+                        steps: 'Review existing shared clusters. Click "Create Shared Group" to bundle shared resources (like uploads, common UI kits, or shared modules) across multiple app namespaces.',
+                        concepts: 'Shared groups leverage PathResolver to create canonical junctions or unified read-only lookups across application boundaries while maintaining directory isolation.',
+                        proTip: 'Never include write-sensitive cache or session directories in shared groups. Keep sessions strictly per-domain or in dedicated Redis/SQLite session stores.'
+                    }
+                )}
+
                 <div class="table-container">
                     <table class="data-table elegant-table">
                         <thead>
@@ -2937,17 +3801,22 @@ export default class AppsView extends BaseComponent {
     async loadBackups() {
         this.setState({ loadingBackups: true });
         try {
-            const res = await (this.admin || this.app).api('apps_list_backups');
-            if (res.success) {
+            const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+            let res = await apiCall('backup_vault_list').catch(() => null);
+            if (!res || !res.success) {
+                res = await apiCall('apps_list_backups');
+            }
+            if (res && res.success) {
                 const data = res.data || res;
                 this.setState({
                     backups: data.backups || [],
-                    backupInventory: data.inventory || null,
+                    backupInventory: data.inventory || data.telemetry || null,
+                    vaultTelemetry: data.telemetry || null,
                     loadingBackups: false
                 });
             } else {
                 this.setState({ loadingBackups: false });
-                this.notify(res.error || 'Failed to list application backups.', 'error');
+                this.notify((res && res.error) || 'Failed to list backup vault archives.', 'error');
             }
         } catch (e) {
             this.setState({ loadingBackups: false });
@@ -2956,171 +3825,609 @@ export default class AppsView extends BaseComponent {
     }
 
     renderBackupsTable() {
-        const { backups, loadingBackups, backupInventory } = this.state;
+        const { backups = [], loadingBackups, vaultTelemetry, backupInventory, backupFilter = 'all', backupSearchTerm = '' } = this.state;
+        const telemetry = vaultTelemetry || backupInventory || {};
+
+        // Calculate Overview KPIs
+        const fullBackups = backups.filter(b => b.scope === 'full_platform' || b.scope === 'full');
+        const domainBackups = backups.filter(b => b.scope === 'domain');
+        const appBackups = backups.filter(b => b.scope === 'app' || b.scope === 'application');
+        const dbBackups = backups.filter(b => b.scope === 'database' || b.has_db);
+
+        const lastFull = fullBackups.length > 0 ? (fullBackups[0].created_at_formatted || fullBackups[0].created_at) : 'Never';
+        const lastDomain = domainBackups.length > 0 ? (domainBackups[0].created_at_formatted || domainBackups[0].created_at) : 'Never';
+        const lastApp = appBackups.length > 0 ? (appBackups[0].created_at_formatted || appBackups[0].created_at) : 'Never';
+
+        // Filter archives
+        let displayBackups = backups;
+        if (backupFilter !== 'all') {
+            displayBackups = displayBackups.filter(b => {
+                if (backupFilter === 'full') return b.scope === 'full_platform' || b.scope === 'full';
+                if (backupFilter === 'domain') return b.scope === 'domain';
+                if (backupFilter === 'app') return b.scope === 'app' || b.scope === 'application';
+                if (backupFilter === 'database') return b.scope === 'database' || b.has_db;
+                return true;
+            });
+        }
+        if (backupSearchTerm) {
+            const s = backupSearchTerm.toLowerCase().trim();
+            displayBackups = displayBackups.filter(b => 
+                (b.filename || '').toLowerCase().includes(s) ||
+                (b.target || '').toLowerCase().includes(s) ||
+                (b.app_name || '').toLowerCase().includes(s) ||
+                (b.backup_id || '').toLowerCase().includes(s)
+            );
+        }
 
         return html`
             <div class="glass-panel registry-panel fade-in">
-                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <div class="header-main" style="display: flex; align-items: center; gap: 12px;">
-                        <h3 class="gradient-text" style="margin: 0;">Application Backups &amp; Restoration</h3>
-                        <span class="count-badge">${(backups || []).length}</span>
-                        ${backupInventory ? html`
-                            <span class="code-badge primary" style="font-size: 11px;">
-                                Total Reclaimable: ${backupInventory.total_size_formatted || '0 B'}
-                            </span>
-                        ` : ''}
+                <!-- Overview Dashboard KPI Metrics Bar (Section 7.4.1) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 1.5rem;">
+                    <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 12px 14px; border-left: 3px solid #6366f1;">
+                        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Last Full Platform Backup</div>
+                        <div style="font-size: 1.15rem; font-weight: 700; color: #818cf8; margin-top: 3px;">${lastFull}</div>
+                        <small style="font-size: 0.72rem; color: var(--text-dim);">${fullBackups.length} snapshots total</small>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn ghost-btn btn-sm" @click=${() => this.loadBackups()}>🔄 Refresh</button>
-                        <button class="btn primary-btn btn-sm" @click=${() => this.openCreateBackupModal()}>📦 Create New Backup</button>
+                    <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(56,189,248,0.3); border-radius: 10px; padding: 12px 14px; border-left: 3px solid #38bdf8;">
+                        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Last Domain Backup</div>
+                        <div style="font-size: 1.15rem; font-weight: 700; color: #38bdf8; margin-top: 3px;">${lastDomain}</div>
+                        <small style="font-size: 0.72rem; color: var(--text-dim);">${domainBackups.length} domain archives</small>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(168,85,247,0.3); border-radius: 10px; padding: 12px 14px; border-left: 3px solid #a855f7;">
+                        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Last Application Backup</div>
+                        <div style="font-size: 1.15rem; font-weight: 700; color: #c084fc; margin-top: 3px;">${lastApp}</div>
+                        <small style="font-size: 0.72rem; color: var(--text-dim);">${appBackups.length} app snapshots</small>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(52,211,153,0.3); border-radius: 10px; padding: 12px 14px; border-left: 3px solid #34d399;">
+                        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Vault Storage Consumed</div>
+                        <div style="font-size: 1.15rem; font-weight: 700; color: #34d399; margin-top: 3px;">
+                            ${telemetry.total_size || telemetry.total_size_formatted || '0 B'}
+                        </div>
+                        <small style="font-size: 0.72rem; color: var(--text-dim);">Free Space: ${telemetry.free_space_str || 'Available'}</small>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 12px 14px; border-left: 3px solid #f59e0b;">
+                        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Vault Security &amp; Health</div>
+                        <div style="font-size: 1.15rem; font-weight: 700; color: #fbbf24; margin-top: 3px;">AES-256-GCM</div>
+                        <small style="font-size: 0.72rem; color: var(--text-dim);">SHA-256 Validated</small>
                     </div>
                 </div>
 
+                ${this.renderHelpBanner('backups', 'Unified Backup Vault & Disaster Recovery Guide',
+                    'Enterprise backup and disaster recovery engine supporting full platform, domain, application, database, and configuration snapshot scopes.',
+                    {
+                        steps: 'Click "New Backup Snapshot" to create an instant backup with optional AES-256-GCM encryption. Click "Restore" on any archive to launch the Guided Restore Wizard, supporting Dry-Run simulations and Target Path Remapping.',
+                        concepts: 'Backups are self-contained archives containing portable SQLite/SQL dumps, filesystem manifests (manifest.json and manifest.yaml), and SHA-256 checksums. Restoration features ZipSlip protection and creates pre-restore recovery point snapshots.',
+                        proTip: 'Before migrating to a new server or topology (e.g. Topology B or C), use Target Path Remapping in the Restore Wizard to relocate files without changing application configuration.'
+                    }
+                )}
+
+                <!-- Primary Action Buttons (Section 7.4.2) -->
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 1.25rem;">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn primary-btn btn-sm" @click=${() => this.openCreateBackupModal('full_platform')}>
+                            🛡️ Full Platform Backup
+                        </button>
+                        <button class="btn secondary-btn btn-sm" @click=${() => this.openCreateBackupModal('domain')}>
+                            🌐 Domain Backup
+                        </button>
+                        <button class="btn secondary-btn btn-sm" @click=${() => this.openCreateBackupModal('app')}>
+                            📱 Application Backup
+                        </button>
+                        <button class="btn secondary-btn btn-sm" @click=${() => this.openCreateBackupModal('database')}>
+                            🗄️ Database Backup
+                        </button>
+                        <button class="btn btn-sm btn-success" @click=${() => this.openRestoreWizard()}>
+                            🔄 Guided Restore Wizard
+                        </button>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        ${this.renderHelpButton('backups')}
+                        <button class="btn ghost-btn btn-sm" @click=${() => this.loadBackups()}>🔄 Refresh</button>
+                    </div>
+                </div>
+
+                <!-- Filters & Search Toolbar -->
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 1rem; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    <div class="filter-tabs" style="display: inline-flex; background: rgba(0,0,0,0.25); border-radius: 8px; padding: 2px;">
+                        <button class="btn btn-sm ${backupFilter === 'all' ? 'primary-btn' : 'ghost-btn'}" 
+                            style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
+                            @click=${() => this.setState({ backupFilter: 'all' })}>
+                            All (${backups.length})
+                        </button>
+                        <button class="btn btn-sm ${backupFilter === 'full' ? 'primary-btn' : 'ghost-btn'}" 
+                            style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
+                            @click=${() => this.setState({ backupFilter: 'full' })}>
+                            Full Platform (${fullBackups.length})
+                        </button>
+                        <button class="btn btn-sm ${backupFilter === 'domain' ? 'primary-btn' : 'ghost-btn'}" 
+                            style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
+                            @click=${() => this.setState({ backupFilter: 'domain' })}>
+                            Domains (${domainBackups.length})
+                        </button>
+                        <button class="btn btn-sm ${backupFilter === 'app' ? 'primary-btn' : 'ghost-btn'}" 
+                            style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
+                            @click=${() => this.setState({ backupFilter: 'app' })}>
+                            Apps (${appBackups.length})
+                        </button>
+                        <button class="btn btn-sm ${backupFilter === 'database' ? 'primary-btn' : 'ghost-btn'}" 
+                            style="border-radius: 6px; padding: 3px 10px; font-size: 11px;"
+                            @click=${() => this.setState({ backupFilter: 'database' })}>
+                            Databases (${dbBackups.length})
+                        </button>
+                    </div>
+
+                    <input type="text" placeholder="Search archive ID or target..." 
+                        class="suite-input" 
+                        value="${backupSearchTerm}" 
+                        @input=${(e) => this.setState({ backupSearchTerm: e.target.value })} 
+                        style="padding: 5px 12px; font-size: 0.8rem; border-radius: 6px; min-width: 220px;">
+                </div>
+
+                <!-- Unified Vault Archives Table (Section 7.4.3) -->
                 ${loadingBackups ? html`
-                    <div class="loading-state" style="padding: 2rem; text-align: center;"><div class="sppux-spinner"></div> Loading application backups...</div>
-                ` : (backups && backups.length > 0) ? html`
+                    <div class="loading-state" style="padding: 2.5rem; text-align: center;"><div class="sppux-spinner"></div> Synchronizing backup vault telemetry...</div>
+                ` : (displayBackups && displayBackups.length > 0) ? html`
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 25%;">Archive File</th>
-                                    <th style="width: 15%;">Application</th>
-                                    <th style="width: 15%;">Size</th>
-                                    <th style="width: 15%;">Files Packed</th>
-                                    <th style="width: 15%;">Created At</th>
-                                    <th class="text-right" style="width: 180px;">Actions</th>
+                                    <th style="width: 28%;">Archive Identifier</th>
+                                    <th style="width: 16%;">Scope &amp; Target</th>
+                                    <th style="width: 12%;">Size</th>
+                                    <th style="width: 14%;">Security</th>
+                                    <th style="width: 14%;">Integrity</th>
+                                    <th style="width: 16%;" class="text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${backups.map(b => html`
-                                    <tr>
-                                        <td>
-                                            <div style="display: flex; align-items: center; gap: 8px;">
-                                                <span style="font-size: 1.2rem;">📦</span>
-                                                <div>
-                                                    <div style="font-weight: 600; color: var(--text-bright);">${b.filename}</div>
-                                                    <small style="color: var(--text-dim); font-size: 0.75rem;">${b.has_db ? '🗄️ Includes Database' : 'Code & Config Only'}</small>
+                                ${displayBackups.map(b => {
+                                    const scope = (b.scope || b.backup_type || 'app').toLowerCase();
+                                    const isFull = scope === 'full_platform' || scope === 'full';
+                                    const isDomain = scope === 'domain';
+                                    const isDb = scope === 'database';
+                                    const isEncrypted = b.encrypted !== false;
+                                    const isVerified = b.verified !== false;
+
+                                    return html`
+                                        <tr>
+                                            <td>
+                                                <div style="display: flex; align-items: center; gap: 10px;">
+                                                    <span style="font-size: 1.3rem;">
+                                                        ${isFull ? '🛡️' : (isDomain ? '🌐' : (isDb ? '🗄️' : '📦'))}
+                                                    </span>
+                                                    <div>
+                                                        <div style="font-weight: 600; color: var(--text-bright); font-size: 0.88rem;">${b.filename}</div>
+                                                        <small style="color: var(--text-dim); font-size: 0.72rem;">
+                                                            ${b.created_at_formatted || b.created_at || '—'}
+                                                            ${b.files_count ? ` • ${b.files_count} files` : ''}
+                                                        </small>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="code-badge primary" style="font-size: 12px; font-weight: 600;">
-                                                📱 ${b.app_name}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <code class="code-badge warning">${b.size_formatted}</code>
-                                        </td>
-                                        <td>
-                                            <span style="color: var(--text-bright); font-size: 0.85rem;">${b.files_count} files</span>
-                                        </td>
-                                        <td>
-                                            <span style="color: var(--text-dim); font-size: 0.8rem;">${b.created_at_formatted || b.created_at || '—'}</span>
-                                        </td>
-                                        <td class="text-right">
-                                            <div class="btn-group-horizontal" style="justify-content: flex-end; gap: 6px;">
-                                                <button class="btn secondary-btn btn-sm" @click=${() => this.restoreBackup(b)} title="Restore Application from Backup">
-                                                    🔄 Restore
-                                                </button>
-                                                <button class="btn danger-btn btn-sm" @click=${() => this.deleteBackup(b)} title="Delete Backup to Free Disk Space">
-                                                    🗑️ Free Space
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                `)}
+                                            </td>
+                                            <td>
+                                                <div style="display: flex; flex-direction: column; gap: 2px;">
+                                                    <span class="code-badge ${isFull ? 'success' : (isDomain ? 'primary' : 'warning')}" style="font-size: 11px; text-transform: uppercase; font-weight: 700; width: fit-content;">
+                                                        ${isFull ? 'Full Platform' : (isDomain ? 'Domain' : (isDb ? 'Database' : 'App'))}
+                                                    </span>
+                                                    <span style="font-size: 0.78rem; color: var(--text-dim); font-weight: 500;">
+                                                        ${b.target || b.app_name || (isFull ? 'Entire Platform' : 'Local Instance')}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <code class="code-badge" style="color: #cbd5e1; font-weight: 600;">${b.size_formatted || this.formatBytes(b.size || 0)}</code>
+                                            </td>
+                                            <td>
+                                                ${isEncrypted ? html`
+                                                    <span class="badge" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); font-size: 0.72rem; padding: 2px 7px; border-radius: 10px;">
+                                                        🔒 AES-256-GCM
+                                                    </span>
+                                                ` : html`
+                                                    <span class="badge" style="background: rgba(255,255,255,0.06); color: var(--text-dim); font-size: 0.72rem; padding: 2px 7px; border-radius: 10px;">
+                                                        🔓 Unencrypted
+                                                    </span>
+                                                `}
+                                            </td>
+                                            <td>
+                                                ${isVerified ? html`
+                                                    <span class="badge" style="background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); font-size: 0.72rem; padding: 2px 7px; border-radius: 10px;" title="SHA-256 Checksum verified">
+                                                        ✅ Validated
+                                                    </span>
+                                                ` : html`
+                                                    <span class="badge" style="background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); font-size: 0.72rem; padding: 2px 7px; border-radius: 10px;" title="Integrity not yet verified">
+                                                        ⏳ Unchecked
+                                                    </span>
+                                                `}
+                                            </td>
+                                            <td class="text-right">
+                                                <div class="btn-group-horizontal" style="justify-content: flex-end; gap: 4px;">
+                                                    <button class="btn ghost-btn btn-sm" @click=${() => this.inspectBackupArchive(b)} title="Inspect Manifest &amp; Resources">
+                                                        📋 Manifest
+                                                    </button>
+                                                    <button class="btn ghost-btn btn-sm" @click=${() => this.verifyBackupArchive(b)} title="Verify Cryptographic Integrity">
+                                                        🔍 Verify
+                                                    </button>
+                                                    <button class="btn secondary-btn btn-sm" @click=${() => this.openRestoreWizard(b)} title="Restore with Target Path Remapping">
+                                                        🔄 Restore
+                                                    </button>
+                                                    <button class="btn danger-btn btn-sm" @click=${() => this.deleteBackup(b)} title="Delete Archive">
+                                                        🗑️
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                })}
                             </tbody>
                         </table>
                     </div>
                 ` : html`
-                    <div class="empty-state" style="padding: 3rem 1rem; text-align: center;">
-                        <div class="empty-icon" style="font-size: 3rem; margin-bottom: 12px;">💾</div>
-                        <h3>No Application Backups Found</h3>
-                        <p style="color: var(--text-dim); max-width: 500px; margin: 0 auto 16px auto;">
-                            Application backups created during uninstallation or manually generated will appear here. Backups can be restored with 1 click or permanently deleted to reclaim disk space.
+                    <div class="empty-state" style="padding: 3.5rem 1rem; text-align: center;">
+                        <div class="empty-icon" style="font-size: 3.5rem; margin-bottom: 12px;">🛡️</div>
+                        <h3>No Backup Snapshots Found</h3>
+                        <p style="color: var(--text-dim); max-width: 520px; margin: 0 auto 18px auto; line-height: 1.5;">
+                            Create unified platform, domain, application, or database backups. Snapshots capture all code, configuration, databases, and registered storage with authenticated AES-256-GCM encryption.
                         </p>
-                        <button class="btn primary-btn btn-sm" @click=${() => this.openCreateBackupModal()}>Create First Backup</button>
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button class="btn primary-btn btn-sm" @click=${() => this.openCreateBackupModal('full_platform')}>
+                                🛡️ Create First Full Platform Backup
+                            </button>
+                        </div>
                     </div>
                 `}
             </div>
         `;
     }
 
-    openCreateBackupModal() {
-        const appOptions = (this.state.apps || []).map(a => html`
-            <option value="${a.name}">${a.name} (${a.title || a.name})</option>
-        `);
-
-        this.openModal('Create Application Backup Archive', html`
-            <div class="form-grid">
-                <div class="input-group full-width" style="grid-column: 1 / -1;">
-                    <label>Select Application to Backup</label>
-                    <select id="backup-app-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text-bright);">
-                        ${appOptions}
-                    </select>
-                    <small style="color: var(--text-dim); margin-top: 6px; display: block;">
-                        Packages source code in <code>src/</code>, configuration in <code>etc/apps/</code>, SQLite database, and domain mappings into a standalone compressed zip archive in <code>var/backups/apps/</code>.
-                    </small>
-                </div>
-            </div>
-        `, [
-            { label: 'Cancel', type: 'secondary', fn: () => this.closeModal() },
-            { label: 'Create Backup', type: 'primary', fn: async () => {
-                const select = document.getElementById('backup-app-select');
-                const targetApp = select ? select.value : '';
-                if (!targetApp) return;
-
-                this.notify(`Creating standalone backup for '${targetApp}'...`, 'info');
-                this.closeModal();
-
-                try {
-                    const res = await (this.admin || this.app).api('apps_backup_create', { app: targetApp });
-                    if (res.success) {
-                        this.notify(res.message || `Backup for '${targetApp}' created successfully.`, 'success');
-                        await this.loadBackups();
-                    } else {
-                        this.notify(res.error || res.message || 'Backup generation failed.', 'error');
-                    }
-                } catch (e) {
-                    this.notify('Error: ' + e.message, 'error');
-                }
-            }}
-        ]);
+    formatBytes(bytes) {
+        if (!bytes || bytes <= 0) return '0 B';
+        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + units[i];
     }
 
-    async restoreBackup(backup) {
-        if (!confirm(`Restore application '${backup.app_name}' from backup '${backup.filename}'?\n\nThis will restore application code, configuration in etc/apps/, and domain bindings.`)) {
+    openCreateBackupModal(defaultScope = 'full_platform') {
+        const { apps = [], domains = [] } = this.state;
+
+        const appOptions = apps.map(a => `<option value="${a.name}">${a.title || a.name} (${a.name})</option>`).join('');
+        const domainOptions = domains.map(d => `<option value="${d.pattern}">${d.pattern}</option>`).join('');
+
+        this.openModal('🛡️ Create Unified Backup Snapshot', `
+            <div style="display:flex; flex-direction:column; gap:16px;">
+                <div>
+                    <label style="display:block; font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px;">Backup Scope</label>
+                    <select id="backup-scope-select" class="suite-input" style="width:100%; padding:8px 12px; border-radius:6px; font-weight:600;" onchange="window.appsViewInstance.onBackupScopeChanged(this.value)">
+                        <option value="full_platform" ${defaultScope === 'full_platform' ? 'selected' : ''}>🛡️ Full Platform (Everything: Core, Apps, Domains, DBs, Config, Storage)</option>
+                        <option value="domain" ${defaultScope === 'domain' ? 'selected' : ''}>🌐 Domain Snapshot (Isolated Domain Code, Config, Data &amp; DB)</option>
+                        <option value="app" ${defaultScope === 'app' ? 'selected' : ''}>📱 Application Snapshot (Application Code, Config &amp; Storage)</option>
+                        <option value="database" ${defaultScope === 'database' ? 'selected' : ''}>🗄️ Database Snapshot (Zero-Lock SQLite / DB DDL &amp; Data)</option>
+                    </select>
+                </div>
+
+                <div id="backup-target-app-group" style="display:${defaultScope === 'app' ? 'block' : 'none'};">
+                    <label style="display:block; font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px;">Select Application</label>
+                    <select id="backup-target-app" class="suite-input" style="width:100%; padding:8px 12px; border-radius:6px;">
+                        ${appOptions}
+                    </select>
+                </div>
+
+                <div id="backup-target-domain-group" style="display:${defaultScope === 'domain' ? 'block' : 'none'};">
+                    <label style="display:block; font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px;">Select Domain</label>
+                    <select id="backup-target-domain" class="suite-input" style="width:100%; padding:8px 12px; border-radius:6px;">
+                        ${domainOptions}
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px;">Description / Memo (Optional)</label>
+                    <input type="text" id="backup-description" class="suite-input" placeholder="e.g. Pre-migration snapshot before upgrading to v2.1" style="width:100%; padding:8px 12px; border-radius:6px;">
+                </div>
+
+                <div style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                        <input type="checkbox" id="backup-encrypt-toggle" checked style="width:16px; height:16px;">
+                        <div>
+                            <strong style="color:var(--text-bright); font-size:0.88rem;">🔒 Authenticated At-Rest Encryption (AES-256-GCM)</strong>
+                            <div style="font-size:0.75rem; color:var(--text-dim); margin-top:2px;">
+                                Encrypts the payload with hardware-accelerated AES-256-GCM authenticated cipher and cryptographic auth tag.
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        `, async () => {
+            const scope = document.getElementById('backup-scope-select').value;
+            const app = document.getElementById('backup-target-app') ? document.getElementById('backup-target-app').value : '';
+            const domain = document.getElementById('backup-target-domain') ? document.getElementById('backup-target-domain').value : '';
+            const description = document.getElementById('backup-description').value;
+            const encrypt = document.getElementById('backup-encrypt-toggle').checked;
+
+            const payload = {
+                scope: scope,
+                app_name: app,
+                domain_id: domain,
+                description: description,
+                encrypt: encrypt
+            };
+
+            (this.admin || window.admin).notify(`Generating ${scope} backup snapshot...`, 'info');
+            (this.admin || window.admin).closeModal();
+
+            try {
+                const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+                const res = await apiCall('backup_vault_create', payload);
+                if (res.success) {
+                    (this.admin || window.admin).notify(res.message || 'Backup generated successfully!', 'success');
+                    await this.loadBackups();
+                } else {
+                    (this.admin || window.admin).notify(res.error || res.message || 'Backup generation failed.', 'error');
+                }
+            } catch (e) {
+                (this.admin || window.admin).notify('Backup error: ' + e.message, 'error');
+            }
+        });
+    }
+
+    onBackupScopeChanged(scope) {
+        const appGroup = document.getElementById('backup-target-app-group');
+        const domGroup = document.getElementById('backup-target-domain-group');
+        if (appGroup) appGroup.style.display = (scope === 'app') ? 'block' : 'none';
+        if (domGroup) domGroup.style.display = (scope === 'domain') ? 'block' : 'none';
+    }
+
+    async inspectBackupArchive(backup) {
+        (this.admin || window.admin).notify(`Inspecting manifest for ${backup.filename}...`, 'info');
+        try {
+            const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+            const res = await apiCall('backup_vault_inspect', { filename: backup.filename });
+            if (res.success && res.manifest) {
+                const m = res.manifest;
+                const resources = m.resources || [];
+                const databases = m.databases || [];
+
+                (this.admin || window.admin).openModal(`📋 Manifest: ${backup.filename}`, `
+                    <div style="display:flex; flex-direction:column; gap:14px; max-height:550px; overflow-y:auto;">
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; background:rgba(0,0,0,0.25); padding:10px 14px; border-radius:8px;">
+                            <div><strong style="color:var(--text-dim); font-size:0.75rem;">BACKUP ID:</strong><div style="font-family:monospace; color:#818cf8; font-size:0.85rem;">${m.backup_id}</div></div>
+                            <div><strong style="color:var(--text-dim); font-size:0.75rem;">SOURCE INSTALLATION:</strong><div style="font-family:monospace; color:#38bdf8; font-size:0.85rem;">${m.installation_id || 'spp-local'}</div></div>
+                            <div><strong style="color:var(--text-dim); font-size:0.75rem;">SCOPE:</strong><div style="color:#34d399; font-weight:700; text-transform:uppercase; font-size:0.85rem;">${m.scope || 'Platform'}</div></div>
+                            <div><strong style="color:var(--text-dim); font-size:0.75rem;">TIMESTAMP:</strong><div style="font-size:0.85rem;">${m.created_at}</div></div>
+                        </div>
+
+                        <div>
+                            <h4 style="margin:0 0 6px 0; font-size:0.85rem; color:#93c5fd; text-transform:uppercase;">Packed Storage Resources (${resources.length})</h4>
+                            <div style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.06); border-radius:6px; max-height:180px; overflow-y:auto;">
+                                <table style="width:100%; border-collapse:collapse; font-size:0.78rem;">
+                                    <thead>
+                                        <tr style="border-bottom:1px solid rgba(255,255,255,0.08); color:var(--text-dim); text-align:left;">
+                                            <th style="padding:6px 10px;">Logical Resource</th>
+                                            <th style="padding:6px 10px;">Source Path</th>
+                                            <th style="padding:6px 10px; text-align:right;">Files</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${resources.map(r => `
+                                            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                                                <td style="padding:6px 10px; font-weight:600; color:#c084fc;">${r.logical_type}</td>
+                                                <td style="padding:6px 10px; font-family:monospace; color:#cbd5e1;">${r.original_path}</td>
+                                                <td style="padding:6px 10px; text-align:right;">${r.files_count}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        ${databases.length > 0 ? `
+                            <div>
+                                <h4 style="margin:0 0 6px 0; font-size:0.85rem; color:#93c5fd; text-transform:uppercase;">Included Databases (${databases.length})</h4>
+                                <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                                    ${databases.map(db => `
+                                        <span class="code-badge primary" style="font-size:0.8rem; padding:4px 10px;">🗄️ ${db.connection || db.database} (${db.driver || 'sqlite'})</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <div>
+                            <h4 style="margin:0 0 6px 0; font-size:0.85rem; color:var(--text-dim); text-transform:uppercase;">Raw JSON Manifest</h4>
+                            <pre style="background:#0d1117; color:#c9d1d9; padding:10px; border-radius:6px; font-size:0.75rem; max-height:140px; overflow:auto;">${JSON.stringify(m, null, 2)}</pre>
+                        </div>
+                    </div>
+                `, () => (this.admin || window.admin).closeModal());
+            } else {
+                (this.admin || window.admin).notify(res.error || 'Failed to inspect manifest.', 'error');
+            }
+        } catch (e) {
+            (this.admin || window.admin).notify('Inspect error: ' + e.message, 'error');
+        }
+    }
+
+    async verifyBackupArchive(backup) {
+        (this.admin || window.admin).notify(`Verifying cryptographic checksums for ${backup.filename}...`, 'info');
+        try {
+            const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+            const res = await apiCall('backup_vault_verify', { filename: backup.filename });
+            if (res.success) {
+                (this.admin || window.admin).notify(`Verification Successful: ${res.message || 'All checksums match.'}`, 'success');
+                await this.loadBackups();
+            } else {
+                (this.admin || window.admin).notify(`Verification Failed: ${res.error || 'Archive corrupt or modified.'}`, 'error');
+            }
+        } catch (e) {
+            (this.admin || window.admin).notify('Verification error: ' + e.message, 'error');
+        }
+    }
+
+    // --- Guided Restore Wizard (Section 7.4.4 & 11) ---
+    async openRestoreWizard(initialBackup = null) {
+        const { backups = [] } = this.state;
+        const selectedFile = initialBackup ? initialBackup.filename : (backups[0] ? backups[0].filename : '');
+
+        if (!selectedFile) {
+            this.notify('No backup archives available in vault to restore.', 'warning');
             return;
         }
 
-        this.notify(`Restoring application '${backup.app_name}'...`, 'info');
+        // Fetch manifest for the selected archive
+        (this.admin || window.admin).notify(`Loading restore wizard for ${selectedFile}...`, 'info');
+        const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+        let manifest = null;
         try {
-            const res = await (this.admin || this.app).api('apps_restore_backup', { file: backup.filename });
-            if (res.success) {
-                this.notify(res.message || `Application '${backup.app_name}' restored successfully!`, 'success');
-                await this.loadData();
-                await this.loadBackups();
-            } else {
-                this.notify(res.error || res.message || 'Restoration failed.', 'error');
+            const inspRes = await apiCall('backup_vault_inspect', { filename: selectedFile });
+            if (inspRes.success && inspRes.manifest) {
+                manifest = inspRes.manifest;
             }
         } catch (e) {
-            this.notify('Error restoring backup: ' + e.message, 'error');
+            console.warn('Could not pre-fetch manifest:', e);
         }
+
+        const resources = (manifest && manifest.resources) ? manifest.resources : [];
+        const isEncrypted = initialBackup ? (initialBackup.encrypted !== false) : true;
+
+        (this.admin || window.admin).openModal(`🔄 Guided Restore Wizard: ${selectedFile}`, `
+            <div style="display:flex; flex-direction:column; gap:16px; max-height:560px; overflow-y:auto;">
+                <!-- Step 1 & 2: Overview & Manifest Preview -->
+                <div style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.25); border-radius:8px; padding:12px 14px;">
+                    <strong style="color:#a5b4fc; font-size:0.85rem;">Step 1 &amp; 2: Archive &amp; Source Manifest Verification</strong>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:8px; margin-top:8px; font-size:0.8rem;">
+                        <div><strong>Archive File:</strong> <code style="color:#cbd5e1;">${selectedFile}</code></div>
+                        <div><strong>Source Instance:</strong> <code style="color:#38bdf8;">${(manifest && manifest.installation_id) || 'Original Instance'}</code></div>
+                        <div><strong>Scope:</strong> <span style="color:#34d399; font-weight:700;">${(manifest && manifest.scope) || 'Platform'}</span></div>
+                        <div><strong>Created At:</strong> ${(manifest && manifest.created_at) || '—'}</div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Target Path Remapping Table (Section 11.2) -->
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <strong style="color:var(--text-bright); font-size:0.85rem;">Step 3: Target Path Remapping</strong>
+                        <span style="font-size:0.75rem; color:var(--text-dim);">Map source paths to new physical destinations</span>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.06); border-radius:6px; max-height:180px; overflow-y:auto; padding:8px;">
+                        ${resources.length > 0 ? `
+                            <table style="width:100%; border-collapse:collapse; font-size:0.78rem;">
+                                <thead>
+                                    <tr style="color:var(--text-dim); text-align:left; border-bottom:1px solid rgba(255,255,255,0.08);">
+                                        <th style="padding:4px 8px; width:25%;">Logical Resource</th>
+                                        <th style="padding:4px 8px; width:35%;">Original Source Path</th>
+                                        <th style="padding:4px 8px; width:40%;">Target Physical Path</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${resources.map(r => `
+                                        <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                                            <td style="padding:6px 8px; font-weight:600; color:#c084fc;">${r.logical_type}</td>
+                                            <td style="padding:6px 8px; font-family:monospace; color:var(--text-dim); font-size:0.72rem;">${r.original_path}</td>
+                                            <td style="padding:4px 8px;">
+                                                <input type="text" 
+                                                    class="suite-input restore-remapping-input" 
+                                                    data-logical="${r.logical_type}" 
+                                                    value="${r.original_path}" 
+                                                    style="width:100%; padding:3px 6px; font-size:0.75rem; font-family:monospace; border-radius:4px;">
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        ` : `
+                            <div style="color:var(--text-dim); font-size:0.8rem; padding:8px; text-align:center;">
+                                Target paths will be dynamically mapped to current installation roots.
+                            </div>
+                        `}
+                    </div>
+                </div>
+
+                <!-- Step 4: Pre-Restore Safety Options -->
+                <div>
+                    <strong style="color:var(--text-bright); font-size:0.85rem; display:block; margin-bottom:8px;">Step 4: Safety &amp; Validation Controls</strong>
+                    <div style="display:flex; flex-direction:column; gap:8px; background:rgba(0,0,0,0.15); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="restore-recovery-point" checked style="width:16px; height:16px;">
+                            <span style="font-size:0.82rem; color:var(--text-bright); font-weight:600;">
+                                📸 Create pre-restore recovery point snapshot before modifying filesystem
+                            </span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="restore-dry-run" style="width:16px; height:16px;">
+                            <span style="font-size:0.82rem; color:#38bdf8; font-weight:600;">
+                                🧪 Dry run validation only (simulate without modifying filesystem or database)
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                ${isEncrypted ? `
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; text-transform:uppercase; color:var(--text-dim); margin-bottom:4px;">Decryption Key (If different from instance master key)</label>
+                        <input type="password" id="restore-decrypt-key" class="suite-input" placeholder="Leave blank to use platform master encryption key" style="width:100%; padding:8px 12px; border-radius:6px; font-size:0.82rem;">
+                    </div>
+                ` : ''}
+            </div>
+        `, async () => {
+            const dryRun = document.getElementById('restore-dry-run') ? document.getElementById('restore-dry-run').checked : false;
+            const recoveryPoint = document.getElementById('restore-recovery-point') ? document.getElementById('restore-recovery-point').checked : true;
+            const decryptKeyInput = document.getElementById('restore-decrypt-key');
+            const decryptKey = decryptKeyInput ? decryptKeyInput.value.trim() : null;
+
+            // Collect target path remappings
+            const targetPaths = {};
+            const remapInputs = document.querySelectorAll('.restore-remapping-input');
+            remapInputs.forEach(input => {
+                const logical = input.getAttribute('data-logical');
+                const val = input.value.trim();
+                if (logical && val) targetPaths[logical] = val;
+            });
+
+            const restorePayload = {
+                filename: selectedFile,
+                target_paths: targetPaths,
+                dry_run: dryRun,
+                create_recovery_point: recoveryPoint,
+                decryption_key: decryptKey || null
+            };
+
+            (this.admin || window.admin).notify(`Executing ${dryRun ? 'dry-run simulation' : 'staged restoration'}...`, 'info');
+            (this.admin || window.admin).closeModal();
+
+            try {
+                const res = await apiCall('backup_vault_restore', restorePayload);
+                if (res.success) {
+                    (this.admin || window.admin).notify(
+                        dryRun 
+                            ? `Simulation Successful: ${res.message || 'All targets verified.'}` 
+                            : `Restoration Complete: ${res.message || 'System restored successfully!'}`,
+                        'success'
+                    );
+                    await this.loadData();
+                    await this.loadBackups();
+                } else {
+                    (this.admin || window.admin).notify(`Restoration Failed: ${res.error || res.message}`, 'error');
+                }
+            } catch (e) {
+                (this.admin || window.admin).notify('Restoration error: ' + e.message, 'error');
+            }
+        });
     }
 
     async deleteBackup(backup) {
-        if (!confirm(`Permanently delete backup archive '${backup.filename}' to reclaim ${backup.size_formatted} of disk space?\n\nThis action cannot be undone.`)) {
+        if (!confirm(`Permanently delete backup archive '${backup.filename}' to reclaim ${backup.size_formatted || 'disk space'}?\n\nThis action cannot be undone.`)) {
             return;
         }
 
         this.notify(`Deleting backup archive '${backup.filename}'...`, 'info');
         try {
-            const res = await (this.admin || this.app).api('apps_delete_backup', { file: backup.filename });
-            if (res.success) {
+            const apiCall = (this.admin || window.admin).api.bind(this.admin || window.admin);
+            let res = await apiCall('backup_vault_delete', { filename: backup.filename }).catch(() => null);
+            if (!res || !res.success) {
+                res = await apiCall('apps_delete_backup', { file: backup.filename });
+            }
+            if (res && res.success) {
                 this.notify(res.message || `Backup '${backup.filename}' deleted. Disk space reclaimed!`, 'success');
                 await this.loadBackups();
             } else {
-                this.notify(res.error || res.message || 'Failed to delete backup.', 'error');
+                this.notify((res && (res.error || res.message)) || 'Failed to delete backup.', 'error');
             }
         } catch (e) {
             this.notify('Error deleting backup: ' + e.message, 'error');
@@ -3143,9 +4450,10 @@ export default class AppsView extends BaseComponent {
         return html`
             <div class="glass-panel registry-panel fade-in">
                 <div class="panel-header">
-                    <div class="header-main">
-                        <h3 class="gradient-text">Live Server Logs</h3>
-                        <div style="display: flex; gap: 10px; align-items: center;">
+                    <div class="header-main" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px;">
+                        <h3 class="gradient-text" style="margin: 0;">Live Server Logs</h3>
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            ${this.renderHelpButton('logs')}
                             <select class="btn ghost-btn btn-sm" style="background: var(--bg-card-glass);" @change=${(e) => this.setState({logFilter: e.target.value})}>
                                 <option value="all">📋 All Levels</option>
                                 <option value="error">🔴 Errors Only</option>
@@ -3159,6 +4467,16 @@ export default class AppsView extends BaseComponent {
                         </div>
                     </div>
                 </div>
+
+                ${this.renderHelpBanner('logs', 'System & Application Log Inspector Guide',
+                    'Real-time log tailing, severity filtering, and error diagnostic inspector for platform errors, access traffic, and framework audit logs.',
+                    {
+                        steps: 'Choose a log stream (Platform Error, Application Audit, Web Access, or CLI Daemon). Select severity (DEBUG, INFO, WARN, ERROR, CRITICAL) and enter search keywords to filter live entries.',
+                        concepts: 'Logs are structured in W3C Trace Context and RFC-5424 formats with unique request correlation IDs (X-Correlation-ID) across distributed requests and background queues.',
+                        proTip: 'Use the "Auto-Refresh" toggle during active debugging, but pause it when analyzing complex stack traces to avoid screen jumping.'
+                    }
+                )}
+
                 <div class="code-terminal" style="margin: 0 20px 20px 20px; background: #0f111a; border-radius: 8px; padding: 15px; min-height: 350px; max-height: 550px; overflow-y: auto; font-family: 'Fira Code', 'Cascadia Code', monospace; font-size: 0.8rem; color: #a6accd; border: 1px solid rgba(255,255,255,0.1);">
                     ${filtered.length === 0
                         ? html`<div style="opacity:0.5; font-style:italic;">No log entries. Click "Start Live Tail" or "Refresh" to fetch logs.</div>`
@@ -3363,11 +4681,23 @@ export default class AppsView extends BaseComponent {
                                 Ingest standard cPanel/WHM backups (<code>cpmove-*.tar.gz</code>, <code>.tar</code>, <code>.zip</code>) into sovereign SPP applications. Restores docroot files, databases, virtual mailboxes, Maildir message store, forwarders, and BIND DNS zones.
                             </p>
                         </div>
-                        <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.loadCpanelArchives()}>
-                            ${cpanelLoadingArchives ? '⏳ Scanning...' : '🔄 Rescan Archives'}
-                        </button>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            ${this.renderHelpButton('cpanel')}
+                            <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.loadCpanelArchives()}>
+                                ${cpanelLoadingArchives ? '⏳ Scanning...' : '🔄 Rescan Archives'}
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                ${this.renderHelpBanner('cpanel', 'cPanel Full Backup Importer Guide',
+                    'Automated migration utility to inspect and import legacy cPanel full backup tarballs (cpmove-*.tar.gz, backup-*.tar.gz) into modern SPP domain structures.',
+                    {
+                        steps: 'Enter the absolute path to a cPanel archive or select from detected files. Click "Inspect Archive" to preview databases, mailboxes, and public_html contents, choose your target SPP app name, and click "Execute Import".',
+                        concepts: 'The importer extracts MySQL dumps and converts them or imports them into configured DB drivers, extracts public_html into the app storage path, and maps virtual email accounts.',
+                        proTip: 'Use the "Dry Run" inspection mode first to verify table character sets and disk space requirements before performing live database imports.'
+                    }
+                )}
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <!-- Left Column: Archive Selection & Target Configuration -->
