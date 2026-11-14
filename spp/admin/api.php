@@ -23,7 +23,9 @@ register_shutdown_function(function () {
         }
         if (!headers_sent()) {
             http_response_code(500);
-            header('Content-Type: application/json; charset=utf-8');
+            if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
+    }
         }
         echo json_encode([
             'success' => false,
@@ -119,14 +121,16 @@ try {
 
 // Ensure session is started with secure cookie parameters
 if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path' => '/',
-        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-        'httponly' => true,
-        'samesite' => 'Lax'
-    ]);
-    session_start();
+    if (!headers_sent()) {
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    }
+    @session_start();
 }
 
 // Load global handlers if available
@@ -171,7 +175,11 @@ function sendResponse($success, $data = [], $message = '', bool $autoNotify = tr
         'check_auth', 'get_profile', 'list_apps', 'list_modules', 'storage_list_files', 
         'storage_tree', 'storage_disk_usage', 'storage_read_file', 'get_admin_permissions',
         'load_view', 'diagnostics_health', 'get_system_info', 'get_global_settings',
-        'switch_context', 'set_context', 'manifest_graph', 'manifest_catalog', 'manifest_bundle'
+        'switch_context', 'set_context', 'manifest_graph', 'manifest_catalog', 'manifest_bundle',
+        'storage_get_file_props', 'storage_get_directory_props', 'storage_get_manifest_raw',
+        'storage_validate_manifest_yaml', 'storage_diff_manifest', 'storage_manifest_health',
+        'storage_verify_integrity', 'storage_check_capabilities', 'props_search',
+        'domains_zone_history', 'dns_zone_history', 'domains_preview_rollback', 'dns_preview_rollback'
     ];
     $reqAction = $_REQUEST['action'] ?? '';
     if (in_array($reqAction, $passiveActions, true) || in_array(strtolower(trim($message)), ['ok', 'success', 'authenticated', 'authenticated.'], true)) {
@@ -182,11 +190,20 @@ function sendResponse($success, $data = [], $message = '', bool $autoNotify = tr
         $instructions[] = ['action' => 'notify', 'message' => $message, 'type' => $success ? 'success' : 'error'];
     }
 
+    $curDomain = class_exists('\\SPP\\Core\\Domain\\DomainContextResolver') && \SPP\Core\Domain\DomainContextResolver::has()
+        ? \SPP\Core\Domain\DomainContextResolver::current()
+        : null;
+
     $response = [
         'success' => $success,
         'message' => $message,
         'data' => $data,
-        'instructions' => $instructions
+        'instructions' => $instructions,
+        'meta' => [
+            'domain' => $curDomain ? $curDomain->getDomainId() : 'default',
+            'scope' => ($curDomain && $curDomain->getDomainId() !== 'default') ? 'domain' : 'platform',
+        ],
+        'error' => $success ? null : ($message ?: 'An error occurred during request execution.')
     ];
 
     if (!empty($phpOutput)) {
@@ -200,7 +217,9 @@ function sendResponse($success, $data = [], $message = '', bool $autoNotify = tr
         error_log("[" . date('Y-m-d H:i:s') . "] API Response: success=" . ($success ? 'true' : 'false') . ", action=" . ($_REQUEST['action'] ?? 'none') . ", message=" . $message . "\n", 3, $logFile);
     }
 
-    header('Content-Type: application/json; charset=utf-8');
+    if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
+    }
     $encodeFlags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
     if (defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
         $encodeFlags |= JSON_INVALID_UTF8_SUBSTITUTE;
@@ -378,13 +397,60 @@ function setDeploymentToken($token)
 
 /**
  * Health Check Utility
+ * Real system and component health evaluator (no simulated 100% scores).
  */
 function runAllHealthChecks($appname)
 {
     $checks = [];
+    $score = 100;
+
+    // 1. PHP Version
     $checks[] = ['name' => 'PHP Version', 'status' => 'OK', 'detail' => PHP_VERSION];
-    $checks[] = ['name' => 'Database Connectivity', 'status' => 'OK', 'detail' => 'Connected (' . $appname . ')'];
-    return ['appname' => $appname, 'score' => 100, 'checks' => $checks];
+
+    // 2. Database Connectivity
+    try {
+        if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
+            $db = new \SPPMod\SPPDB\SPPDB();
+            if ($db->getDriver() !== 'xdb') {
+                $db->execute_query("SELECT 1");
+            }
+            $checks[] = ['name' => 'Database Connectivity', 'status' => 'OK', 'detail' => 'Connected (' . $appname . ')'];
+        } else {
+            $checks[] = ['name' => 'Database Connectivity', 'status' => 'WARNING', 'detail' => 'SPPDB driver class not loaded'];
+            $score -= 20;
+        }
+    } catch (\Throwable $e) {
+        $checks[] = ['name' => 'Database Connectivity', 'status' => 'CRITICAL', 'detail' => $e->getMessage()];
+        $score -= 40;
+    }
+
+    // 3. Storage Health
+    $free = @disk_free_space(defined('SPP_BASE_DIR') ? SPP_BASE_DIR : '.');
+    $total = @disk_total_space(defined('SPP_BASE_DIR') ? SPP_BASE_DIR : '.');
+    if ($total > 0) {
+        $pct = round((($total - $free) / $total) * 100, 1);
+        $diskStatus = ($pct > 95) ? 'CRITICAL' : (($pct > 85) ? 'WARNING' : 'OK');
+        if ($diskStatus === 'CRITICAL') $score -= 30;
+        elseif ($diskStatus === 'WARNING') $score -= 15;
+        $checks[] = ['name' => 'Disk Space', 'status' => $diskStatus, 'detail' => "{$pct}% utilized"];
+    }
+
+    // 4. Server Agent Status
+    $agentClientPath = dirname(__DIR__) . '/agent/src/Client.php';
+    if (file_exists($agentClientPath)) {
+        require_once $agentClientPath;
+        try {
+            $agentClient = new \SPP\Agent\Client();
+            $agentOk = $agentClient->isAvailable();
+            $checks[] = ['name' => 'Server Agent IPC', 'status' => $agentOk ? 'OK' : 'WARNING', 'detail' => $agentOk ? 'Agent connected' : 'Agent daemon offline (fallback mode)'];
+            if (!$agentOk) $score -= 10;
+        } catch (\Throwable $e) {
+            $checks[] = ['name' => 'Server Agent IPC', 'status' => 'WARNING', 'detail' => $e->getMessage()];
+            $score -= 10;
+        }
+    }
+
+    return ['appname' => $appname, 'score' => max(0, min(100, $score)), 'checks' => $checks];
 }
 
 function repairNamespace($class)
@@ -406,42 +472,28 @@ function checkDevMode()
 
 function isPublicAdminAction(string $action): bool
 {
-    if (
-        str_starts_with($action, 'mail_') || 
-        str_starts_with($action, 'evaarta_') || 
-        str_starts_with($action, 'server_') || 
-        str_starts_with($action, 'rules_') || 
-        str_starts_with($action, 'rule_') || 
-        str_starts_with($action, 'screener_') || 
-        str_starts_with($action, 'webhook_ingest')
-    ) {
-        return true;
-    }
+    // Strict allowlist: only authentication initiation and session checks are public
     return in_array($action, [
         'login',
         'Auth_Login',
         'Auth_VerifyMFA',
+        'VerifyMFA',
+        'verify_mfa',
         'logout',
+        'Auth_Logout',
         'check_auth',
-        'get_profile',
+        'Auth_SendMagicLink',
+        'SendMagicLink',
+        'send_magic_link',
+        'Auth_ConsumeMagicLink',
+        'ConsumeMagicLink',
+        'consume_magic_link',
     ], true);
 }
 
 function isAdminAuthenticated(): bool
 {
     try {
-        // Dev Mode: Workbench is restricted to development profile; auto-grant developer admin privileges
-        if (checkDevMode()) {
-            if (empty($_SESSION['spp_admin_user'])) {
-                $_SESSION['spp_admin_user'] = 'admin';
-                $_SESSION['spp_admin_fallback'] = true;
-            }
-            return true;
-        }
-
-        if (!empty($_SESSION['spp_admin_fallback'])) {
-            return true;
-        }
         if (!empty($_SESSION['spp_admin_user'])) {
             return true;
         }
@@ -480,37 +532,13 @@ function isAdminAuthenticated(): bool
     return false;
 }
 
-// 1. Initial Gating
-if (!checkDevMode()) {
-    http_response_code(403);
-    sendResponse(false, [], "Access Denied: Administration portal is only accessible in 'dev' mode.");
-}
-
-// --- Global Helpers ---
-if (!function_exists('createEntityRevision')) {
-    function createEntityRevision($appContext, $name)
-    {
-        $srcDir = SPP_APP_DIR . "/src/{$appContext}/entities";
-        $revDir = $srcDir . '/.revisions';
-        if (!is_dir($revDir))
-            @mkdir($revDir, 0777, true);
-
-        $ts = time();
-        $ymlPath = $srcDir . '/' . strtolower($name) . '.yml';
-        $phpPath = $srcDir . '/entity.' . strtolower($name) . '.php';
-        if (!file_exists($phpPath))
-            $phpPath = $srcDir . '/' . $name . '.php';
-
-        if (file_exists($ymlPath))
-            @copy($ymlPath, $revDir . '/' . strtolower($name) . '_' . $ts . '.yml');
-        if (file_exists($phpPath))
-            @copy($phpPath, $revDir . '/entity.' . strtolower($name) . '_' . $ts . '.php');
-    }
+if (php_sapi_name() === 'cli' && empty($_GET['action']) && empty($_POST['action']) && empty($_REQUEST['action'])) {
+    return;
 }
 
 try {
     if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+        @session_start();
     }
 
     $action = (!empty($_GET['action'])) ? $_GET['action'] : ($_POST['action'] ?? ($_REQUEST['action'] ?? ''));
@@ -529,18 +557,7 @@ try {
     if ($action === 'check_auth') {
         $username = null;
         $userId = '1';
-        if (checkDevMode()) {
-            $username = $_SESSION['spp_admin_user'] ?? 'admin';
-            $userId = '0';
-            $_SESSION['spp_admin_user'] = $username;
-            $_SESSION['spp_admin_fallback'] = true;
-            if (\SPP\SPPSession::sessionExists()) {
-                \SPP\SPPSession::setSessionVar('__sppauth_user__', $username);
-            }
-        } elseif (!empty($_SESSION['spp_admin_fallback'])) {
-            $username = 'admin';
-            $userId = '0';
-        } elseif (!empty($_SESSION['spp_admin_user'])) {
+        if (!empty($_SESSION['spp_admin_user'])) {
             $username = $_SESSION['spp_admin_user'];
         } elseif (!empty($_SESSION['__sppadmin_sppsession']['vars']['__sppauth_user__'])) {
             $username = $_SESSION['__sppadmin_sppsession']['vars']['__sppauth_user__'];
@@ -636,9 +653,15 @@ try {
         session_write_close();
     }
 
-    // RBAC: Gate admin actions by scope
-    if (!isPublicAdminAction($action) && function_exists('gateAdminAction') && !empty($action) && !gateAdminAction($action)) {
-        sendResponse(false, [], "Access Denied: You do not have permission to perform '{$action}'. Contact your administrator.");
+    $targetDomain = $_REQUEST['domain'] ?? $_REQUEST['domain_id'] ?? null;
+    if ($targetDomain !== null && class_exists('\\SPP\\Core\\Domain\\DomainContextResolver')) {
+        $domCtx = \SPP\Core\Domain\DomainContextResolver::resolve($targetDomain);
+        \SPP\Core\Domain\DomainContextResolver::push($domCtx);
+    }
+
+    // RBAC: Gate admin actions by scope and target domain
+    if (!isPublicAdminAction($action) && function_exists('gateAdminAction') && !empty($action) && !gateAdminAction($action, $targetDomain)) {
+        sendResponse(false, [], "Access Denied: You do not have permission to perform '{$action}' on requested scope. Contact your administrator.");
     }
 
     $requestData = array_merge($_GET, $_POST, $_REQUEST);

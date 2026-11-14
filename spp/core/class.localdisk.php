@@ -94,10 +94,25 @@ class LocalDisk implements DiskInterface
         fclose($dest);
 
         if (File::exists($fullPath)) {
-            @unlink($fullPath);
+            $bak = $fullPath . '.bak.' . uniqid('', true);
+            if (!@rename($fullPath, $bak)) {
+                @unlink($tmp);
+                return false;
+            }
+            if (!@rename($tmp, $fullPath)) {
+                @rename($bak, $fullPath);
+                @unlink($tmp);
+                return false;
+            }
+            @unlink($bak);
+            return true;
         }
 
-        return @rename($tmp, $fullPath);
+        if (!@rename($tmp, $fullPath)) {
+            @unlink($tmp);
+            return false;
+        }
+        return true;
     }
 
     public function url(string $path): string
@@ -117,7 +132,14 @@ class LocalDisk implements DiskInterface
         $expiryTime = is_string($expires) ? (strtotime($expires) ?: (time() + 900)) : $expires;
         $cleanPath = ltrim(str_replace('\\', '/', $path), '/');
         
-        $secret = defined('SPP_APP_KEY') ? SPP_APP_KEY : (defined('SPP_SECRET') ? SPP_SECRET : 'spp_sovereign_infra_secret');
+        $secret = (defined('SPP_APP_KEY') && !empty(SPP_APP_KEY))
+            ? SPP_APP_KEY
+            : ((defined('SPP_SECRET') && !empty(SPP_SECRET)) ? SPP_SECRET : null);
+
+        if (empty($secret)) {
+            throw new \RuntimeException('Cannot generate temporary signed URL: No secure application key (SPP_APP_KEY / SPP_SECRET) configured.');
+        }
+
         $signature = hash_hmac('sha256', "{$cleanPath}:{$expiryTime}", $secret);
 
         return $this->baseUrl . '/signed?file=' . urlencode($cleanPath) . '&expires=' . $expiryTime . '&sig=' . $signature;

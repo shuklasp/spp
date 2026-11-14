@@ -1,0 +1,1824 @@
+# SPP FRAMEWORK (SATYA PORTAL PLATFORM) — THE EXHAUSTIVE ARCHITECTURE BIBLE
+> Version: 2.0.0 | Language: PHP 8.2+ | Operating Paradigm: Enterprise Modular Monolith
+
+This document is the authoritative, comprehensive architectural specification for artificial intelligence models, autonomous coding agents, and senior architects developing software on the SPP Framework.
+
+---
+
+## 1. CORE PHILOSOPHY & THE 10 INVIOLABLE GOLDEN RULES
+
+When generating code, scaffolding features, or refactoring in SPP, you MUST obey these 10 rules:
+
+### Rule 1: Zero Inline HTML Literals
+- **Strict Prohibition**: NEVER write inline HTML strings in PHP classes (Controllers, Models, Services) or JavaScript files.
+- **Architectural Requirement**: ALL markup MUST reside in standalone external `.blade.php`, `.twig`, or `.html` template files located under `src/<AppName>/resources/views/` or `resources/views/partials/`.
+- **Rendering Pattern**:
+  - Full Page: `$this->render('students/index.blade.php', $data)`
+  - Dynamic Partial (HTMX / AJAX): `$this->renderPartial('partials/students_table.blade.php', $data)`
+  - Static Fragment (with ETag & Cache-Control): `$this->renderStaticPartial('partials/faq.html')`
+  - Real-Time Turbo Stream: `$this->stream('streams/student_updated.blade.php', $data)`
+
+### Rule 2: Native Active Record Entity Architecture (`SPPEntity`) & Modernization Stack
+- **Strict Prohibition**: NEVER query or mutate tables using raw `new PDO()`, disconnected SQL, or generic array dictionaries.
+- **Architectural Requirement**: ALL database models MUST extend `\SPPMod\SPPDB\SPPEntity` (or an application base model extending it).
+- **Core Active Record APIs**:
+  - `Entity::find($id)`: Retrieve by primary key (checks `IdentityMap` first).
+  - `Entity::findBy($field, $value)`: Retrieve single record matching condition.
+  - `Entity::findWhere(array $conditions)`: Retrieve collection matching conditions.
+  - `$entity->save()`: Persists insert or update (registers into `IdentityMap`).
+  - `$entity->delete()`: Deletes record (evicts from `IdentityMap`).
+  - `Entity::query()`: Returns chainable `\SPPMod\SPPDB\SppEntityQuery` builder.
+
+- **Pillar 1: First-Class Relation Objects (`\SPPMod\SPPDB\Relations\Relation`)**:
+  - `hasMany(string $related, ?string $foreignKey = null, string $localKey = 'id'): HasMany`
+  - `belongsTo(string $related, ?string $foreignKey = null, string $ownerKey = 'id'): BelongsTo`
+  - `hasOne(string $related, ?string $foreignKey = null, string $localKey = 'id'): HasOne`
+  - `belongsToMany(string $related, ?string $pivotTable = null, ?string $foreignPivotKey = null, ?string $relatedPivotKey = null): BelongsToMany` (with `attach()`, `detach()`, `sync()`)
+  - `morphMany(string $related, string $morphPrefix, string $localKey = 'id'): MorphMany`
+  - All relation objects support fluent query chaining (`->where()`, `->orderBy()`, `->paginate()`, `->count()`, `->exists()`).
+  - Magic property access (`$course->enrollments`) automatically invokes the relation method, executes `getResults()`, and caches the result.
+  - Fluent association: `$enrollment->course()->associate($course)->save()`, `$enrollment->course()->dissociate()->save()`.
+  - Relationship existence querying: `Model::query()->whereHas('relation', fn($q) => ...)` and `Model::query()->whereDoesntHave('relation')`.
+
+- **Pillar 2: Request-Scoped In-Memory Identity Map (`\SPPMod\SPPDB\IdentityMap`)**:
+  - Ensures a single unique object reference per database record across the request lifecycle:
+    ```php
+    $user1 = User::find(1);
+    $user2 = User::find(1);
+    assert($user1 === $user2); // Exact same instance
+    ```
+  - `IdentityMap::get($class, $id)`, `set($entity)`, `has($class, $id)`, `forget($class, $id)`, `clear()`.
+  - Temporary isolation callback: `IdentityMap::withoutIdentityMap(fn() => ...)`.
+
+- **Pillar 3: Nested Transaction Savepoints (`SPPDB` & `PDOAdapter`)**:
+  - Supports SQL-92 savepoints across MySQL, PostgreSQL, and SQLite:
+    ```php
+    $db = new \SPPMod\SPPDB\SPPDB();
+    $db->beginTransaction(); // Level 1
+    $db->createSavepoint('sp1'); // Level 2
+    try {
+        $db->releaseSavepoint('sp1');
+    } catch (\Throwable $e) {
+        $db->rollbackToSavepoint('sp1');
+    }
+    $db->commit();
+    ```
+  - Helper methods: `$db->createSavepoint($name)`, `$db->releaseSavepoint($name)`, `$db->rollbackToSavepoint($name)`, `$db->getTransactionLevel()`.
+
+- **Pillar 4: Modern PHP 8.2+ Declarative Attributes (`\SPPMod\SPPDB\Attributes`)**:
+  - Class attributes: `#[Table(name: 'students', idField: 'id', keyType: 'int')]`, `#[Workflow(definition: 'student_lifecycle')]`.
+  - Property attributes: `#[Id(type: 'int', strategy: 'autoincrement')]`, `#[Column(type: 'varchar', length: 150, nullable: false, unique: true, pii: true)]`.
+  - Relation attributes: `#[HasMany(target: Enrollment::class, foreignKey: 'student_id')]`, `#[BelongsTo]`, `#[HasOne]`, `#[MorphMany]`.
+  - `SPPEntity::loadEntityConfig()` seamlessly merges attributes with YAML configurations.
+
+- **Pillar 5: Zero-Downtime Two-Phase DDL (`\SPPMod\SPPDB\Migration\SafeDDLRunner`)**:
+  - Shadow-table migration engine applying DDL changes without production table locks:
+    1. Phase 1: Create `_spp_shadow_<table>` with target schema.
+    2. Phase 2: Copy and backfill data with optional transform expressions.
+    3. Phase 3: Instant atomic rename swap (`<table>` $\rightarrow$ `_spp_old_<table>`, `_spp_shadow_<table>` $\rightarrow$ `<table>`).
+    4. Phase 4: Verification callback and drop of `_spp_old_<table>`. Auto-rollback on exception.
+  - Safe helpers: `$runner->addColumn($col, $def, $default)`, `$runner->dropColumn($col)`, `$runner->modifyColumn($col, $def, $cast)`.
+
+- **Pillar 6: Native AI Vector Similarity Search Compiler (`CompilerInterface`)**:
+  - Dialect-native semantic vector search compiled via `SppEntityQuery::whereSemanticSimilarity($column, $vector, $metric, $topK)`:
+    - MySQL 9.0+: `DISTANCE(column, CAST(? AS VECTOR), 'COSINE')`
+    - PostgreSQL (pgvector): `(column <=> ?::vector)` (cosine), `<->` (L2), `<#>` (inner product)
+    - SQLite (sqlite-vec): `vec_distance_cosine(column, ?)`
+  - Results ranked by `_spp_vector_distance ASC` with automatic binding alignment.
+
+- **Strongly-Typed IDE Helper Generation**:
+  - Command: `php spp.php make:entity-types [--app=AppName] [--out=path]`.
+  - Emits `_ide_entity_helper.php` with `@property`, `@property-read`, and `@method static` annotations for 100% accurate IDE autocompletion.
+
+### Rule 3: Declarative Workflows & State Machines (`WorkflowManager`)
+- **Strict Prohibition**: NEVER assign or mutate a lifecycle `status` property directly as an arbitrary string (e.g. `$entity->status = 'approved'` is strictly prohibited).
+- **Architectural Requirement**: All status-bearing entities MUST implement `\SPP\Core\Interfaces\WorkflowableInterface` and define lifecycles in YAML (`etc/apps/<AppName>/workflows/<workflow_name>.yml`).
+- **State Transition Execution**:
+  - Check validity: `$entity->canTransition('approve')`
+  - Execute transition: `$entity->applyTransition('approve', $currentUser, 'Approval rationale', $context)`
+  - Fluent Saga compensating rollback: `$entity->rollback($currentUser, 'Rollback rationale', $context)` unwinding state along `spp_entity_workflow_history` lineage.
+  - Controller helper with smart negotiation:
+    ```php
+    $this->transitionEntity($entity, 'approve', $context, 'partials/success.blade.php', 'partials/error.blade.php');
+    ```
+- **SLA Timeouts & Escalation**:
+  - State timeout declarations (`timeout: 24h`, `timeout_transition: escalate`) register deadlines into `spp_workflow_slas`.
+  - Process via background daemon: `php spp.php workflow:process-timeouts`.
+- **Transactional Outbox Webhook Dispatcher**:
+  - Queue event: `\SPPMod\SPPWorkflow\CQRS\OutboxWebhookDispatcher::queueWebhook($event, $payload, $url, $secret)`.
+  - Dispatch daemon: `php spp.php cqrs:webhooks:dispatch [--batch=50]` with HMAC-SHA256 signatures and exponential backoff.
+
+### Rule 4: Native Presentation & Reactive View Engine (Drishyam)
+- **Controllers**: Web endpoints must extend `\SPPMod\SPPView\ViewController`, `ResourceController`, or `WizardController`.
+- **Directives**:
+  - `@spppartial('partials/file.blade.php', ['key' => 'val'])`
+  - `@sppstream('streams/stream.blade.php', ['key' => 'val'])`
+  - Reactive Live Components: `wire:click="method"`, `wire:model="field"`, `wire:navigate`.
+
+### Rule 5: Dual Event Bus Firing
+- When triggering domain events or workflow transitions, fire BOTH event channels to guarantee complete subscriber coverage:
+  ```php
+  \SPP\SPPEvent::fireEvent($eventName, $payload);
+  \SPP\SPPEvent::triggerHook($eventName, $payload);
+  ```
+
+### Rule 6: Parikshak Is The Primary Testing Engine
+- **Strict Prohibition**: NEVER default to standard PHPUnit runner or ad-hoc scripts.
+- **Architectural Requirement**: All automated test suites MUST extend `\SPPMod\Parikshak\SPPTestCase` and utilize Parikshak traits:
+  - `RefreshDatabase`: Automatic isolated in-memory SQLite setup/teardown.
+  - `SPPFactory` & `SPPFaker`: Deterministic test fixture generation.
+  - Assertions: `$this->assertDatabaseHas($table, $data)`, `$this->assertDatabaseMissing($table, $data)`.
+- **Execution & Discovery**: `php spp.php test [--list|--discover] [--coverage]` or `php tests/core/test.<suite>.php`. Introspect tests programmatically via `\SPPMod\Parikshak\SPPTestRunner::discover($app)`.
+
+### Rule 7: Strict CLI SAPI Guarding
+- Any CLI command performing administrative, high-privilege, or environment operations MUST implement:
+  ```php
+  public function isCLIOnly(): bool { return true; }
+  ```
+- This guarantees `CommandManager` blocks execution if triggered via web SAPI (`PHP_SAPI !== 'cli'`).
+
+### Rule 8: Mandatory Dual-Format Man Pages
+- For every CLI command, you MUST author documentation in BOTH:
+  1. Standard Markdown: `docs/commands/<safe-command-name>.md`
+  2. Unix Troff / Groff: `docs/commands/man/<safe-command-name>.1` (macros: `.TH`, `.SH NAME`, `.SH SYNOPSIS`, `.SH DESCRIPTION`, `.SH OPTIONS`, `.SH UNDER THE HOOD`).
+
+### Rule 9: Local Standalone Client Assets
+- NEVER reference external CDNs (`unpkg.com`, `cdn.jsdelivr.net`, `cdnjs.cloudflare.com`) for HTMX, Turbo, or styling.
+- ALWAYS use the local distributions via `/sppadmin/js/` (e.g. `APP_BASE_URI . '/sppadmin/js/htmx.min.js'`). Note: Root `.htaccess` requires using the `/sppadmin/` alias instead of `/spp/admin/`.
+
+### Rule 10: Unified Chunked Routing, Parameter Constraints & Reverse URL Generation
+- **Single Source of Truth**: Define routes in **one place only**—either centrally in `src/<AppName>/etc/routes.yml`, co-located directly above controller methods via PHP 8 `#[Route]` attributes, or via fluent `Router::get()`. NEVER manually maintain route mappings across dispersed per-directory manifests.
+- **$O(1)$ Static & PCRE Chunked Dispatching**: `\SPPMod\SPPRouter\CompiledRouter` splits route lookups into:
+  1. Static routes indexed in hash maps dispatched in `< 0.02ms`.
+  2. Dynamic parameterized routes compiled in batches of 10 into combined PCRE regular expressions with branch reset `(?|...(*MARK:mX))` syntax dispatched in `< 0.15ms`.
+- **First-Class Reverse Routing (`route()`)**:
+  - `route(string $name, mixed $parameters = [], bool $absolute = false): string`: Resolves named routes in $O(1)$, unwraps `SPPEntity` instances automatically (extracting `$entity->id`), appends extra keys as URL query strings, and validates required parameters.
+  - Blade: `@route('students.show', $student)` or `@route('courses.index', ['page' => 2])`.
+  - Twig: `{{ route('students.show', student) }}`.
+  - Client JavaScript: `SPP.route('students.show', {id: 42})` backed by `var/cache/routes.json` and predictive hover prefetching.
+- **Declarative Parameter Constraints**:
+  - `#[WhereNumber('id')]`: Enforces numeric ID `[0-9]+`.
+  - `#[WhereUuid('token')]`: Enforces standard UUID v1-v5.
+  - `#[WhereAlpha('slug')]`: Enforces alphabetic characters `[a-zA-Z]+`.
+  - `#[WhereAlphaNumeric('code')]`: Enforces alphanumeric characters `[a-zA-Z0-9]+`.
+  - `#[Where('param', 'regex')]`: Custom parameter constraint.
+- **Modular Route Service Providers**: Protocol and subsystem request interception (SCIM 2.0, OAuth2, Auto-API, Static Public Assets) are decoupled from `public/index.php` into `\SPP\Core\Routing\RouteDispatcher` and `RouteServiceProviderInterface` implementations.
+- **Zero-Code Dependency Injection**: Interfaces and singletons are auto-wired in PSR-11 `Container::get()` via compiled manifest metadata (`file_props.cache.php`). Concrete implementations are resolved and bound without manual service provider registration.
+
+### Rule 11: Declarative Manifest OS (`__spp_file_props.yml`), File Manager & DNS Workstations
+- **Every Directory Maintains Local Manifest (`__spp_file_props.yml`)**:
+  - Cache invalidation mappings (`invalidated_by_entities`, `invalidated_by_events`).
+  - AI directives and forbidden mutation scopes (`ai_directives`).
+  - Data governance sensitivity and automated PII masking (`data_governance`, `data_classification`).
+  - Layer classification and boundary dependencies (`layer`, `depends_on`).
+  - Capability-based sandboxing (`allow_network`, `allow_env`, `allow_filesystem`, `allow_shell`) enforced at runtime by `ManifestSecurityGuard`.
+  - Cryptographic integrity verification via SHA-256 digests and optional HMAC cluster signatures (`FileIntegritySigner`).
+  - Declarative SSR & Hydration policies (`ssr_strategy`, `hydration`, `cache_ttl`, `stale_while_revalidate`) and connection routing (`db_routing`) resolved by `ManifestContractEngine` and `ViewController`.
+  - Continuous AST self-healing (`props:heal`), health scoring (0-100 score), and Software Bill of Materials provenance generation (`props:sbom`).
+  - Strict preservation of unknown and custom root/directory/file attributes during all update and healing operations.
+- **First-Class File Manager Workstation (`/sppadmin/#files`)**:
+  - Live Manifest Intelligence Banner with status pills (🟢 Active, 🟡 Missing, 🔴 Corrupted), description, layer, review dates, and capabilities.
+  - Dedicated 6-Tab Properties Inspector: Overview, Docs & Tags, Application & Framework, Security & Capabilities, Integrity (SHA-256 & Signing), and Contracts & Telemetry.
+  - Dual-Mode Manifest Editor: Structured form editor (default) + Advanced raw YAML editor with live validation and line-by-line diff preview.
+  - Manifest Health Dashboard: Scans directory trees or full workspace, reports health score (0-100), detects missing manifests, untracked files, orphaned entries, and tampered files, with 1-click automated self-healing.
+  - Defensive Invariants: Atomic writes with staged temporary files and `.bak` rollback, Zip-Slip canonical path containment, decompression bomb safety caps (10,000 files, 500 MB), and fail-closed expiring HMAC signed URLs (`LocalDisk::temporaryUrl`).
+  - DNS Zone Navigation Bridges: Auto-detects `.zone` files and `var/dns/` items, displaying `🌐 DNS Zone` pills and 1-click cross-navigation buttons (`#domains?zone=<domain>`).
+- **Authoritative DNS Manager Workstation & Point-in-Time Rollback (`/sppadmin/#domains`)**:
+  - High-performance RFC 1035 zone editor supporting A, AAAA, CNAME, MX, TXT, SRV, CAA, NS, and SOA records.
+  - Point-in-Time Zone Revision History (`var/dns/history/<domain>/rev_*.json`): Microsecond-precision immutable JSON snapshots recorded on every zone mutation.
+  - Visual Rollback Diff Preview: Inspects added, removed, and modified records prior to committing rollback.
+  - 1-Click Atomic Rollback: Restores historical records, creates a `rollback` audit revision, and strictly increments the SOA serial number per RFC 1912 standards.
+  - Automated Manifest Synchronization: Real-time synchronization of zone metadata into `var/dns/__spp_file_props.yml` declaring SHA-256 checksums and strict network/filesystem capabilities.
+
+### Rule 12: Developer Simplicity & Anti-Complexity Invariant
+- **Simplicity Over Over-Engineering**: The primary goal of framework enhancements is to simplify developer life, eliminate boilerplate, and reduce cognitive load. Never introduce complex multi-layer abstractions or unnecessary indirection when a straightforward implementation works.
+- **High-Value Justification Threshold**: Do not complicate the framework with speculative generality or niche abstractions. Added complexity must be justified by extraordinary, undeniable value (10x boilerplate reduction, mission-critical integrity). Always extend existing native abstractions (`SPPEntity`, `ViewController`, `WorkflowManager`, `SPPEvent`, `FilePropsManager`) before creating new subsystems.
+- **Zero-Overhead & Opt-In Default**: Advanced capabilities MUST be 100% opt-in and zero-config by default. Simple CRUD applications and controllers must remain ultra-lightweight and unburdened by enterprise machinery.
+
+### Rule 13: Framework Sovereignty & Implementation Purity
+- **Permitted Scope for Comparison (Planning Documents Only)**: External, non-SPP software product names (e.g., Visual Studio, VS Code, JetBrains, PhpStorm, Sublime, Postman, ngrok, etc.) MAY be used within planning documents, feature comparison matrices, and design proposals strictly for the purpose of architectural benchmarking and parity evaluation.
+- **Strict Prohibition in Actual Implementation**: In all actual implementations (production source code, PHP/JS/CSS logic, class/method/variable names, comments, UI text, labels, button captions, tooltips, error messages, and user-facing technical documentation/manuals), there MUST be ABSOLUTELY ZERO mention of external software product names. All implemented capabilities must be named, styled, and documented strictly as native, sovereign, first-class SPP framework features.
+- **Sovereign Identity**: Never describe or present an implemented feature in the interface as "imported from elsewhere", "ported from [Product X]", or "emulating [Product Y]". Every tool must feel indigenous, designed from first principles for SPP developers.
+
+### Rule 14: Modular Navigation & Plug-and-Play Packages
+- **Decoupled Navigation**: Navigation links for the global Ctrl+K Command Palette, 9-dot App Launcher modal, and project Sidebar MUST NEVER be hardcoded within core Blade layout templates.
+- **Autonomous Package Manifests (`menus.yml`)**: Every autonomous package declares its own navigation contributions in `src/<AppName>/packages/<package_id>/menus.yml`, specifying `palette_items`, `launcher_suites`, and `sidebar_items`.
+- **Dynamic Aggregation & 2-Tier Filtering**: `MenuRegistry` dynamically queries `PackageKernel::hasPackage()` (physical installation) and `FeatureManager::isEnabled()` (per-project tenant enablement) to ensure inactive packages and disabled features remain completely invisible.
+- **Zero-Code Package Lifecycle**: Dropping a package folder into `src/<AppName>/packages/` immediately manifests its links in all navigation menus; removing the directory instantly removes all links across the application with zero template modifications or core registry edits.
+
+### Rule 15: Modularity 2.0 & Declarative Module Architecture
+- **Strict YAML Manifests (`module.yml`)**: Modules define identity, dependencies, namespaces, and asset aliases strictly in YAML. Legacy XML manifests (`module.xml`) are deprecated.
+- **Declarative Database Schemas (`db.yml`)**: Tables and columns are defined in YAML. `ModuleInstaller` non-destructively reconciles missing tables and columns without writing manual migration scripts.
+- **Dedicated Configuration Authority (`\SPP\Core\ModuleConfigManager`)**: Module configuration retrieval, persistence, default fallbacks, and application-level isolation (`etc/modsconf/`) are managed by `ModuleConfigManager`. Never access raw YAML files directly.
+- **Strict Service Provider Contracts**: Module service providers implement `\SPP\Core\Interfaces\ServiceProviderInterface` (`register(): void`, `boot(): void`, and optional `update(string $from, string $to): void`).
+- **Compulsory Integrity Guard**: Critical kernel modules (`Module::isCompulsory()`) cannot be deactivated or uninstalled via CLI or web administration.
+- **Zero-Boot Event Discovery (`events.yml`)**: Event listeners are indexed into framework cache without booting PHP classes, eliminating performance overhead until events fire.
+
+### Rule 16: Multi-Tenant Domain Isolation & Single vs. Multi Domain Modes
+- **Architectural Operating Modes**:
+  - **Single Domain Mode (`mode: single`)**: Domain routing is completely disabled and not enforced. Simply copying and pasting an SPP installation onto any web host, shared hosting account (cPanel `public_html`), standard DocumentRoot, or server IP address serves immediately ("just a copy paste will do"). No HTTP 404/403 host checks, no domain configuration files required. If `etc/domains.yml` is missing, SPP automatically boots into Single Domain Mode.
+  - **Multi-Domain Mode (`mode: multi`)**: Virtual host routing actively matches incoming `Host` headers against `etc/domains.yml`, enforcing domain applications, per-domain permissions, canonical redirects, and virtual host policies.
+  - **Mode Toggling**: Toggle instantly via `php spp.php domain:mode [single|multi|policy]`.
+- **Physical Domain Trees (`domains/<domain>/src/<AppName>`)**: Applications installed inside a domain container are physically and logically segregated from global applications.
+- **Strict Host Isolation by Default**: An application installed in a domain directory is strictly accessible only on that domain. Any attempt to reach it from an unmapped host or unauthorized secondary domain is blocked with HTTP 403 Forbidden.
+- **Domain-Only Scoping for Global Apps**: Any standard application in `src/` can be marked as `domain_only: true` with a whitelist of permitted domains (`allowed_domains`), instantly shielding it from public access on unapproved hostnames.
+- **Dynamic Discovery & Invalidation**: Discovered dynamically by `App::getGlobalSettings()`, mapped in `etc/domains.yml`, and flushed on changes via `DomainRouter::clearConfigCaches()` and `App::resetGlobalSettings()`.
+- **Server Provisioning & Universal Installer (`install.php` & `spp-domain-installer.php`)**: Standalone, portable server onboarding tool supporting both CLI and Web GUI. Audits 18 critical server prerequisites (PHP version, PDO drivers, extensions, memory, permissions), outputs copy-pasteable Apache and Nginx vhost templates, safely protects `.htaccess` from 500 errors on FastCGI/PHP-FPM, and provisions domain registrations dynamically without hardcoded host assumptions.
+
+### Rule 17: Universal Polyglot 2.0 & Cross-Language DSL Engine
+- **Universal Multi-Language Support**: Execute ANY programming language (Python, Node.js, Go, Rust, Zig, Ruby, Elixir, Lua, Java, C#, Swift, Kotlin, Shell, etc.) and custom developer-scripted Domain-Specific Languages (DSLs) without kernel modifications.
+- **Declarative YAML Driver Standards (`etc/polyglot/*.yml`)**: Drivers define language identity, file extensions (`extensions:`), runtime commands (`command:`, `windows_command:`), compilation pipelines (`compile:`, `cache_bin: true`), and IPC transport modes (`ipc_transport:`).
+- **OS-Agnostic Multi-Tier IPC Cascade**: Automatically negotiates the most performant IPC mechanism:
+  1. *Tier 0 (In-Process AST)*: Pure-PHP lexical tokenization and Pratt recursive-descent evaluation for custom DSLs (< 0.05ms, zero external dependencies).
+  2. *Tier 1 (High-Performance Domain Sockets / Named Pipes)*: POSIX Unix Domain Sockets in `/dev/shm` or tmpfs; Win32 Named Pipes (`\\.\pipe\spp_polyglot_*`) on Windows.
+  3. *Tier 2 (Fast TCP Loopback)*: Fallback for environments lacking IPC socket handles (`127.0.0.1:port`).
+  4. *Tier 3 (Length-Prefixed Subprocess Framing)*: 4-byte big-endian length prefix framing (`Platform::packFrame()`, `unpackLength()`) preventing stream fragmentation over standard I/O.
+- **Dynamic On-The-Fly Compilation & Binary Cache**: Compiled languages (`rustc`, `zig`, `go build`, `g++`, `dotnet`) are automatically compiled on-the-fly and cached in `var/cache/polyglot/bin/` with MD5 source hashing, recompiling only when source code changes.
+- **Zero-Inline-HTML View Partial Integration**: Render cross-language view partials via `$this->renderPolyglotPartial('analytics.py', $data)` or Blade/Twig directives `@polyglot('services/chart.py', $data)`.
+
+### Rule 18: SPPAdmin & SPPDev Visual Operations & App Studio Console
+- **Novice-First Decluttered UI & Progressive Disclosure**:
+  - *Contextual Page Guides (`.spp-page-guide`)*: Persistent, collapsible 3-step action roadmap on workbench views (`#domains`, `#server`), storing expand/collapse preference in `localStorage`.
+  - *Progressive Disclosure Accordions (`.spp-advanced-accordion`)*: Advanced sysadmin controls (BIND9 daemon control, Tri-Level Glue Matrices, DNSSEC keys, domain architecture switches, raw RFC 1035 text) are cleanly tucked inside collapsible drawers, keeping standard views clean and novice-friendly.
+  - *Universal Plain-English Translations & Tooltips (`.spp-help-tip`)*: All technical acronyms (A, CNAME, MX, TXT, TTL, VHost, Glue) feature plain-English labels and interactive floating popover cards (`data-tooltip-title`, `data-tooltip`, `data-tooltip-example`, `data-tooltip-rec`).
+  - *Integrated Jargon Buster & Glossary (`Ctrl+H`)*: One-click header button opening a real-time searchable glossary with plain-English definitions and recommendations for 17+ core hosting terms.
+- **Unified Services & Synchronized CLI Gateway (`CommandBridge.php`)**: All administrative backend operations are canonical in `spp/admin/services/`, natively powering both SPPAdmin (`/sppadmin`) and SPPDev (`/sppdev`).
+- **Domain Architecture Mode Switcher**: Real-time interactive UI toggle between Single Domain Mode (zero-config copy-paste ready for any host/IP without domain routing required or enforced) and Multi-Domain Mode (enforced virtual hosts, subdomains, canonical redirects, and policy modes).
+- **Universal Infrastructure & OS Topology Inspector**: Powered by `\SPP\Core\Infra`, visualizes host OS, Linux distro, libc runtime, package managers, web server software, SAPI, hosting topology (Standard FHS, User-Home cPanel style, Windows IIS, Container, Serverless), and detected host daemons.
+- **Application Studio & Lifecycle Management (`\SPP\Core\AppUninstaller`)**:
+  - *Domain Scoping*: Visual `Global` vs `Domain-Only` restrictions with whitelist enforcement.
+  - *App Decommissioning Modal*: Config-only removal (preserves code in `src/`, unbinds virtual hosts and global settings) vs Full removal (purges source code, configs, caches, and databases).
+  - *Automated Safety Backups*: Pre-removal zip archives in `var/backups/apps/` with manifest metadata.
+  - *1-Click Restoration*: Reconstructs application code, configurations in `etc/apps/`, and domain bindings from backup.
+  - *Disk Storage Reclamation*: Permanently delete backup archives with 1 click to free server disk space.
+
+### Rule 19: Root Privilege Separation & SPP Server Agent Control Plane
+- **Non-Negotiable Security Invariant**: PHP MUST NEVER BECOME THE ROOT-LEVEL CONTROL PLANE. The PHP web application (`spp/admin/`) executes as an unprivileged OS user (`www-data` or `sppadmin`) without unrestricted `sudo` or general-purpose shell proxying (`execute_shell_command`).
+- **SPP Server Agent Architecture (`spp/agent/`)**: Privileged operating-system tasks are strictly handled by a standalone daemon via Unix domain socket (`/var/run/spp/agent.sock`, mode `0660`, `root:sppadmin`) with `SO_PEERCRED` caller verification.
+- **Zero Shell String Interpolation**: Safe process execution via `ProcessExecutor` using `proc_open(..., ['bypass_shell' => true])` with structured argument arrays, null-byte (`\0`) and control character rejection, process tree termination, and 30s timeouts.
+- **56 Typed Registered Operations**: Spanning 10 functional domains (System, Services, Storage, Networking, Firewall, Packages, Users/SSH, Webserver, PHP, Database) with strict parameter schemas, types, and regex validation.
+- **Operation Engine Lifecycle**: Complete 11-stage pipeline: Authenticate -> Authorize -> Validate -> Capabilities -> Preflight -> Plan -> Diff Preview -> Confirmation Gating -> Agent Execute -> Post-Execution Verify -> Audit -> Automatic Compensating Rollback.
+- **Fail-Closed RBAC & Secrets Management**: Unmapped actions strictly return `false` (`gateAdminAction() === false`). Secrets (API keys, certificates, passwords) are encrypted at rest with AES-256-GCM via `SecretsService` using a master key isolated outside webroot (`/var/run/spp/master.key`, mode `0600`). API keys are stored as SHA-256 hashes and displayed masked (`spp_...abcd`).
+- **Native Testing Engine (Parikshak)**: Automated verification runs deterministically via `\SPPMod\Parikshak\SPPTestCase` using in-memory mock drivers (`MockDriver`) and in-process server dispatch (`Client::setInProcessServer($server)`). Zero failures tolerated.
+
+
+---
+
+## 2. DIRECTORY STRUCTURE CONVENTIONS
+
+```
+school1/
+├── spp/                                # SPP Framework Kernel
+│   ├── core/                           # Kernel classes (App, Autoloader, Event, CLI, Router)
+│   ├── modules/                        # Framework modules
+│   │   ├── spp/                        # Core modules (sppstorage, sppdb, sppview, drishyam, sppworkflow, sppqueue)
+│   │   └── optional/                   # Optional modules (parikshak, sppai, sppdeploy)
+│   ├── commands/                       # CLI commands extending Command
+│   └── admin/                          # SPPAdmin Workbench & Studio
+├── domains/                            # Domain-Specific Applications & Tenants
+│   ├── _vhosts/                        # Apache and Nginx virtual host templates
+│   └── <domain-name>/                  # Domain Tenant Root
+│       └── src/<AppName>/              # Domain-isolated Application
+├── src/                                # Applications Directory
+│   └── <AppName>/                      # Domain Application (e.g. School, Hospital, LMS)
+│       ├── Controllers/                # Web Controllers extending ViewController
+│       ├── Models/                     # Database Models extending SPPEntity
+│       ├── Languages/                  # Custom in-process DSL parsers extending AbstractLanguage
+│       ├── Services/                   # Domain business services
+│       ├── Jobs/                       # Background queue workers
+│       ├── LiveComponents/             # Reactive UI components
+│       ├── etc/                        # App configurations & local workflows
+│       │   ├── workflows/              # Application workflow YAML files
+│       │   └── polyglot/               # App-scoped language drivers
+│       ├── resources/                  # Frontend assets and views
+│       │   └── views/                  # Blade and Twig templates
+│       │       └── partials/           # Standalone external HTML/Blade fragments
+│       └── tests/                      # Application Parikshak test suites
+├── etc/                                # System & Multitenant App Configurations
+│   ├── polyglot/                       # Declarative YAML language driver manifests
+│   └── apps/<AppName>/workflows/       # Workflow state machine definitions
+├── docs/                               # System Documentation
+│   ├── commands/                       # Markdown CLI manuals
+│   ├── commands/man/                   # Unix troff CLI man pages (.1)
+│   └── tutorials/                      # Comprehensive developer guides
+├── tests/                              # Global & Core Parikshak test suites
+├── llms.txt                            # Condensed AI quickstart
+├── llms-full.txt                       # This complete framework bible
+└── spp.php                             # Unified CLI gateway entrypoint
+```
+
+---
+
+## 3. IDIOMATIC CODE IMPLEMENTATIONS & RECIPES
+
+### A. Database Entity (`SPPEntity`)
+```php
+<?php
+declare(strict_types=1);
+
+namespace School\Models;
+
+use SPPMod\SPPDB\SPPEntity;
+use SPP\Core\Interfaces\WorkflowableInterface;
+
+class StudentCourseEnrollment extends SPPEntity implements WorkflowableInterface
+{
+    protected string $table = 'student_course_enrollments';
+    protected string $primaryKey = 'id';
+    protected array $fillable = [
+        'student_id',
+        'course_id',
+        'term',
+        'grade',
+        'status'
+    ];
+
+    public static function relations(): array
+    {
+        return [
+            'student' => ['belongs_to' => Student::class, 'foreign_key' => 'student_id'],
+            'course' => ['belongs_to' => Course::class, 'foreign_key' => 'course_id']
+        ];
+    }
+
+    public function getWorkflowName(): string
+    {
+        return 'enrollment_lifecycle';
+    }
+}
+```
+
+### B. Declarative YAML Workflow State Machine
+File: `etc/apps/School/workflows/enrollment_lifecycle.yml`
+```yaml
+name: enrollment_lifecycle
+entity: School\Models\StudentCourseEnrollment
+initial_state: pending_approval
+
+states:
+  pending_approval:
+    label: "Pending Advisor Approval"
+    timeout: 172800 # 48 hours SLA
+    timeout_transition: auto_escalate_to_chair
+  advisor_approved:
+    label: "Approved by Academic Advisor"
+  enrolled:
+    label: "Fully Enrolled"
+  rejected:
+    label: "Enrollment Denied"
+  dropped:
+    label: "Course Dropped"
+
+transitions:
+  advisor_approve:
+    from: [pending_approval]
+    to: advisor_approved
+    guards:
+      - \School\Guards\PrerequisiteCheckGuard
+  confirm_tuition:
+    from: [advisor_approved]
+    to: enrolled
+  reject:
+    from: [pending_approval, advisor_approved]
+    to: rejected
+  drop:
+    from: [enrolled, advisor_approved]
+    to: dropped
+  auto_escalate_to_chair:
+    from: [pending_approval]
+    to: pending_chair_review
+```
+
+### C. Resource Controller with Smart Content Negotiation
+File: `src/School/Controllers/EnrollmentController.php`
+```php
+<?php
+declare(strict_types=1);
+
+namespace School\Controllers;
+
+use SPPMod\SPPView\ViewController;
+use School\Models\StudentCourseEnrollment;
+
+class EnrollmentController extends ViewController
+{
+    public function index(): void
+    {
+        $enrollments = StudentCourseEnrollment::all();
+
+        // Smart Content Negotiation: HTMX request gets partial fragment; full page gets layout
+        if ($this->isHtmxRequest()) {
+            $this->renderPartial('partials/enrollment_table.blade.php', [
+                'enrollments' => $enrollments
+            ]);
+            return;
+        }
+
+        $this->render('enrollment/index.blade.php', [
+            'enrollments' => $enrollments
+        ]);
+    }
+
+    public function approve(int $id): void
+    {
+        $enrollment = StudentCourseEnrollment::find($id);
+        if (!$enrollment) {
+            $this->renderPartial('partials/alert_error.blade.php', ['message' => 'Enrollment record not found.']);
+            return;
+        }
+
+        // Native automated workflow transition with HTMX content negotiation
+        $this->transitionEntity(
+            $enrollment,
+            'advisor_approve',
+            ['advisor_id' => $this->session->get('user_id'), 'comment' => $this->request->get('notes')],
+            'partials/enrollment_row.blade.php',
+            'partials/enrollment_error.blade.php'
+        );
+    }
+}
+```
+
+### D. Reactive External Blade Partial
+File: `src/School/resources/views/partials/enrollment_row.blade.php`
+```html
+<tr id="enrollment-{{ $enrollment->id }}" class="enrollment-row">
+    <td>{{ $enrollment->student->first_name }} {{ $enrollment->student->last_name }}</td>
+    <td>{{ $enrollment->course->title }} ({{ $enrollment->course->code }})</td>
+    <td>
+        <span class="status-badge status-{{ $enrollment->getWorkflowState() }}">
+            {{ ucfirst(str_replace('_', ' ', $enrollment->getWorkflowState())) }}
+        </span>
+    </td>
+    <td class="text-end">
+        @if($enrollment->canTransition('advisor_approve'))
+            <button class="btn btn-sm btn-success"
+                    hx-post="/enrollments/{{ $enrollment->id }}/approve"
+                    hx-target="#enrollment-{{ $enrollment->id }}"
+                    hx-swap="outerHTML">
+                ✅ Approve
+            </button>
+        @endif
+    </td>
+</tr>
+```
+
+### E. Directed Acyclic Graph (DAG) Job Orchestration
+```php
+<?php
+declare(strict_types=1);
+
+namespace School\Services;
+
+use SPPMod\SPPQueue\DagJobOrchestrator;
+use SPPMod\SPPDeploy\Deployer\TargetConnection;
+use School\Jobs\GenerateFeeInvoicesJob;
+use School\Jobs\ApplyDiscountsJob;
+use School\Jobs\DispatchNotificationEmailsJob;
+use School\Jobs\ExportBankingLedgerJob;
+
+class TermBillingService
+{
+    public static function processTermBilling(string $termCode): void
+    {
+        // Mutex lock against concurrent race conditions
+        try {
+            TargetConnection::acquireDeploymentLock();
+
+            $dag = new DagJobOrchestrator();
+            $dag->addJob('generate_invoices', GenerateFeeInvoicesJob::class, ['term' => $termCode]);
+            $dag->addJob('apply_discounts', ApplyDiscountsJob::class, ['term' => $termCode], ['generate_invoices']);
+            $dag->addJob('dispatch_emails', DispatchNotificationEmailsJob::class, ['term' => $termCode], ['apply_discounts']);
+            $dag->addJob('export_banking', ExportBankingLedgerJob::class, ['term' => $termCode], ['apply_discounts']);
+
+            // Execute throttled via token bucket (15 jobs/sec, burst allowance 5)
+            $dag->dispatchWithTokenBucket(15, 5);
+        } finally {
+            TargetConnection::releaseDeploymentLock();
+        }
+    }
+}
+```
+
+### F. Parikshak Automated Test Suite
+File: `src/School/tests/EnrollmentWorkflowTest.php`
+```php
+<?php
+declare(strict_types=1);
+
+namespace Tests\School;
+
+use SPPMod\Parikshak\SPPTestCase;
+use SPPMod\Parikshak\Traits\RefreshDatabase;
+use School\Models\StudentCourseEnrollment;
+
+class EnrollmentWorkflowTest extends SPPTestCase
+{
+    use RefreshDatabase; // Automatic SQLite in-memory isolation
+
+    public function testEnrollmentLifecycleStateTransitions(): void
+    {
+        $enrollment = new StudentCourseEnrollment();
+        $enrollment->set('student_id', 1);
+        $enrollment->set('course_id', 101);
+        $enrollment->set('term', 'Fall-2026');
+        $this->assertTrue($enrollment->save());
+
+        $this->assertDatabaseHas('student_course_enrollments', [
+            'student_id' => 1,
+            'course_id' => 101
+        ]);
+
+        // State Machine assertions
+        $this->assertEquals('pending_approval', $enrollment->getWorkflowState());
+        $this->assertTrue($enrollment->canTransition('advisor_approve'));
+        $this->assertFalse($enrollment->canTransition('confirm_tuition')); // Not allowed from initial state
+
+        // Apply transition
+        $enrollment->applyTransition('advisor_approve', 'advisor_user_4', 'Pre-requisites verified.');
+        $this->assertEquals('advisor_approved', $enrollment->getWorkflowState());
+
+        // Audit lineage test
+        $history = $enrollment->getWorkflowHistory();
+        $this->assertNotEmpty($history);
+        $this->assertEquals('advisor_approve', $history[0]['transition']);
+    }
+}
+```
+
+### G. Modern Database Seeding & Fixtures (SPPSeeder)
+File: `src/School/seeders/SchoolSeeder.php`
+```php
+<?php
+
+namespace School\Seeders;
+
+use SPPMod\SPPDB\SPPSeeder;
+
+class SchoolSeeder extends SPPSeeder
+{
+    public function run(): void
+    {
+        // 1. Safely truncate tables
+        $this->truncate('students', 'courses', 'student_course_enrollments');
+
+        // 2. Synthesize base entities with realistic fake overrides
+        $students = $this->seed('Student', 20, [
+            'status' => 'active',
+            'email' => fn() => $this->fake('email')
+        ]);
+
+        $courses = $this->seed('Course', 5, [
+            'department' => 'Computer Science'
+        ]);
+
+        // 3. Synthesize workflow-managed entities in specific target lifecycle states
+        $this->seedWorkflow('StudentCourseEnrollment', 15, 'advisor_approved', [
+            'student_id' => $students[0]->get('id'),
+            'course_id' => $courses[0]->get('id'),
+            'term' => 'Fall-2026'
+        ]);
+
+        $this->log("SchoolSeeder completed with " . count($students) . " students and " . count($courses) . " courses.");
+    }
+}
+```
+
+### I. Modern Active Record Pagination & Form DX
+Active Record models natively support fluent pagination with responsive HTML output:
+```php
+// In Controller:
+public function index(): string
+{
+    // Auto-detects $_GET['page'] and executes paginated SQL query with COUNT(*)
+    $students = Student::findWhere(['status' => 'active'])->paginate(15);
+
+    return $this->render('students.index', [
+        'students' => $students
+    ]);
+}
+```
+In Blade View (`students/index.blade.php`):
+```html
+@foreach($students as $student)
+    @spppartial('partials/student_card.blade.php', ['student' => $student])
+@endforeach
+
+<!-- Render responsive, accessible pagination links (WCAG aria-compliant) -->
+{!! $students->links() !!}
+```
+Validation error recovery and flash input:
+```html
+<form method="POST" action="/students">
+    <input type="text" name="email" value="{{ old('email') }}" class="@if($errors->has('email')) is-invalid @endif">
+    @error('email')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</form>
+```
+
+### J. Enterprise Reactive Form Engine (SPPForm & Form::make())
+Fluent form builders provide declarative field definition, reactive field visibility, enterprise input types, automated anti-spam honeypot defense, and native workflow lifecycle actions:
+```php
+namespace School\Forms;
+
+use SPPMod\SPPView\Form;
+
+class EnrollmentApplicationForm
+{
+    public static function make(): Form
+    {
+        return Form::make('enrollment_app', ['action' => '/enrollments', 'method' => 'POST'])
+            ->addText('student_name', 'Student Name')->required()->col(6)
+            ->addEmail('email', 'Email Address')->required()->col(6)
+            ->addSelect('program', 'Degree Program', [
+                'options' => ['cs' => 'Computer Science', 'math' => 'Mathematics', 'eng' => 'Engineering']
+            ])->required()->col(6)
+            ->addSelect('scholarship', 'Scholarship Type', [
+                'options' => ['none' => 'None', 'merit' => 'Merit-Based', 'need' => 'Need-Based']
+            ])->col(6)
+            // Reactive conditional visibility (client-side DOM dependency)
+            ->addNumber('discount_rate', 'Discount Rate (%)')
+                ->dependsOn('scholarship', '!=', 'none')
+                ->help('Granted percentage discount')
+                ->col(6)
+            // Real-time computed formula
+            ->addNumber('total_fee', 'Net Tuition Fee ($)')
+                ->computed('base_fee - (base_fee * (discount_rate / 100))')
+                ->readonly()
+                ->col(6)
+            // Specialized enterprise inputs
+            ->addTags('skills', 'Prior Skills & Certifications', ['placeholder' => 'Add skill...'])
+            ->addRating('experience_level', 'Self-Assessed Proficiency', ['max' => 5])
+            ->addSignature('applicant_signature', 'Applicant Signature')->required()
+            ->addOTP('verification_code', 'Security OTP Code', ['digits' => 6])
+            ->addRepeater('emergency_contacts', 'Emergency Contacts', [
+                'schema' => [
+                    'name' => ['type' => 'text', 'label' => 'Contact Name'],
+                    'phone' => ['type' => 'tel', 'label' => 'Phone Number']
+                ]
+            ])
+            // Zero-JS offscreen anti-spam bot trap (auto-validated by SPPHoneypotValidator)
+            ->addHoneypot('website_hp_field')
+            // Dynamic workflow state machine action buttons and audit comment
+            ->addWorkflowActions()
+            ->build();
+    }
+}
+```
+In Controller:
+```php
+public function create(): void
+{
+    $form = EnrollmentApplicationForm::make();
+
+    if ($this->request->isMethod('POST')) {
+        $form->bind($this->request->all());
+        if ($form->isValid()) {
+            $enrollment = new StudentCourseEnrollment($form->getData());
+            $enrollment->save();
+            $this->redirect('/enrollments');
+            return;
+        }
+    }
+
+    $this->render('enrollment/create.blade.php', ['form' => $form]);
+}
+```
+In Blade View (`enrollment/create.blade.php`):
+```html
+<div class="card p-4">
+    {!! $form->render() !!}
+</div>
+```
+
+### K. Universal Custom Form Validators & 4-Way Validation Sync
+SPP eliminates validation duality by synchronizing validation across **PHP Server**, **HTML5 Native Constraints**, **SPP-UX Synthetic Events**, and **Drishyam LiveComponents**.
+
+1. Universal Rule Authoring:
+Extend `\SPPMod\SPPView\Validation\Rule` (or implement `RuleInterface`):
+```php
+namespace School\Rules;
+
+use SPPMod\SPPView\Validation\Rule;
+
+class AdmissionNoRule extends Rule
+{
+    public function __construct(protected string $pattern = '^[A-Z]{3}-[0-9]{4}$') {}
+
+    public function passes(string $attribute, mixed $value, array $data = []): bool
+    {
+        if ($value === null || $value === '') return true;
+        return (bool)preg_match('/' . $this->pattern . '/', (string)$value);
+    }
+
+    public function message(string $attribute): string
+    {
+        return ucfirst($attribute) . " must follow the format ABC-1234.";
+    }
+
+    public function clientRule(string $attribute): array
+    {
+        return [
+            'pattern' => $this->pattern,
+            'minlength' => 8,
+            'maxlength' => 8,
+            'data-rule' => 'admission_no',
+            'data-msg' => $this->message($attribute),
+        ];
+    }
+}
+```
+
+2. Declarative Registration (`etc/apps/School/validators.yml`):
+```yaml
+validators:
+  admission_no:
+    pattern: '^[A-Z]{3}-[0-9]{4}$'
+    message: 'Admission code must be ABC-1234.'
+    minlength: 8
+    maxlength: 8
+  curriculum_track:
+    in: ['cbse', 'icse', 'state', 'ib']
+    message: 'Track must be cbse, icse, state, or ib.'
+  exam_score:
+    range: [0, 100]
+    message: 'Score must be between 0 and 100.'
+```
+
+3. Declarative Form YAML Integration (`etc/apps/School/forms/student.yml`):
+```yaml
+form:
+  name: student_form
+fields:
+  code:
+    type: text
+    rules: "required|admission_no"
+  track:
+    type: select
+    rules:
+      - required
+      - curriculum_track
+  parent_pan:
+    type: text
+    rules: "required|pan" # Built-in Indian ID rule
+```
+
+4. CLI Scaffolding Tool:
+```bash
+php spp.php make:rule AdmissionCode --app=School --pattern="^[A-Z]{3}-[0-9]{4}$" --min=8 --max=8
+```
+
+5. SPP Developer Studio (`sppdev`) Integration:
+- Accessible at `/sppdev` -> **Form Designer & Manifests**:
+  - **Visual Drag & Drop Palette**: Direct palette elements for `pan`, `aadhaar`, `gstin`, `ifsc`, and `pincode`.
+  - **Field Inspector (Tab 4: Validation Rules)**: One-click toggles for standard rules and built-in enterprise IDs, dynamic application custom rule checkboxes loaded from `validators.yml`, min/max length constraints, and a quick-action **⚡ + New Custom Rule** button.
+  - **Custom Validators & Rule Studio**: Full workbench tab displaying all registered rules, metrics, an interactive **Live Rule Tester** for real-time regex testing, and a visual rule generator to scaffold new PHP Rule classes and update `validators.yml` without touching code.
+  - **1-Click Code Studio Deep-Linking**: Saving a rule with a PHP class or clicking `💻 Code` on any rule card instantly opens **Code Studio** (`#coder?file=...`) with that file focused.
+
+6. Plain HTML Form Binding (`@sppform_bind`) & Controller Validation:
+Binds bespoke HTML forms to declarative Form YAML schemas with client-side auto-validation, entity hydration, and zero-boilerplate controller verification:
+```blade
+<!-- Blade View: Injects schema, _spp_form token, and auto-hydrates inputs from $student -->
+<form id="student_enrollment_form" method="POST" action="/enroll" @sppform_bind('student_enrollment', $student)>
+    <input type="text" name="first_name" class="form-control" placeholder="Aarav">
+    <input type="email" name="email" class="form-control" placeholder="parent@example.com">
+    <button type="submit" class="btn btn-primary">Enroll</button>
+</form>
+```
+In Controller:
+```php
+public function store()
+{
+    // Zero-parameter validation: auto-detects 'student_enrollment' from request's _spp_form!
+    $validation = $this->validateForm();
+    if ($validation->fails()) {
+        // Smart content negotiation: returns 422 JSON on AJAX/API, or flashes errors + old input and redirects on web!
+        return $this->backWithErrors($validation);
+    }
+    
+    // Mass-assignment safe data slice & magic property access:
+    $student = new Student();
+    $student->first_name = $validation->first_name;
+    $student->email      = $validation->email;
+    $student->save();
+    
+    // Or fast-failing directly returning safe array:
+    // $safeData = $this->validateFormOrFail();
+}
+```
+
+7. Drishyam Studio (`#pages`) Visual Forms & WYSIWYG Inspector:
+- **📝 Forms Palette Tab**: Browse all YAML Form Manifests and registered Validator Rules side-by-side with canvas components.
+- **➕ Insert Form**: 1-click synthesis of semantic HTML forms directly onto the canvas with `@sppform_bind(...)` pre-configured.
+- **🔗 Bind Form**: Select any `<form>` on canvas and bind it to a YAML manifest in 1 click.
+- **🧪 Live Form Sandbox**: 1-click interactive sandbox tester on any form card to test interactive inputs, preview live JSON payloads, and execute real-time server-side validation against YAML rules with safe validated data preview.
+- **WYSIWYG Inspector**: Form YAML Validation Binder dropdown for `<form>` and Field Validation Rule quick-attach for `<input>`, `<select>`, `<textarea>`.
+- **CLI Scaffolding**: `php spp.php make:form <Name> --fields="name:type:rules,role:select[admin|editor],tax_id:pan"` creates pre-configured YAML schemas in seconds.
+- **1-Click Entity Synthesis**: `php spp.php make:form <Name> --entity=<Entity>` inspects model schema or database table columns, generating a fully typed YAML form with required constraints, email/phone/pan/aadhaar detection, and select option bracket enums.
+- **Visual Entity Synthesis in Studio**: In Drishyam Studio (`#forms`), click **⚡ From Entity** to pick any existing domain entity from an autocomplete list and instantly synthesize its YAML form manifest.
+
+8. Built-in Database Validation Rules (`unique` & `exists`):
+SPP provides database validation rules with strict DDL identifier escaping via `SchemaValidator::escapeIdentifier()`:
+- `unique:table,column[,excludeId]`: Verifies that a field value is not already taken in the specified table.
+  ```yaml
+  fields:
+    email:
+      type: email
+      rules: "required|email|unique:users,email"
+    admission_no:
+      type: text
+      rules: "required|unique:students,admission_no,105" # Excludes record ID 105 when updating
+  ```
+- `exists:table,column`: Asserts that a foreign key or referenced entity exists in the target table.
+  ```yaml
+  fields:
+    department_id:
+      type: number
+      rules: "required|exists:departments,id"
+  ```
+
+9. Real-Time Debounced Remote Validation:
+Fields with `unique:`, `exists:`, or `data-spp-remote="true"` automatically trigger debounced (400ms) background validation queries via the `live_validate_field` service endpoint:
+```javascript
+// sppvalidations.js binds automatically:
+// Sends: { field: 'email', value: 'aarav@example.com', rule: 'unique:users,email', form_id: 'student_form' }
+// Returns: { valid: false, error: 'The email has already been taken.' }
+```
+
+10. Modern Blade Error & Old Input Directives:
+Blade views provide multi-source error inspection and old input retrieval without cumbersome manual checks:
+```blade
+<form method="POST" action="/register" @sppform_bind('user_register')>
+    <div class="mb-3">
+        <label>Email Address</label>
+        <input type="email" name="email" value="@old('email')" class="form-control @error('email') is-invalid @enderror">
+        @error('email')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</form>
+```
+Controller Helpers:
+```php
+// Static retrieval of flashed input and validation errors:
+$oldEmail = ViewController::getOldInput('email', 'default@domain.com');
+$flashErrors = ViewController::getFlashErrors('email');
+
+// Direct inline validation returning ValidationResult:
+$result = $this->validate([
+    'email' => 'required|email|unique:users,email',
+    'role'  => 'required|exists:roles,name',
+]);
+if ($result->fails()) {
+    return $this->backWithErrors($result);
+}
+```
+
+### L. Executive Analytics & Reporting Dashboard (SPPReport)
+SPPReport transforms raw SQL and repository queries into executive analytics dashboards with glassmorphic KPI metric cards and an interactive preview toolbar:
+Declarative Report Definition (`etc/apps/School/reports/tuition_revenue.yml`):
+```yaml
+name: tuition_revenue
+title: "Tuition & Revenue Analytics"
+description: "Comprehensive fee collection breakdown by department and term."
+query: "SELECT term, department, COUNT(id) as student_count, SUM(amount) as total_amount, AVG(amount) as avg_fee FROM tuition_fees GROUP BY term, department"
+columns:
+  term: { label: "Academic Term", sortable: true }
+  department: { label: "Department", sortable: true }
+  student_count: { label: "Students", type: "number", sortable: true }
+  avg_fee: { label: "Avg Fee ($)", type: "currency", sortable: true }
+  total_amount: { label: "Total Revenue ($)", type: "currency", sortable: true }
+```
+In Controller:
+```php
+public function dashboard(): void
+{
+    // Compute executive KPI metric aggregates via controller helper
+    $totalRevenueKpi = $this->reportKpi('tuition_revenue', [
+        'metric' => 'total_amount',
+        'format' => 'currency',
+        'icon'   => '💰',
+        'trend'  => '+12.4%'
+    ]);
+
+    $this->render('dashboard/revenue.blade.php', [
+        'totalRevenueKpi' => $totalRevenueKpi
+    ]);
+}
+```
+In Blade View (`dashboard/revenue.blade.php`):
+```html
+<div class="row g-4 mb-4">
+    <!-- 1. Executive Glassmorphism KPI Metric Card Directive -->
+    <div class="col-md-4">
+        @sppreport_kpi('tuition_revenue', [
+            'metric' => 'total_amount',
+            'format' => 'currency',
+            'icon'   => '💰',
+            'trend'  => '+12.4%',
+            'title'  => 'Total Tuition Collected'
+        ])
+    </div>
+    <div class="col-md-4">
+        @sppreport_kpi('tuition_revenue', [
+            'metric' => 'student_count',
+            'format' => 'number',
+            'icon'   => '🎓',
+            'trend'  => '+5.8%',
+            'title'  => 'Enrolled Payees'
+        ])
+    </div>
+</div>
+
+<!-- 2. Interactive Report Table with Client-Side Instant Search, Sorting & Clipboard TSV Copy -->
+<div class="card p-3 shadow-sm">
+    @spppartial('partials/report_preview.php', ['reportName' => 'tuition_revenue'])
+</div>
+```
+
+### M. Universal Polyglot 2.0 & Cross-Language DSL Engine
+
+#### 1. Declarative Language Driver Specification (`etc/polyglot/rust.yml`)
+```yaml
+id: rust
+name: Rust
+category: compiled
+extensions:
+  - rs
+compile:
+  compiler: rustc
+  args: ["-O", "{file}", "-o", "{bin}"]
+  cache_bin: true
+command: "{bin}"
+windows_command: "{bin}.exe"
+ipc_transport: pipe
+timeout: 10.0
+```
+
+#### 2. Custom In-Process DSL Engine (`src/SchoolApp/Languages/RuleEngine.php`)
+```php
+<?php
+namespace SchoolApp\Languages;
+
+use SPP\Core\Polyglot\DSL\AbstractLanguage;
+
+class RuleEngine extends AbstractLanguage
+{
+    protected function defineGrammar(): void
+    {
+        // Custom operator definitions
+        $this->registerOperator('POW', fn($a, $b) => pow($a, $b));
+        
+        // Custom built-in functions
+        $this->registerFunction('DISCOUNT', function($grade, $score) {
+            if ($grade >= 10 && $score >= 90) return 0.25;
+            if ($score >= 80) return 0.15;
+            return 0.05;
+        });
+        
+        $this->registerFunction('ELIGIBLE', fn($age) => $age >= 6 && $age <= 18 ? 1 : 0);
+    }
+}
+```
+
+#### 3. Controller Execution & View Partial Rendering
+```php
+<?php
+namespace SchoolApp\Controllers;
+
+use SPPMod\SPPView\ViewController;
+
+class AnalyticsController extends ViewController
+{
+    public function index(): string
+    {
+        // 1. Invoke compiled or interpreted polyglot service via fluent facade
+        $chartHtml = \SPP\Polyglot::file('services/polyglot/growth_chart.py')
+            ->with(['enrollment_series' => [120, 145, 180, 210], 'theme' => 'corporate'])
+            ->timeout(2.0)
+            ->fallback('<div class="chart-fallback">Chart unavailable</div>')
+            ->get();
+
+        // 2. Evaluate in-process DSL directly (< 0.05ms)
+        $discount = \SPP\Polyglot::formula('services/rules/scholarship.rule', [
+            'grade' => 11,
+            'score' => 95
+        ]);
+
+        // 3. Or evaluate ad-hoc foreign language snippets on the fly
+        $summary = \SPP\Polyglot::eval('python', 'return {"avg": sum(args["pts"]) / len(args["pts"])}', [
+            'pts' => [88, 92, 95]
+        ]);
+
+        return $this->render('analytics/dashboard.blade.php', [
+            'chartHtml' => $chartHtml,
+            'scholarshipDiscount' => $discount,
+            'summary' => $summary
+        ]);
+    }
+}
+```
+
+#### 4. Native Template Macro Directive (`resources/views/analytics/dashboard.blade.php`)
+```blade
+<div class="row">
+    <div class="col-md-8">
+        <!-- Direct Polyglot Partial Macro: Resolves via LanguageRegistry -->
+        @polyglot('services/polyglot/growth_chart.py', ['theme' => 'corporate'])
+    </div>
+    <div class="col-md-4">
+        <!-- Rust compiled microservice partial -->
+        @polyglot('services/compute/fast_matrix.rs', ['matrix' => [1, 2, 3]])
+    </div>
+</div>
+```
+
+---
+
+## 4. ESSENTIAL CLI COMMANDS CHEATSHEET
+
+| Command | Usage | Description |
+|---|---|---|
+| `make:polyglot-language` | `php spp.php make:polyglot-language <name> [--ext=ext] [--category=...]` | Scaffold a declarative YAML language driver (`etc/polyglot/<name>.yml`) or custom in-process DSL grammar evaluator class (`src/<app>/Languages/<Name>Language.php`). |
+| `polyglot:status` | `php spp.php polyglot:status` | Inspect and audit host runtime environments, discovering installed compilers, interpreters, paths, and versions across all registered languages. |
+| `polyglot:status` | `php spp.php polyglot:status [--json]` | Inspect and tabulate runtime binary paths, versions, and activation states (ENABLED/DISABLED) across 47+ languages. |
+| `polyglot:toggle` | `php spp.php polyglot:toggle <lang> [--enable\|--disable] [--json]` | Dynamically activate or deactivate language execution permissions on the fly with zero web server restarts. |
+| `polyglot:list` | `php spp.php polyglot:list` | Recursively discover and tabulate all polyglot scripts, compiled services, and DSL files across workspace service directories. |
+| `polyglot:eval` | `php spp.php polyglot:eval "<code>" [--lang=...] [--context=...]` | Instant on-the-fly execution and benchmarking of code expressions and snippets. |
+| `polyglot:repl` | `php spp.php polyglot:repl [language]` | Interactive terminal Read-Eval-Print-Loop (REPL) shell for rapid prototyping with persistent context. |
+| `polyglot:test` | `php spp.php polyglot:test <path> [--payload=...] [--daemon]` | Test-run and benchmark any polyglot service, capturing execution latency and memory. |
+| `make:polyglot-partial` | `php spp.php make:polyglot-partial <name.ext> [--lang=...] [--app=App]` | Scaffold a new external polyglot view partial service file for any registered language (Python, Node.js, Go, Rust, Ruby, DSLs). |
+| `make:form` | `php spp.php make:form <Name> [--app=AppName] [--yaml] [--php]` | Scaffold a zero-code declarative YAML form definition (`etc/apps/<app>/forms/<name>.yml`, default) or fluent PHP builder class with specialized controls (signatures, OTP, tags, repeaters, honeypot), reactive dependencies (`dependsOn`, `computed`), and workflow actions. |
+| `make:report` | `php spp.php make:report <Name> [--app=AppName]` | Scaffold an enterprise declarative SPPReport YAML configuration and external presentation partial with executive KPI cards (`@sppreport_kpi`) and interactive toolbar. |
+| `route:list` | `php spp.php route:list [--app=App] [--method=GET] [--compile]` | Discover, aggregate, and compile routes across `routes.yml` and `#[Route]` attributes into $O(1)$ static hash maps and PCRE branch-reset `(*MARK)` combined regexes with `routes.json` client manifest export. |
+| `route:export` | `php spp.php route:export [--app=App] [--format=json\|yaml]` | Export aggregated routes to standard OpenAPI 3.1 specifications. |
+| `test:impact` | `php spp.php test:impact [--since=git_ref] [--dry-run]` | Smart convention-based impact test runner executing only affected Parikshak tests. |
+| `arch:lint` | `php spp.php arch:lint [path] [--app=App] [--strict]` | Clean architecture boundary linter enforcing domain and presentation isolation. |
+| `flag:list` | `php spp.php flag:list [--app=App] [--json]` | List declarative feature flags, canary percentages, and target cohorts. |
+| `flag:toggle` | `php spp.php flag:toggle <name> [--on\|--off] [--rollout=N]` | Dynamically toggle feature flags and canary percentages in runtime cache. |
+| `blueprint:run` | `php spp.php blueprint:run <file.yml> [--seed=N]` | Single-file application blueprint provisioning (entities, workflows, controllers, DB sync, smart mock seeding). |
+| `blueprint:ai` | `php spp.php blueprint:ai "<prompt>" [--run] [--seed=N]` | Synthesize declarative application YAML blueprints from natural language prompts. |
+| `quickstart` | `php spp.php quickstart <AppName>` | Zero-ceremony novice application generator provisioning complete MVC, entity, workflow, Blade templates, partials, Parikshak tests, and routes. |
+| `db:seed` | `php spp.php db:seed <Entity> [--count=10]` | Populate database tables with schema-derived realistic synthetic domain data and workflow states. |
+| `make:app` | `php spp.php make:app <AppName>` | Provision a complete new app structure. |
+| `make:scaffold` | `php spp.php make:scaffold <Entity> [--app=App]` | Generate Entity, Controller, Views, Migration. |
+| `make:mixed-paradigm` | `php spp.php make:mixed-paradigm <App>` | Scaffold full enterprise app with Blade, Twig, Workflows, Tests. |
+| `make:partial` | `php spp.php make:partial <Name.blade.php> [--app=App]` | Scaffold an external reactive view partial. |
+| `make:stream` | `php spp.php make:stream <Name.blade.php> [--app=App]` | Scaffold a real-time Turbo Stream. |
+| `make:seeder` | `php spp.php make:seeder <Name> [--app=App]` | Scaffold a modern fluent database seeder class extending `SPPSeeder`. |
+| `sys:seed` | `php spp.php sys:seed [app_name]` | Discover and run all database seeders with execution log audits. |
+| `test` | `php spp.php test [--coverage]` | Execute Parikshak automated test runner. |
+| `test:run` | `php spp.php test:run <Entity> [--app=App]` | Run specific test evaluation suite. |
+| `app:uninstall` | `php spp.php app:uninstall <AppName> [--config-only \| --full] [--backup] [--keep-db] [--force]` | Sovereign application uninstaller with Config-Only mode (preserving `src/`), Full mode (purging code & configs), and automated pre-removal backups. |
+| `app:restore` | `php spp.php app:restore <backup_file_or_appName> [--force]` | Reconstruct application source code, configuration, views, SQLite database, and domain routes from a standalone backup archive. |
+| `app:backup` | `php spp.php app:backup [<appName>] [--list] [--delete=file] [--purge=appName]` | Manage application backup archives in `var/backups/apps/`, inspect disk space consumption, and delete archives to reclaim server disk space. |
+| `app:bundle` | `php spp.php app:bundle [--apps=<app1,app2|all>] [--exclude=<app3>] [--out=<path>] [--format=zip|tar.gz|dir] [--with-db] [--verify=<file>] [--diff[=<target>]] [--push[=<target>]] [--key=<token>]` | Package a curated bundle of applications along with the complete SPP framework runtime into an autonomous deployment archive, or push local differential updates directly to remote servers via integrated SPPDeploy. |
+| `server:configure` | `php spp.php server:configure [--domain=<domain>] [--app=<appName>] [--db-driver=<driver>] [--map=...] [--interactive] [--audit]` | Provision, audit, and configure domains, multi-tenant virtual hosts, databases (MySQL/PostgreSQL/SQLite WAL), and web servers (Apache/Nginx/Caddy) on a target server. |
+| `domain:app:install` | `php spp.php domain:app:install <domain> <appName> [--make-default] [--title="..."]` | Install and scaffold an application physically isolated to a specific domain in `domains/<domain>/src/<appName>`. |
+| `domain:server:configure` | `php spp.php domain:server:configure [--mode=setup\|export\|import] [--domain=...]` | Generate multi-distro Apache, Nginx, IIS, and Caddy vhosts with home directory support, and orchestrate cross-server migration bundles. |
+| `host:installer` | `php spp.php host:installer [--domain=...] [--app=...] [--php=8.3] [--webserver=nginx] [--ssl] [--save] [--one-liner] [--preview]` | Generate, preview, and provision sovereign bare-metal VPS host installer scripts (`spp-host-installer.sh`, `install.sh`), production Nginx virtual host, and systemd service daemons (`spp-worker.service`, `spp-watchdog.service`) for zero-cPanel deployments. |
+| `props:compile` | `php spp.php props:compile [--force] [--db]` | High-performance batch compilation of workspace manifests into SQLite WAL index and PHP opcode cache. |
+| `props:verify` | `php spp.php props:verify [path] [--strict]` | Cryptographic SHA-256 and HMAC supply chain integrity verification. |
+| `props:sbom` | `php spp.php props:sbom [--format=spdx\|cyclonedx] [--out=path]` | Generate Software Bill of Materials (SBOM) with SLSA Level 3 provenance and sandbox capability metrics. |
+| `props:heal` | `php spp.php props:heal [path] [--dry-run]` | Self-healing AST reconciler repairing outdated manifests against actual source code files. |
+| `props:watch` | `php spp.php props:watch [--heal]` | Continuous filesystem watcher recompiling manifests and auto-healing drift in real-time. |
+| `props:search` | `php spp.php props:search <query> [--semantic]` | Hybrid keyword and 64-dimensional semantic vector search across workspace manifests. |
+| `props:impact` | `php spp.php props:impact <path> [--depth=N]` | Transitive semantic blast radius and risk score. |
+| `props:ai:prompt` | `php spp.php props:ai:prompt <path>` | Synthesize LLM attention beacon system prompt. |
+| `props:sovereignty:audit` | `php spp.php props:sovereignty:audit` | Audit workspace data governance and PII masking. |
+| `props:contracts` | `php spp.php props:contracts [--verify-db]` | Audit declarative error fallbacks and verify database schema contracts. |
+| `import:cpanel` | `php spp.php import:cpanel <archive> [--preflight] [--dry-run] [--target-app=App]` | Ingest cPanel/WHM backups (`cpmove-*.tar.gz`, `.tar`, `.zip`) restoring docroot, SQLite DB, Maildir mailboxes, and BIND DNS zones. |
+| `ai:sre` | `php spp.php ai:sre [diagnose\|summarize\|copilot\|patch] [--file=...] [--line=...]` | Sovereign Site Reliability Engineering, error diagnosis, git blame, log summary, and Copilot command plan execution. |
+| `deploy:canary` | `php spp.php deploy:canary [deploy\|rollback\|status] [--app=...]` | Atomic Blue/Green zero-downtime deployment and canary rollback engine (<1ms symlink switch). |
+| `app:bundle` | `php spp.php app:bundle [--apps=...] [--out=...] [--diff=target] [--push=target]` | Autonomous application packager creating standalone deployment bundles with integrated differential SPPDeploy synchronization. |
+| `server:configure` | `php spp.php server:configure [--domain=...] [--app=...] [--db=...] [--audit]` | Target server onboarding wizard, domain routing, DB verification, and vhost synthesis (Apache/Nginx/Caddy). |
+| `deploy:secrets` | `php spp.php deploy:secrets [init\|set\|get\|list\|delete\|decrypt\|sync]` | Zero-knowledge AES-256-GCM envelope encryption for environment secrets (`.sppsecrets.enc`). |
+| `deploy:impact` | `php spp.php deploy:impact [--target=...] [--app=...] [--enforce] [--dry-run]` | Pre-flight change blast radius calculator and Parikshak test gating engine. |
+| `deploy:sentinel` | `php spp.php deploy:sentinel [split\|status\|watch\|promote\|abort]` | Autonomous canary traffic splitting, SLA threshold evaluation, and circuit breaker rollback. |
+| `deploy:telemetry` | `php spp.php deploy:telemetry [--target=...] [--app=...] [--watch]` | Real-time production observability console tracking host memory, releases, slow queries, and crash traces. |
+| `deploy:sre:heal` | `php spp.php deploy:sre:heal [--target=...] [--auto-patch] [--dry-run]` | Closed-loop AI-SRE auto-remediation, stack trace parsing, AST patch synthesis, and Parikshak regression test generation. |
+| `pkg:pack` | `php spp.php pkg:pack <app\|module> <name> [--version=...] [--scope=system\|app] [--app=...]` | Package a standalone application or module into a `.spppkg` archive with `package.yml` and SHA-256 integrity. |
+| `pkg:publish` | `php spp.php pkg:publish <file> [--repo=satyalab] [--token=...] [--url=...]` | Publish a package archive or external asset link to the central repository. |
+| `pkg:search` | `php spp.php pkg:search [query] [--type=all\|app\|module]` | Search central registry catalog (satyalab.net) for applications and modules. |
+| `pkg:info` | `php spp.php pkg:info <name> [--version=...]` | Inspect package metadata, dependencies, license, and download endpoints. |
+| `pkg:install` | `php spp.php pkg:install <source> [--as=...] [--scope=system\|app] [--app=...]` | Universal installer resolving central registry, direct URLs, GitHub releases, or local files. |
+| `pkg:update` | `php spp.php pkg:update [name] [--check] [--all]` | Check for updates and upgrade installed applications and modules. |
+| `pkg:repo` | `php spp.php pkg:repo [list\|add\|remove\|test]` | Manage configured repository endpoints in `etc/pkg-repositories.yml`. |
+| `repo:build` | `php spp.php repo:build [--dir=...] [--url=...]` | Compile package archives into an authoritative `packages.json` catalog and static HTML browsing interface. |
+| `shield:ast-scan` | `php spp.php shield:ast-scan [path] [--quarantine]` | Token-level AST PHP malware, webshell, and backdoor scanner. |
+| `db:advisor` | `php spp.php db:advisor [list\|explain\|apply-index] [--db=...]` | Visual slow query advisor, EXPLAIN query plan analysis, and non-destructive index optimization. |
+| `ai:context` | `php spp.php ai:context [prompt] [--max-tokens=N]` | Generate high-density zero-shot AI prompt context with Knowledge Graph RAG. |
+| `ai:recipes` | `php spp.php ai:recipes [feature]` | Dump verified, copy-pasteable architectural recipes. |
+| `ai:lint` | `php spp.php ai:lint <file>` | Validate code against the 10 Golden Rules. |
+
+---
+
+## 5. REPRODUCIBLE STEP-BY-STEP APP SCAFFOLDING WALKTHROUGH
+
+### Approach A: Natural Language AI Blueprint ("Cakewalk Superpowers")
+1. In the terminal, run `php spp.php blueprint:ai "Build a library system with books, borrowing records, and patrons" --run --seed=10`.
+2. The framework synthesizes the blueprint YAML, generates entities (`Book`, `BorrowingRecord`), provisions database tables via non-destructive DDL, wires `ResourceControllers`, sets up state machines, and seeds 10 realistic domain records per table.
+3. Open `http://localhost/api/docs` to test endpoints interactively in the built-in OpenAPI 3.0 testing console.
+4. In local development, the **Cakewalk DevLens HUD** allows 1-click persona simulation (Admin, Teacher, Student), in-page synthetic seeding, and partial X-Ray debugging.
+
+### Approach B: Single-Command Declarative Blueprint ("Cakewalk DX")
+1. Author `hospital.blueprint.yml` defining entities, shorthand schema types (`string:100|required|searchable`), workflows, and relations.
+2. Execute `php spp.php blueprint:run hospital.blueprint.yml --seed=20`.
+3. The framework automatically provisions domain entities, executes non-destructive DDL migrations, creates declarative workflows, wires convention `ResourceControllers`, seeds 20 realistic records per table, and renders master auto-CRUD partials with live HTMX search!
+
+### Approach C: Standard Component-by-Component Scaffolding
+To build an application named `Hospital` from scratch:
+1. Run `php spp.php make:app Hospital`.
+2. Define models extending `\SPPMod\SPPDB\SPPEntity` in `src/Hospital/Models/`.
+3. Author YAML lifecycle in `etc/apps/Hospital/workflows/patient_lifecycle.yml`.
+4. Create controllers extending `\SPPMod\SPPView\ViewController` in `src/Hospital/Controllers/`.
+5. Create external partials in `src/Hospital/resources/views/partials/` without inline HTML.
+6. Connect state transitions using `$this->transitionEntity()`.
+7. Author Parikshak tests in `src/Hospital/tests/` extending `\SPPMod\Parikshak\SPPTestCase`.
+8. Validate code compliance with `php spp.php ai:lint src/Hospital/`.
+9. Verify with `php spp.php test --app=Hospital`.
+
+### Approach D: SPP Studio Full Application Lifecycle Builder
+Build and manage full-stack applications visually with zero code across their entire lifecycle:
+1. Open SPP Dev → **SPP Studio** (📐).
+2. **App Starting Point Banner**: Instantly view the application's root ingress route (`/`), entry page (`home`), entry controller (e.g. `DocsController@index`), landing view (`portal.blade.php`), and launch with `[Run App ↗]`.
+3. **App Blueprint & Workflow Map**: Switch to the Blueprint tab to explore the 5-stage ingress pipeline, declared routes, embedded partial hierarchies, and YAML state machines.
+4. **Zero-Code Visual Canvas as Default**: Click any view, partial, or layout to open it directly in the Visual Canvas (`studioMode = 'canvas'`). Semantic template synthesis automatically converts Blade and HTML markup into editable component trees (search inputs, nav links, headings, badges, alerts, partial embeds) so partials are never blank.
+5. **Component Palette & Partial Embedding**: Drag and drop 18+ components including `partial-embed` (with instant "Open Partial 📐" navigation), entity tables, form embeds, and workflow-action buttons.
+6. **Visual HTMX Swap Configuration**: Wire dynamic partial swaps (`hx-target`, `hx-swap`, swap URLs) directly in the right-hand Inspector without touching JavaScript or raw HTML.
+7. **Toggle to Code Editor**: Click `💻 Code` or press `Ctrl+S` anytime for direct filesystem editing of Blade, PHP, HTML, and YAML files with path traversal security guards.
+8. **Compile & Test**: Click **⚡ Compile** to generate production ViewControllers, Blade templates, and Parikshak tests (`SPPTestCase`). CLI equivalent: `php spp.php make:page Dashboard --app=Hospital --template=dashboard` then `php spp.php compile:page Dashboard --app=Hospital`.
+9. Page manifests stored as YAML in `etc/apps/{app}/pages/*.yml`.
+10. Extensible component registry: modules register custom widgets via `drishyam.studio.component_registry` event.
+11. **New Page & App Wizards**: Click `[+ New Page]` to create declarative pages with starter presets (Blank, Showcase, Dashboard, Form) and automatic title/route derivation. Click `[➕ New App Wizard]` for guided barebones, showcase, or API application scaffolding with fixed theme-aware modals and seamless context switching.
+12. **SPPLive Studio Integration**: Dedicated `⚡ SPPLive Components` palette category (`live-component`, `live-counter`, `live-search`, `live-stat-card`, `live-stream-box`, `live-form`), automated `src/{app}/Live/` component discovery in the `⚡ Live` sidebar tab, visual `⚡ wire` inspector (`wire:model.live`, `wire:click`, `wire:poll`, `wire:stream`), and real-time interactive preview execution via injected `sppux.standalone.js` and `spplive.min.js`.
+13. **Novice DX & Visual Enterprise Tools**:
+    - **1-Click "Fresh Canvas" & View Cache Purge**: Clears template compilation cache, opcode cache, and data memory with duration metrics (`live_purge_studio_cache`).
+    - **1-Click Entity Quick-Binder with Realistic Mock Data**: Auto-generates form controls and responsive data tables populated with schema-aware synthetic rows without manual property binding (`live_get_entity_schema_studio`).
+    - **1-Click Page Health Smoke Test with Auto-Remediation**: Validates routing, template files, external partial resolution (`@spppartial`), LiveComponent classes, and workflow definitions with 1-click automatic fix generation (`live_check_page_health_studio`, `live_apply_auto_fix_studio`).
+    - **Interactive Visual Workflow Flowchart & State Simulator**: Inspect state machines with status-colored nodes, interactive transitions, SLA timeout banners, and simulate any lifecycle state directly in the preview canvas (`live_get_workflow_topology_studio`).
+    - **Live Reactivity Signal HUD & Ping Sandbox**: Real-time SSE event counter and 1-click test ping dispatch sandbox (`live_dispatch_test_live_event_studio`).
+    - **Visual Media & Asset Drawer**: 1-click media browser and image selector for project assets (`live_list_media_assets_studio`).
+
+### Approach E: Sovereign Omnichannel Communication Suite (e-Vaarta / ई-वार्ता)
+Deploy and orchestrate sovereign, high-speed email and messaging in pure PHP 8.3 + SQLite WAL:
+1. **Dual-Application Architecture**: e-Vaarta Server in `sppadmin/#mail` dedicated exclusively to mail server operations (virtual mailboxes, spool queue, routing rules, screener, deliverability & pure-PHP listener bindings), and e-Vaarta Client at `/sppmail/` dedicated exclusively to the distraction-free 3-pane webmail workstation (inbox streams, composer, attachments, AI brief, Superhuman shortcuts). Direct inter-app bridging via 1-click links and URL parameters (`?account=`). Can also bind as root (`/`) application via `php spp.php evaarta:root --enable [--domain=host]`.
+2. **Multi-Account Manager**: Register Gmail, Outlook, Yahoo, iCloud, Fastmail, local Maildir, and custom SMTP/IMAP accounts via UI or `php spp.php evaarta:account --add`. Supports real-time heuristic autodiscovery and latency diagnostics.
+3. **The Screener (Triage Gatekeeper)**: First-time unvetted senders are automatically segregated into `🛡️ The Screener` (`category = 'screener'`) with zero inbox noise. 1-click triage decisions: Accept to Primary, Route to Feeds, Route to Receipts, Block & Spam.
+4. **Deterministic Rules Engine**: High-speed ($<1\text{ ms}$) matching on sender/subject regex, header presence, and attachments via `AutoTagRuleEngine::evaluate()`. Managed via UI with live simulation modal.
+5. **Snooze Engine & Daemon**: Snooze threads with auto-archival until specified timestamps. Wake expired threads back to primary inbox with dual event bus firing (`sppmail.thread_unsnoozed` + `sppmail:thread_unsnoozed`) via `php spp.php evaarta:process-snooze [--daemon]`.
+6. **Contextual AI Copilot**: Contextual 1-click prompt pills ("Agree & Confirm", "Politely Decline", "Request Details", "Custom Prompt") and tone selector (`formal`, `friendly`, `urgent`, `concise`) with sovereign heuristic template fallback.
+7. **Sovereign Local Server Virtual Mailboxes & Maildir Provisioning**: Provision self-contained virtual email accounts on local hosted domains with RFC 5321/5322 Maildir hierarchy (`var/mail/vhosts/{domain}/{username}/{cur,new,tmp}`), Bcrypt password hashing, storage quota management, suspension/activation, forwarders/aliases, and 1-click webmail sync. CLI: `php spp.php mail:account [list|create|passwd|quota|suspend|unsuspend|delete|forwarder:add|forwarder:list|forwarder:del]`. Test suite: `tests/core/test.sppmail_virtual_accounts.php`.
+
+### Approach F: Sovereign Web Hosting & Server Administration Suite (SPPAdmin)
+Complete cross-platform (Linux + Windows) sovereign hosting workstation:
+1. **SPPServer Host Administration (`sppserver`)**:
+   - Host service daemon management (`SystemctlDriver` on Linux, `WindowsServiceDriver` on Windows). CLI: `php spp.php server:service [list|status|start|stop|restart]`.
+   - Real-time live process workstation (`ProcessManager` via `ps aux` / `tasklist`) with CPU/RAM metrics, PID filtering, signal termination (`SIGKILL`, `SIGTERM`), and priority adjustments (`renice`). CLI: `php spp.php server:process [list|kill|renice]`.
+   - Multi-tenant `HostingAccount` entity (`SPPEntity` with `WorkflowableInterface` & `HasWorkflow`) with automated docroot scaffolding and quota enforcement. Lifecycle: `provisioning` -> `active` -> `suspended` -> `locked` -> `pending_termination` -> `terminated`. CLI: `php spp.php server:account [create|get|suspend|unsuspend|list]`.
+   - Standard backup archive importer (`MigrationImporter`) parsing standard `cpmove-*.tar.gz` archives, extracting web document roots, MySQL dumps, and virtual mail accounts. CLI: `php spp.php server:migrate [inspect|restore]`.
+2. **SPPApps 1-Click CMS & Application Toolkit (`sppapps`)**:
+   - 1-Click application scaffolder (`CmsInstaller`) for WordPress, Laravel, and Drupal with automated salt generation, `.env`/`wp-config.php` provisioning, and database creation. CLI: `php spp.php apps:install <app> [--docroot=...]`.
+   - WordPress lifecycle & security manager (`WpManager`) with version inspection, active plugin/theme audits, WP-CLI command bridge, and enterprise hardening (`DISALLOW_FILE_EDIT`, DB prefix check, directory permissions, XML-RPC protection). CLI: `php spp.php apps:wp [inspect|harden|cli]`.
+   - Staging clone synchronizer (`StagingManager`) isolating database tables with custom prefixes (`staging_`), and atomic production push with pre-push safety snapshots. CLI: `php spp.php apps:staging [create|push]`.
+3. **SPPRuntime Multi-Version Execution & FPM Manager (`sppruntime`)**:
+   - Multi-PHP version detector (`PhpVersionManager`) discovering runtimes across Linux and Windows. Dynamically switches document-root execution handlers via `.htaccess` FastCGI directives. CLI: `php spp.php runtime:php [list|switch]`.
+   - PHP-FPM pool manager (`PhpFpmManager`) configuring worker policies (`dynamic`, `static`, `ondemand`), `pm.max_children`, and live socket/TCP connectivity diagnostics. CLI: `php spp.php runtime:fpm [list|create|delete|test]`.
+   - Visual PHP.INI directive editor (`PhpIniEditor`) inspecting categorised runtime directives, creating automated timestamped `.bak` backups, and generating local `.user.ini` tenant overrides. CLI: `php spp.php runtime:ini [get|set|override]`.
+4. **SPPReseller Multi-Tenancy & Reseller Management (`sppreseller`)**:
+   - Sovereign multi-tenant `Reseller` entity (`SPPEntity` with `WorkflowableInterface` & `HasWorkflow`) with pooled disk and bandwidth quotas. Lifecycle: `provisioning` -> `active` -> `suspended` -> `locked` -> `pending_termination` -> `terminated`. CLI: `php spp.php reseller:account [list|create|suspend|unsuspend|delete]`.
+   - Quota overselling intelligence (`OversellingManager` & `ResourceLimiter`) calculating allocation ratios and capacity risk levels. CLI: `php spp.php reseller:limits <username> [--quota=MB] [--oversell=1|0]`.
+   - Modular feature set profiles (`FeatureListManager`) customizing panel access (mail, database, files, terminal, shield, metrics, apps, runtime). CLI: `php spp.php reseller:features [list|get|save]`.
+   - White-label branding engine (`WhiteLabelEngine`) personalizing portal titles, company logos, and custom CSS accent colors. CLI: `php spp.php reseller:brand <username> [--title=...] [--color=#hex]`.
+5. **File Manager v2 & Developer Workstation**:
+   - Virtual FTP tenant account manager (`FTPAccountManager`) with home directory isolation, bcrypt hashes, and quota controls. CLI: `php spp.php server:ftp [list|create|delete|quota]`.
+   - Safe Trash Bin with metadata tracking, 1-click restore to original path, and bulk purging (`moveToTrash`, `restoreFromTrash`, `emptyTrash`).
+   - Sovereign image transformation engine (`ImageProcessor`) for resizing, cropping, rotating, and WebP format conversion.
+   - Native Git repository workstation (`GitRepoManager`) supporting `git init`, `status`, `pull`, `commit`, and `log` in tenant docroots. CLI: `php spp.php server:git [status|pull|log]`.
+6. **Parikshak Verification**: Verified via native Parikshak test suites in `tests/core/test.sppserver.php`, `test.sppapps.php`, `test.sppruntime.php`, `test.sppreseller.php`, and `test.filemanager_v2.php` (100% green).
+
+### Approach G: Sovereign Hosting & Productivity Superpowers (Phase 1)
+Enterprise capabilities outperforming cPanel, Plesk, and legacy control panels:
+1. **1-Click cPanel / WHM Sovereign Backup Importer (`CpanelImporter`)**:
+   - Ingests full `cpmove-*.tar.gz`, `.tar`, `.zip`, `.tgz` backups exported from cPanel or WHM without data loss.
+   - **Preflight Inspection**: Extracts and parses `cp/username` metadata, package specifications, disk usage, domain list, MySQL database dumps, virtual mail accounts, email forwarders, and BIND DNS zone records before applying any filesystem writes (`$importer->inspect()`).
+   - **Sovereign Migration Pipeline**:
+     - Extracts `homedir/public_html` directly into `src/{app}/public` or target docroot.
+     - Automatically converts MySQL `.sql` dumps into SQLite schema/records (`sqlite.db`), remapping MySQL types (`AUTO_INCREMENT`, `int(11)`, `ENGINE=InnoDB`, `utf8mb4`) seamlessly into SQLite equivalents.
+     - Provisions RFC 5321/5322 Maildir virtual mailboxes (`var/mail/vhosts/{domain}/{user}/`) with restored message counts and forwarders.
+     - Syncs DNS A, MX, TXT, CNAME records into SPP DNS Zone Manager.
+   - CLI: `php spp.php import:cpanel <path/to/cpmove.tar.gz> [--preflight] [--dry-run] [--target-app=appName]`.
+   - UI: SPPAdmin → **Apps** → `[📦 1-Click cPanel Importer]` modal with real-time archive analysis card, selective toggles, and live progress bar.
+
+2. **e-Vaarta 3-Stream Split Inbox & 1-Click Deliverability Alignment**:
+   - **Superhuman / Hey-grade 3-Stream Split Navigation**:
+     - Automatically routes email into three distinct focus streams:
+       - `Important` (VIP/Human correspondence, conversations requiring urgent action).
+       - `The Feed` (Newsletters, marketing bulletins, industry announcements, RSS-style digests).
+       - `Paper Trail` (Transactional receipts, invoices, order confirmations, login alerts, system notices).
+       - `All` (Complete chronological timeline).
+     - Backed by native `InboxStore::getThreads(['stream' => 'important'])` and real-time badge count aggregation via `InboxStore::getStreamCounts()`.
+   - **1-Click Sovereign Deliverability DNS Alignment**:
+     - Solves SPF, DKIM, DMARC, and MX misconfiguration with a single click in SPPAdmin (`MailAdminService::alignDnsRecords($domain, $selector)`).
+     - Directly provisions:
+       - SPF: `v=spf1 mx a ~all`
+       - DKIM: 2048-bit RSA keypair auto-generation and public TXT record publication at `{selector}._domainkey.{domain}`.
+       - DMARC: High-security policy `v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s`.
+       - MX: Priority 10 pointer to `mail.{domain}`.
+     - Automatically merges records into local BIND zones (`etc/dns/zones/{domain}.db`) and computes live deliverability score (100% when fully aligned).
+
+3. **Zero-Lock Database & Code Time Machine (`TimeMachineManager`)**:
+   - Provides point-in-time snapshotting and <50ms instant atomic rollbacks for SQLite WAL databases and application code repositories.
+   - **Zero-Lock SQLite WAL Checkpointing**: Safely forces `PRAGMA wal_checkpoint(TRUNCATE)` and creates timestamped snapshots in `var/snapshots/db/` without locking active connections or closing database cursors.
+   - **Row-Level Diff Inspection**: Inspects table schemas and computes exact record additions, removals, and modifications between the active database and any historical snapshot without loading entire databases into memory (`TimeMachineManager::getDiff($snapshotId, $dbPath)`).
+   - **Instant Atomic Rewinds**: Closes active PDO handles, cleans up stale `-wal` and `-shm` sidecars, and replaces the database atomically in <50ms with zero downtime.
+   - UI: SPPAdmin → **Database Studio** → `[⏳ Time Machine]` drawer with visual timeline scrubber, snapshot triggers, delta badges (`+N / -M`), and 1-click restore modal.
+
+### Approach H: Autonomous Intelligence, Canary Deployments & Security Autopilot (Phase 2)
+Next-generation sovereign control panel capabilities outperforming cPanel, Imunify360, and legacy hosting orchestrators:
+1. **Sovereign AI SRE & Auto-Healer (`AiSreEngine`)**:
+   - Automated error diagnosis, code introspection, Git blame commit tracking, deterministic and AI patch synthesis, 1-click patching with `.bak` safety backups, log summarization/server health score (0-100), and Copilot natural language command bridge (`AiSreEngine`).
+   - CLI: `php spp.php ai:sre [diagnose|patch|summary|copilot] [--error=...] [--file=...] [--line=...] [--app=...]`
+   - UI: SPPAdmin → System / Dashboard → AI SRE Diagnostics & Auto-Healer card.
+
+2. **Atomic Blue/Green Canary Deployments (`BlueGreenDeployer`)**:
+   - Zero-downtime release rotation in `var/releases/{app}/{releaseId}/`, pre-flight syntax and Parikshak checks, local health probes, atomic `< 1ms` symlink/directory junction rotation (`current`), automated canary gating, and instant rollback.
+   - CLI: `php spp.php deploy:canary <appName> <releaseSourcePath> [--canary=weight] [--probe=/health] [--rollback]`
+   - UI: SPPAdmin → Deployments → Blue/Green Canary Pipeline modal.
+
+3. **Autonomous Zero-Trust Shield & AST Malware Scanner (`AstMalwareScanner` & `VirtualPatchingEngine`)**:
+   - Token-level Abstract Syntax Tree analysis via PHP `token_get_all()` detecting obfuscated `eval(base64_decode(...))`, variable functions `$$var()`, superglobal dispatching `$_GET['x']($_POST['y'])`, hex primitives, reverse shells (`AstMalwareScanner`).
+   - In-memory WAF filter mitigating SQLi, RCE wrappers, and path traversal (`VirtualPatchingEngine`).
+   - CLI: `php spp.php shield:ast-scan [directory] [--json] [--quarantine]`
+   - UI: SPPAdmin → Shield → AST Malware Scanner & Virtual Patching Engine.
+
+4. **Visual Slow Query Advisor (`SlowQueryAdvisor`)**:
+   - Logging queries $>100\text{ ms}$, analyzing `EXPLAIN QUERY PLAN` execution trees for unindexed full table scans (`SCAN TABLE`) and temporary B-trees, sanitized DDL index generation, and 1-click non-destructive index application with cursor disposal (`SlowQueryAdvisor`).
+   - CLI: `php spp.php db:advisor [analyze|apply|list] [--db=path] [--query="..."] [--threshold=100]`
+   - UI: SPPAdmin → Database Studio → Visual Slow Query Advisor & Index Optimizer.
+
+5. **Mixed Strategy Deployment Orchestrator ('Best of All Worlds') (`MixedDeployEngine`)**:
+   - Fuses Git version lineage tracking (with graceful sovereign hash tree fallback when Git is absent), preflight Parikshak automated test gating, token-level AST malware scanning, checksum delta syncing, reproducible immutable artifact builds, and atomic Blue/Green canary rotations (< 1ms symlink switch).
+   - CLI: `php spp.php deploy:mixed [deploy|rollback|status|plan] [--app=...] [--strategy=mixed|delta|artifact|canary] [--canary=weight] [--probe=/health] [--dry-run]`
+   - UI: SPPAdmin → Lifecycle / Deployments → Visual Mixed Strategy Deployment Studio.
+
+6. **Visual Deployment Studio & Pre-Deployment Comparison Engine (`DeployView` & `DeployAdminService`)**:
+   - Immediate default `#deploy` interactive command center presenting side-by-side **Active Live Production** vs **Proposed Local Candidate** state comparison before deployment.
+   - **Preflight Safety Gate Matrix**: Instant verification of PHP syntax linting, Parikshak automated test suites, AST malware shield, and reversible database DDL migrations.
+   - **Expandable Delta Inspector**: Categorized file diffs (`+New`, `~Mod`, `-Del`) and SQL DDL statement previews (`CREATE TABLE`, `CREATE INDEX`).
+   - **Canary Traffic Controller**: Interactive slider and live gauge dynamically allocating runtime traffic between live production and candidate release ($1\% \to 100\%$).
+   - **6-Step Pipeline Stepper**: Interactive progression across Lineage, Preflight Gates, Delta Diff, Isolated Staging, Canary Traffic Split, and Telemetry/Rollback.
+   - **7 Supported Deployment Modes**: Mixed Strategy, Blue/Green Canary, Checksum Delta Sync, Immutable Artifact, Remote Cloud Gateway, Multi-Node Cluster, and 1-Click cPanel Importer.
+   - **Instant Atomic Rollback**: Sub-millisecond (&lt; 1ms) zero-downtime reversal to previous releases recorded in `releases.json`.
+   - UI: SPPAdmin → Deployments (`#deploy`) default screen.
+   - Parikshak Verification: `tests/core/test.visual_deploy_bridge.php` and `tests/core/test.mixed_deploy.php` (100% green).
+
+7. **End-to-End Enterprise Lifecycle (Day 0 -> Day 1 -> Day 2) Engine**:
+   - **Day 0 (Development & Pre-Flight)**:
+     - `SecretVault` (`deploy:secrets`): Zero-knowledge AES-256-GCM envelope encryption storing sensitive credentials in `.sppsecrets.enc`. Decoupled from git source control, master key via `.sppmaster.key` or `SPP_MASTER_KEY` environment variable. In-memory injection on boot via `SecretVault::loadIntoEnvironment()`.
+     - `DeployImpactCommand` (`deploy:impact`): Pre-flight change blast radius calculator and Parikshak test gating. Categorizes modifications into Architectural Domains (Kernel, System Modules, Apps, Migrations) and executes targeted test suites before deployment proceeds.
+   - **Day 1 (Resilient Transport, Shadow DDL & Canary Delivery)**:
+     - Resumable Tus-Style Chunk Streaming: Chunk tracking via companion `.meta.json` and `POST /chunk/status` endpoint to resume interrupted transfers without re-transmitting data.
+     - `ShadowDDLRunner`: Zero-downtime database schema evolution using shadow tables (`_shadow_<table>`), batched row copy, and atomic rename swap (`RENAME TABLE t TO t_old, _shadow_t TO t;` in MySQL, transactional rename in SQLite).
+     - `CanarySentinel` (`deploy:sentinel`): Weighted canary traffic splitting (header, cookie, IP CRC32 modulus hashing) and autonomous circuit breaker watchdog monitoring error rate (<2%) and p95 latency (<1000ms).
+   - **Day 2 (Support, Real-Time Observability & Closed-Loop AI-SRE)**:
+     - `TelemetryBridge` (`deploy:telemetry`): Zero-dependency production observability console querying host memory, disk space, active release version, canary metrics, slow queries (>50ms), and uncaught exceptions via authenticated `GET /telemetry`.
+     - `DeploySreHealCommand` (`deploy:sre:heal`): Closed-loop AI-SRE auto-remediation parsing production stack traces, locating local source code, synthesizing AST patches (null-safe `?->`, array coalescing `?? null`, division guards), automatically scaffolding permanent Parikshak regression test cases under `tests/Feature/Regression/test.regression_<id>.php`, and running test gates.
+
+8. **Phase 3: Multi-Server Fleet, Zero-SaaS APM, Biometric Passkeys & Team Collaboration**:
+   - **Multi-Server Fleet Orchestrator & BIND DNS Cluster (`FleetClusterManager`)**: Single-pane workstation (`#fleet`) orchestrating N distributed nodes, aggregate compute telemetry (CPU, RAM, Disk, Tenants), HMAC-authenticated command broadcasting across tag groups, and multi-node authoritative BIND DNS zone replication (`ns1`, `ns2`).
+     - CLI: `php spp.php fleet:node [list|add|remove|ping|broadcast|sync-dns] [--json]`
+     - UI: SPPAdmin → Hosting & Operations → Fleet & DNS Cluster (`#fleet`).
+   - **Native In-Panel APM & Flame Graph Profiler (`FlameGraphProfiler`)**: Zero-SaaS application performance monitoring generating Speedscope-compatible and D3-compatible hierarchical execution flame graphs. Tracks Avg, P95, and P99 tail latency percentiles, request throughput, and execution share bottlenecks across Database, Controller, Template, Routing, HTTP I/O, and Bootstrap.
+     - UI: SPPAdmin → Observability & Diagnostics → APM & Flame Graphs (`#apm`).
+     - RPC Actions: `apm_overview`, `apm_flame_graph`, `apm_slow_transactions`, `apm_record_sample`.
+   - **WebAuthn FIDO2 Biometric Hardware Passkeys (`WebAuthnService`)**: Pure-PHP W3C Web Authentication implementation enabling passwordless, phishing-resistant zero-trust hardware logins via Apple Touch ID/Face ID, Windows Hello, and FIDO2 YubiKey tokens (supporting ES256 and RS256 algorithms).
+     - UI: SPPAdmin → Identity & Security (`#identity`) → 🔐 Passkeys tab.
+     - RPC Actions: `webauthn_register_options`, `webauthn_register_verify`, `webauthn_auth_options`, `webauthn_auth_verify`, `webauthn_list`, `webauthn_delete`.
+   - **e-Vaarta Team Collaboration & Collision Guard (`TeamCollisionHub`)**: Front-grade real-time presence heartbeat (30s TTL) preventing double-replies with visual collision warning alerts, private internal team notes (`var/mail/collaboration/notes/`), and thread assignment routing.
+     - UI: SPPAdmin → Mail & Gateway (`#mail`) reading pane collision banner and notes drawer.
+     - RPC Actions: `evaarta_collision_ping`, `evaarta_collision_viewers`, `evaarta_note_add`, `evaarta_note_list`, `evaarta_thread_assign`.
+   - **Parikshak Verification**: `tests/core/test.fleet_cluster.php`, `tests/core/test.apm_flamegraph.php`, `tests/core/test.webauthn_passkeys.php`, `tests/core/test.evaarta_collaboration.php` (20/20 tests passed, 100% green).
+
+8. **Phase 4: Developer Studio, API Workbench & Sovereign Privacy**:
+   - **Sovereign Inbound Webhook Relay & Inspector (`WebhookRelayManager`)**: Private on-premise webhook ingestion tunnel (`/api.php?action=webhook_ingest&key={key}`), HMAC cryptographic signature validation (Stripe `Stripe-Signature`, GitHub `X-Hub-Signature-256`, Shopify `X-Shopify-Hmac-Sha256`, Razorpay), SQLite WAL ledger storage, and 1-click local forward/replay (ngrok and Webhook.site killer).
+     - CLI: `php spp.php webhook:listen [list|create|listen|replay|clear|delete] [--json]`
+     - UI: SPPAdmin → Webhook Relay & Tunnel (`#webhooks`).
+     - RPC Actions: `webhook_list`, `webhook_create`, `webhook_update`, `webhook_delete`, `webhook_payloads`, `webhook_payload`, `webhook_clear`, `webhook_replay`, `webhook_verify`, `webhook_ingest`.
+   - **Native Interactive API Studio & OpenAPI 3.1 Workbench (`ApiStudioService`)**: Zero-SaaS API testing client, automatic route and entity introspection across controllers and `SPPEntity` models, roundtrip latency benchmarking in milliseconds, formatted JSON tree, copy-as-cURL generator, and 1-click OpenAPI 3.1 schema export in JSON or YAML (Postman and Insomnia killer).
+     - CLI: `php spp.php api:spec [options] [--endpoints] [--format=json|yaml] [--out=...]`
+     - UI: SPPAdmin → API Studio & OpenAPI (`#apistudio`).
+     - RPC Actions: `api_studio_endpoints`, `api_studio_spec`, `api_studio_send`, `api_studio_curl`.
+   - **Visual Workflow & Saga Compensation Simulator (`WorkflowSagaSimulator`)**: Declarative state machine sandbox dry-running transitions, testing validation guards (`SPPWorkflowGuardValidator`), evaluating SLA timeout escalations, and executing Saga compensating transactions in reverse sequence to guarantee zero orphaned state.
+     - CLI: `php spp.php workflow:simulate <workflow_key> [--transition=...] [--state=...] [--saga-rollback] [--timeout-escalate]`
+     - RPC Actions: `workflow_simulate_list`, `workflow_simulate_step`, `workflow_simulate_rollback`, `workflow_simulate_timeout`.
+   - **Sovereign Spy Pixel Neutralizer & Privacy Shield in e-Vaarta (`SpyPixelNeutralizer`)**: Proton Mail-grade privacy shield detecting 1x1, 0x0, hidden CSS, and known surveillance trackers (Mailchimp, HubSpot, SendGrid, Superhuman, Mixmax), neutralizing them into transparent SVG data URIs, enforcing `referrerpolicy="no-referrer"`, and local sovereign signed image proxying.
+     - UI: SPPAdmin → Mail & Gateway (`#mail`) privacy shield banner.
+     - RPC Actions: `mail_privacy_scan`, `mail_privacy_proxy_image`.
+   - **Parikshak Verification**: `tests/core/test.webhook_relay.php`, `tests/core/test.api_studio.php`, `tests/core/test.workflow_saga_simulator.php`, `tests/core/test.spy_pixel_neutralizer.php` (22/22 tests passed, 100% green).
+
+9. **SPPDocs In-Src Data Isolation & e-Vaarta Omnichannel Collaboration**:
+   - **SPPDocs In-Src Data Isolation (`DataStorageResolver`)**:
+     - Strict encapsulation: runtime data (feedback, vector index, FTS5 search index, project issues/forums, VShiksha ERP ledger, and e-Vaarta mail) is preserved inside `src/SPPDocs/data/` by default, eliminating scattered root directories.
+     - 4-Tier configuration hierarchy: `$project['data_dir']` &rarr; `sppdocs.yml: data_dir` &rarr; `SPPDOCS_DATA_DIR` &rarr; canonical `src/SPPDocs/data/`.
+     - Non-destructive automated migration from legacy locations (`data/vshiksha/vshiksha.sqlite3`, `docs/{projectId}/issues`, `docs/{projectId}/forums`).
+   - **e-Vaarta Omnichannel Samvaad & Public Forums Engine (`InboxStore`, `TeamCollisionHub`, `MailAdminService`)**:
+     - **1:1 Direct Samvaad**: Direct scholar/stakeholder consultation with code snippet attachments, syntax highlighting, and unread badge counters.
+     - **Group Spaces**: Cohort and project sprint channels with participant tracking and group broadcast messaging.
+     - **Public Forums**: Categorized forum topics (`forum_slug`), pinned announcements, locked threads, and threaded community replies.
+     - **Academic Feeds**: Community broadcasts with hashtag indexing and emoji reaction counters.
+     - **Real-Time Presence & Collision Prevention**: `TeamCollisionHub::getPresenceBanner()` broadcasting active viewer presence and live typing indicators.
+   - **Parikshak Verification**: `src/SPPDocs/tests/test.DataStorageIsolationTest.php` (5/5 passed), `tests/core/test.evaarta_omnichannel.php` (6/6 passed), `src/SPPDocs/tests/test.ProjectUiAndEvaartaTest.php` (4/4 passed).
+
+10. **SPPDocs Modular Navigation & Autonomous Plug-and-Play Packages**:
+    - **Autonomous Package Manifests (`menus.yml`)**:
+      - Packages residing in `src/SPPDocs/packages/<package_id>/` define independent `menus.yml` manifests specifying `palette_items` (Ctrl+K), `launcher_suites` (9-dot App Launcher), and `sidebar_items` (Project Sidebar navigation & administration studio links).
+      - `PackageKernel::getAggregatedMenus()` dynamically aggregates all package manifests at runtime with zero hardcoded core template dependencies.
+    - **Central Unified `MenuRegistry` Service**:
+      - 2-Tier active filtering: Validates `PackageKernel::hasPackage($pkgId)` (physical installation) AND `FeatureManager::isEnabled($featureKey)` (per-project tenant enablement). Inactive packages and disabled features remain strictly invisible.
+      - Dynamic registration APIs: `registerMenuItem()`, `registerLauncherSuite()`, `registerPaletteCommand()`, and `getFilteredMenus()`.
+    - **100% Decoupled Core Templates**:
+      - `resources/views/partials/header.blade.php`: Zero hardcoded package navigation links. Iterates through dynamically resolved `launcherSuites` and `paletteCommands`.
+      - `resources/views/partials/sidebar.blade.php`: Autonomous `sidebarSections` with project context route variable expansion (`:project_slug`).
+      - Inactive or uninstalled package links disappear globally without touching template code or core registries.
+    - **Parikshak Verification**: `tests/core/test.packagemanagement.php` (3/3 tests passed, 100% green).
+
+11. **Modularity 2.0: Unified Declarative Module Architecture**:
+    - **Strict YAML Manifests (`module.yml`)**: Modules declare identity, semantic dependencies (`dependencies:`), PSR-4 namespaces (`namespace:`), asset mappings (`assets:`), and container service providers (`provider:`) strictly in YAML. Legacy XML manifests (`module.xml`) and ad-hoc parsing are deprecated.
+    - **Declarative Database Schemas (`db.yml`)**: Modules define tables and column constraints declaratively. `ModuleInstaller::executeDbYml()` reconciles schema differences non-destructively without manual SQL migration files.
+    - **Dedicated Configuration Authority (`\SPP\Core\ModuleConfigManager`)**: Absorbed configuration responsibilities from `class.module.php`, providing 7-layer resolution, in-memory caching, per-application isolation (`etc/modsconf/<modname>/config.yml`), and schema-backed defaults.
+    - **Unified Service Provider Contracts (`ServiceProviderInterface`)**: Modules implement `register(): void` (container bindings), `boot(): void` (runtime bootstrapping), and optional `update(string $from, string $to): void` (lifecycle upgrade logic).
+    - **In-Kernel Topological Sorter (DAG)**: `ModuleCompiler` resolves dependencies topologically, supporting semantic version constraints (`^1.0`, `~2.0`) and preventing circular dependency deadlocks.
+    - **Compulsory Integrity Guard**: Vital framework modules (`Module::isCompulsory()`) are strictly protected from accidental deactivation or uninstallation in `ModuleInstaller::setModuleStatus()`.
+    - **Modern CLI Management & Quality Tooling**:
+      - `php spp.php make:module <name> [--scope=app|optional|contrib|spp] [--app=AppName]`: Scaffolds modern module skeletons with `module.yml`, `db.yml`, lifecycle scripts, `ServiceProvider`, and Parikshak test stub.
+      - `php spp.php module:list [--app=AppName] [--filter=keyword] [--status=active|inactive] [--json]`: Comprehensive multi-tier module cataloging.
+      - `php spp.php module:update <modulename>|--all`: Automated `db.yml` database synchronization and lifecycle hook execution.
+      - `php spp.php module:doctor [modulename] [--fix] [--json]`: Health auditor verifying manifests, providers, SemVer dependency graphs, and database schema drift.
+      - `php spp.php test:module <modulename> [--filter=...] [--compact] [--profile] [--bail]`: Native Parikshak automated test runner for isolated modules with SQLite sandbox.
+      - `php spp.php module:pack <modulename> [--out=dist] [--format=zip|tar.gz]`: Validates, sanitizes, and packages modules into distributable archives with SHA-256 digests.
+      - `php spp.php module:setting:list <modulename>` & `module:setting:update <modulename> <key> <val>`: ANSI-table settings inspector and validator.
+    - **Parikshak Verification**: `tests/core/test.modularity2.php` (6/6 tests passed, 100% green), `tests/core/test.moduletaxonomy.php` (4/4 tests passed, 100% green), and `spp/tests/core/ModuleConfigManagerTest.php` (100% passed).
+
+      - RBAC security: Evaluates `requires_admin` and `requires_global_admin` against authenticated user context.
+      - Extensibility hook: Fires `ModuleManager::invokeAlter('menu_items', ...)` allowing dynamic runtime mutation of navigation trees.
+      - Deterministic route mapping: All navigation routes are deterministically registered in `src/SPPDocs/etc/pages.yml` with zero orphaned links.
+    - **Dynamic Presentation Partial Iteration**:
+      - Command Palette (`partials/command_palette.blade.php`), 9-Dot App Launcher (`partials/app_launcher_modal.blade.php`), and Project Sidebar (`partials/sidebar.blade.php`) iterate exclusively over `MenuRegistry`, maintaining absolute decoupling.
+    - **Parikshak Verification**:
+      - `src/SPPDocs/tests/test.ModularNavigationTest.php` (4/4 passed, 100% green: tests plug-and-play package injection/removal, minimal project link pruning, dynamic feature activation, and deterministic route resolution).
+
+12. **Universal OS, Infrastructure & File Services Architecture (`\SPP\Core\Infra`, `\SPP\Core\File` & `\SPP\Core\Storage`)**:
+    - **Foundational Problem Solved**:
+      - Eliminates platform fragility across Windows (Server 2012-2025, Win 10/11, IIS, Apache), Linux (Debian, Ubuntu, RHEL, CentOS, Rocky, Alma, Alpine musl, Arch, SUSE), macOS (Darwin), BSD (FreeBSD, OpenBSD), WSL (WSL1/WSL2), Docker containers, Kubernetes, and Serverless (AWS Lambda, Google Cloud Run).
+      - Eliminates Windows/WSL2/DrvFs lock conflicts (`STATUS_SHARING_VIOLATION` translated by glibc into `EINVAL: Invalid argument`) caused by raw `file_put_contents()` with truncate flags on files with active handles.
+      - Automatically detects read-only container/serverless root filesystems and redirects writable caches/logs to scratch volumes.
+    - **Universal OS & Infrastructure Engine (`\SPP\Core\Infra` / `\SPP\Infra`)**:
+      - `Infra::os()`, `isWindows()`, `isLinux()`, `isDarwin()`, `isBsd()`, `isWsl()`, `isContainer()`, `isServerless()`, `isReadOnlyRoot()`.
+      - `Infra::distro()`, `distroName()`, `packageManager()`, `libc()` (glibc vs musl libc detection for Alpine).
+      - `Infra::webServer()` (Apache, Nginx, IIS, Caddy, LiteSpeed, FrankenPHP) & `sapi()` (cli, fpm, cgi, apache2handler).
+      - `Infra::defaultWebUser()` (`www-data`, `apache`, `nobody`, `http`, `wwwrun`, `_www`, `www`, `IIS_IUSRS`).
+      - `Infra::tempDir()` & `Infra::writablePath($subpath)`: Multi-tier fallback guaranteeing writable paths.
+      - `Infra::fixPermissions($path, $mode, $user)`: Cross-platform permission setter handling POSIX chmod/chown and Windows NTFS ACLs (icacls).
+    - **Fluent Pipeline Directory Query Builder (`FileFinder` & `File::find()`)**:
+      - Zero-dependency generator-backed directory scanner: `File::find($dir)->name('*.log')->extension('log')->size('> 10MB')->modifiedBefore('-7 days')->notPath('archive')->get()`.
+      - High memory efficiency through generator streaming (`Traversable` / `each()`).
+    - **Multi-Tier MIME Detection & Magic Byte Sniffer**:
+      - 4-Tier fallback: PHP `finfo` -> Magic byte sniffer (PNG, JPEG, GIF, WebP, PDF, ZIP, SQLite, WASM, MP4, MP3) -> 100+ Extension map -> `application/octet-stream`.
+    - **Universal Multi-Disk Storage Engine (`\SPP\Core\Storage`)**:
+      - `LocalDisk`: Path containment boundary guard (`path()`), atomic stream writing, and signed temporary URLs (`temporaryUrl()`).
+      - `MemoryDisk`: Virtual in-memory storage for serverless execution and zero-I/O Parikshak automated testing.
+      - `S3Disk`: Pure-PHP AWS SigV4 signed request engine for AWS S3, Cloudflare R2, MinIO, Wasabi, Backblaze B2, Google Cloud Storage without external composer SDKs.
+      - `Storage::temporaryUrl(string $path, int|string $expires, string $disk)`: Expiring HMAC-SHA256 signed download URLs.
+      - `Storage::streamDownload(string $path, ?string $filename, array $headers, string $disk)`: HTTP Range requests (`HTTP 206 Partial Content`) for video/audio seek & resume, and automated `X-Sendfile` / `X-Accel-Redirect` web server acceleration.
+    - **Parikshak Verification**: `tests/core/test.universal_infra_and_file_services.php` (7/7 passed, 100% green on Windows and WSL Linux), `tests/core/test.file_services.php` (8/8 passed, 100% green), `tests/core/test.app_uninstaller_and_backups.php` (10/10 passed, 100% green).
+
+13. **Universal Polyglot 2.0 & Cross-Language DSL Infrastructure (`\SPP\Core\Polyglot\LanguageRegistry`, `Platform`, `UniversalDynamicBridge`, `AbstractLanguage`, `Polyglot`)**:
+    - **Foundational Architecture**:
+      - Enables executing any programming language or custom domain-specific language within SPP without kernel core modifications.
+      - Eliminates tight coupling to hardcoded scripts by introducing dynamic declarative YAML driver specifications in `etc/polyglot/*.yml` and application-scoped directories (`etc/apps/<App>/polyglot/`).
+      - Supports 47+ out-of-the-box languages: Python, Node.js, Go, Rust, Zig, Ruby, Elixir, Lua, Julia, R, Swift, Kotlin, C/C++, C#, Java, Perl, Shell, TypeScript, PHP, Dart, Haskell, Scala, Clojure, Groovy, OCaml, F#, Erlang, Nim, Crystal, D, Fortran, Pascal, Ada, V, Odin, Racket, Scheme, Lisp, Tcl, WASM, Solidity, SQL, AWK, Octave, Bun, Deno, and Formula DSL.
+    - **Dynamic Declarative Registry & Activation Controls (`LanguageRegistry`)**:
+      - `LanguageRegistry::boot()`, `getDriver($idOrExt)`, `resolveByPath($path)`, `getAllDrivers()`, `discoverRuntimes()`.
+      - Dynamic zero-restart language activation management: `isEnabled($lang)`, `enable($lang)`, `disable($lang)`, `toggle($lang, $state)`.
+      - Persists activation states in `etc/polyglot/status.yml`. When disabled, attempts to execute foreign code immediately throw `PolyglotExecutionException` with remediation hints.
+    - **Cross-Platform IPC & Framing Subsystem (`Platform`)**:
+      - Universal OS binary discovery (`findBinary()`) executing `where.exe` on Windows and `which` on Linux, macOS, BSD, and containers.
+      - Socket and Named Pipe normalization: Win32 Named Pipes (`\\.\pipe\spp_polyglot_*`) on Windows NT; POSIX Unix Domain Sockets in `/dev/shm` or tmpfs on Unix-like operating systems.
+      - 4-Byte Big-Endian Length-Prefixed Framing (`packFrame()`, `unpackLength()`) preventing payload tearing or stream buffering fragmentation over standard I/O pipes.
+    - **Dynamic Compilation & Binary Cache Engine (`UniversalDynamicBridge`)**:
+      - On-the-fly compilation for compiled languages (Rust `rustc`, Zig `zig build-exe`, Go `go build`, C++ `cl.exe`/`g++`, .NET `dotnet build`).
+      - Transparent binary caching in `var/cache/polyglot/bin/` with MD5 source hashing, recompiling only when source code changes.
+    - **In-Process Custom DSL & Scripting Engine (`AbstractLanguage`, `Lexer`, `Parser`, `FormulaLanguage`)**:
+      - Pure-PHP lexical tokenization and Pratt/recursive-descent AST evaluator supporting arithmetic precedence, variable context binding, conditional statements (`IF ... THEN ... ELSE`), assignments, statement lists, 20+ built-in math/string/logic functions, and custom operator handlers.
+      - Executes in-process with < 0.05ms execution latency and zero external system dependencies.
+    - **Unified Developer-Friendly Facade & Presentation Integration**:
+      - Fluent Facade: `\SPP\Polyglot::file('service.py')->with([...])->fallback('<div>Default</div>')->get()`.
+      - Ad-hoc Evaluation: `\SPP\Polyglot::eval('formula', 'ROUND(SQRT(x) * 1.5, 2)', ['x' => 144])`.
+      - ViewControllers: `$this->callPolyglot('service.py', $args)`, `$this->evalPolyglot($lang, $code, $ctx)`.
+      - Drishyam Blade/Twig: `@polyglot('services/chart.py', $data, true, 3600, 'partials/fallback.blade.php')`, `@polyglot_eval('formula', 'a + b', ['a' => 10, 'b' => 20])`.
+    - **Interactive Studio Web GUI & CLI Tooling**:
+      - SPPAdmin & SPPDev Universal Polyglot Studio (`#polyglot`, `spp/admin/js/views/polyglot.js`, `PolyglotAdminService`): 47-language inventory with category filtering, 1-click enable/disable switches, runtime detection badges, live playground with microsecond latency telemetry, and workspace services scanner.
+      - CLI Commands: `php spp.php polyglot:status [--json]`, `php spp.php polyglot:toggle <lang> [--enable|--disable]`, `php spp.php polyglot:eval "<code>"`, `php spp.php polyglot:repl [lang]`, `php spp.php polyglot:test <path>`, `php spp.php make:polyglot-language <name>`, `php spp.php make:polyglot-partial <name.ext>`.
+    - **Parikshak Verification**: `spp/tests/core/UniversalPolyglotTest.php` (14/14 passed, 100% green: registry discovery, dynamic extension resolution, dynamic bridge instantiation, platform framing, DSL lexer tokenization, DSL parser evaluation, in-process bridge execution, standard library functions, fallback builder, diagnostic error reporting, enable/disable/toggle lifecycle, disabled execution guards, PolyglotAdminService, and all 47 language registrations verified).
+  - **14. SPP Application Packager & Target Server Provisioning Subsystem (`AppPackager`, `ServerConfigurator`)**:
+    - **Autonomous Distribution Bundling (`\SPP\Core\AppPackager`)**:
+      - Solves the multi-tenant deployment challenge: selectively packages chosen applications along with the complete SPP framework runtime (`spp/`), public web entrypoints (`public/`), CLI tooling (`spp.php`), and clean storage skeletons into portable `.zip`, `.tar.gz`, or directory bundles.
+      - Automatic Hygiene & Bloat Pruning: Prunes `.git`, logs, caches, scratch files, and unselected applications.
+      - Base Configuration Synthesis: Synthesizes production-ready `etc/global-settings.yml` and `etc/domains.yml` bound strictly to the bundled applications with `base_app` designation.
+      - Cryptographic Integrity: Calculates SHA-256 signatures for every bundled asset and records them in `bundle-manifest.json`.
+      - Onboarding Launchers: Embeds standalone `setup.php` and `setup.sh` in the bundle root for instant single-command setup on the destination server.
+    - **Target Server Provisioning & Environment Engine (`\SPP\Core\ServerConfigurator`)**:
+      - Multi-domain routing: Binds custom domains, subdomains, and root base applications.
+      - Multi-database engine: Configures MySQL, PostgreSQL, or SQLite WAL with live pre-flight PDO connectivity verification.
+      - Web server generator: Renders tailored Apache `<VirtualHost>`, Nginx `server {}`, and `Caddyfile` templates to `domains/_vhosts/`.
+      - System readiness & optimization: Audits PHP prerequisites and writable paths, clears stale caches, executes database migrations, and recompiles registry opcode caches.
+    - **CLI & Launch Infrastructure**:
+      - `php spp.php app:bundle [--apps=...] [--exclude=...] [--out=...] [--format=...] [--with-db|--no-db] [--verify=...] [--list] [--dry-run]`.
+      - `php spp.php server:configure [--domain=...] [--app=...] [--db-driver=...] [--db-host=...] [--map=...] [--interactive] [--audit]`.
+      - `php setup.php`: Universal 1-command entrypoint on the server launching the guided interactive or automated configuration engine.
+  - **15. SPP Universal Package Manager & Central Repository Hub (`PackageManager`, `RepositoryHub`, `satyalab.net`)**:
+    - **Autonomous Standalone Packaging (`\SPP\Core\PackageManager::packApp`, `packModule`)**:
+      - Packages standalone applications and modules into cross-platform `.spppkg` (or `.zip`) archives complete with an authoritative root `package.yml` manifest, source code, view partials, workflows, and database migration schemas.
+      - Automated sanitization & exclusion: Prunes `.git`, local vendor dependencies, caches, temporary files, and logs.
+      - Computes cryptographic SHA-256 archive checksums for distribution registries and release ledgers.
+    - **Dual Module Scope Installation (`system` vs. `app`)**:
+      - **System Modules**: Installed globally into `spp/modules/optional/{module_name}` (or `contrib/`), activated in framework-wide `etc/modules.yml`, and made available to all apps running in the SPP cluster.
+      - **App-Level Modules**: Installed in isolation under `src/{target_app}/modules/{module_name}`, activated in `etc/apps/{target_app}/modules.yml`, preventing version conflicts between co-hosted apps.
+    - **Universal Multi-Source Resolution Engine (`\SPP\Core\PackageManager::resolveAndDownload`)**:
+      - **Central Repository**: Queries configured endpoints (defaulting to `https://repo.satyalab.net` defined in `etc/pkg-repositories.yml`), downloads the release archive, and validates its SHA-256 hash.
+      - **Direct URLs & CDN Links**: Downloads archives directly from any public or authenticated HTTP/S location specified in the repository manifest or CLI invocation.
+      - **GitHub Releases**: Resolves GitHub release asset links (`owner/repo` or release download tarball/zip).
+      - **Local Archives**: Supports direct path installation (`/path/to/package.spppkg`).
+    - **Cryptographic Verification & Directory Traversal Protection**:
+      - Strict SHA-256 pre-extraction validation prevents tampering and man-in-the-middle payload alterations.
+      - Path normalization and directory traversal guards prevent files from escaping the destination directory during extraction.
+    - **Decentralized Repository Hub Engine (`\SPP\Core\RepositoryHub`)**:
+      - **Static Catalog Compilation (`repo:build`)**: Scans package storage directories, parses `package.yml` manifests, computes SHA-256 checksums, and compiles `packages.json` alongside a modern, responsive static web browsing catalog (`index.html`).
+      - **Publishing Engine (`pkg:publish`)**: Supports direct HTTP multipart upload with Bearer token authentication or registering external CDN / GitHub release asset links.
+      - **REST Catalog Handlers**: Provides headless JSON APIs for repository searching, package metadata inspection, and package retrieval.
+    - **Lifecycle Update & Upgrade Engine (`\SPP\Core\PackageManager::checkForUpdates`, `pkg:update`)**:
+      - Performs semantic version comparisons (`version_compare`) between installed application/module manifests and upstream repository catalogs.
+      - Supports non-destructive auditing (`pkg:update --check`) and automated multi-package batch upgrades (`pkg:update --all`).
+    - **CLI Infrastructure (`isCLIOnly()`)**:
+      - `php spp.php pkg:pack <app|module> <name> [--version=...] [--scope=system|app] [--app=...]`
+      - `php spp.php pkg:publish <file> [--repo=satyalab] [--token=...] [--url=...]`
+      - `php spp.php pkg:search [query] [--type=all|app|module]`
+      - `php spp.php pkg:info <name> [--version=...]`
+      - `php spp.php pkg:install <source> [--as=...] [--scope=system|app] [--app=...]`
+      - `php spp.php pkg:update [name] [--check] [--all]`
+  - **16. SPP Multi-Language Application Integrator, Route-Directory Virtualization & Sovereign Service Mesh (`ForeignAppRegistry`, `SubpathVirtualizer`, `SubpathGateway`, `AppSupervisor`, `Mesh`)**:
+    - **Declarative Application Manifest & Catalog (`\SPP\Core\Apps\ForeignAppRegistry`, `etc/apps.yml`)**:
+      - Manages heterogeneous application stacks co-existing on the same server: native SPP (PHP Blade/Twig), PHP-FPM isolated worker pools (WordPress, Laravel, Drupal), Node.js, Python (FastAPI, Flask, Django), Go, Rust, Ruby, and static SPAs.
+      - **Dual Mounting Architecture**: Supports mounting applications inside route directories (e.g. `myserver.com/blog`, `myserver.com/ai`, `myserver.com/chat`) using longest-prefix route matching, AS WELL AS dedicated subdomains (e.g. `blog.myserver.com`, `ai.myserver.com`).
+      - Declares exposed inter-app service endpoints under `spp_integration.expose_services`.
+    - **Ingress Subpath Virtualization & Transparent Reverse Proxy (`\SPP\Core\Apps\SubpathVirtualizer`, `SubpathGateway`)**:
+      - Solves the subpath routing dilemma: the guest app runs as if it were on its own dedicated server root (`/`), while clients browse seamlessly via `/blog` or `/ai`.
+      - Ingress header injection: Injects `X-Forwarded-Prefix`, `X-Forwarded-Proto`, `X-Forwarded-Host`, `X-SPP-Gateway`, and HMAC-signed authenticated user claims.
+      - Response virtualization: Rewrites HTTP `Location:` redirect headers to prevent escaping the subpath directory, scopes cookies (`Path=/route/`), and injects `<base href="/route/">` into HTML `<head>` so asset links and relative URLs work out of the box.
+      - Integrated with `RouteDispatcher` via `ForeignAppRouteServiceProvider` and `router.php`.
+    - **Sovereign Cross-Platform Process Supervisor (`\SPP\Core\Apps\AppSupervisor`)**:
+      - Autonomous daemon manager running across Windows, Linux, and macOS without requiring Docker, PM2, or Supervisord.
+      - Dynamic loopback port assignment (`10000–20000`) or Unix domain sockets (`var/run/apps/*.sock`).
+      - Ambient environment variable injection: `SPP_HOST=1`, `SPP_APP_ID`, `PORT`, `SPP_ROUTE_PREFIX`, `SPP_GATEWAY_URL`, `SPP_APP_TOKEN`.
+      - Healthcheck polling, process state tracking in `var/run/apps/*.state.json`, and rotating log streams in `var/logs/apps/*.log`.
+    - **Ambient Sensing Protocol & Zero-Dependency SDKs**:
+      - Python SDK (`spp/lib/mesh/python/spp_mesh.py`): Zero-dependency client for FastAPI/Flask. Validates HMAC-SHA256 user claims (`get_auth_user`), calls peer services (`call_service`), and publishes events (`publish_event`).
+      - Node.js SDK (`spp/lib/mesh/node/spp_mesh.js`): Zero-dependency client for Express/Next.js.
+      - PHP Client (`spp/lib/mesh/php/spp_mesh_client.php`): Zero-dependency client for external PHP applications.
+      - WordPress SSO Bridge (`spp/modules/optional/sppapps/plugins/wordpress/spp-sso-bridge.php`): Drop-in plugin enabling 1-click Single Sign-On from SPP session claims.
+    - **Mutual Inter-App Service Mesh & Event Bus Bridge (`\SPP\Mesh`, `MeshServiceDispatcher`)**:
+      - Direct PHP RPC interface: `\SPP\Mesh::call($appId, $endpoint, $payload, $method)` allows native SPP controllers, workflows, and CLI tools to call guest microservices.
+      - HTTP Mesh Gateway (`/spp-mesh/invoke/{app}/{ep}`): Dispatches inter-app RPC requests with distributed tracing (`W3CTraceContext`).
+      - Event Bus Bridge (`/spp-mesh/events/publish` and `/spp-mesh/events/stream`): Bridges guest app events to `\SPP\SPPEvent::fireEvent()` and provides Server-Sent Events (SSE) feeds.
+      - Service discovery catalog: `\SPP\Mesh::listServices()`.
+    - **Unified Developer Studio Workbench (`/sppdev#apps` & `/sppdev#mesh`)**:
+      - Single-pane-of-glass workbench uniting native SPP applications and multi-language guest apps (Python, Node.js, Go, PHP-FPM, Static SPA) into a single console without hopping interfaces.
+      - Live Supervisor Fleet Management: Start, Stop, Restart, live log streaming modal (`var/run/apps/*.log`), and loopback port allocation inspection.
+      - Interactive Inter-App RPC Sandbox: Discovers service endpoints, validates and formats JSON payloads, and executes real-time RPC invocations with latency and HTTP status inspection.
+      - Cross-App Event Bus Inspector: Dispatches synthetic events to test reactive event propagation across native subscribers and guest microservices.
+    - **Production Web Server Virtual Host Synchronization (`\SPP\Core\ServerConfigurator`)**:
+      - `generateVirtualHosts()` auto-generates Apache `ProxyPass` / `ProxyPassReverse`, Nginx `location /route/` reverse proxy and PHP-FPM blocks, and Caddy `handle_path` directives in `domains/_vhosts/`.
+    - **CLI Infrastructure (`isCLIOnly()`)**:
+      - `php spp.php app:start [<app_id>|all]`: Boot application daemons.
+      - `php spp.php app:stop [<app_id>|all]`: Terminate application daemons.
+      - `php spp.php app:restart <app_id>`: Restart an application daemon.
+      - `php spp.php app:status [--json]`: Operational dashboard of all applications.
+      - `php spp.php app:logs <app_id> [--tail=50]`: Inspect real-time stdout/stderr logs.
+      - `php spp.php mesh:call <app_id> <endpoint> [json_payload] [--method=POST]`: Dispatch inter-app RPC requests.
+      - `php spp.php mesh:services [--json]`: Discover all declared capabilities across the mesh.
+      - `php spp.php pkg:repo [list|add|remove|test]`
+      - `php spp.php repo:build [--dir=...] [--url=...]`
+    - **Parikshak Verification**: `tests/core/test.package_manager_and_repo.php` (10/10 passed, 100% green: app packaging, module packaging, repository catalog generation, direct and external package resolution, installation of apps, installation of system modules, installation of app modules, update audits, update upgrades, and CLI repository management).
+
+
+---
+
+### Phase 4 & Phase 5: Sovereign Bare-Metal Fleet Installer, Atomic Deployments, Runtime Accelerator & Privacy Shield
+
+#### 1. Sovereign Bare-Metal Host & Fleet VPS Provisioner (`HostInstallerService`, `HostInstallerCommand`)
+- **Zero-cPanel VPS Provisioning**: Completely replaces cPanel/WHM with an automated, idempotent bash bootstrapper (`spp/bin/spp-host-installer.sh`, root `install.sh`).
+- **1-Line Remote Host Bootstrap**:
+  ```bash
+  curl -sSL https://satyalab.net/install.sh | sudo bash -s -- --ssl --email=admin@satyalab.net
+  ```
+- **Operating System Auto-Detection**: Supports Ubuntu 24.04/22.04 LTS, Debian 12/11, and AlmaLinux 9/RHEL 9.
+- **Atomic Release Hierarchy**:
+  - Releases live in `/var/www/spp/releases/<hash>/`.
+  - Active release points to `/var/www/spp/current` via an atomic directory symlink.
+  - Persistent shared storage lives in `/var/www/spp/shared/` (`var/db/`, `var/logs/`, `var/cache/`, `var/data/`).
+- **Nginx & Systemd Service Daemons**:
+  - Zero-downtime Nginx vhost with HTTP/2 and modern SSL cipher suites (`/etc/nginx/sites-available/spp.conf`).
+  - Automated Certbot Let's Encrypt TLS renewal.
+  - Native Systemd units for DAG background worker (`spp-worker.service`) and health watchdog (`spp-watchdog.service`).
+- **CLI Command**: `php spp.php host:installer [--domain=...] [--app=...] [--php=8.3] [--ssl] [--save] [--preview]` with strict CLI SAPI guarding (`isCLIOnly(): bool { return true; }`).
+- **Dual Man Pages**: Markdown (`docs/commands/host-installer.md`) and Unix Troff (`docs/commands/man/host-installer.1`).
+
+#### 2. Vercel-Grade Atomic Blue/Green Deployments & Canary Traffic Splitter (`BlueGreenDeployer`)
+- **Atomic Symlink Rotations**: Swaps live releases in `< 1ms` via atomic filesystem symlink operations.
+- **Instant Rollback (< 100ms)**: Swaps the active release pointer back to the previous immutable release directory with zero user-facing downtime.
+- **Pre-Deployment Quality Gates**: Automated preflight checks verify Parikshak test pass rates and database schema migrations before symlink activation.
+- **Canary Traffic Splitter**: Adjust traffic percentage between candidate and production releases via `DeployAdminService::updateCanaryWeight()`.
+
+#### 3. Autonomous Runtime Accelerator Studio (`RuntimeAdminService`)
+- **OPcache & JIT Telemetry**: Microsecond inspection of opcode memory consumption (total, used, free, wasted), operational hit rates (> 98%), JIT compiler state (buffer size, optimization level), and top cached scripts sorted by hits.
+- **1-Click Atomic Bytecode Invalidation & Warmup**:
+  - `RuntimeAdminService::resetOpcache()`: Atomically resets opcode cache and purges system cache in `< 5ms`.
+  - `RuntimeAdminService::warmupOpcache([$paths])`: Recursively preloads and compiles core framework and application PHP scripts into memory, eliminating cold-start latency.
+- **AI Hardware Sizing Advisor**: Automatically detects physical RAM and CPU cores across Linux and Windows, assigns systems to 4 tiers (Micro/Nano VPS $\le 1.5$GB, Standard VPS 2–6GB, High-Performance Cloud 8–24GB, Bare-Metal Enterprise $\ge 32$GB), and calculates mathematically optimal PHP-FPM process pools (`pm_type`, `pm_max_children`, `pm_start_servers`, `pm_min_spare`, `pm_max_spare`) and memory limits.
+- **PHP Extensions Categorization Matrix**: Categorizes loaded modules into Database, Security, Acceleration, Networking, and Serialization, actively recommending missing accelerators (`apcu`, `redis`).
+
+#### 4. Hardened Sovereign Shield Privacy & Anti-Leech Guard (`ShieldAdminService`)
+- **Hotlink & Bandwidth Theft Guard**:
+  - Declarative configuration in `etc/shield_hotlink.yml` (allowed referer domains, protected file extensions, direct request policies, block action).
+  - Automatically compiles into production-ready Apache (`mod_rewrite`) and Nginx (`location ~* \.(ext)$`) rewrite rules.
+- **Directory Privacy (HTTP Basic Auth)**:
+  - Declaratively managed via `etc/shield_privacy.yml`.
+  - Credentials stored in isolated, web-inaccessible files (`var/security/htpasswd_<hash>`) hashed with high-entropy Bcrypt (`PASSWORD_BCRYPT`), eliminating messy `.htaccess` files in public docroots.
+
+#### 5. Parikshak Automated Test Suites
+- `tests/core/test.host_installer_and_atomic_deploy.php`: 6/6 passed (100% green).
+- `tests/core/test.runtime_accelerator_and_privacy_shield.php`: 7/7 passed (100% green).
+
+
+---
+
+### Phase 6: Sovereign Cloud Backup Vault & Hardened SSH Key Management
+
+#### 1. Sovereign Backup & Disaster Recovery Vault (`BackupAdminService`)
+- **Zero-Lock Database Snapshots**: SQLite WAL non-blocking snapshotting (`VACUUM INTO` / direct WAL checkpoint copying) and non-blocking table exports, eliminating database locks.
+- **Granular Multi-Scope Snapshots**:
+  - `full`: Complete system snapshot (code, SQLite WAL databases, configs, user uploads).
+  - `database`: Database schemas and WAL checkpoints only.
+  - `app`: Single application isolated snapshot (`src/{AppName}`).
+  - `config`: Environment, domain mappings, workflows, and YAML policies only.
+- **Cryptographic SHA-256 Verification**: Every archive is cryptographically hashed with SHA-256 upon generation. 1-click test verification opens the archive in a sandbox without touching production.
+- **Point-in-Time Recovery**: 1-click safe extraction into current workspace with automatic file counting and duration telemetry.
+- **Multi-Cloud Ready**: Direct offload architecture via `\SPP\Storage\S3Disk` to Cloudflare R2, AWS S3, MinIO, or Wasabi.
+
+#### 2. Sovereign SSH Key Vault & Remote Access Guard (`SshAdminService`)
+- **Modern Key Pair Generation**: Native support for **Ed25519** (high-speed, compact elliptic curve default) and **RSA-4096** with optional passphrase protection.
+- **Authorized Keys Registry**: Visual management of `~/.ssh/authorized_keys` with SHA256 fingerprints, client labels, and 1-click access revocation.
+- **SSH Daemon Security Auditor**: Evaluates host `/etc/ssh/sshd_config`, calculating a Security Score (0-100) across `PermitRootLogin`, `PasswordAuthentication`, `PubkeyAuthentication`, `Port`, and `MaxAuthTries`.
+- **1-Click Terminal Connect Strings**: Generates ready-to-paste terminal commands (`ssh -i ~/.ssh/id_ed25519 root@103.211.202.147 -p 22`) and OpenSSH `~/.ssh/config` host blocks.
+
+#### 3. Parikshak Automated Test Suite
+- `tests/core/test.backup_vault_and_ssh_manager.php`: 7/7 passed (100% green).
+
+---
+
+### Phase 7: Deep Telemetry Flame Graph APM, W3C Distributed Tracing & SPP Ignition
+
+#### 1. In-Panel Speedscope Flame Graph Profiler (`FlameGraphProfiler` & `ApmAdminService`)
+- **Microsecond Granularity**: Records execution duration, memory allocation, and nested spans across HTTP requests without third-party APM agents (Datadog/New Relic).
+- **Architectural Span Categories**: Classifies execution into `bootstrap` (autoloader, DI container), `routing` (route matching, middleware), `controller` (business logic), `database` (SQL queries, active record), and `template` (Blade/Twig views).
+- **Aggregated Latency Analytics**: Calculates average latency, P95, and P99 percentiles, error rates, requests per second (RPS), and bottleneck distribution percentages.
+- **Speedscope D3 Visual Trees**: Generates hierarchical flame trees rendered natively in the SPPAdmin **⚡ APM & Profiler** (`#apm`) view.
+
+#### 2. W3C Distributed Tracing Engine (`TraceAdminService`)
+- **W3C Trace Context Standard**: Generates and parses RFC-compliant `traceparent` headers (`00-{trace_id}-{parent_id}-{trace_flags}`).
+- **Multi-Hop Journey Waterfall**: Decomposes distributed requests into interactive waterfalls mapping hops across Edge Gateway (`spp-edge`), Kernel Router (`spp-kernel`), Application Logic (`spp-app`), and Database Storage (`spp-db`).
+
+#### 3. SPP Ignition Visual Exception Debugger (`IgnitionService`)
+- **Automated Incident Capture**: Intercepts uncaught exceptions and serializes rich incident payloads to `var/ignition/incidents/{incident_id}.json`.
+- **Source Code Context Extraction**: Automatically reads and displays ±8 lines of exact source code around the crash line with syntax highlighting and line numbers.
+- **Vendor Stack Frame Collapsing**: Filters and collapses framework core and `vendor/` frames so developers immediately view application-level code.
+- **AI Root Cause Diagnosis**: Generates automated diagnosis explanations and copy-pasteable code patch previews directly in the Web UI.
+- **Incident Lifecycle Management**: 1-click incident resolution, simulation for testing, and bulk ledger clearing.
+
+#### 4. Parikshak Automated Test Suite
+- `tests/core/test.apm_flamegraph_and_ignition.php`: 6/6 passed (100% green).
+
+---
+
+### Phase 8: Autonomous DAG Background Engine, Dead-Letter Queue & Cron Flow Control
+
+#### 1. Directed Acyclic Graph (DAG) Job Orchestrator (`DagJobOrchestrator` & `CronQueueAdminService`)
+- **Declarative Pipeline Graphs**: Defined via YAML (`etc/dag_pipelines/{pipeline_id}.yml`) with stages, explicit execution dependencies (`dependencies: [task_a]`), concurrency limits, and retry thresholds.
+- **Token-Bucket Flow Control**: Dynamically throttles background job dispatching to prevent server CPU spikes and memory exhaustion.
+- **Distributed Mutex Locking**: Multi-server deployment concurrency safety via `TargetConnection::acquireDeploymentLock()`.
+
+#### 2. Dead-Letter Queue (DLQ) & Self-Healing Replay (`CronQueueAdminService`)
+- **Automated Quarantine**: Background jobs exceeding maximum retry attempts are isolated into `var/queue/dlq.json` rather than dropped.
+- **Failure Error Tracing**: Stores original task payloads alongside exception messages, error codes, and stack traces.
+- **1-Click WebOS Replay & Purge**: Administrators can inspect failed jobs, re-dispatch them to the active processing queue, or purge them directly from the SPPAdmin **💀 Dead-Letter Queue** tab.
+
+#### 3. Sovereign Crontab Management
+- **Declarative Schedule Inventory**: Manages custom cron schedules in `etc/crontab.yml` alongside system daemons.
+- **On-Demand Execution Telemetry**: Allows immediate 1-click execution of any command (`php spp.php ...` or core command), measuring execution duration and capturing stdout/stderr output.
+
+#### 4. Parikshak Automated Test Suite
+- `tests/core/test.dag_orchestrator_and_cron.php`: 6/6 passed (100% green).
+
+---
+
+### Phase 11: High-Throughput Streaming Archiver & Zip-Slip Defense
+
+#### 1. Sovereign Streaming Archiver (`ArchiveAdminService`)
+- **Multi-Format Streaming Compression**: Compresses files and directories recursively into `.zip` and `.tar.gz` with zero memory exhaustion using memory stream buffers.
+- **Cryptographic Metrics**: Calculates total files, uncompressed bytes, compressed bytes, compression ratio percentage, elapsed duration in milliseconds, and SHA-256 cryptographic hash.
+- **Pre-Extraction Header Inspector**: Previews archive contents, individual entry sizes, and CRC32 tables without extracting files to disk.
+- **Integrity Consistency Check**: Verifies archive consistency (`ZipArchive::CHECKCONS`) guaranteeing error-free archives.
+
+#### 2. Strict Zip-Slip Traversal Neutralization
+- **Path Traversal Defense**: Iterates through archive index entry names (`$zip->getNameIndex($i)`), sanitizes canonical target boundaries, and proactively quarantines any entry attempting to escape via `../`, `..\\`, or leading root slashes (`/`).
+- **StorageAdminService Integration**: Legacy `StorageAdminService::extractZip()` automatically delegates to `ArchiveAdminService::extractArchive()`, ensuring all file manager operations are hardened against Zip-Slip vulnerabilities.
+
+#### 3. Parikshak Automated Test Suite
+- `tests/core/test.archive_streaming_and_zipslip.php`: 6/6 passed (100% green).
+
+---
+
+### Phase 12: Sovereign Zero-Cloudflare AutoSSL & Local BIND DNS Engine
+
+#### 1. 100% Autonomous Pure-PHP ACME v2 Let's Encrypt Engine (`DomainAdminService` & `AcmeClient`)
+- **Zero Third-Party Dependency**: Provisions and renews free SSL/TLS certificates via the ACME v2 HTTP-01 challenge standard (`.well-known/acme-challenge/`) without requiring Cloudflare or external DNS APIs.
+- **Sovereign SSL Posture Overview**: Inspects all domains in `etc/domains.yml`, tracking HTTPS enforcement, active certificate expiration dates, and presence of local sovereign BIND zones.
+- **Automated Batch Certificate Renewal**: `DomainAdminService::renewExpiringCertificates()` automatically scans for certificates missing or expiring within 30 days and renews them in batch with dry-run verification support.
+
+#### 2. Local RFC 1035 BIND Zone & DNSSEC Automation (`DnsZoneManager`)
+- **RFC 1035 Zone Scaffolding**: Automatically serializes compliant BIND zone files (`var/dns/{domain}.zone`) complete with SOA, NS (`ns1`/`ns2`), A, MX, and TXT (DKIM/SPF) records.
+- **DNSSEC Cryptographic Automation**: Generates Key Signing Keys (KSK), Zone Signing Keys (ZSK), and DS delegation records (ECDSA Curve P-256 with SHA-256 digest).
+
+#### 3. Parikshak Automated Test Suite
+- `tests/core/test.sovereign_ssl_and_domain_automation.php`: 5/5 passed (100% green).
+
+---
+
+### Phase 13: Live Threat Radar World Map & GeoIP Attack Visualization
+
+#### 1. Real-Time Planetary Attack Map (`shield.js`, `GeoIPResolver.php`)
+- **Offline Microsecond Geolocation**: Maps attacking IPv4 and IPv6 addresses to country names, two-letter ISO country codes, flags, continents, and physical latitude/longitude centroids using a high-speed offline IP pool dictionary.
+- **Equirectangular Mathematical Projection**: Converts latitude $\phi$ and longitude $\lambda$ into exact vector coordinates $(x, y)$ on an $800 \times 400$ SVG canvas ($x = ((\lambda + 180)/360) \times 800$, $y = ((90 - \phi)/180) \times 400$).
+- **Visual Attack Dynamics**: Renders pulsating radar origin pings (`@keyframes radarPing`), real-time laser trajectory arcs converging on the central host node (Satyalab Net Node: 20.5937° N, 78.9629° E), interactive hover tooltips, and top attacking origin chips.
+
+#### 2. Token-Bucket Progressive Strike Ledger & Automated Firewall Bans
+- **Progressive Violation Tracking**: Records exploit attempts in a persistent ledger (`var/security/threat_radar_strikes.json`), logging attack vectors (SQLi, Path Traversal, Log4Shell, RCE Stream), severity, and timestamps.
+- **3-Strike Automated Ban**: When an IP accumulates $\ge 3$ strikes within the sliding window, it transitions from `flagged` to `auto_banned`, and SPP immediately executes a host firewall block via `FirewallManager::blockIp()`.
+- **Target File Auto-Quarantine**: One-click quarantine button moves compromised or targeted script files into the isolated quarantine vault (`var/shield/quarantine/`).
+
+#### 3. Parikshak Automated Test Suite
+- `tests/core/test.threat_radar_geoip_and_auto_ban.php`: 5/5 passed (100% green).
+
+---
+
+### Phase 14: Sovereign Live App Ecosystem & Seamless Multi-Portal SSO
+
+#### 1. Sovereign 1-Click Multi-Portal SSO Protocol (`SsoAuthService.php`)
+- **Cryptographically Signed Handover**: Generates an HMAC-SHA256 signed single-use handover token (`base64_payload.signature`) enabling zero-login transitions between Hosting Operations (`/sppadmin/`) and Developer Studio (`/sppdev/`).
+- **Replay & Tamper Defense**: Tokens carry a 60-second TTL, client fingerprint hash, and a random 128-bit nonce. Nonces are recorded in `var/security/sso_consumed_nonces.json` upon first validation, strictly blocking token replay.
+- **Transparent Session Hydration**: Entry points (`spp/admin/index.php` and `spp/dev/index.php`) intercept `?sso_token=...`, validate signatures, hydrate `$_SESSION['spp_admin_user']`, and redirect cleanly without exposing tokens in the browser history.
+
+#### 2. Application Tenant Context Switching (`AppsAdminService.php`)
+- **Tenant Context Cascade**: Switching active applications in the WebOS header or sidebar synchronizes the runtime across `$_SESSION['spp_admin_selected_app']`, `\SPP\Scheduler::setContext()`, routing, models, and workflows.
+- **Resource Inspection**: `AppsAdminService::switchAppContext($app)` returns comprehensive metadata detailing total routes, models, workflows, views, and root filesystem paths.
+
+#### 3. Parikshak Automated Test Suite
+- `tests/core/test.portal_sso_and_tenant_switching.php`: 6/6 passed (100% green).
+
+
+
+---
+
+### Phase 15: Sovereign User Governance, Publisher Dashboard & Content Moderation
+
+#### 1. Central Store & Publisher Dashboard (`StoreController.php`, `DashboardController.php`)
+- **Self-Service Registration & Hashing**: Provides full `/store/register` user onboarding. Validates username patterns, password lengths, email formats, and generates industry-standard bcrypt hashes via `UserService::createUser()`.
+- **Publisher Dashboard Workstation**: `/store/dashboard` provides dedicated overview cards for My Projects, My Packages, role badges (`Publisher`, `Registered`, `Global Admin`), activity feed, and 1-click publishing shortcuts.
+- **Unified Identity Registry**: Centralizes credentials in `src/SPPDocs/data/users.json`. Blocks login for accounts marked `suspended` or `banned` with detailed administrative reasoning.
+
+#### 2. Granular Project Lifecycle & Dynamic Visibility Controls
+- **4 Content Paradigms**: Projects declare their architectural scope: `app` (full-stack application), `module` (framework extension/library), `docs` (handbook/technical reference), or `presentation` (interactive deck/demo).
+- **4 Visibility Tiers**:
+  - `public`: Accessible to everyone and discoverable on portal homepage.
+  - `personal`: Strict creator-only access; hidden from guests and other users.
+  - `closed_group`: Restricted to declared project collaborators (`members` map and `team` array).
+  - `team`: Shared across designated organization/department users.
+- **Creator Autonomy**: Project owners can update titles, descriptions, demo/repo URLs, collaborator lists, and toggle archive status (`is_archived: true`, `status: archived`) without needing administrator intervention.
+
+#### 3. SatyaLab Global Admin Moderation Engine (`AdminController.php`)
+- **User Account Moderation**: `/admin/users/moderate` allows Global Admins to suspend, ban, or reactivate users, assign roles, or reset credentials, while strictly guarding the root `admin` account from demotion.
+- **Content Moderation**: `/admin/moderate/project` allows administrators to feature exemplary projects (`⭐ Featured`), suspend policy-violating projects with custom advisory banners, or reassign visibility levels.
+
+#### 4. Parikshak Automated Test Suite
+- `tests/core/test.store_registration_and_dashboard.php`: 100% green pass.
+- `tests/core/test.satyalab_projects_and_moderation.php`: 100% green pass.
+
+### Phase 16: Self-Service Project Creation Wizard, Package-to-Project Linking & Central Moderation Queue
+
+#### 1. Self-Service Project Creation Wizard (`DashboardController@createProject`, `create_project.blade.php`)
+- **Self-Service Creation**: Authenticated publishers can create new projects at `/store/project/create` without administrator intervention.
+- **Dynamic Configuration & Scaffolding**: Validates slug identifier with live URL preview (`/project/{slug}`), title, motto, paradigm (`app`, `module`, `docs`, `presentation`), and visibility (`public`, `personal`, `closed_group`, `team`).
+- **Filesystem Provisioning**: Creates `src/SPPDocs/data/projects/{slug}/` with default `project.yml` and `pages/index.md`, auto-registers in `sppdocs.yml`, and assigns creator as project administrator.
+
+#### 2. Package-to-Project Auto-Linking & Installation Badges
+- **Bidirectional Ecosystem Bridge**: Projects declare `package_name` (e.g. `satyalab/school1`).
+- **Documentation Badging**: SPPDocs sidebar displays dedicated package card with 1-click CLI command (`php spp.php pkg:install <name>`).
+- **Store Showcase Linking**: Store package detail view (`/store/package/{name}`) detects linked projects and renders direct showcase jump cards.
+
+#### 3. Central Content Moderation Queue (`AdminController@moderationQueue`, `moderation.blade.php`)
+- **Centralized Moderation Cockpit**: `/admin/moderation` aggregates all projects, packages, and registered user accounts in one unified console.
+- **KPI Metrics**: Real-time stats on total projects, active projects, suspended content, featured showcase items, and user accounts.
+- **1-Click Moderation Actions**: Suspend/Lift Suspension with audit notes, Feature/Unfeature for showcase pinning, visibility overrides, and direct settings navigation.
+
+#### 4. Parikshak Automated Test Suite
+- `tests/core/test.store_registration_and_dashboard.php`: 7/7 tests passing (Registration, Authentication, Settings Lifecycle, Self-Service Creation, Motto & Package Linking, Package-to-Project Linking, and Admin Moderation).
+- `tests/core/test.satyalab_projects_and_moderation.php`: 5/5 tests passing (Normalization, Visibility Filtering, Creator Rights, User Moderation, Git Isolation).
+
+### Phase 17: Public Publisher Profiles, Package Versioning Wizard, and Sovereign Server Telemetry
+
+#### 1. Public Publisher Profile Vanity Pages (`StoreController@publisherProfile`, `publisher.blade.php`)
+- **Vanity URL Routing**: Publicly accessible profile at `/store/publisher?user={username}`.
+- **Verified Badges & Contributor Portfolio**: Renders publisher avatar, display name, verified role badge (`🛡️ Verified Publisher`, `👑 Global Administrator`), released packages from `var/packages/packages.json`, and active public showcase projects (`app`, `module`, `docs`, `presentation`).
+- **Showcase Isolation**: Automatically filters out `personal` and `closed_group` projects to protect private drafts.
+- **Store Author Links**: Connects package catalog detail pages (`/store/package/{name}`) to link directly to publisher vanity profiles.
+
+#### 2. Package Version & Release Management (`StoreController@managePackage`, `package_manage.blade.php`)
+- **Metadata Editor**: Update package title, summary description, category type (`app`, `module`, `tool`, `theme`), license, and search keywords directly through the UI without touching raw JSON files.
+- **Semantic Versioning Release Wizard**: Strict SemVer format validation (`MAJOR.MINOR.PATCH`), changelog notes, distribution ZIP resolution, automated SHA-256 integrity checksum generation, and atomic `latest_version` promotion in `var/packages/packages.json`.
+- **Deprecation Controls**: 1-click toggle to flag obsolete or deprecated package versions, warning downstream consumers during `pkg:install`.
+
+#### 3. Sovereign Linux Server & Node Operations Console (`AdminController@serverHealth`, `server.blade.php`)
+- **Tailored for Zero-cPanel AlmaLinux 9 Deployments**: 
+  - Host OS detection via `\SPP\Core\Infra::distroName()`, kernel release, and hostname.
+  - CPU load averages (1m, 5m, 15m via `sys_getloadavg()`) and uptime calculation from `/proc/uptime`.
+  - Physical RAM breakdown parsing `/proc/meminfo` (`MemTotal`, `MemAvailable`, `MemFree`, and percentage bar) avoiding memory limit false-assumptions.
+  - Root disk storage metrics (`disk_total_space`, `disk_free_space`).
+  - Web Server & PHP-FPM runtime metrics (Nginx/Apache, PHP version, SAPI mode, memory limits, execution limits).
+  - Zend OPcache accelerator metrics: runtime status, hit rate percentage, and compiled scripts.
+  - Security hardening: SELinux status (`Enforcing`, `Permissive`, `Disabled`), Firewalld / UFW daemon status, and HTTPS encryption detection.
+  - 1-Click Sovereign Operations: Framework cache purge (`/var/cache`) and Zend OPcache invalidation (`opcache_reset()`).
+
+#### 4. Core Framework Resilience & Stream-Safe YAML
+- Stream-safe `@file_get_contents()` + `Yaml::parse()` eliminates Windows SAPI `is_readable` false-negative exceptions across `ModuleCompiler`, `Module`, `DomainRouter`, `PackageKernel`, `FeatureManager`, `MenuRegistry`, and `PermissionManager`.
+- Lazy application isolation in `SPPConfig::getFromApp()` and `App::getBaseUrl()` via `App::getInstance()`.
+- Dynamic project discovery in `PermissionManager::getAllProjectList()`.
+
+#### 5. Handbook Reference
+- Fully documented in [Chapter 72 — Sovereign App Store, Publisher Governance, and Bare-Metal Linux Operations](docs/handbook/72-sovereign-store-user-governance-and-baremetal-telemetry.md).
+
+#### 6. Parikshak Automated Test Suite (100% Green)
+- `tests/core/test.store_registration_and_dashboard.php`: 10/10 tests passing.
+- `tests/core/test.satyalab_projects_and_moderation.php`: 5/5 tests passing.
+
+### Phase 18: Next-Gen Multi-Model XML Database (SPPXDB) & The 4 Apex Pillars
+
+#### 1. Zero-Copy Binary Flat Buffer (`.xbam`, `XbamEngine`) & Universal Inverted Index (`UniversalIndex`)
+- **32-Byte Fixed Node Layout**: Contiguous binary table (`pre`, `post`, `level`, `type`, `flags`, `tagOffset`, `tagLen`, `valOffset`, `valLen`, `parentPre`).
+- **O(1) Direct Seeks**: Reads any node via `fseek($handle, 64 + ($pre * 32))` with zero PHP object allocations.
+- **Dietz Pre/Post Interval Indexing**: Resolves descendant/ancestor containment in $O(k)$ range scan without recursive DOM tree traversal.
+- **MarkLogic Universal Inverted Index**: Unified postings lists for structural paths, exact values, text word tokens, and numeric ranges with composite bitset/array intersection.
+
+#### 2. Native AI RAG Subsystem & Semantic Tree Chunking (`RagEngine`, `SemanticChunker`)
+- **Tree-Aware Hierarchical Chunker**: Respects domain XML boundaries (`<section>`, `<article>`, `<course>`, `<row>`) and injects full ancestral breadcrumb context headers: `<!-- Context: university (Apex Institute) > department (Computer Science) > course [#CS101] -->`.
+- **Hybrid Retrieval**: Combines Dense Vector Cosine Similarity with BM25 Lexical rankings:
+  $$\text{CombinedScore} = (w_v \cdot \text{VectorScore}) + ((1 - w_v) \cdot \text{BM25Score})$$
+- **Prompt Context & Agent Tools**: Formats grounded context blocks (`formatPromptContext`) and exports OpenAPI/JSON-Schema tool definitions (`getToolCallingSchema`).
+
+#### 3. Enterprise Bi-Temporal Time Travel & Cryptographic Merkle DAG Ledger
+- **SQL:2011 / XTDB Dual-Timeline Engine (`BiTemporalEngine`)**: Independent Valid Time ($[valid\_from, valid\_to)$) and System Time ($[system\_from, system\_to)$) tracking with point-in-time "As-Of" historical reconstruction and non-destructive retroactive corrections.
+- **Cryptographic Merkle DAG Ledger (`MerkleLedger`)**: Append-only SHA-256 hash chain with rolling Merkle root, inclusion proofs, and zero-trust mathematical disk tamper detection.
+
+#### 4. Reactive Live Queries & Hotwire Turbo Streams (`LiveQueryManager`, `LiveSubscription`)
+- **Standing Live Query Subscriptions**: Clients subscribe to mutations via XPath or key-value criteria.
+- **Hotwire Turbo Streams (CDC)**: Automatically synthesizes standard `<turbo-stream action="..." target="...">` frames and Server-Sent Events (SSE) packets upon database writes.
+
+#### 5. Advanced ANSI SQL Dialect
+- Common Table Expressions (`WITH ... AS (...) SELECT ...`).
+- $O(N + M)$ Hash Joins on `INNER`, `LEFT`, `RIGHT`, `FULL OUTER`, and `CROSS JOIN`.
+- Correlated Subqueries (`WHERE EXISTS (...)`).
+- Enterprise `UPSERT` (`ON DUPLICATE KEY UPDATE`, `VALUES()`, `INSERT OR REPLACE`, `INSERT OR IGNORE`).
+- Transaction Savepoints (`SAVEPOINT`, `ROLLBACK TO SAVEPOINT`).
+- SQL/JSON & SQL/XML duality functions (`JSON_EXTRACT`, `JSON_VALUE`, `XMLELEMENT`, `XMLQUERY`).
+- ANSI Window Functions (`ROW_NUMBER`, `RANK`, `DENSE_RANK`, `SUM OVER`, `LAG`, `LEAD`).
+- W3C XQuery 3.1 FLWOR expressions & XQUF in-place mutations.
+- ACID Snapshot Isolation via MVCC and Write-Ahead Logging (`_wal.jsonl`).
+
+#### 6. Handbook & Documentation References
+- Fully documented in [Book 3 Chapter 8 — Next-Gen XDB Architecture](docs/handbook/book-3-data-platform/08-xdb-architecture.md), [Chapter 16 — Database and Storage](docs/handbook/16-database-and-storage.md), and [Tutorial Guide — Next-Gen Native XML Database](docs/tutorials/nextgen-native-xml-database-xdb.md).
+
+#### 7. Parikshak Automated Test Suites (27/27 Tests Passing, 100% Green)
+- `tests/core/test.xdb_apex.php`: 7/7 tests passing.
+- `tests/core/test.xdb_sql_nextgen.php`: 10/10 tests passing.
+- `tests/core/test.xdb_nextgen.php`: 10/10 tests passing.

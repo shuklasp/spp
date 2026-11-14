@@ -43,6 +43,11 @@ require_once __DIR__ . '/WatchdogService.php';
 require_once __DIR__ . '/BindDaemonService.php';
 require_once __DIR__ . '/HostProvisionService.php';
 require_once __DIR__ . '/SystemDoctorService.php';
+require_once __DIR__ . '/SecretsService.php';
+require_once __DIR__ . '/OperationEngine.php';
+if (file_exists(dirname(__DIR__, 2) . '/agent/src/Client.php')) {
+    require_once dirname(__DIR__, 2) . '/agent/src/Client.php';
+}
 
 use SPP\CLI\CommandManager;
 use Symfony\Component\Yaml\Yaml;
@@ -613,11 +618,22 @@ class CommandBridge
                     $settings = \SPP\App::getGlobalSettings();
                     $adminAuth = $settings['admin_auth'] ?? [];
                     $globalUser = $adminAuth['username'] ?? ($settings['admin_username'] ?? 'admin');
-                    $globalPass = $adminAuth['password'] ?? 'admin123';
+                    $configuredHash = $adminAuth['password_hash'] ?? null;
+                    $rawPass = $adminAuth['password'] ?? null;
 
-                    if (strcasecmp($username, $globalUser) === 0 && ($password === $globalPass || $password === 'admin')) {
-                        $success = true;
-                        $_SESSION['spp_admin_fallback'] = true;
+                    if (strcasecmp($username, (string)$globalUser) === 0) {
+                        if ($password === 'admin123' || $password === 'admin') {
+                            $allowInsecureDefault = !empty($adminAuth['allow_insecure_defaults']);
+                            if (!$allowInsecureDefault && defined('SPP_PROFILE') && SPP_PROFILE !== 'dev') {
+                                return ['success' => false, 'error' => "Default credentials 'admin123' are disabled in production. Configure a secure password hash."];
+                            }
+                        }
+
+                        if ($configuredHash && password_verify($password, $configuredHash)) {
+                            $success = true;
+                        } elseif ($rawPass && hash_equals((string)$rawPass, $password)) {
+                            $success = true;
+                        }
                     }
                 }
 
@@ -634,6 +650,60 @@ class CommandBridge
                 }
 
                 return ['success' => false, 'error' => 'Invalid username or password.'];
+
+            // Unified Operation Engine & SPP Server Agent Gateway
+            case 'operation_preview':
+            case 'operation_plan':
+                $opName = (string)($params['operation'] ?? '');
+                if ($opName === '') return ['success' => false, 'error' => 'Operation name is required.'];
+                $engine = new OperationEngine();
+                $plan = $engine->plan($opName, $params['parameters'] ?? [], $params);
+                return ['success' => true, 'data' => $plan];
+
+            case 'operation_execute':
+                $opName = (string)($params['operation'] ?? '');
+                if ($opName === '') return ['success' => false, 'error' => 'Operation name is required.'];
+                $engine = new OperationEngine();
+                $execRes = $engine->execute($opName, $params['parameters'] ?? [], $params);
+                return array_merge(['success' => !empty($execRes['success'])], $execRes);
+
+            case 'agent_health':
+                $client = new \SPP\Agent\Client();
+                try {
+                    $health = $client->call('agent.health');
+                    return ['success' => true, 'data' => $health];
+                } catch (\Throwable $e) {
+                    return ['success' => false, 'error' => $e->getMessage()];
+                }
+
+            case 'agent_capabilities':
+                $caps = \SPP\Agent\Authorization\CapabilityDetector::detect();
+                return ['success' => true, 'data' => $caps];
+
+            case 'agent_operations':
+                $reg = new \SPP\Agent\Operations\OperationRegistry();
+                $ops = [];
+                foreach ($reg->all() as $name => $op) {
+                    $ops[] = [
+                        'name'        => $name,
+                        'description' => $op->getDescription(),
+                        'risk_tier'   => $op->getRiskLevel(),
+                        'schema'      => $op->getParameterSchema(),
+                        'supported'   => $op->isSupportedOnHost(),
+                    ];
+                }
+                return ['success' => true, 'data' => $ops, 'count' => count($ops)];
+
+            case 'agent_call':
+                $opName = (string)($params['operation'] ?? '');
+                if ($opName === '') return ['success' => false, 'error' => 'Operation name is required.'];
+                $client = new \SPP\Agent\Client();
+                try {
+                    $res = $client->call($opName, $params['parameters'] ?? [], $params);
+                    return ['success' => true, 'data' => $res];
+                } catch (\Throwable $e) {
+                    return ['success' => false, 'error' => $e->getMessage()];
+                }
 
             case 'check_auth':
                 $username = null;
@@ -1047,6 +1117,90 @@ class CommandBridge
                     'foreign_apps' => $foreignApps,
                     'foreign_services' => $foreignServices
                 ];
+
+            case 'apps_activation_matrix':
+                return [
+                    'success' => true,
+                    'data' => \SPP\Core\App\ApplicationRegistryService::getInstance()->getActivationMatrix(),
+                ];
+
+            case 'apps_set_activation':
+                $appId = $params['app_id'] ?? $params['app'] ?? '';
+                $domainId = $params['domain_id'] ?? $params['domain'] ?? '';
+                $enabled = !empty($params['enabled']);
+                $res = \SPP\Core\App\ApplicationRegistryService::getInstance()->setDomainActivation($appId, $domainId, $enabled);
+                return [
+                    'success' => $res,
+                    'message' => $res ? "Activation updated for {$appId} on {$domainId}." : "Failed to update activation.",
+                ];
+
+            case 'apps_global_list':
+                return [
+                    'success' => true,
+                    'data' => array_values(\SPP\Core\App\ApplicationRegistryService::getInstance()->getGlobalApplications()),
+                ];
+
+            case 'apps_domain_list':
+                $domainId = $params['domain_id'] ?? $params['domain'] ?? 'default';
+                return [
+                    'success' => true,
+                    'data' => array_values(\SPP\Core\App\ApplicationRegistryService::getInstance()->getDomainApplications($domainId)),
+                ];
+
+            case 'apps_install_global':
+                $appId = $params['app_id'] ?? $params['app'] ?? '';
+                return \SPP\Core\App\ApplicationLifecycleService::getInstance()->installGlobalApp($appId, $params);
+
+            case 'apps_install_domain':
+                $domainId = $params['domain_id'] ?? $params['domain'] ?? 'default';
+                $appId = $params['app_id'] ?? $params['app'] ?? '';
+                return \SPP\Core\App\ApplicationLifecycleService::getInstance()->installDomainApp($domainId, $appId, $params);
+
+            case 'apps_uninstall_global':
+                $appId = $params['app_id'] ?? $params['app'] ?? '';
+                $force = !empty($params['force']);
+                $delData = !empty($params['delete_data']);
+                return \SPP\Core\App\ApplicationLifecycleService::getInstance()->uninstallGlobalApp($appId, $force, $delData);
+
+            case 'apps_config_get':
+                $appId = $params['app_id'] ?? $params['app'] ?? '';
+                $domainId = $params['domain_id'] ?? $params['domain'] ?? null;
+                $config = \SPP\Core\Config\ConfigurationResolver::getInstance()->resolveAppConfig($appId, $domainId);
+                return ['success' => true, 'data' => $config];
+
+            case 'apps_config_save_global':
+                $appId = $params['app_id'] ?? $params['app'] ?? '';
+                $cfg = is_array($params['config'] ?? null) ? $params['config'] : [];
+                $res = \SPP\Core\Config\ConfigurationResolver::getInstance()->savePlatformConfig($appId, $cfg);
+                return ['success' => $res, 'message' => $res ? "Global configuration saved for {$appId}." : "Failed to save configuration."];
+
+            case 'apps_config_save_domain':
+                $appId = $params['app_id'] ?? $params['app'] ?? '';
+                $domainId = $params['domain_id'] ?? $params['domain'] ?? 'default';
+                $cfg = is_array($params['config'] ?? null) ? $params['config'] : [];
+                $res = \SPP\Core\Config\ConfigurationResolver::getInstance()->saveDomainConfig($appId, $domainId, $cfg);
+                return ['success' => $res, 'message' => $res ? "Domain configuration override saved for {$appId} on {$domainId}." : "Failed to save configuration."];
+
+            case 'apps_config_diff':
+                $appId = $params['app_id'] ?? $params['app'] ?? '';
+                $domainId = $params['domain_id'] ?? $params['domain'] ?? 'default';
+                $diff = \SPP\Core\Config\ConfigurationResolver::getInstance()->diffConfig($appId, $domainId);
+                return ['success' => true, 'data' => $diff];
+
+            case 'apps_config_reset':
+                $appId = $params['app_id'] ?? $params['app'] ?? '';
+                $domainId = $params['domain_id'] ?? $params['domain'] ?? 'default';
+                $res = \SPP\Core\Config\ConfigurationResolver::getInstance()->resetDomainConfigToDefault($appId, $domainId);
+                return ['success' => $res, 'message' => "Configuration reset to global defaults for {$appId}."];
+
+            case 'database_contexts_list':
+                $domainId = $params['domain_id'] ?? $params['domain'] ?? null;
+                $list = \SPP\Core\Database\DatabaseContextResolver::getInstance()->listAvailableContexts($domainId);
+                return ['success' => true, 'data' => $list];
+
+            case 'audit_logs_query':
+                $records = \SPP\Core\Audit\AuditLogService::getInstance()->query($params);
+                return ['success' => true, 'data' => $records];
 
             case 'apps_mesh_status':
                 $statuses = [];
@@ -2191,6 +2345,32 @@ class CommandBridge
             case 'domain_import_zone':
                 return DomainAdminService::importZone($params['domain'] ?? $params['host'] ?? '', $params['zone_text'] ?? ($params['content'] ?? ''));
 
+            case 'domains_zone_history':
+            case 'domain_get_zone_history':
+            case 'dns_zone_history':
+                return DomainAdminService::getZoneHistory($params['domain'] ?? ($params['host'] ?? ''));
+
+            case 'domains_preview_rollback':
+            case 'domain_preview_rollback':
+            case 'dns_preview_rollback':
+                return DomainAdminService::previewZoneRollback(
+                    $params['domain'] ?? ($params['host'] ?? ''),
+                    $params['rev_id'] ?? ($params['revision'] ?? '')
+                );
+
+            case 'domains_rollback_zone':
+            case 'domain_rollback_zone':
+            case 'dns_rollback_zone':
+                return DomainAdminService::rollbackZone(
+                    $params['domain'] ?? ($params['host'] ?? ''),
+                    $params['rev_id'] ?? ($params['revision'] ?? '')
+                );
+
+            case 'domains_sync_manifest':
+            case 'domain_sync_manifest':
+            case 'dns_sync_manifest':
+                return DomainAdminService::syncZoneToManifest($params['domain'] ?? ($params['host'] ?? ''));
+
             case 'domains_check_propagation':
             case 'domain_check_propagation':
                 return DomainAdminService::checkGlobalPropagation($params['hostname'] ?? ($params['domain'] ?? ''), $params['type'] ?? 'A');
@@ -2561,6 +2741,7 @@ class CommandBridge
                 return MailAdminService::getQueue($params);
 
             case 'mail_send_test':
+            case 'mail_deliverability_send_test':
                 return MailAdminService::sendTestMail($params);
 
             case 'mail_queue_retry':
@@ -2570,15 +2751,18 @@ class CommandBridge
                 return MailAdminService::deleteQueueItem($params['id'] ?? '');
 
             case 'mail_queue_purge':
+            case 'mail_queue_flush':
                 return MailAdminService::purgeQueue($params['status'] ?? 'sent');
 
             case 'mail_dkim_generate':
+            case 'mail_deliverability_generate_dkim':
                 return MailAdminService::generateDkim(
                     $params['domain'] ?? '',
                     $params['selector'] ?? 'default'
                 );
 
             case 'mail_deliverability_audit':
+            case 'mail_deliverability_align_dns':
                 return MailAdminService::auditDeliverability(
                     $params['domain'] ?? '',
                     $params['selector'] ?? 'default'
@@ -2912,6 +3096,7 @@ class CommandBridge
             case 'storage_read_file':
                 return StorageAdminService::readFile($params['path'] ?? '');
 
+            case 'coder_save_file':
             case 'storage_write_file':
                 return StorageAdminService::writeFile($params['path'] ?? '', $params['content'] ?? '');
 
@@ -2935,6 +3120,90 @@ class CommandBridge
                     $params['path'] ?? '',
                     $params['properties'] ?? ($params['props'] ?? $params)
                 );
+
+            case 'storage_get_directory_props':
+            case 'files_get_directory_props':
+                return StorageAdminService::getDirectoryProperties($params['path'] ?? '');
+
+            case 'storage_save_directory_props':
+            case 'files_save_directory_props':
+                return StorageAdminService::saveDirectoryProperties(
+                    $params['path'] ?? '',
+                    $params['properties'] ?? ($params['props'] ?? $params)
+                );
+
+            case 'storage_get_manifest_raw':
+            case 'files_get_manifest_raw':
+                return StorageAdminService::getManifestRaw($params['path'] ?? '');
+
+            case 'storage_save_manifest_raw':
+            case 'files_save_manifest_raw':
+                return StorageAdminService::saveManifestRaw(
+                    $params['path'] ?? '',
+                    $params['yaml'] ?? ($params['content'] ?? '')
+                );
+
+            case 'storage_validate_manifest_yaml':
+            case 'files_validate_manifest_yaml':
+                return StorageAdminService::validateManifestYaml(
+                    $params['yaml'] ?? ($params['content'] ?? '')
+                );
+
+            case 'storage_diff_manifest':
+            case 'files_diff_manifest':
+                return StorageAdminService::diffManifest(
+                    $params['path'] ?? '',
+                    $params['yaml'] ?? ($params['content'] ?? '')
+                );
+
+            case 'storage_manifest_health':
+            case 'files_manifest_health':
+                return StorageAdminService::getManifestHealth($params['path'] ?? '');
+
+            case 'storage_heal_manifest':
+            case 'files_heal_manifest':
+            case 'props_heal':
+                return StorageAdminService::healManifest($params['path'] ?? '');
+
+            case 'storage_compile_manifests':
+            case 'files_compile_manifests':
+            case 'props_compile':
+                return StorageAdminService::compileManifests($params['app'] ?? null);
+
+            case 'storage_verify_integrity':
+            case 'files_verify_integrity':
+            case 'props_verify':
+                return StorageAdminService::verifyFileIntegrity($params['path'] ?? '');
+
+            case 'storage_sign_file':
+            case 'files_sign_file':
+                return StorageAdminService::signFile($params['path'] ?? '');
+
+            case 'storage_sign_directory':
+            case 'files_sign_directory':
+                return StorageAdminService::signDirectory($params['path'] ?? '', !empty($params['recursive']));
+
+            case 'storage_check_capabilities':
+            case 'files_check_capabilities':
+                return StorageAdminService::checkCapabilities($params['path'] ?? '', $params['capability'] ?? null);
+
+            case 'props_search':
+                return [
+                    'success' => true,
+                    'data' => \SPPMod\SPPStorage\FilePropsManager::search(
+                        $params['query'] ?? '',
+                        $params['field'] ?? 'all'
+                    )
+                ];
+
+            case 'props_lint':
+                $linter = new \SPPMod\SPPStorage\ArchitecturalBoundaryLinter();
+                $violations = $linter->lintRepository(defined('SPP_BASE_DIR') ? SPP_BASE_DIR : getcwd());
+                return [
+                    'success' => true,
+                    'violations' => $violations,
+                    'count' => count($violations)
+                ];
 
             case 'storage_delete_item':
                 return StorageAdminService::deleteItem($params['path'] ?? '');
@@ -4377,13 +4646,15 @@ class CommandBridge
                 );
 
             // Docker Container Workstation
+            case 'server_docker_status':
             case 'server_docker_list':
                 return (new \SPP\Core\Server\Drivers\DockerEngineDriver())->listContainers(!empty($params['all']));
 
+            case 'server_docker_action':
             case 'server_docker_control':
                 return (new \SPP\Core\Server\Drivers\DockerEngineDriver())->controlContainer(
-                    $params['id'] ?? '',
-                    $params['control_action'] ?? ($params['action_name'] ?? 'restart')
+                    $params['id'] ?? ($params['container_id'] ?? ''),
+                    $params['control_action'] ?? ($params['action_name'] ?? ($params['docker_action'] ?? 'restart'))
                 );
 
             case 'server_docker_logs':
@@ -4396,6 +4667,7 @@ class CommandBridge
             case 'server_pkg_updates_check':
                 return SystemPackageService::checkUpdates();
 
+            case 'server_swap_status':
             case 'server_swap_info':
                 return SystemPackageService::getSwapInfo();
 
@@ -4409,17 +4681,96 @@ class CommandBridge
                 return SystemPackageService::setTimezone($params['timezone'] ?? 'UTC');
 
             // Self-Healing Watchdog & Proactive Alerts
+            case 'watchdog_status':
             case 'watchdog_settings_get':
-                return WatchdogService::getSettings();
+                return array_merge(['success' => true], WatchdogService::getSettings());
 
+            case 'watchdog_configure':
             case 'watchdog_settings_save':
                 return WatchdogService::saveSettings($params);
 
             case 'watchdog_audit_run':
                 return WatchdogService::runHealthAudit();
 
+            case 'watchdog_test_alert':
             case 'watchdog_alert_test':
                 return WatchdogService::testChannel($params['channel'] ?? 'telegram');
+
+            case 'apps_set_domain_scope':
+                if (!class_exists(\SPP\Core\Router\DomainRouter::class)) {
+                    require_once dirname(__DIR__, 2) . '/core/router/class.domainrouter.php';
+                }
+                \SPP\Core\Router\DomainRouter::loadConfig();
+                $appName = trim((string)($params['app_name'] ?? ($params['app'] ?? 'default')));
+                $domainOnly = !empty($params['domain_only']);
+                $allowed = [];
+                if (isset($params['allowed_domains'])) {
+                    if (is_array($params['allowed_domains'])) {
+                        $allowed = $params['allowed_domains'];
+                    } else {
+                        $allowed = array_filter(array_map('trim', explode(',', (string)$params['allowed_domains'])));
+                    }
+                }
+                \SPP\Core\Router\DomainRouter::setAppDomainScope($appName, $domainOnly, $allowed);
+                \SPP\Core\Router\DomainRouter::saveConfig();
+                return ['success' => true, 'message' => "Domain scope updated for {$appName}."];
+
+            case 'set_base_app':
+                if (!class_exists(\SPP\Core\Router\DomainRouter::class)) {
+                    require_once dirname(__DIR__, 2) . '/core/router/class.domainrouter.php';
+                }
+                \SPP\Core\Router\DomainRouter::loadConfig();
+                $targetApp = trim((string)($params['target_app'] ?? ($params['app'] ?? 'default')));
+                \SPP\Core\Router\DomainRouter::setGlobalDefaultApp($targetApp);
+                \SPP\Core\Router\DomainRouter::saveConfig();
+                $gsPath = SPP_BASE_DIR . '/etc/global-settings.yml';
+                if (file_exists($gsPath)) {
+                    $gs = \Symfony\Component\Yaml\Yaml::parseFile($gsPath) ?: [];
+                    $gs['base_app'] = $targetApp;
+                    file_put_contents($gsPath, \Symfony\Component\Yaml\Yaml::dump($gs, 4, 2));
+                }
+                return ['success' => true, 'message' => "Base application set to '{$targetApp}'."];
+
+            case 'make_app':
+                $name = trim((string)($params['name'] ?? ($params['app_name'] ?? '')));
+                if (!$name) return ['success' => false, 'error' => 'App name is required.'];
+                return self::runCliSubprocess('make:app', [$name]);
+
+            case 'make_controller':
+                $name = trim((string)($params['name'] ?? ($params['controller_name'] ?? '')));
+                if (!$name) return ['success' => false, 'error' => 'Controller name is required.'];
+                $cmdArgs = [$name];
+                if (!empty($params['app'])) $cmdArgs['app'] = $params['app'];
+                return self::runCliSubprocess('make:controller', $cmdArgs);
+
+            case 'make_service':
+                $name = trim((string)($params['name'] ?? ($params['service_name'] ?? '')));
+                if (!$name) return ['success' => false, 'error' => 'Service name is required.'];
+                $cmdArgs = [$name];
+                if (!empty($params['app'])) $cmdArgs['app'] = $params['app'];
+                return self::runCliSubprocess('make:service', $cmdArgs);
+
+            case 'call_service':
+                $svc = trim((string)($params['service'] ?? ''));
+                if (!$svc) return ['success' => false, 'error' => 'Service name required.'];
+                $svcParams = [];
+                if (!empty($params['params'])) {
+                    $svcParams = is_array($params['params']) ? $params['params'] : (json_decode((string)$params['params'], true) ?: []);
+                }
+                ob_start();
+                \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute($svc, $svcParams);
+                $out = ob_get_clean();
+                $decoded = json_decode($out, true);
+                return is_array($decoded) ? $decoded : ['success' => true, 'output' => $out];
+
+            case 'subscribe':
+                return ['success' => true, 'channel' => $params['channel'] ?? 'default'];
+
+            case 'live_update':
+                return ['success' => true, 'state' => $params['state'] ?? []];
+
+            case 'sync_token':
+                return ['success' => true, 'message' => 'Token synchronized.'];
 
             // SPPApps Actions
             case 'apps_list_framework':

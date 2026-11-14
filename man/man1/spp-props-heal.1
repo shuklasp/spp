@@ -1,0 +1,36 @@
+.TH PROPS:HEAL 1 "October 2026" "SPP Framework" "User Commands"
+.SH NAME
+spp-props-heal \- Auto-heals manifests by inspecting PHP AST tokens, partial props, and class contracts
+.SH SYNOPSIS
+.B php spp.php props:heal
+[\fIpath\fR]
+[\fB\-\-app=\fIapp_name\fR]
+[\fB\-\-dry-run\fR]
+.SH DESCRIPTION
+.B props:heal
+is an automated code analysis and reconciliation utility. It traverses PHP source files and external view templates, extracts class declarations, implemented interfaces, model layers, and template variable bindings, and backfills or repairs missing contract attributes in \fI__spp_file_props.yml\fR manifests.
+.PP
+This tool guarantees zero configuration drift and frees engineers from manually authoring manifest metadata.
+.SH OPTIONS
+.TP
+\fIpath\fR
+Directory path to inspect and heal. Defaults to framework base.
+.TP
+\fB\-\-app=\fIapp_name\fR
+Restricts scan to \fBsrc/\fIapp_name\fR.
+.TP
+\fB\-\-dry-run\fR
+Simulates reconciliation and prints discrepancies without writing to disk.
+.SH UNDER THE HOOD
+.IP 1. 3
+Extracts class tokens to detect \fBimplements\fR and assigns them to \fBattributes.implements\fR.
+.IP 2. 3
+Parses view templates and extracts variable tokens into \fBattributes.required_props\fR.
+.IP 3. 3
+Assigns clean architectural layers based on class inheritance (\fBSPPEntity\fR -> \fBdomain\fR, \fBViewController\fR -> \fBpresentation\fR).
+.IP 4. 3
+Atomically writes updated YAML manifests and purges runtime cache.
+.SH SEE ALSO
+.BR props:sync (1),
+.BR props:lint (1),
+.BR props:compile (1)
