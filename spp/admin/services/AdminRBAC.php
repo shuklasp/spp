@@ -63,6 +63,8 @@ function getActionScopeMap(): array {
         'domains_save' => 'admin.domains',
         'domain_delete' => 'admin.domains',
         'domains_delete' => 'admin.domains',
+        'domain_scaffold_paths' => 'admin.domains',
+        'domains_scaffold_paths' => 'admin.domains',
         'domain_test' => 'admin.domains',
         'domain_check_ssl' => 'admin.domains',
         'domains_get_settings' => 'admin.domains',

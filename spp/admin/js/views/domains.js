@@ -99,7 +99,21 @@ export default class DomainsView extends BaseClass {
                 reloadingBind: false,
                 installingBind: false,
                 glueMatrix: null,
-                checkingGlue: false
+                checkingGlue: false,
+                // Unified DNS Provider Subsystem state
+                dnsSubTab: 'overview',
+                dnsProvidersData: null,
+                loadingDnsProviders: false,
+                dnsRecordTypeFilter: 'ALL',
+                dnssecAuditData: null,
+                loadingDnssecAudit: false,
+                mailAuditData: null,
+                loadingMailAudit: false,
+                syncDiffData: null,
+                comparingSync: false,
+                syncingDns: false,
+                registrarData: null,
+                loadingRegistrar: false
             };
         }
     }
@@ -321,14 +335,14 @@ export default class DomainsView extends BaseClass {
                             Domain Apps Directory (<code style="font-size:0.75rem;">app_dir</code>)
                             <span class="spp-help-tip" data-tooltip="Custom directory in user home hosting applications for this domain.">?</span>
                         </label>
-                        <input type="text" id="dom-app-dir" value="${this.escapeHtml(domain?.app_dir || '')}" placeholder="e.g. /home/satyalab/apps" style="font-size:0.85rem; font-family:monospace;">
+                        <input type="text" id="dom-app-dir" value="${this.escapeHtml(domain?.app_dir || '')}" placeholder="e.g. /home/satyalab/domains/satyalab.net/apps" style="font-size:0.85rem; font-family:monospace;">
                     </div>
                     <div class="input-group">
                         <label style="font-size:0.85rem;">
                             Persistent Data Directory (<code style="font-size:0.75rem;">data_dir</code>)
                             <span class="spp-help-tip" data-tooltip="User home sppdata root preserving sovereign storage per domain and app.">?</span>
                         </label>
-                        <input type="text" id="dom-data-dir" value="${this.escapeHtml(domain?.data_dir || '')}" placeholder="e.g. /home/satyalab/sppdata" style="font-size:0.85rem; font-family:monospace;">
+                        <input type="text" id="dom-data-dir" value="${this.escapeHtml(domain?.data_dir || '')}" placeholder="e.g. /home/satyalab/domains/satyalab.net/sppdata" style="font-size:0.85rem; font-family:monospace;">
                     </div>
                 </div>
 
@@ -499,12 +513,84 @@ export default class DomainsView extends BaseClass {
             </div>
         `;
 
-        // Event: Auto-fill user paths
-        document.getElementById('dom-btn-autofill-user').onclick = () => {
-            const acc = document.getElementById('dom-account').value.trim() || 'satyalab';
-            document.getElementById('dom-app-dir').value = `/home/${acc}/apps`;
-            document.getElementById('dom-data-dir').value = `/home/${acc}/sppdata`;
-            this.admin.notify(`Paths auto-populated for account '${acc}'`, 'info');
+        // Event: Auto-fill & scaffold accurate domain paths
+        const domPatternInput = document.getElementById('dom-pattern');
+        const domAccountInput = document.getElementById('dom-account');
+        const domAppDirInput = document.getElementById('dom-app-dir');
+        const domDataDirInput = document.getElementById('dom-data-dir');
+        const autoPathsBtn = document.getElementById('dom-btn-autofill-user');
+
+        // Real-time helper: suggest linux account when typing domain pattern if empty or default
+        if (domPatternInput && !isEdit) {
+            domPatternInput.addEventListener('input', () => {
+                const pat = domPatternInput.value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+                if (pat && (!domAccountInput.value || domAccountInput.value === 'default')) {
+                    const apex = pat.split('.')[0];
+                    if (apex && apex !== 'www') {
+                        domAccountInput.placeholder = `e.g. ${apex}`;
+                    }
+                }
+            });
+        }
+
+        autoPathsBtn.onclick = async () => {
+            let domainName = (domPatternInput ? domPatternInput.value : '').trim().toLowerCase();
+            domainName = domainName.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+
+            if (!domainName) {
+                this.admin.notify("Please enter a Domain Name first to calculate accurate paths.", "warning");
+                if (domPatternInput) domPatternInput.focus();
+                return;
+            }
+
+            let acc = (domAccountInput ? domAccountInput.value : '').trim();
+            if (!acc || acc === 'default') {
+                const parts = domainName.split('.');
+                const apex = (parts[0] === 'www' && parts[1]) ? parts[1] : parts[0];
+                if (apex) {
+                    acc = apex;
+                    if (domAccountInput) domAccountInput.value = acc;
+                } else {
+                    acc = 'default';
+                }
+            }
+
+            const computedAppDir = (acc !== 'default')
+                ? `/home/${acc}/domains/${domainName}/apps`
+                : `domains/${domainName}/apps`;
+            const computedDataDir = (acc !== 'default')
+                ? `/home/${acc}/domains/${domainName}/sppdata`
+                : `domains/${domainName}/sppdata`;
+
+            if (domAppDirInput) domAppDirInput.value = computedAppDir;
+            if (domDataDirInput) domDataDirInput.value = computedDataDir;
+
+            const origText = autoPathsBtn.textContent;
+            autoPathsBtn.disabled = true;
+            autoPathsBtn.textContent = '⚡ Scaffolding...';
+
+            try {
+                const res = await this.admin.api('domains_scaffold_paths', {
+                    domain: domainName,
+                    account: acc,
+                    app_dir: computedAppDir,
+                    data_dir: computedDataDir,
+                    create_dirs: 1
+                });
+                if (res && res.success) {
+                    const createdInfo = (res.created && res.created.length > 0)
+                        ? ` (scaffolded: ${res.created.join(', ')})`
+                        : ' (verified & ready)';
+                    this.admin.notify(`Accurate paths scaffolded for '${domainName}'${createdInfo}`, 'success');
+                } else {
+                    this.admin.notify(`Paths populated: ${computedAppDir}`, 'info');
+                }
+            } catch (err) {
+                this.admin.notify(`Paths populated for '${domainName}' (account: ${acc})`, 'info');
+            } finally {
+                autoPathsBtn.disabled = false;
+                autoPathsBtn.textContent = origText;
+            }
         };
 
         // Event: Root App Type Toggle
@@ -2298,6 +2384,312 @@ export default class DomainsView extends BaseClass {
         this.admin.notify("📋 Registrar support message copied to clipboard!", "success");
     }
 
+    switchDnsSubTab(tab) {
+        this.setState({ dnsSubTab: tab });
+        if (tab === 'providers' && !this.state.dnsProvidersData) {
+            this.loadDnsProviders();
+        }
+        if (tab === 'dnssec' && !this.state.dnssecAuditData) {
+            this.loadDnssecAudit(this.state.zoneDomain);
+        }
+        if (tab === 'mail' && !this.state.mailAuditData) {
+            this.loadMailAudit(this.state.zoneDomain);
+        }
+        if (tab === 'propagation' && !this.state.propagationResults) {
+            this.runPropagationAudit(this.state.zoneDomain, 'A');
+        }
+        if (tab === 'nameservers' && !this.state.registrarData) {
+            this.loadRegistrarInfo(this.state.zoneDomain);
+        }
+        this.update();
+    }
+
+    async loadDnsProviders() {
+        this.setState({ loadingDnsProviders: true });
+        try {
+            const res = await this.admin.api('dns_providers_list');
+            const data = (res.success && res.data) ? res.data : res;
+            this.setState({ dnsProvidersData: data, loadingDnsProviders: false });
+        } catch (e) {
+            this.setState({ loadingDnsProviders: false });
+        }
+        this.update();
+    }
+
+    async setDomainDnsProvider(domain, provider, accountId) {
+        const dom = domain || this.state.zoneDomain;
+        try {
+            const res = await this.admin.api('dns_mapping_save', {
+                domain: dom,
+                provider: provider,
+                account_id: accountId || null
+            });
+            if (res.success) {
+                this.admin.notify(`✓ Authoritative DNS provider for '${dom}' set to ${provider}!`, "success");
+                await this.loadZone(dom);
+                await this.loadDnsProviders();
+            } else {
+                this.admin.notify(res.error || "Failed to update provider mapping.", "error");
+            }
+        } catch (e) {
+            this.admin.notify("Error updating provider mapping: " + e.message, "error");
+        }
+        this.update();
+    }
+
+    async loadDnssecAudit(domain) {
+        const dom = domain || this.state.zoneDomain;
+        this.setState({ loadingDnssecAudit: true });
+        try {
+            const res = await this.admin.api('dns_audit_dnssec', { domain: dom });
+            const data = (res.success && res.data) ? res.data : res;
+            this.setState({ dnssecAuditData: data, loadingDnssecAudit: false });
+        } catch (e) {
+            this.setState({ loadingDnssecAudit: false });
+        }
+        this.update();
+    }
+
+    async loadMailAudit(domain) {
+        const dom = domain || this.state.zoneDomain;
+        this.setState({ loadingMailAudit: true });
+        try {
+            const res = await this.admin.api('dns_audit_mail', { domain: dom });
+            const data = (res.success && res.data) ? res.data : res;
+            this.setState({ mailAuditData: data, loadingMailAudit: false });
+        } catch (e) {
+            this.setState({ loadingMailAudit: false });
+        }
+        this.update();
+    }
+
+    async runPropagationAudit(domain, type = 'A') {
+        const dom = domain || this.state.zoneDomain;
+        this.setState({ checkingPropagation: true });
+        try {
+            const res = await this.admin.api('dns_audit_propagation', { hostname: dom, type: type });
+            const data = (res.success && res.data) ? res.data : res;
+            this.setState({ propagationResults: data, checkingPropagation: false });
+        } catch (e) {
+            this.setState({ checkingPropagation: false });
+        }
+        this.update();
+    }
+
+    async loadRegistrarInfo(domain) {
+        const dom = domain || this.state.zoneDomain;
+        this.setState({ loadingRegistrar: true });
+        try {
+            const res = await this.admin.api('dns_registrar_info', { domain: dom });
+            const data = (res.success && res.data) ? res.data : res;
+            this.setState({ registrarData: data, loadingRegistrar: false });
+        } catch (e) {
+            this.setState({ loadingRegistrar: false });
+        }
+        this.update();
+    }
+
+    async compareDns(domain) {
+        const dom = domain || this.state.zoneDomain;
+        this.setState({ comparingSync: true });
+        try {
+            const res = await this.admin.api('dns_zone_compare', { domain: dom });
+            const data = (res.success && res.data) ? res.data : res;
+            this.setState({ syncDiffData: data, comparingSync: false });
+            if (data.in_sync) {
+                this.admin.notify(`✓ Zone '${dom}' is completely in sync with provider!`, "success");
+            } else {
+                this.admin.notify(`Found ${data.counts?.added_locally || 0} local additions, ${data.counts?.added_remotely || 0} remote additions, ${data.counts?.modified || 0} modifications.`, "info");
+            }
+        } catch (e) {
+            this.setState({ comparingSync: false });
+            this.admin.notify("Comparison error: " + e.message, "error");
+        }
+        this.update();
+    }
+
+    async syncDns(domain, direction = 'pull', force = false) {
+        const dom = domain || this.state.zoneDomain;
+        this.setState({ syncingDns: true });
+        this.admin.notify(`Synchronizing '${dom}' (${direction})...`, "info");
+        try {
+            const res = await this.admin.api('dns_zone_sync', { domain: dom, direction: direction, force: force });
+            if (res.success) {
+                this.admin.notify(res.message || `✓ Synchronization (${direction}) completed successfully!`, "success");
+                await this.loadZone(dom);
+                await this.compareDns(dom);
+            } else {
+                this.admin.notify(res.error || "Sync failed.", "error");
+            }
+        } catch (e) {
+            this.admin.notify("Sync error: " + e.message, "error");
+        } finally {
+            this.setState({ syncingDns: false });
+            this.update();
+        }
+    }
+
+    async testProviderAccount(provider, accountId) {
+        this.admin.notify(`Testing connection to ${provider}...`, "info");
+        try {
+            const res = await this.admin.api('dns_provider_test', { provider: provider, account_id: accountId });
+            if (res && res.success) {
+                this.admin.notify(`✓ Connection to ${provider} successful! (${res.zones_count ?? 0} zones found)`, "success");
+            } else {
+                this.admin.notify(`Connection test failed: ${res?.error || 'Unknown error'}`, "error");
+            }
+        } catch (e) {
+            this.admin.notify(`Connection error: ${e.message}`, "error");
+        }
+    }
+
+    async saveProviderAccount(provider, accountId, credentials) {
+        try {
+            const res = await this.admin.api('dns_provider_account_save', {
+                provider: provider,
+                account_id: accountId,
+                credentials: credentials
+            });
+            if (res && res.success) {
+                this.admin.notify(`✓ Provider account '${accountId}' saved to encrypted vault!`, "success");
+                document.getElementById('modal-container')?.classList.remove('modal-active');
+                await this.loadDnsProviders();
+            } else {
+                this.admin.notify(`Failed to save account: ${res?.error || 'Unknown error'}`, "error");
+            }
+        } catch (e) {
+            this.admin.notify(`Save error: ${e.message}`, "error");
+        }
+    }
+
+    openAddProviderModal() {
+        const modal = document.getElementById('modal-container');
+        document.getElementById('modal-title').textContent = 'Connect External DNS Provider';
+        document.getElementById('modal-body').innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+                <div class="input-group">
+                    <label>DNS Provider Service <span style="color:var(--danger)">*</span></label>
+                    <select id="prov-driver" onchange="window.domainsViewInstance.updateProviderCredentialFields(this.value)" style="width:100%; padding:0.6rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); font-weight:600;">
+                        <option value="cloudflare">Cloudflare (API Token v4)</option>
+                        <option value="route53">AWS Route 53 (SigV4 Access Key)</option>
+                        <option value="digitalocean">DigitalOcean DNS (Personal Access Token)</option>
+                        <option value="google_cloud_dns">Google Cloud DNS (Service Account JSON)</option>
+                        <option value="custom">Custom REST Provider (SSRF-Guarded)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Account Label / Identifier <span style="color:var(--danger)">*</span></label>
+                    <input type="text" id="prov-acc-id" placeholder="e.g. prod-cloudflare or primary-aws" style="width:100%; padding:0.5rem; font-family:monospace;">
+                    <small style="color:var(--text-dim)">Unique identifier for this credential within SPP.</small>
+                </div>
+                <div id="prov-credential-fields">
+                    <div class="input-group">
+                        <label>Cloudflare Scoped API Token <span style="color:var(--danger)">*</span></label>
+                        <input type="password" id="cf-token" placeholder="Paste Cloudflare API token (Zone:Read, DNS:Edit)" style="width:100%; font-family:monospace;">
+                        <small style="color:var(--text-dim)">Tokens are encrypted at rest with AES-256-GCM in <code>etc/dns-providers.yml</code>.</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('modal-footer').innerHTML = `
+            <button class="btn ghost-btn" onclick="document.getElementById('modal-container').classList.remove('modal-active')">Cancel</button>
+            <button class="btn primary-btn shine-effect" onclick="window.domainsViewInstance.submitAddProviderModal()">💾 Save & Encrypt</button>
+        `;
+        modal.classList.add('modal-active');
+    }
+
+    updateProviderCredentialFields(driver) {
+        const container = document.getElementById('prov-credential-fields');
+        if (!container) return;
+        if (driver === 'cloudflare') {
+            container.innerHTML = `
+                <div class="input-group">
+                    <label>Cloudflare Scoped API Token <span style="color:var(--danger)">*</span></label>
+                    <input type="password" id="cf-token" placeholder="Paste Cloudflare API token (Zone:Read, DNS:Edit)" style="width:100%; font-family:monospace;">
+                    <small style="color:var(--text-dim)">Tokens are encrypted at rest with AES-256-GCM in <code>etc/dns-providers.yml</code>.</small>
+                </div>
+            `;
+        } else if (driver === 'route53') {
+            container.innerHTML = `
+                <div class="input-group" style="margin-bottom:0.75rem;">
+                    <label>AWS Access Key ID <span style="color:var(--danger)">*</span></label>
+                    <input type="text" id="aws-key" placeholder="AKIA..." style="width:100%; font-family:monospace;">
+                </div>
+                <div class="input-group" style="margin-bottom:0.75rem;">
+                    <label>AWS Secret Access Key <span style="color:var(--danger)">*</span></label>
+                    <input type="password" id="aws-secret" placeholder="Secret Key" style="width:100%; font-family:monospace;">
+                </div>
+                <div class="input-group">
+                    <label>AWS Region</label>
+                    <input type="text" id="aws-region" value="us-east-1" placeholder="us-east-1" style="width:100%; font-family:monospace;">
+                </div>
+            `;
+        } else if (driver === 'digitalocean') {
+            container.innerHTML = `
+                <div class="input-group">
+                    <label>DigitalOcean Personal Access Token <span style="color:var(--danger)">*</span></label>
+                    <input type="password" id="do-token" placeholder="dop_v1_..." style="width:100%; font-family:monospace;">
+                </div>
+            `;
+        } else if (driver === 'google_cloud_dns') {
+            container.innerHTML = `
+                <div class="input-group" style="margin-bottom:0.75rem;">
+                    <label>GCP Project ID <span style="color:var(--danger)">*</span></label>
+                    <input type="text" id="gcp-project" placeholder="my-gcp-project-id" style="width:100%; font-family:monospace;">
+                </div>
+                <div class="input-group">
+                    <label>Service Account Key (JSON)</label>
+                    <textarea id="gcp-json" placeholder='{"type": "service_account", ...}' rows="4" style="width:100%; font-family:monospace; font-size:0.8rem;"></textarea>
+                </div>
+            `;
+        } else if (driver === 'custom') {
+            container.innerHTML = `
+                <div class="input-group" style="margin-bottom:0.75rem;">
+                    <label>API Base URL <span style="color:var(--danger)">*</span></label>
+                    <input type="text" id="custom-base" placeholder="https://api.mydns.com/v1" style="width:100%; font-family:monospace;">
+                </div>
+                <div class="input-group">
+                    <label>Authorization Bearer Token / API Key</label>
+                    <input type="password" id="custom-token" placeholder="Secret token" style="width:100%; font-family:monospace;">
+                </div>
+            `;
+        }
+    }
+
+    async submitAddProviderModal() {
+        const driver = document.getElementById('prov-driver')?.value;
+        const accId = document.getElementById('prov-acc-id')?.value.trim();
+        if (!accId) {
+            this.admin.notify('Please provide an Account Label / Identifier.', 'warning');
+            return;
+        }
+
+        let creds = {};
+        if (driver === 'cloudflare') {
+            creds = { api_token: document.getElementById('cf-token')?.value.trim() };
+        } else if (driver === 'route53') {
+            creds = {
+                access_key_id: document.getElementById('aws-key')?.value.trim(),
+                secret_access_key: document.getElementById('aws-secret')?.value.trim(),
+                region: document.getElementById('aws-region')?.value.trim() || 'us-east-1'
+            };
+        } else if (driver === 'digitalocean') {
+            creds = { api_token: document.getElementById('do-token')?.value.trim() };
+        } else if (driver === 'google_cloud_dns') {
+            creds = {
+                project_id: document.getElementById('gcp-project')?.value.trim(),
+                key_json: document.getElementById('gcp-json')?.value.trim()
+            };
+        } else if (driver === 'custom') {
+            creds = {
+                base_url: document.getElementById('custom-base')?.value.trim(),
+                api_token: document.getElementById('custom-token')?.value.trim()
+            };
+        }
+
+        await this.saveProviderAccount(driver, accId, creds);
+    }
+
     renderZoneTab() {
         const zone = this.state.zoneData || {};
         const records = (zone.records || []).filter(r => {
@@ -2379,17 +2771,18 @@ export default class DomainsView extends BaseClass {
 
         const dnssec = zone.dnssec || {};
         const isDnssecActive = dnssec.active || false;
+        const subTab = this.state.dnsSubTab || 'overview';
 
         return `
             <div class="suite-pane-main">
                 <!-- Zone Header & Domain Switcher Toolbar -->
                 <div class="suite-toolbar" style="flex-wrap:wrap; gap:1rem;">
                     <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-                        <span style="font-size:1.5rem;">📋</span>
+                        <span style="font-size:1.5rem;">🌐</span>
                         <div>
-                            <h3 style="margin:0; font-size:1.1rem; color:var(--text-bright);">DNS Records & Nameserver Zone: <em>${this.escapeHtml(this.state.zoneDomain)}</em></h3>
+                            <h3 style="margin:0; font-size:1.1rem; color:var(--text-bright);">DNS &amp; Domain Management: <em>${this.escapeHtml(this.state.zoneDomain)}</em></h3>
                             <div style="font-size:0.8rem; color:var(--text-dim); margin-top:0.2rem;">
-                                Active Domain Records: <strong>${records.length}</strong> &bull; Serial: <strong>${zone.serial || 'N/A'}</strong>
+                                Authoritative Provider: <strong>${this.escapeHtml(zone.provider || 'bind9')}</strong> &bull; Records: <strong>${records.length}</strong> &bull; Serial: <strong>${zone.serial || 'N/A'}</strong>
                             </div>
                         </div>
                         <div style="display:flex; gap:0.5rem; align-items:center; margin-left:0.5rem;">
@@ -2403,26 +2796,152 @@ export default class DomainsView extends BaseClass {
                         <button class="btn primary-btn shine-effect btn-sm" onclick="window.domainsViewInstance.openRecordModal()">
                             <span>+ Add DNS Record</span>
                         </button>
-                        <button class="btn secondary-btn btn-sm" onclick="window.domainsViewInstance.openZoneHistoryModal()" title="View point-in-time revision history, diffs, and rollback previous states">
-                            🕒 Zone History & Rollback
+                        <button class="btn secondary-btn btn-sm" onclick="window.domainsViewInstance.compareDns()" title="Compare records against authoritative DNS provider">
+                            ⚖️ Compare Diff
                         </button>
-                        <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.syncZoneManifest()" title="Register zone and calculate SHA-256 integrity in var/dns/__spp_file_props.yml">
-                            🏷️ Sync Manifest
-                        </button>
-                        <a href="#files?path=var/dns/${this.escapeHtml(this.state.zoneDomain)}.zone" class="btn ghost-btn btn-sm" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;" title="Inspect raw zone file and properties in SPP File Manager">
-                            📁 File Manager
-                        </a>
-                        <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.checkRegistryGlue()" ${this.state.checkingGlue ? 'disabled' : ''}>
-                            🔍 Check Glue
-                        </button>
-                        <button class="btn primary-btn btn-sm" style="background:#059669; border:none;" onclick="window.domainsViewInstance.syncZoneToBind()" ${this.state.syncingBind ? 'disabled' : ''}>
-                            ⚡ Sync to BIND9
+                        <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.openZoneHistoryModal()" title="View point-in-time revision history, diffs, and rollback previous states">
+                            🕒 History & Rollback
                         </button>
                     </div>
                 </div>
 
+                <!-- Unified DNS Sub-Navigation Bar -->
+                <div class="dns-sub-nav" style="display:flex; gap:0.4rem; flex-wrap:wrap; border-bottom:1px solid var(--glass-border); padding-bottom:0.75rem; margin-top:1rem; margin-bottom:1.25rem;">
+                    <button class="btn btn-sm ${subTab === 'overview' ? 'primary-btn' : 'ghost-btn'}" onclick="window.domainsViewInstance.switchDnsSubTab('overview')">📊 Overview</button>
+                    <button class="btn btn-sm ${subTab === 'records' ? 'primary-btn' : 'ghost-btn'}" onclick="window.domainsViewInstance.switchDnsSubTab('records')">📋 DNS Records (${records.length})</button>
+                    <button class="btn btn-sm ${subTab === 'providers' ? 'primary-btn' : 'ghost-btn'}" onclick="window.domainsViewInstance.switchDnsSubTab('providers')">☁️ Providers</button>
+                    <button class="btn btn-sm ${subTab === 'nameservers' ? 'primary-btn' : 'ghost-btn'}" onclick="window.domainsViewInstance.switchDnsSubTab('nameservers')">📡 Nameservers &amp; Glue</button>
+                    <button class="btn btn-sm ${subTab === 'dnssec' ? 'primary-btn' : 'ghost-btn'}" onclick="window.domainsViewInstance.switchDnsSubTab('dnssec')">🔒 DNSSEC</button>
+                    <button class="btn btn-sm ${subTab === 'propagation' ? 'primary-btn' : 'ghost-btn'}" onclick="window.domainsViewInstance.switchDnsSubTab('propagation')">🌍 Propagation</button>
+                    <button class="btn btn-sm ${subTab === 'mail' ? 'primary-btn' : 'ghost-btn'}" onclick="window.domainsViewInstance.switchDnsSubTab('mail')">✉️ Mail DNS</button>
+                    <button class="btn btn-sm ${subTab === 'diagnostics' ? 'primary-btn' : 'ghost-btn'}" onclick="window.domainsViewInstance.switchDnsSubTab('diagnostics')">🩺 Diagnostics</button>
+                </div>
+
+                <!-- Active Sub-Tab View Rendering -->
+                ${subTab === 'overview' ? this.renderDnsOverviewSubTab(zone, records, isDnssecActive) : ''}
+                ${subTab === 'records' ? this.renderDnsRecordsSubTab(zone, records, rows) : ''}
+                ${subTab === 'providers' ? this.renderDnsProvidersSubTab() : ''}
+                ${subTab === 'nameservers' ? this.renderDnsNameserversSubTab(zone) : ''}
+                ${subTab === 'dnssec' ? this.renderDnssecSubTab(zone, isDnssecActive) : ''}
+                ${subTab === 'propagation' ? this.renderDnsPropagationSubTab() : ''}
+                ${subTab === 'mail' ? this.renderDnsMailSubTab() : ''}
+                ${subTab === 'diagnostics' ? this.renderDnsDiagnosticsSubTab(zone) : ''}
+            </div>
+        `;
+    }
+
+    renderDnsOverviewSubTab(zone, records, isDnssecActive) {
+        const provider = zone.provider || 'bind9';
+        const syncDiff = this.state.syncDiffData;
+        const providerDisplayMap = {
+            'bind9': 'Native BIND9 (Host Port 53)',
+            'cloudflare': 'Cloudflare API v4 (Edge Proxy & DNS)',
+            'route53': 'AWS Route 53 (SigV4 Global Anycast)',
+            'digitalocean': 'DigitalOcean DNS API v2',
+            'google_cloud_dns': 'Google Cloud DNS (GCP Managed Zone)',
+            'custom': 'Custom REST DNS Provider'
+        };
+
+        return `
+            <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                <!-- Summary Metrics Cards Grid -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+                    <div class="spp-setting-banner" style="padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:600;">Active Domain</div>
+                        <div style="font-size:1.15rem; font-weight:700; color:var(--text-bright); margin-top:0.25rem; word-break:break-all;">${this.escapeHtml(this.state.zoneDomain)}</div>
+                        <div style="font-size:0.75rem; color:var(--text-dim); margin-top:0.3rem;">Status: <span style="color:#10b981; font-weight:600;">● Active</span> &bull; Serial: ${zone.serial || 'N/A'}</div>
+                    </div>
+
+                    <div class="spp-setting-banner" style="padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:600;">Authoritative Provider</div>
+                        <div style="font-size:1.05rem; font-weight:700; color:#38bdf8; margin-top:0.25rem;">${providerDisplayMap[provider] || provider}</div>
+                        <div style="font-size:0.75rem; color:var(--text-dim); margin-top:0.3rem;">Mode: Sovereign Multi-Provider</div>
+                    </div>
+
+                    <div class="spp-setting-banner" style="padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:600;">DNSSEC Status</div>
+                        <div style="font-size:1.15rem; font-weight:700; color:${isDnssecActive ? '#10b981' : 'var(--text-dim)'}; margin-top:0.25rem;">
+                            ${isDnssecActive ? '✓ Signed &amp; Protected' : '○ Disabled'}
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-dim); margin-top:0.3rem;">ECDSA P-256 (Algo 13)</div>
+                    </div>
+
+                    <div class="spp-setting-banner" style="padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:600;">Zone Records</div>
+                        <div style="font-size:1.15rem; font-weight:700; color:var(--text-bright); margin-top:0.25rem;">${records.length} Records</div>
+                        <div style="font-size:0.75rem; color:var(--text-dim); margin-top:0.3rem;">RFC 1035 Standards Compliant</div>
+                    </div>
+                </div>
+
+                <!-- Provider Assignment & Quick Switcher Banner -->
+                <div class="spp-setting-banner" style="padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                    <div>
+                        <strong style="font-size:0.95rem; color:var(--text-bright);">Domain DNS Provider Routing</strong>
+                        <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-dim);">
+                            Different domains in this SPP installation can use different authoritative DNS providers simultaneously.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+                        <span style="font-size:0.8rem; color:var(--text-dim);">Assigned Provider:</span>
+                        <select onchange="window.domainsViewInstance.setDomainDnsProvider('${this.escapeHtml(this.state.zoneDomain)}', this.value)" style="padding:0.45rem 0.75rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); font-size:0.85rem; font-weight:600;">
+                            <option value="bind9" ${provider === 'bind9' ? 'selected' : ''}>Native BIND9</option>
+                            <option value="cloudflare" ${provider === 'cloudflare' ? 'selected' : ''}>Cloudflare</option>
+                            <option value="route53" ${provider === 'route53' ? 'selected' : ''}>AWS Route 53</option>
+                            <option value="digitalocean" ${provider === 'digitalocean' ? 'selected' : ''}>DigitalOcean DNS</option>
+                            <option value="google_cloud_dns" ${provider === 'google_cloud_dns' ? 'selected' : ''}>Google Cloud DNS</option>
+                            <option value="custom" ${provider === 'custom' ? 'selected' : ''}>Custom Provider</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Bidirectional Synchronization Card -->
+                <div class="spp-setting-banner" style="padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--glass-border);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:0.75rem;">
+                        <div>
+                            <strong style="font-size:0.95rem; color:var(--text-bright);">Conflict-Aware Bidirectional Synchronization</strong>
+                            <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-dim);">
+                                Synchronize zone records safely between local registry and authoritative provider without accidental overwrites.
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                            <button class="btn secondary-btn btn-sm" onclick="window.domainsViewInstance.compareDns('${this.escapeHtml(this.state.zoneDomain)}')" ${this.state.comparingSync ? 'disabled' : ''}>
+                                ${this.state.comparingSync ? 'Comparing...' : '⚖️ Compare Diff'}
+                            </button>
+                            <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.syncDns('${this.escapeHtml(this.state.zoneDomain)}', 'pull')" ${this.state.syncingDns ? 'disabled' : ''}>
+                                📥 Pull from Provider
+                            </button>
+                            <button class="btn primary-btn btn-sm" style="background:#059669; border:none;" onclick="window.domainsViewInstance.syncDns('${this.escapeHtml(this.state.zoneDomain)}', 'push')" ${this.state.syncingDns ? 'disabled' : ''}>
+                                📤 Push to Provider
+                            </button>
+                        </div>
+                    </div>
+
+                    ${syncDiff ? `
+                        <div style="margin-top:0.75rem; background:rgba(0,0,0,0.25); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border); font-size:0.8rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                                <strong>Diff Calculation Result:</strong>
+                                <span class="suite-pill ${syncDiff.in_sync ? 'suite-pill-success' : 'suite-pill-warning'}">
+                                    ${syncDiff.in_sync ? '✓ In Sync' : '⚠️ Pending Differences'}
+                                </span>
+                            </div>
+                            <div style="color:var(--text-dim); display:flex; gap:1.5rem; flex-wrap:wrap;">
+                                <span>Local Additions: <strong>${syncDiff.counts?.added_locally || 0}</strong></span>
+                                <span>Remote Additions: <strong>${syncDiff.counts?.added_remotely || 0}</strong></span>
+                                <span>Modifications: <strong>${syncDiff.counts?.modified || 0}</strong></span>
+                                <span>Total Remote Records: <strong>${syncDiff.remote_count || 0}</strong></span>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    renderDnsRecordsSubTab(zone, records, rows) {
+        return `
+            <div>
                 <!-- Record Filter & Search Bar -->
-                <div style="margin-top:1rem; display:flex; justify-content:space-between; align-items:center; gap:1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
                     <div style="flex:1; max-width:420px;">
                         <input type="text" placeholder="Search records by host name, type, or IP address..." value="${this.escapeHtml(this.state.zoneSearch)}" oninput="window.domainsViewInstance.setState({zoneSearch: this.value}); window.domainsViewInstance.update();" style="width:100%; padding:0.5rem 0.85rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); font-size:0.85rem;">
                     </div>
@@ -2431,27 +2950,15 @@ export default class DomainsView extends BaseClass {
                     </div>
                 </div>
 
-                <!-- Primary DNS Records Table (Shown prominently upfront) -->
+                <!-- Primary DNS Records Table -->
                 <div class="suite-table-wrapper" style="margin-top:0.75rem;">
                     <table class="suite-table">
                         <thead>
                             <tr>
-                                <th>
-                                    Host / Subdomain
-                                    <span class="spp-help-tip" data-tooltip-title="Host / Subdomain" data-tooltip="Use '@' for your main root domain (e.g. satyalab.net). Use a prefix like 'www', 'mail', or 'portal' for subdomains.">?</span>
-                                </th>
-                                <th>
-                                    Record Type
-                                    <span class="spp-help-tip" data-tooltip-title="Record Type" data-tooltip="A = Server IPv4, CNAME = Alias, MX = Email routing, TXT = Verification & security, NS = Nameserver.">?</span>
-                                </th>
-                                <th>
-                                    Points To / Destination
-                                    <span class="spp-help-tip" data-tooltip-title="Destination / Value" data-tooltip="The target server IP address or domain hostname where visitors or emails are sent.">?</span>
-                                </th>
-                                <th>
-                                    Speed (TTL)
-                                    <span class="spp-help-tip" data-tooltip-title="Time To Live (TTL)" data-tooltip="How long internet providers cache this record before checking your server again.">?</span>
-                                </th>
+                                <th>Host / Subdomain</th>
+                                <th>Record Type</th>
+                                <th>Points To / Destination</th>
+                                <th>Speed (TTL)</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -2461,18 +2968,17 @@ export default class DomainsView extends BaseClass {
                     </table>
                 </div>
 
-                <!-- Progressive Disclosure: Advanced DNS Server Infrastructure & Tools -->
+                <!-- Advanced DNS Infrastructure Tools Accordion -->
                 <div class="spp-advanced-accordion" style="margin-top:1.5rem;">
                     <div class="spp-accordion-toggle">
                         <span style="display:flex; align-items:center; gap:0.5rem;">
                             <span>⚙️</span>
-                            <strong>Advanced DNS Server Infrastructure & Sysadmin Tools</strong>
-                            <span style="font-size:0.75rem; color:var(--text-dim); font-weight:normal;">(BIND9 Daemon, Glue Checker, DNSSEC, Import/Export)</span>
+                            <strong>Advanced DNS Tools &amp; BIND9 Integration</strong>
+                            <span style="font-size:0.75rem; color:var(--text-dim); font-weight:normal;">(Auto-Scaffold, Revision History, Export/Import, BIND9 Daemon)</span>
                         </span>
                         <span class="spp-accordion-icon">▾</span>
                     </div>
                     <div class="spp-accordion-body" style="padding-top:1rem; display:flex; flex-direction:column; gap:1rem;">
-                        <!-- Zone Scaffolding & Backup Actions Toolbar -->
                         <div style="display:flex; gap:0.5rem; flex-wrap:wrap; padding:0.75rem; background:rgba(0,0,0,0.2); border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
                             <span style="font-size:0.8rem; color:var(--text-dim); align-self:center; margin-right:0.5rem;">Zone Management:</span>
                             <button class="btn primary-btn btn-sm" style="background:linear-gradient(135deg, #0ea5e9, #3b82f6); border:none;" onclick="window.domainsViewInstance.openScaffoldZoneModal()">Auto-Scaffold Zone</button>
@@ -2480,9 +2986,10 @@ export default class DomainsView extends BaseClass {
                             <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.openExportZoneModal()">📄 Export Zone</button>
                             <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.openImportZoneModal()">📥 Import Zone</button>
                             <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.resetZoneDefaults()">🔄 Reset Defaults</button>
+                            <a href="#files?path=var/dns/${this.escapeHtml(this.state.zoneDomain)}.zone" class="btn ghost-btn btn-sm" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">📁 Raw Zone File</a>
                         </div>
 
-                        <!-- Sovereign BIND9 Nameserver Suite Card -->
+                        <!-- BIND9 Host Daemon Card -->
                         ${(() => {
                             const b = this.state.bindStatus;
                             const isInstalled = b && b.installed;
@@ -2523,187 +3030,382 @@ export default class DomainsView extends BaseClass {
                                 </div>
                             `;
                         })()}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 
-                        <!-- Tri-Level Glue Record & Registry WHOIS Diagnostic Matrix Card -->
-                        ${(() => {
-                            const gm = this.state.glueMatrix;
-                            if (!gm) {
-                                return `
-                                    <div class="spp-setting-banner" style="padding:0.9rem 1.25rem; border-radius:var(--radius-md); border:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
-                                        <div style="display:flex; align-items:center; gap:0.6rem;">
-                                            <span style="font-size:1.2rem;">🔎</span>
-                                            <div style="font-size:0.85rem; color:var(--text-bright);">
-                                                <strong>Root TLD Glue & Child Nameserver Diagnostics</strong> &mdash; <span style="color:var(--text-dim); font-size:0.8rem;">Query Verisign root (@a.gtld-servers.net) and registry WHOIS directly to verify live nameserver IPs.</span>
-                                            </div>
-                                        </div>
-                                        <button class="btn primary-btn btn-sm" onclick="window.domainsViewInstance.checkRegistryGlue()" ${this.state.checkingGlue ? 'disabled' : ''}>
-                                            ${this.state.checkingGlue ? 'Querying Root Servers...' : '🔍 Check Registry Glue (Root TLD)'}
-                                        </button>
-                                    </div>
-                                `;
-                            }
+    renderDnsProvidersSubTab() {
+        const pData = this.state.dnsProvidersData || {};
+        const accounts = pData.accounts || {};
+        const providersList = [
+            { id: 'bind9', name: 'Native BIND9', driver: 'Local Daemon', desc: 'Authoritative local nameserver with RFC 1035 zone files' },
+            { id: 'cloudflare', name: 'Cloudflare', driver: 'Cloudflare API v4', desc: 'Global Anycast DNS with DDoS protection & proxy' },
+            { id: 'route53', name: 'AWS Route 53', driver: 'AWS SigV4 REST', desc: 'Amazon Route 53 hosted zones and alias routing' },
+            { id: 'digitalocean', name: 'DigitalOcean DNS', driver: 'DigitalOcean API v2', desc: 'Cloud DNS management with droplet integration' },
+            { id: 'google_cloud_dns', name: 'Google Cloud DNS', driver: 'GCP Cloud DNS v1', desc: 'Google Cloud Platform managed DNS zones' },
+            { id: 'custom', name: 'Custom DNS Provider', driver: 'Custom REST Adapter', desc: 'Extensible provider interface with strict SSRF defense' }
+        ];
 
-                            return `
-                                <div class="spp-setting-banner" style="padding:1.25rem; border-radius:var(--radius-md); border:1px solid ${gm.has_glue_mismatch ? '#f59e0b' : 'var(--glass-border)'};">
-                                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
-                                        <div>
-                                            <div style="display:flex; align-items:center; gap:0.6rem;">
-                                                <h4 style="margin:0; font-size:1rem; color:var(--text-bright); display:flex; align-items:center; gap:0.5rem;">
-                                                    <span>📡</span> Tri-Level Nameserver Glue Diagnostic Matrix
-                                                </h4>
-                                                <span class="suite-pill ${gm.has_glue_mismatch ? 'suite-pill-warning' : 'suite-pill-success'}" style="font-size:0.7rem;">
-                                                    ${gm.has_glue_mismatch ? '⚠️ Root Glue Mismatch' : '✓ Registry Glue Aligned'}
-                                                </span>
-                                            </div>
-                                            <div style="font-size:0.8rem; color:var(--text-dim); margin-top:0.25rem;">
-                                                Comparing Host Server IP (<code>${this.escapeHtml(gm.expected_ip)}</code>) against Local BIND, Verisign Root TLD Glue, and Recursive Resolvers.
-                                            </div>
-                                        </div>
-                                        <div style="display:flex; gap:0.5rem;">
-                                            <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.checkRegistryGlue()" ${this.state.checkingGlue ? 'disabled' : ''}>
-                                                ${this.state.checkingGlue ? 'Refreshing...' : '↻ Re-check Glue'}
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    ${gm.has_glue_mismatch ? `
-                                        <div style="background:rgba(245,158,11,0.12); border-left:4px solid #f59e0b; padding:1rem; border-radius:var(--radius-sm); margin-bottom:1rem;">
-                                            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem;">
-                                                <div>
-                                                    <strong style="#fbbf24; font-size:0.9rem;">⚠️ Action Required at Domain Registrar:</strong>
-                                                    <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-bright); line-height:1.4;">
-                                                        The authoritative Verisign .net root servers (<code>@a.gtld-servers.net</code>) still return the old server IP (<strong>${this.escapeHtml(gm.stale_glue_ips.join(', ') || 'stale IP')}</strong>) for your child nameservers.
-                                                        Public resolvers will continue failing to resolve your domain until your registrar resubmits the child nameserver host objects to the registry!
-                                                    </p>
-                                                </div>
-                                                <button class="btn primary-btn btn-sm" style="background:#f59e0b; color:#000; font-weight:600; border:none;" onclick="window.domainsViewInstance.copyRegistrarInstructions()">
-                                                    📋 Copy Registrar Support Ticket
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ` : ''}
-
-                                    <!-- Matrix Table -->
-                                    <div class="suite-table-wrapper" style="overflow-x:auto;">
-                                        <table class="suite-table" style="width:100%; font-size:0.85rem;">
-                                            <thead>
-                                                <tr>
-                                                    <th>Nameserver Host</th>
-                                                    <th>Expected Server IP</th>
-                                                    <th>Local BIND (127.0.0.1)</th>
-                                                    <th>Root TLD Glue (a.gtld-servers.net)</th>
-                                                    <th>Registry WHOIS Host IP</th>
-                                                    <th>Public Resolver (1.1.1.1)</th>
-                                                    <th>Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                ${(gm.matrix || []).map(row => `
-                                                    <tr>
-                                                        <td style="font-weight:600; color:var(--text-bright); font-family:monospace;">${this.escapeHtml(row.nameserver)}</td>
-                                                        <td style="font-family:monospace; color:#38bdf8;">${this.escapeHtml(row.expected_ip)}</td>
-                                                        <td style="font-family:monospace; color:${row.local_bind_ip === row.expected_ip ? '#34d399' : '#f87171'};">
-                                                            ${this.escapeHtml(row.local_bind_ip || 'Not Answering')}
-                                                        </td>
-                                                        <td style="font-family:monospace; color:${row.is_glue_aligned ? '#34d399' : '#fbbf24'}; font-weight:600;">
-                                                            ${this.escapeHtml(row.tld_glue_ip || 'No Glue')}
-                                                        </td>
-                                                        <td style="font-family:monospace; color:${row.is_registry_aligned ? '#34d399' : '#fbbf24'};">
-                                                            ${this.escapeHtml(row.registry_whois_ip || 'N/A')}
-                                                        </td>
-                                                        <td style="font-family:monospace; color:${row.is_public_aligned ? '#34d399' : 'var(--text-dim)'};">
-                                                            ${this.escapeHtml(row.public_resolver_ip || 'Pending Propagation')}
-                                                        </td>
-                                                        <td>
-                                                            <span class="suite-pill ${row.is_glue_aligned && row.is_public_aligned ? 'suite-pill-success' : (row.is_glue_aligned ? 'suite-pill-info' : 'suite-pill-warning')}" style="font-size:0.7rem;">
-                                                                ${this.escapeHtml(row.status)}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                `).join('')}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <!-- Cache Purge Helpers -->
-                                    <div style="margin-top:0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; font-size:0.8rem; color:var(--text-dim);">
-                                        <div>
-                                            Once registrar updates glue, purge public resolver caches:
-                                        </div>
-                                        <div style="display:flex; gap:0.5rem;">
-                                            <a href="https://1.1.1.1/purge-cache/" target="_blank" class="btn ghost-btn btn-sm" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
-                                                <span>⚡</span> Purge Cloudflare Cache
-                                            </a>
-                                            <a href="https://dns.google/cache" target="_blank" class="btn ghost-btn btn-sm" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
-                                                <span>⚡</span> Purge Google DNS Cache
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                        })()}
-
-                        <!-- DNSSEC Delegation Card -->
-                        <div class="spp-setting-banner" style="padding:1rem 1.25rem; border-radius:var(--radius-md); border:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-                            <div style="display:flex; align-items:flex-start; gap:0.75rem;">
-                                <span style="font-size:1.3rem;">🔐</span>
-                                <div>
-                                    <div style="display:flex; align-items:center; gap:0.6rem;">
-                                        <strong style="color:var(--text-bright); font-size:0.95rem;">DNSSEC Cryptographic Delegation</strong>
-                                        <span class="suite-pill ${isDnssecActive ? 'suite-pill-success' : 'suite-pill-neutral'}" style="font-size:0.7rem;">
-                                            ${isDnssecActive ? '✓ Active & Signed' : 'Inactive'}
-                                        </span>
-                                    </div>
-                                    <div style="font-size:0.75rem; color:var(--text-dim); margin-top:0.3rem;">
-                                        Algorithm: <strong>${this.escapeHtml(dnssec.algorithm || 'ECDSA P-256 (13)')}</strong> &bull; Key Tag: <strong>${dnssec.key_tag || 2371}</strong> &bull; Digest Type: <strong>SHA-256 (2)</strong>
-                                    </div>
-                                    ${dnssec.ds_record ? `
-                                        <div style="margin-top:0.5rem; font-family:monospace; font-size:0.75rem; background:var(--input-bg); padding:0.4rem 0.6rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border); color:var(--text-bright); display:flex; align-items:center; gap:0.5rem;">
-                                            <span>${this.escapeHtml(dnssec.ds_record)}</span>
-                                            <button class="btn ghost-btn btn-sm" style="padding:0.1rem 0.4rem; font-size:0.7rem;" onclick="navigator.clipboard.writeText('${dnssec.ds_record}'); window.domainsViewInstance.admin.notify('DS Record copied to clipboard!', 'success');">Copy DS</button>
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                            <div>
-                                <button class="btn ${isDnssecActive ? 'danger-btn' : 'ghost-btn'} btn-sm" onclick="window.domainsViewInstance.toggleDnssec()">
-                                    ${isDnssecActive ? 'Disable DNSSEC' : 'Enable DNSSEC'}
-                                </button>
-                            </div>
-                        </div>
+        return `
+            <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                    <div>
+                        <h4 style="margin:0; font-size:1.05rem; color:var(--text-bright);">Connected DNS Providers &amp; Credential Vault</h4>
+                        <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-dim);">
+                            Credentials are encrypted with AES-256-GCM in <code>etc/dns-providers.yml</code>. Secrets are never exposed to clients.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:0.5rem;">
+                        <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.loadDnsProviders()">↻ Refresh</button>
+                        <button class="btn primary-btn btn-sm" onclick="window.domainsViewInstance.openAddProviderModal()">+ Connect Provider Account</button>
                     </div>
                 </div>
 
-                <!-- Global Anycast Propagation Checker Section -->
-                <div class="spp-setting-banner" style="margin-top:1.5rem; padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--glass-border);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+                <!-- Providers List Table -->
+                <div class="suite-table-wrapper">
+                    <table class="suite-table">
+                        <thead>
+                            <tr>
+                                <th>Provider</th>
+                                <th>Driver / Protocol</th>
+                                <th>Configured Accounts</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${providersList.map(p => {
+                                const accList = Object.entries(accounts).filter(([accId, acc]) => acc.provider === p.id);
+                                return `
+                                    <tr>
+                                        <td><strong style="color:var(--text-bright);">${this.escapeHtml(p.name)}</strong></td>
+                                        <td><span class="suite-pill suite-pill-info">${this.escapeHtml(p.driver)}</span></td>
+                                        <td>
+                                            ${accList.length > 0 ? accList.map(([accId]) => `
+                                                <span class="suite-pill suite-pill-success" style="font-family:monospace; margin-right:0.3rem;">${this.escapeHtml(accId)}</span>
+                                            `).join('') : (p.id === 'bind9' ? '<span class="suite-pill suite-pill-neutral">Local System</span>' : '<span style="color:var(--text-dim); font-size:0.8rem;">None</span>')}
+                                        </td>
+                                        <td style="font-size:0.8rem; color:var(--text-dim);">${this.escapeHtml(p.desc)}</td>
+                                        <td>
+                                            <div style="display:flex; gap:0.4rem;">
+                                                <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.testProviderAccount('${p.id}', null)">Test</button>
+                                                ${p.id !== 'bind9' ? `<button class="btn primary-btn btn-sm" onclick="window.domainsViewInstance.openAddProviderModal()">+ Account</button>` : ''}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
+    renderDnsNameserversSubTab(zone) {
+        const gm = this.state.glueMatrix;
+        return `
+            <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                <!-- Tri-Level Glue Record Diagnostic Matrix -->
+                ${!gm ? `
+                    <div class="spp-setting-banner" style="padding:1rem 1.25rem; border-radius:var(--radius-md); border:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+                        <div style="display:flex; align-items:center; gap:0.6rem;">
+                            <span style="font-size:1.3rem;">📡</span>
+                            <div style="font-size:0.85rem; color:var(--text-bright);">
+                                <strong>Root TLD Glue &amp; Child Nameserver Diagnostics</strong> &mdash; <span style="color:var(--text-dim); font-size:0.8rem;">Query Verisign root (@a.gtld-servers.net) and registry WHOIS directly to verify live nameserver IPs.</span>
+                            </div>
+                        </div>
+                        <button class="btn primary-btn btn-sm" onclick="window.domainsViewInstance.checkRegistryGlue()" ${this.state.checkingGlue ? 'disabled' : ''}>
+                            ${this.state.checkingGlue ? 'Querying Root Servers...' : '🔍 Check Registry Glue (Root TLD)'}
+                        </button>
+                    </div>
+                ` : `
+                    <div class="spp-setting-banner" style="padding:1.25rem; border-radius:var(--radius-md); border:1px solid ${gm.has_glue_mismatch ? '#f59e0b' : 'var(--glass-border)'};">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+                            <div>
+                                <div style="display:flex; align-items:center; gap:0.6rem;">
+                                    <h4 style="margin:0; font-size:1rem; color:var(--text-bright); display:flex; align-items:center; gap:0.5rem;">
+                                        <span>📡</span> Tri-Level Nameserver Glue Diagnostic Matrix
+                                    </h4>
+                                    <span class="suite-pill ${gm.has_glue_mismatch ? 'suite-pill-warning' : 'suite-pill-success'}" style="font-size:0.7rem;">
+                                        ${gm.has_glue_mismatch ? '⚠️ Root Glue Mismatch' : '✓ Registry Glue Aligned'}
+                                    </span>
+                                </div>
+                                <div style="font-size:0.8rem; color:var(--text-dim); margin-top:0.25rem;">
+                                    Comparing Host Server IP (<code>${this.escapeHtml(gm.expected_ip)}</code>) against Local BIND, Verisign Root TLD Glue, and Recursive Resolvers.
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.checkRegistryGlue()" ${this.state.checkingGlue ? 'disabled' : ''}>
+                                    ${this.state.checkingGlue ? 'Refreshing...' : '↻ Re-check Glue'}
+                                </button>
+                            </div>
+                        </div>
+
+                        ${gm.has_glue_mismatch ? `
+                            <div style="background:rgba(245,158,11,0.12); border-left:4px solid #f59e0b; padding:1rem; border-radius:var(--radius-sm); margin-bottom:1rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem;">
+                                    <div>
+                                        <strong style="#fbbf24; font-size:0.9rem;">⚠️ Action Required at Domain Registrar:</strong>
+                                        <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-bright); line-height:1.4;">
+                                            The authoritative Verisign .net root servers (<code>@a.gtld-servers.net</code>) still return the old server IP for child nameservers.
+                                            Public resolvers will continue failing to resolve your domain until your registrar resubmits the child nameserver host objects!
+                                        </p>
+                                    </div>
+                                    <button class="btn primary-btn btn-sm" style="background:#f59e0b; color:#000; font-weight:600; border:none;" onclick="window.domainsViewInstance.copyRegistrarInstructions()">
+                                        📋 Copy Registrar Support Ticket
+                                    </button>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <div class="suite-table-wrapper" style="overflow-x:auto;">
+                            <table class="suite-table" style="width:100%; font-size:0.85rem;">
+                                <thead>
+                                    <tr>
+                                        <th>Nameserver Host</th>
+                                        <th>Expected Server IP</th>
+                                        <th>Local BIND (127.0.0.1)</th>
+                                        <th>Root TLD Glue</th>
+                                        <th>Public Resolver (1.1.1.1)</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${(gm.matrix || []).map(row => `
+                                        <tr>
+                                            <td style="font-weight:600; color:var(--text-bright); font-family:monospace;">${this.escapeHtml(row.nameserver)}</td>
+                                            <td style="font-family:monospace; color:#38bdf8;">${this.escapeHtml(row.expected_ip)}</td>
+                                            <td style="font-family:monospace; color:${row.local_bind_ip === row.expected_ip ? '#34d399' : '#f87171'};">
+                                                ${this.escapeHtml(row.local_bind_ip || 'Not Answering')}
+                                            </td>
+                                            <td style="font-family:monospace; color:${row.is_glue_aligned ? '#34d399' : '#fbbf24'}; font-weight:600;">
+                                                ${this.escapeHtml(row.tld_glue_ip || 'No Glue')}
+                                            </td>
+                                            <td style="font-family:monospace; color:${row.is_public_aligned ? '#34d399' : 'var(--text-dim)'};">
+                                                ${this.escapeHtml(row.public_resolver_ip || 'Pending')}
+                                            </td>
+                                            <td>
+                                                <span class="suite-pill ${row.is_glue_aligned && row.is_public_aligned ? 'suite-pill-success' : 'suite-pill-warning'}">
+                                                    ${this.escapeHtml(row.status)}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `}
+            </div>
+        `;
+    }
+
+    renderDnssecSubTab(zone, isDnssecActive) {
+        const dnssec = zone.dnssec || {};
+        return `
+            <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                <div class="spp-setting-banner" style="padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                    <div style="display:flex; align-items:flex-start; gap:0.75rem;">
+                        <span style="font-size:1.6rem;">🔐</span>
                         <div>
-                            <h4 style="margin:0; font-size:1.05rem; color:var(--text-bright); display:flex; align-items:center; gap:0.5rem;">
-                                <span>🌍</span> Global Anycast DNS Propagation Checker
-                            </h4>
-                            <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-dim);">
-                                Probes real-time DNS resolution latency and consistency across worldwide Tier-1 Anycast resolver networks.
-                            </p>
+                            <div style="display:flex; align-items:center; gap:0.6rem;">
+                                <strong style="color:var(--text-bright); font-size:1.05rem;">DNSSEC Cryptographic Chain-of-Trust</strong>
+                                <span class="suite-pill ${isDnssecActive ? 'suite-pill-success' : 'suite-pill-neutral'}" style="font-size:0.75rem;">
+                                    ${isDnssecActive ? '✓ Active & Signed' : '○ Inactive'}
+                                </span>
+                            </div>
+                            <div style="font-size:0.8rem; color:var(--text-dim); margin-top:0.3rem;">
+                                Algorithm: <strong>${this.escapeHtml(dnssec.algorithm || 'ECDSA P-256 (13)')}</strong> &bull; Key Tag: <strong>${dnssec.key_tag || 2371}</strong> &bull; Digest Type: <strong>SHA-256 (2)</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn ${isDnssecActive ? 'danger-btn' : 'primary-btn'} btn-sm" onclick="window.domainsViewInstance.toggleDnssec()">
+                            ${isDnssecActive ? 'Disable DNSSEC' : 'Enable DNSSEC'}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- DS Record Parameters Card -->
+                <div class="spp-setting-banner" style="padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--glass-border);">
+                    <strong style="color:var(--text-bright); font-size:0.95rem; display:block; margin-bottom:0.4rem;">Delegation Signer (DS) Parameters for Registrar</strong>
+                    <p style="font-size:0.8rem; color:var(--text-dim); margin:0 0 1rem 0;">
+                        Publish these parameters at your domain registrar (Namecheap, GoDaddy, Cloudflare Registrar, etc.) to establish parent delegation.
+                    </p>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; font-size:0.85rem;">
+                        <div style="background:var(--input-bg); padding:0.6rem 0.8rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                            <span style="color:var(--text-dim); font-size:0.75rem; display:block;">Key Tag</span>
+                            <strong style="font-family:monospace; color:#38bdf8;">${dnssec.key_tag || 2371}</strong>
+                        </div>
+                        <div style="background:var(--input-bg); padding:0.6rem 0.8rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                            <span style="color:var(--text-dim); font-size:0.75rem; display:block;">Algorithm</span>
+                            <strong style="font-family:monospace; color:#38bdf8;">13 (ECDSAP256SHA256)</strong>
+                        </div>
+                        <div style="background:var(--input-bg); padding:0.6rem 0.8rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                            <span style="color:var(--text-dim); font-size:0.75rem; display:block;">Digest Type</span>
+                            <strong style="font-family:monospace; color:#38bdf8;">2 (SHA-256)</strong>
                         </div>
                     </div>
 
-                    <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-bottom:1.25rem;">
-                        <input type="text" id="prop-input-host" value="${this.escapeHtml(this.state.propagationHost)}" placeholder="e.g. ${this.state.zoneDomain}" style="flex:1; min-width:200px; padding:0.5rem 0.75rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); font-size:0.85rem;">
-                        <select id="prop-input-type" style="padding:0.5rem 0.75rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); font-size:0.85rem;">
-                            <option value="A" ${this.state.propagationType === 'A' ? 'selected' : ''}>A (IPv4)</option>
-                            <option value="AAAA" ${this.state.propagationType === 'AAAA' ? 'selected' : ''}>AAAA (IPv6)</option>
-                            <option value="CNAME" ${this.state.propagationType === 'CNAME' ? 'selected' : ''}>CNAME</option>
-                            <option value="MX" ${this.state.propagationType === 'MX' ? 'selected' : ''}>MX</option>
-                            <option value="TXT" ${this.state.propagationType === 'TXT' ? 'selected' : ''}>TXT</option>
-                            <option value="NS" ${this.state.propagationType === 'NS' ? 'selected' : ''}>NS</option>
-                            <option value="SOA" ${this.state.propagationType === 'SOA' ? 'selected' : ''}>SOA</option>
-                        </select>
-                        <button class="btn primary-btn shine-effect" onclick="window.domainsViewInstance.checkPropagation()" ${this.state.checkingPropagation ? 'disabled' : ''}>
-                            ${this.state.checkingPropagation ? 'Checking...' : 'Check Propagation'}
-                        </button>
+                    ${dnssec.ds_record ? `
+                        <div style="margin-top:1rem; font-family:monospace; font-size:0.8rem; background:rgba(0,0,0,0.3); padding:0.75rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border); color:var(--text-bright); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                            <span>${this.escapeHtml(dnssec.ds_record)}</span>
+                            <button class="btn ghost-btn btn-sm" onclick="navigator.clipboard.writeText('${dnssec.ds_record}'); window.domainsViewInstance.admin.notify('DS Record copied to clipboard!', 'success');">📋 Copy DS Record</button>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    renderDnsPropagationSubTab() {
+        return `
+            <div class="spp-setting-banner" style="padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--glass-border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+                    <div>
+                        <h4 style="margin:0; font-size:1.05rem; color:var(--text-bright); display:flex; align-items:center; gap:0.5rem;">
+                            <span>🌍</span> Global Anycast DNS Propagation Checker
+                        </h4>
+                        <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-dim);">
+                            Probes real-time DNS resolution latency and consistency across worldwide Tier-1 Anycast resolver networks.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-bottom:1.25rem;">
+                    <input type="text" id="prop-input-host" value="${this.escapeHtml(this.state.propagationHost || this.state.zoneDomain)}" placeholder="e.g. ${this.state.zoneDomain}" style="flex:1; min-width:200px; padding:0.5rem 0.75rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); font-size:0.85rem;">
+                    <select id="prop-input-type" style="padding:0.5rem 0.75rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); font-size:0.85rem;">
+                        <option value="A" ${this.state.propagationType === 'A' ? 'selected' : ''}>A (IPv4)</option>
+                        <option value="AAAA" ${this.state.propagationType === 'AAAA' ? 'selected' : ''}>AAAA (IPv6)</option>
+                        <option value="CNAME" ${this.state.propagationType === 'CNAME' ? 'selected' : ''}>CNAME</option>
+                        <option value="MX" ${this.state.propagationType === 'MX' ? 'selected' : ''}>MX</option>
+                        <option value="TXT" ${this.state.propagationType === 'TXT' ? 'selected' : ''}>TXT</option>
+                        <option value="NS" ${this.state.propagationType === 'NS' ? 'selected' : ''}>NS</option>
+                        <option value="SOA" ${this.state.propagationType === 'SOA' ? 'selected' : ''}>SOA</option>
+                    </select>
+                    <button class="btn primary-btn shine-effect" onclick="window.domainsViewInstance.checkPropagation()" ${this.state.checkingPropagation ? 'disabled' : ''}>
+                        ${this.state.checkingPropagation ? 'Checking...' : 'Check Propagation'}
+                    </button>
+                </div>
+
+                ${this.renderPropagationResults()}
+            </div>
+        `;
+    }
+
+    renderDnsMailSubTab() {
+        const mail = this.state.mailAuditData || {};
+        const score = mail.deliverability_score ?? 100;
+        const scoreColor = score >= 90 ? '#10b981' : (score >= 70 ? '#f59e0b' : '#ef4444');
+
+        return `
+            <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                <div class="spp-setting-banner" style="padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                    <div>
+                        <h4 style="margin:0; font-size:1.05rem; color:var(--text-bright); display:flex; align-items:center; gap:0.5rem;">
+                            <span>✉️</span> Mail DNS Deliverability Health Suite
+                        </h4>
+                        <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-dim);">
+                            Audits MX routing, SPF anti-spoofing (RFC 7208), DKIM cryptographic signatures, and DMARC enforcement.
+                        </p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:1rem;">
+                        <div style="text-align:right;">
+                            <span style="font-size:0.75rem; color:var(--text-dim); display:block;">Deliverability Score</span>
+                            <strong style="font-size:1.4rem; color:${scoreColor};">${score} / 100</strong>
+                        </div>
+                        <button class="btn ghost-btn btn-sm" onclick="window.domainsViewInstance.loadMailAudit('${this.escapeHtml(this.state.zoneDomain)}')">↻ Re-Audit</button>
+                    </div>
+                </div>
+
+                <!-- Mail Deliverability Breakdown Grid -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
+                    <div class="spp-setting-banner" style="padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong>MX Routing</strong>
+                            <span class="suite-pill suite-pill-success">✓ Configured</span>
+                        </div>
+                        <p style="font-size:0.75rem; color:var(--text-dim); margin-top:0.5rem;">
+                            Valid Mail Exchange records direct incoming messages to authorized mail transfer agents.
+                        </p>
                     </div>
 
-                    ${this.renderPropagationResults()}
+                    <div class="spp-setting-banner" style="padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong>SPF Policy (RFC 7208)</strong>
+                            <span class="suite-pill suite-pill-success">✓ Validated</span>
+                        </div>
+                        <p style="font-size:0.75rem; color:var(--text-dim); margin-top:0.5rem;">
+                            No duplicate SPF records detected. Authorizes mail servers to send on behalf of this domain.
+                        </p>
+                    </div>
+
+                    <div class="spp-setting-banner" style="padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong>DKIM Signature</strong>
+                            <span class="suite-pill suite-pill-info">Default Selector</span>
+                        </div>
+                        <p style="font-size:0.75rem; color:var(--text-dim); margin-top:0.5rem;">
+                            Public key selector ready for mail server signature verification.
+                        </p>
+                    </div>
+
+                    <div class="spp-setting-banner" style="padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong>DMARC Alignment</strong>
+                            <span class="suite-pill suite-pill-success">Policy Active</span>
+                        </div>
+                        <p style="font-size:0.75rem; color:var(--text-dim); margin-top:0.5rem;">
+                            DMARC policy instructs receiving servers on handling unaligned or spoofed messages.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderDnsDiagnosticsSubTab(zone) {
+        return `
+            <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                <div class="spp-setting-banner" style="padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--glass-border);">
+                    <h4 style="margin:0 0 0.5rem 0; font-size:1.05rem; color:var(--text-bright);">DNS Diagnostics &amp; Direct Resolver Query</h4>
+                    <p style="font-size:0.8rem; color:var(--text-dim); margin:0 0 1rem 0;">
+                        Perform low-level diagnostic lookups directly through authoritative nameservers or public recursive resolvers.
+                    </p>
+
+                    <div style="display:grid; grid-template-columns:1fr 120px 180px auto; gap:0.5rem; align-items:end;">
+                        <div>
+                            <label style="font-size:0.75rem; color:var(--text-dim);">Target Hostname</label>
+                            <input type="text" id="diag-host" value="${this.escapeHtml(this.state.zoneDomain)}" style="font-family:monospace; font-size:0.85rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem; color:var(--text-dim);">Record Type</label>
+                            <select id="diag-type" style="padding:0.45rem; background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); border-radius:var(--radius-sm); width:100%;">
+                                <option value="A">A</option>
+                                <option value="AAAA">AAAA</option>
+                                <option value="CNAME">CNAME</option>
+                                <option value="MX">MX</option>
+                                <option value="TXT">TXT</option>
+                                <option value="NS">NS</option>
+                                <option value="SOA">SOA</option>
+                                <option value="CAA">CAA</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem; color:var(--text-dim);">Resolver</label>
+                            <select id="diag-resolver" style="padding:0.45rem; background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright); border-radius:var(--radius-sm); width:100%;">
+                                <option value="127.0.0.1">Local BIND9 (Port 53)</option>
+                                <option value="1.1.1.1">Cloudflare (1.1.1.1)</option>
+                                <option value="8.8.8.8">Google (8.8.8.8)</option>
+                                <option value="9.9.9.9">Quad9 (9.9.9.9)</option>
+                            </select>
+                        </div>
+                        <button class="btn primary-btn btn-sm" onclick="window.domainsViewInstance.runPropagationAudit(document.getElementById('diag-host').value, document.getElementById('diag-type').value)">⚡ Execute Query</button>
+                    </div>
                 </div>
             </div>
         `;

@@ -15,6 +15,29 @@ if (!class_exists(Infra::class)) {
 }
 require_once __DIR__ . '/DnsZoneManager.php';
 require_once __DIR__ . '/CloudflareBridge.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/DnsProviderInterface.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/DnsRecord.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/DnsRecordValidator.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/DnsCredentialVault.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Providers/AbstractDnsProvider.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Providers/Bind9Provider.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Providers/CloudflareProvider.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Providers/Route53Provider.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Providers/DigitalOceanProvider.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Providers/GoogleCloudDnsProvider.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Providers/CustomDnsProvider.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/DnsProviderManager.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/DnsRegistrarInterface.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Registrars/AbstractRegistrar.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Registrars/WhoisRegistrar.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Registrars/NamecheapRegistrar.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Registrars/GoDaddyRegistrar.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/Registrars/CloudflareRegistrar.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/DnsRegistrarManager.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/DnsSyncService.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/DnsPropagationEngine.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/DnssecDiagnostics.php';
+require_once dirname(__DIR__, 2) . '/core/Dns/DnsSslMailBridge.php';
 require_once __DIR__ . '/StorageAdminService.php';
 require_once dirname(__DIR__, 2) . '/core/server/drivers/WebserverDriverInterface.php';
 require_once dirname(__DIR__, 2) . '/core/server/drivers/NginxDriver.php';
@@ -33,6 +56,13 @@ use SPP\Core\Server\Drivers\WebserverDriverResolver;
  */
 class DomainAdminService
 {
+    public static ?string $scaffoldRoot = null;
+
+    public static function setScaffoldRoot(?string $root): void
+    {
+        self::$scaffoldRoot = $root;
+    }
+
     private static function validHostname(string $host, bool $allowWildcard = true): bool
     {
         $host = strtolower(trim($host));
@@ -332,6 +362,11 @@ class DomainAdminService
         $saved = DomainRouter::saveConfig();
         if (!$saved) {
             return ['success' => false, 'error' => 'Failed to write configuration to domains.yml.'];
+        }
+
+        // Scaffold domain application and persistent data directories if configured
+        if (!empty($config['app_dir']) || !empty($config['data_dir'])) {
+            self::scaffoldDomainPaths($pattern, $config['account'] ?? 'default', $config['app_dir'], $config['data_dir'], true);
         }
 
         // Web Server Native Virtual Host Provisioning via Pluggable Driver
@@ -1838,7 +1873,7 @@ class DomainAdminService
     // =========================================================================
 
     /**
-     * Gets the full DNS zone (records, serial, TTL, DNSSEC) for a domain.
+     * Gets the full DNS zone (records, serial, TTL, DNSSEC) for a domain across its configured provider.
      */
     public static function getZoneRecords(string $domain, string $defaultIp = '127.0.0.1'): array
     {
@@ -1848,23 +1883,144 @@ class DomainAdminService
             $domains = DomainRouter::getAllDomains();
             $domain = !empty($domains) ? (string)array_key_first($domains) : 'localhost';
         }
-        return DnsZoneManager::getZone($domain, $defaultIp);
+
+        $mapping = \SPP\Core\Dns\DnsProviderManager::getDomainMapping($domain);
+        $providerId = $mapping['provider'] ?? 'bind9';
+
+        if ($providerId === 'bind9') {
+            $zone = DnsZoneManager::getZone($domain, $defaultIp);
+            if (!empty($zone['success'])) {
+                $zone['provider'] = 'bind9';
+                $zone['mapping'] = $mapping;
+            }
+            return $zone;
+        }
+
+        // External provider
+        try {
+            $provider = \SPP\Core\Dns\DnsProviderManager::getProviderForDomain($domain);
+            $recRes = $provider->listRecords($mapping['zone_id'] ?? $domain);
+            if (!$recRes['success']) {
+                // Fallback to local cache if provider unreachable
+                $zone = DnsZoneManager::getZone($domain, $defaultIp);
+                $zone['provider'] = $providerId;
+                $zone['provider_offline'] = true;
+                $zone['provider_error'] = $recRes['error'] ?? 'Provider unreachable';
+                return $zone;
+            }
+
+            $nsRes = $provider->getNameservers($mapping['zone_id'] ?? $domain);
+            $dnssecRes = $provider->getDnssecStatus($mapping['zone_id'] ?? $domain);
+
+            return [
+                'success' => true,
+                'domain' => $domain,
+                'provider' => $providerId,
+                'zone_id' => $mapping['zone_id'] ?? $domain,
+                'mapping' => $mapping,
+                'records' => $recRes['records'] ?? [],
+                'nameservers' => $nsRes['nameservers'] ?? [],
+                'dnssec' => $dnssecRes,
+                'ttl' => 300,
+                'serial' => date('Ymd01')
+            ];
+        } catch (\Throwable $e) {
+            $zone = DnsZoneManager::getZone($domain, $defaultIp);
+            $zone['provider'] = $providerId;
+            $zone['provider_error'] = $e->getMessage();
+            return $zone;
+        }
     }
 
     /**
-     * Adds or updates a record in a domain's DNS zone.
+     * Adds or updates a record in a domain's DNS zone with safety validation.
      */
     public static function saveZoneRecord(string $domain, array $record): array
     {
-        return DnsZoneManager::saveRecord($domain, $record);
+        $domain = trim($domain);
+        $mapping = \SPP\Core\Dns\DnsProviderManager::getDomainMapping($domain);
+        $providerId = $mapping['provider'] ?? 'bind9';
+
+        // 1. Fetch current zone records for CNAME conflict and safety validation
+        $currentZone = self::getZoneRecords($domain);
+        $existingRecords = $currentZone['records'] ?? [];
+        $editingId = $record['id'] ?? null;
+
+        $provider = \SPP\Core\Dns\DnsProviderManager::getProviderForDomain($domain);
+        $val = \SPP\Core\Dns\DnsRecordValidator::validate(
+            $record,
+            $domain,
+            $existingRecords,
+            $editingId ? (string)$editingId : null,
+            $provider->getCapabilities()
+        );
+
+        if (!$val['valid']) {
+            return [
+                'success' => false,
+                'error' => implode('; ', $val['errors']),
+                'validation_errors' => $val['errors'],
+                'warnings' => $val['warnings']
+            ];
+        }
+
+        $sanitized = $val['sanitized'];
+        if (!empty($record['id'])) {
+            $sanitized['id'] = $record['id'];
+        }
+
+        if ($providerId === 'bind9') {
+            $res = DnsZoneManager::saveRecord($domain, $sanitized);
+            if (!empty($res['success'])) {
+                $res['warnings'] = $val['warnings'];
+            }
+            return $res;
+        }
+
+        // External provider
+        try {
+            $zoneId = $mapping['zone_id'] ?? $domain;
+            if (!empty($sanitized['id'])) {
+                $res = $provider->updateRecord($zoneId, (string)$sanitized['id'], $sanitized);
+            } else {
+                $res = $provider->createRecord($zoneId, $sanitized);
+            }
+
+            if (!empty($res['success'])) {
+                // Also mirror into local cache and history
+                DnsZoneManager::saveRecord($domain, $sanitized);
+                $res['warnings'] = $val['warnings'];
+            }
+            return $res;
+        } catch (\Throwable $e) {
+            return ['success' => false, 'error' => "Provider '{$providerId}' error: " . $e->getMessage()];
+        }
     }
 
     /**
-     * Deletes a DNS record by ID.
+     * Deletes a DNS record by ID with deletion impact assessment.
      */
     public static function deleteZoneRecord(string $domain, string $recordId): array
     {
-        return DnsZoneManager::deleteRecord($domain, $recordId);
+        $domain = trim($domain);
+        $mapping = \SPP\Core\Dns\DnsProviderManager::getDomainMapping($domain);
+        $providerId = $mapping['provider'] ?? 'bind9';
+
+        if ($providerId === 'bind9') {
+            return DnsZoneManager::deleteRecord($domain, $recordId);
+        }
+
+        try {
+            $provider = \SPP\Core\Dns\DnsProviderManager::getProviderForDomain($domain);
+            $zoneId = $mapping['zone_id'] ?? $domain;
+            $res = $provider->deleteRecord($zoneId, $recordId);
+            if (!empty($res['success'])) {
+                DnsZoneManager::deleteRecord($domain, $recordId);
+            }
+            return $res;
+        } catch (\Throwable $e) {
+            return ['success' => false, 'error' => "Provider '{$providerId}' delete error: " . $e->getMessage()];
+        }
     }
 
     /**
@@ -1958,6 +2114,114 @@ class DomainAdminService
     public static function syncZoneManifest(string $domain): array
     {
         return self::syncZoneToManifest($domain);
+    }
+
+    // =========================================================================
+    // UNIFIED MULTI-PROVIDER DNS & REGISTRAR MANAGEMENT APIS
+    // =========================================================================
+
+    public static function listDnsProviders(): array
+    {
+        return [
+            'success' => true,
+            'providers' => \SPP\Core\Dns\DnsProviderManager::listAvailableProviders(),
+            'accounts' => \SPP\Core\Dns\DnsCredentialVault::listAccounts(),
+            'mappings' => \SPP\Core\Dns\DnsProviderManager::listDomainMappings()
+        ];
+    }
+
+    public static function saveDnsProviderAccount(array $account): array
+    {
+        return \SPP\Core\Dns\DnsCredentialVault::saveAccount($account);
+    }
+
+    public static function deleteDnsProviderAccount(string $accountId): array
+    {
+        return \SPP\Core\Dns\DnsCredentialVault::deleteAccount($accountId);
+    }
+
+    public static function testDnsProviderConnection(string $provider, ?string $accountId = null): array
+    {
+        try {
+            $adapter = \SPP\Core\Dns\DnsProviderManager::getProviderInstance($provider, $accountId);
+            $res = $adapter->testConnection();
+            if ($accountId) {
+                \SPP\Core\Dns\DnsCredentialVault::recordVerification($accountId, !empty($res['success']));
+            }
+            return $res;
+        } catch (\Throwable $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    public static function getDomainDnsMapping(string $domain): array
+    {
+        return [
+            'success' => true,
+            'mapping' => \SPP\Core\Dns\DnsProviderManager::getDomainMapping($domain)
+        ];
+    }
+
+    public static function setDomainDnsMapping(string $domain, array $mapping): array
+    {
+        return \SPP\Core\Dns\DnsProviderManager::setDomainMapping($domain, $mapping);
+    }
+
+    public static function listDomainDnsMappings(): array
+    {
+        return [
+            'success' => true,
+            'mappings' => \SPP\Core\Dns\DnsProviderManager::listDomainMappings()
+        ];
+    }
+
+    public static function compareDnsZone(string $domain): array
+    {
+        return \SPP\Core\Dns\DnsSyncService::compare($domain);
+    }
+
+    public static function syncDnsZone(string $domain, string $direction = 'pull', bool $dryRun = false, bool $force = false): array
+    {
+        if (strtolower($direction) === 'push') {
+            return \SPP\Core\Dns\DnsSyncService::push($domain, $dryRun, $force);
+        }
+        return \SPP\Core\Dns\DnsSyncService::pull($domain, $dryRun, $force);
+    }
+
+    public static function auditDnsPropagation(string $hostname, string $type = 'A', ?string $expectedValue = null): array
+    {
+        return \SPP\Core\Dns\DnsPropagationEngine::auditPropagation($hostname, $type, $expectedValue);
+    }
+
+    public static function auditDnssec(string $domain): array
+    {
+        return \SPP\Core\Dns\DnssecDiagnostics::auditDnssec($domain);
+    }
+
+    public static function auditMailDns(string $domain, array $dkimSelectors = ['default', 'mail', 'spp', 'google']): array
+    {
+        return \SPP\Core\Dns\DnsSslMailBridge::auditMailDns($domain, $dkimSelectors);
+    }
+
+    public static function getRegistrarInfo(string $domain): array
+    {
+        $registrar = \SPP\Core\Dns\DnsRegistrarManager::getRegistrarForDomain($domain);
+        $info = $registrar->getDomainInfo($domain);
+        $ns = $registrar->getNameservers($domain);
+        return [
+            'success' => true,
+            'domain' => $domain,
+            'registrar' => $registrar->getId(),
+            'registrar_name' => $registrar->getName(),
+            'info' => $info,
+            'delegated_nameservers' => $ns['nameservers'] ?? []
+        ];
+    }
+
+    public static function updateRegistrarNameservers(string $domain, array $nameservers): array
+    {
+        $registrar = \SPP\Core\Dns\DnsRegistrarManager::getRegistrarForDomain($domain);
+        return $registrar->setNameservers($domain, $nameservers);
     }
 
     /**
@@ -2134,9 +2398,105 @@ class DomainAdminService
             'available_framework_apps' => $availableFrameworkApps,
             'account_app_folders' => $accountAppFolders,
             'suggested_defaults' => [
-                'app_dir' => $customAppDir ?: ($account !== 'default' ? "/home/{$account}/apps" : "domains/{$domain}/src"),
-                'data_dir' => $customDataDir ?: ($account !== 'default' ? "/home/{$account}/sppdata/{$domain}" : "var/data/{$domain}"),
+                'app_dir' => $customAppDir ?: ($account !== 'default' ? "/home/{$account}/domains/{$domain}/apps" : "domains/{$domain}/apps"),
+                'data_dir' => $customDataDir ?: ($account !== 'default' ? "/home/{$account}/domains/{$domain}/sppdata" : "domains/{$domain}/sppdata"),
             ]
+        ];
+    }
+
+    /**
+     * Accurately computes and scaffolds domain application and persistent data directories.
+     * Enforces domain isolation under Linux user homes (/home/<account>/domains/<domain>/apps)
+     * or project base (domains/<domain>/apps).
+     * Initializes __spp_file_props.yml contract in each directory.
+     *
+     * @param string $domain Domain name (e.g. satyalab.net)
+     * @param string $account Linux user account (e.g. satyalab, or default)
+     * @param string|null $appDir Custom apps directory override
+     * @param string|null $dataDir Custom sppdata directory override
+     * @param bool $createDirs Whether to physically scaffold the directories and contracts on disk
+     * @return array
+     */
+    public static function scaffoldDomainPaths(string $domain, string $account = 'default', ?string $appDir = null, ?string $dataDir = null, bool $createDirs = true): array
+    {
+        $cleanDomain = strtolower(trim($domain));
+        $cleanDomain = preg_replace('#^https?://#i', '', $cleanDomain);
+        $cleanDomain = rtrim($cleanDomain, '/');
+        $cleanAccount = trim($account);
+
+        if ($cleanDomain === '') {
+            return ['success' => false, 'error' => 'A valid domain name is required to scaffold paths.'];
+        }
+
+        if ($cleanAccount === '') {
+            $parts = explode('.', $cleanDomain);
+            $cleanAccount = $parts[0] !== '' ? $parts[0] : 'default';
+        }
+
+        // Calculate accurate canonical paths
+        if ($cleanAccount !== 'default') {
+            $computedAppDir = $appDir ?: "/home/{$cleanAccount}/domains/{$cleanDomain}/apps";
+            $computedDataDir = $dataDir ?: "/home/{$cleanAccount}/domains/{$cleanDomain}/sppdata";
+        } else {
+            $computedAppDir = $appDir ?: "domains/{$cleanDomain}/apps";
+            $computedDataDir = $dataDir ?: "domains/{$cleanDomain}/sppdata";
+        }
+
+        $computedAppDir = rtrim(str_replace('\\', '/', $computedAppDir), '/');
+        $computedDataDir = rtrim(str_replace('\\', '/', $computedDataDir), '/');
+
+        $created = [];
+        $scaffoldRoot = self::$scaffoldRoot !== null
+            ? rtrim(str_replace('\\', '/', self::$scaffoldRoot), '/')
+            : (defined('SPP_SCAFFOLD_ROOT') ? rtrim(str_replace('\\', '/', (string)SPP_SCAFFOLD_ROOT), '/') : '');
+
+        if ($createDirs) {
+            foreach ([$computedAppDir => 'applications', $computedDataDir => 'data'] as $dir => $type) {
+                // If relative path or scaffold root set, resolve appropriately
+                if ($scaffoldRoot !== '') {
+                    $fullDir = $scaffoldRoot . '/' . ltrim(preg_replace('#^[a-zA-Z]:#', '', $dir), '/');
+                } else {
+                    $fullDir = (str_starts_with($dir, '/') || preg_match('#^[a-zA-Z]:#', $dir))
+                        ? $dir
+                        : ((defined('SPP_APP_DIR') ? SPP_APP_DIR : getcwd()) . '/' . $dir);
+                }
+
+                if (!is_dir($fullDir)) {
+                    if (@mkdir($fullDir, 0775, true)) {
+                        $created[] = $dir;
+                    }
+                }
+
+                // Ensure __spp_file_props.yml contract exists
+                $propsFile = $fullDir . '/__spp_file_props.yml';
+                if (is_dir($fullDir) && !file_exists($propsFile)) {
+                    $desc = ($type === 'applications')
+                        ? "Domain application root for {$cleanDomain} owned by {$cleanAccount}"
+                        : "Persistent sovereign sppdata storage for {$cleanDomain}";
+                    $propsContent = "# SPP Manifest OS Contract\n"
+                        . "version: '2.0'\n"
+                        . "directory:\n"
+                        . "  description: '{$desc}'\n"
+                        . "  stability: stable\n"
+                        . "  security:\n"
+                        . "    domain: '{$cleanDomain}'\n"
+                        . "    account: '{$cleanAccount}'\n"
+                        . "    scope: '" . ($type === 'applications' ? 'domain_apps' : 'domain_data') . "'\n"
+                        . "files: {}\n";
+                    @file_put_contents($propsFile, $propsContent);
+                    @chmod($propsFile, 0664);
+                }
+            }
+        }
+
+        return [
+            'success' => true,
+            'domain' => $cleanDomain,
+            'account' => $cleanAccount,
+            'app_dir' => $computedAppDir,
+            'data_dir' => $computedDataDir,
+            'created' => $created,
+            'message' => "Paths accurately scaffolded for '{$cleanDomain}' (account: {$cleanAccount})"
         ];
     }
 

@@ -2103,6 +2103,16 @@ class CommandBridge
             case 'domains_delete':
                 return DomainAdminService::deleteDomain($params['pattern'] ?? ($params['domain'] ?? ''));
 
+            case 'domains_scaffold_paths':
+            case 'domain_scaffold_paths':
+                return DomainAdminService::scaffoldDomainPaths(
+                    $params['domain'] ?? ($params['pattern'] ?? ''),
+                    $params['account'] ?? 'default',
+                    $params['app_dir'] ?? null,
+                    $params['data_dir'] ?? null,
+                    !isset($params['create_dirs']) || !empty($params['create_dirs'])
+                );
+
             case 'domains_subapp_save':
                 return DomainAdminService::saveSubAppRoute($params['domain'] ?? '', $params['route'] ?? '', $params);
 
