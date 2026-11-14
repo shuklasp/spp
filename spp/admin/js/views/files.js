@@ -102,7 +102,10 @@ export default class FilesView extends BaseClass {
             directoryManifest: null,
             rawManifestModal: null,
             manifestHealthModal: null,
-            collapseManifestBanner: true
+            collapseManifestBanner: true,
+            favorites: [],
+            favoritesCollapsed: localStorage.getItem("spp_files_favs_collapsed") === "true",
+            favoritesManagerModal: false
         };
 
         this._treeScrollTop = 0;
@@ -123,6 +126,7 @@ export default class FilesView extends BaseClass {
 
         // Render initial unified workstation frame
         this.update();
+        this.loadFavorites();
 
         // Step 1: Immediately fetch current directory and root tree in PARALLEL
         const sysRoot = this.state.systemRoot || '/';
@@ -2052,6 +2056,9 @@ export default class FilesView extends BaseClass {
                 <div class="spp-ctx-item" onclick="window.filesViewInstance.loadDirectory('${safePath}'); window.filesViewInstance.closeContextMenu();">
                     <span>📂</span> <span>Open Folder</span>
                 </div>
+                <div class="spp-ctx-item" onclick="window.filesViewInstance.pinDirectoryToFavorites('${safePath}'); window.filesViewInstance.closeContextMenu();">
+                    <span>⭐</span> <span>Pin to Favorites</span>
+                </div>
                 <div class="spp-ctx-item" onclick="window.filesViewInstance.downloadFolderAsZip('${safePath}'); window.filesViewInstance.closeContextMenu();">
                     <span>⬇️</span> <span>Download Folder as ZIP</span>
                 </div>
@@ -3940,6 +3947,7 @@ export default class FilesView extends BaseClass {
                     <div class="spp-file-workstation-body">
                         <!-- Left Pane: Directory Tree -->
                         <div class="spp-file-tree-sidebar" style="width:${treeWidth}px; flex:0 0 ${treeWidth}px;">
+                            ${this.renderFavoritesSection()}
                             <div class="spp-file-tree-titlebar">
                                 <div style="display:flex; align-items:center; gap:0.4rem;">
                                     <span>📁</span>
@@ -4090,6 +4098,240 @@ export default class FilesView extends BaseClass {
 
                 <!-- Image Lightbox Preview Modal -->
                 ${this.state.imagePreviewModal ? this.renderImagePreviewModal() : ''}
+
+                <!-- Favorites Manager Modal -->
+                ${this.state.favoritesManagerModal ? this.renderFavoritesManagerModal() : ''}
+            </div>
+        `;
+    }
+
+    toggleFavoritesCollapse() {
+        const next = !this.state.favoritesCollapsed;
+        this.state.favoritesCollapsed = next;
+        try {
+            localStorage.setItem('spp_files_favs_collapsed', next ? 'true' : 'false');
+        } catch (e) {}
+        this.render();
+    }
+
+    async loadFavorites() {
+        try {
+            const cached = localStorage.getItem('spp_fm_favorites');
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        this.state.favorites = parsed;
+                    }
+                } catch (e) {}
+            }
+
+            const curDomain = this.state.selectedDomain || (window.admin && window.admin.currentDomain) || null;
+            const res = await this.api('storage_get_favorites', { domain: curDomain });
+            if (res && res.success && Array.isArray(res.data)) {
+                this.state.favorites = res.data;
+                try {
+                    localStorage.setItem('spp_fm_favorites', JSON.stringify(res.data));
+                } catch (e) {}
+                this.render();
+            }
+        } catch (e) {
+            console.warn('Failed to load favorites from server:', e);
+        }
+    }
+
+    renderFavoritesSection() {
+        const favs = this.state.favorites || [];
+        const isCollapsed = !!this.state.favoritesCollapsed;
+        const curPath = (this.state.currentPath || '').replace(/\\/g, '/').replace(/\/+$/, '');
+
+        let favsHtml = '';
+        if (favs.length === 0) {
+            favsHtml = `<div style="font-size:0.72rem; color:var(--text-dim); padding:0.35rem 0.65rem; font-style:italic;">No favorites saved. Click ＋ Pin to add current folder.</div>`;
+        } else {
+            favsHtml = favs.map(f => {
+                const fPath = (f.path || '').replace(/\\/g, '/').replace(/\/+$/, '');
+                const isActive = (curPath === fPath);
+                const isCustom = f.type === 'custom';
+                const icon = f.icon || (f.type === 'system' ? '🖥️' : (f.type === 'domain' ? '🎯' : '⭐'));
+                const label = f.label || (f.path ? f.path.split('/').pop() : 'Root');
+
+                return `
+                    <div class="spp-fm-favorite-item ${isActive ? 'active-fav' : ''}" 
+                         onclick="window.filesViewInstance.navigateTo('${this.escapeHtml(f.path)}')" 
+                         title="${this.escapeHtml(f.path)}${f.description ? ' — ' + this.escapeHtml(f.description) : ''}">
+                        <div class="spp-fm-fav-left">
+                            <span class="spp-fm-fav-icon">${icon}</span>
+                            <span class="spp-fm-fav-label">${this.escapeHtml(label)}</span>
+                        </div>
+                        ${isCustom ? `
+                            <span class="spp-fm-fav-del" onclick="event.stopPropagation(); window.filesViewInstance.removeFavorite('${this.escapeHtml(f.id || f.path)}')" title="Unpin from favorites">✕</span>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        return `
+            <div class="spp-fm-favorites-section">
+                <div class="spp-fm-favorites-header" onclick="window.filesViewInstance.toggleFavoritesCollapse()">
+                    <div style="display:flex; align-items:center; gap:0.35rem;">
+                        <span class="spp-fm-favorites-arrow">${isCollapsed ? '▶' : '▼'}</span>
+                        <span>⭐ Favorites</span>
+                        <span class="spp-fm-favorites-count">${favs.length}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.2rem;" onclick="event.stopPropagation()">
+                        <button type="button" class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.pinCurrentDirectoryToFavorites()" title="Pin current directory to favorites" style="padding:0.1rem 0.35rem; font-size:0.68rem;">
+                            ＋ Pin
+                        </button>
+                        <button type="button" class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.openFavoritesManagerModal()" title="Manage Favorites" style="padding:0.1rem 0.35rem; font-size:0.68rem;">
+                            ⚙️
+                        </button>
+                    </div>
+                </div>
+                ${!isCollapsed ? `
+                    <div class="spp-fm-favorites-list">
+                        ${favsHtml}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    async pinCurrentDirectoryToFavorites() {
+        const path = this.state.currentPath;
+        if (!path) return;
+        this.pinDirectoryToFavorites(path);
+    }
+
+    async pinDirectoryToFavorites(path) {
+        if (!path) return;
+        const norm = path.replace(/\\/g, '/');
+        const defaultLabel = norm.split('/').filter(Boolean).pop() || 'Root';
+        const label = prompt('Pin directory to Favorites as:', defaultLabel);
+        if (label === null) return;
+
+        try {
+            const curDomain = this.state.selectedDomain || (window.admin && window.admin.currentDomain) || null;
+            const res = await this.api('storage_add_favorite', {
+                label: label.trim() || defaultLabel,
+                path: norm,
+                icon: '⭐',
+                domain: curDomain
+            });
+            if (res && res.success && Array.isArray(res.data)) {
+                this.state.favorites = res.data;
+                try {
+                    localStorage.setItem('spp_fm_favorites', JSON.stringify(res.data));
+                } catch (e) {}
+                this.notify('⭐ Pinned to Favorites: ' + (label.trim() || defaultLabel), 'success');
+                this.render();
+            } else {
+                this.notify(res?.message || 'Failed to pin favorite', 'error');
+            }
+        } catch (e) {
+            this.notify('Error saving favorite: ' + e.message, 'error');
+        }
+    }
+
+    async removeFavorite(idOrPath) {
+        try {
+            const curDomain = this.state.selectedDomain || (window.admin && window.admin.currentDomain) || null;
+            const res = await this.api('storage_remove_favorite', {
+                id: idOrPath,
+                path: idOrPath,
+                domain: curDomain
+            });
+            if (res && res.success && Array.isArray(res.data)) {
+                this.state.favorites = res.data;
+                try {
+                    localStorage.setItem('spp_fm_favorites', JSON.stringify(res.data));
+                } catch (e) {}
+                this.notify('Unpinned from Favorites', 'info');
+                this.render();
+            }
+        } catch (e) {
+            this.notify('Error removing favorite: ' + e.message, 'error');
+        }
+    }
+
+    openFavoritesManagerModal() {
+        this.state.favoritesManagerModal = true;
+        this.render();
+    }
+
+    closeFavoritesManagerModal() {
+        this.state.favoritesManagerModal = false;
+        this.render();
+    }
+
+    async submitAddFavorite() {
+        const pathInput = document.getElementById('fm-new-fav-path');
+        const labelInput = document.getElementById('fm-new-fav-label');
+        const path = pathInput ? pathInput.value.trim() : '';
+        const label = labelInput ? labelInput.value.trim() : '';
+        if (!path) {
+            alert('Please enter a folder path');
+            return;
+        }
+        await this.pinDirectoryToFavorites(path);
+        if (pathInput) pathInput.value = '';
+        if (labelInput) labelInput.value = '';
+    }
+
+    renderFavoritesManagerModal() {
+        const favs = this.state.favorites || [];
+        return `
+            <div class="spp-shortcuts-modal-overlay" style="position:fixed; inset:0; z-index:999999; background:rgba(2, 6, 23, 0.75); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1rem;" onclick="if(event.target === this) window.filesViewInstance.closeFavoritesManagerModal();">
+                <div class="spp-shortcuts-modal" style="width:100%; max-width:550px; max-height:85vh; display:flex; flex-direction:column; background:var(--bg-card,#ffffff); border:1px solid var(--glass-border); border-radius:12px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.35); overflow:hidden;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:0.85rem 1.25rem; border-bottom:1px solid var(--glass-border);">
+                        <div style="display:flex; align-items:center; gap:0.5rem; font-weight:700; font-size:1rem; color:var(--text-bright);">
+                            <span>⭐</span>
+                            <span>Manage Directory Favorites</span>
+                        </div>
+                        <button class="btn ghost-btn btn-sm" onclick="window.filesViewInstance.closeFavoritesManagerModal()" style="border:none; font-size:1rem; cursor:pointer;">✕</button>
+                    </div>
+                    <div style="padding:1rem 1.25rem; overflow-y:auto; flex:1;">
+                        <div style="margin-bottom:1rem; padding:0.75rem; background:rgba(234, 88, 12, 0.06); border:1px solid var(--glass-border); border-radius:8px;">
+                            <div style="font-weight:600; font-size:0.8rem; margin-bottom:0.35rem; color:var(--text-bright);">Pin New Folder to Favorites</div>
+                            <div style="display:flex; gap:0.5rem;">
+                                <input type="text" id="fm-new-fav-path" class="spp-element" placeholder="/path/to/folder or relative path..." style="flex:2; font-size:0.8rem; padding:0.35rem 0.6rem; border-radius:6px;">
+                                <input type="text" id="fm-new-fav-label" class="spp-element" placeholder="Label..." style="flex:1; font-size:0.8rem; padding:0.35rem 0.6rem; border-radius:6px;">
+                                <button type="button" class="btn primary-btn btn-sm" onclick="window.filesViewInstance.submitAddFavorite()">＋ Add</button>
+                            </div>
+                        </div>
+
+                        <div style="font-weight:700; font-size:0.75rem; text-transform:uppercase; color:var(--text-dim); margin-bottom:0.5rem; letter-spacing:0.04em;">Current Saved Favorites</div>
+                        <div style="display:flex; flex-direction:column; gap:0.35rem;">
+                            ${favs.map(f => `
+                                <div style="display:flex; align-items:center; justify-content:space-between; padding:0.45rem 0.75rem; border:1px solid var(--glass-border); border-radius:8px; background:var(--bg-subtle, rgba(0,0,0,0.02));">
+                                    <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden;">
+                                        <span style="font-size:1rem;">${f.icon || '📁'}</span>
+                                        <div style="overflow:hidden;">
+                                            <div style="font-weight:600; font-size:0.82rem; color:var(--text-bright);">${this.escapeHtml(f.label)}</div>
+                                            <div style="font-size:0.7rem; color:var(--text-dim); font-family:monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${this.escapeHtml(f.path)}</div>
+                                        </div>
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:0.35rem;">
+                                        <button type="button" class="btn ghost-btn btn-xs" onclick="window.filesViewInstance.navigateTo('${this.escapeHtml(f.path)}'); window.filesViewInstance.closeFavoritesManagerModal();" title="Jump to this directory">
+                                            ↗ Jump
+                                        </button>
+                                        ${f.type === 'custom' ? `
+                                            <button type="button" class="btn danger-btn btn-xs" onclick="window.filesViewInstance.removeFavorite('${this.escapeHtml(f.id || f.path)}')" title="Remove favorite">
+                                                🗑️
+                                            </button>
+                                        ` : `
+                                            <span style="font-size:0.65rem; color:var(--text-dim); padding:0.1rem 0.35rem; background:rgba(0,0,0,0.05); border-radius:4px;">system</span>
+                                        `}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div style="padding:0.75rem 1.25rem; border-top:1px solid var(--glass-border); display:flex; justify-content:flex-end;">
+                        <button type="button" class="btn secondary-btn btn-sm" onclick="window.filesViewInstance.closeFavoritesManagerModal()">Done</button>
+                    </div>
+                </div>
             </div>
         `;
     }

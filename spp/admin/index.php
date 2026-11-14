@@ -52,38 +52,10 @@ if (!empty($_GET['sso_token'])) {
 }
 
 
-/**
- * checkDevMode function
- * Redirects or blocks access if the system profile is not 'dev'.
- */
-function checkDevMode()
-{
-    $settingsPath = SPP_BASE_DIR . '/etc/settings.xml';
-    if (!file_exists($settingsPath))
-        return false;
-    $xml = simplexml_load_file($settingsPath);
-    return strtolower((string) $xml->profile) === 'dev';
-}
-
-if (!checkDevMode()) {
-    http_response_code(403);
-    die("Access Forbidden: SPP Administration Workbench is disabled in the current profile.");
-}
-
 $isLoggedIn = false;
 $currentUser = null;
 try {
-    if (checkDevMode()) {
-        $isLoggedIn = true;
-        if (empty($_SESSION['spp_admin_user'])) {
-            $_SESSION['spp_admin_user'] = 'admin';
-            $_SESSION['spp_admin_fallback'] = true;
-        }
-        $currentUser = ['username' => $_SESSION['spp_admin_user'], 'role' => 'Super Administrator'];
-    } elseif (!empty($_SESSION['spp_admin_fallback'])) {
-        $isLoggedIn = true;
-        $currentUser = ['username' => 'admin', 'role' => 'Super Administrator'];
-    } elseif (!empty($_SESSION['spp_admin_user'])) {
+    if (!empty($_SESSION['spp_admin_user'])) {
         $isLoggedIn = true;
         $currentUser = ['username' => $_SESSION['spp_admin_user'], 'role' => 'Administrator'];
     } elseif (\SPP\SPPSession::sessionExists() && \SPP\SPPSession::sessionVarExists('__sppauth_user__')) {
@@ -160,9 +132,21 @@ $instanceName = basename($servingDir);
 
     <!-- SPP Modern Form Engine Master Loader -->
     <script src="<?php echo SPP_JS_URI; ?>/sppforms.js?v=<?php echo defined('SPP_VER') ? SPP_VER . '.' . @filemtime(SPP_BASE_DIR . '/public/js/sppforms.js') : time(); ?>"></script>
+
+    <!-- Immediate Theme & Mode Pre-Initialization (Eliminates Visual Theme Flash) -->
+    <script>
+        (function() {
+            try {
+                const t = localStorage.getItem('spp_admin_theme') || 'saffron';
+                document.documentElement.setAttribute('data-theme', t);
+                const m = localStorage.getItem('spp_admin_ui_mode') || 'normal';
+                document.documentElement.setAttribute('data-ui-mode', m);
+            } catch(e) {}
+        })();
+    </script>
 </head>
 
-<body data-theme="night">
+<body data-theme="saffron">
 
     <!-- Framework Message Center (SPPError Display) -->
     <div id="toast-container"></div>
@@ -235,6 +219,7 @@ $instanceName = basename($servingDir);
                     <span class="instance-path-text" id="sidebar-serving-dir-text"><?php echo htmlspecialchars($servingDir); ?></span>
                 </div>
             </div>
+            <div id="domain-selector-container" style="margin-bottom: 0.5rem;"></div>
             <div id="app-selector-container" style="margin-bottom: 0.5rem;"></div>
             <div class="sidebar-search" style="padding: 0; margin-bottom: 0.5rem;">
                 <input type="text" id="sidebar-search" class="spp-element" placeholder="Quick find (domain, database, port, docker)... (Ctrl+K)"
@@ -388,60 +373,167 @@ $instanceName = basename($servingDir);
 
         <!-- Main Content Area -->
         <main class="main-content">
-            <header class="content-header">
+            <header class="content-header spp-global-topbar">
                 <div class="content-header-title-block">
                     <button type="button" id="global-sidebar-toggle-btn" class="sidebar-toggle-btn"
                         onclick="window.admin && window.admin.toggleSidebar()" title="Toggle Sidebar (Expand/Collapse)">
                         <span id="global-sidebar-icon">☰</span>
                     </button>
-                    <h2 id="view-title"><span class="view-icon">⏳</span> Loading Workspace...</h2>
-                    <div class="header-serving-chip" onclick="window.admin && window.admin.copyServingDir()" title="Active SPP Serving Directory: <?php echo htmlspecialchars($servingDir); ?>&#10;Differentiates multiple copies of SPP. Click to copy path.">
-                        <span class="chip-icon">📁</span>
-                        <span class="chip-label"><?php echo htmlspecialchars($servingDir); ?></span>
-                        <span class="chip-copy" title="Copy to clipboard">📋</span>
+                    <div class="adm-topbar-brand">
+                        <span class="adm-topbar-brand-title">SPP <span class="adm-brand-accent">Admin</span></span>
+                    </div>
+                    <div class="adm-topbar-breadcrumb">
+                        <span class="adm-crumb-sep">/</span>
+                        <h2 id="view-title" class="adm-crumb-title"><span class="view-icon">⏳</span> Loading Workspace...</h2>
                     </div>
                 </div>
+
                 <div class="adm-header-search-wrap">
-                    <div class="adm-header-search-box" onclick="window.SPPCommandPalette && window.SPPCommandPalette.open()" title="Search workbench, views, commands... (Ctrl+K)">
+                    <div class="adm-header-search-box" onclick="window.SPPCommandPalette && window.SPPCommandPalette.open()" title="Quick search views, commands, domains, files... (Ctrl+K)">
                         <span class="adm-search-icon">🔍</span>
-                        <input type="text" class="adm-header-search-input" placeholder="Search..." readonly onclick="window.SPPCommandPalette && window.SPPCommandPalette.open()" onfocus="this.blur(); window.SPPCommandPalette && window.SPPCommandPalette.open();">
+                        <input type="text" class="adm-header-search-input" placeholder="Quick search or command... (Ctrl+K)" readonly onclick="window.SPPCommandPalette && window.SPPCommandPalette.open()" onfocus="this.blur(); window.SPPCommandPalette && window.SPPCommandPalette.open();">
                         <kbd class="adm-search-kbd">Ctrl+K</kbd>
                     </div>
-                    <button type="button" class="adm-header-search-box adm-cheatsheet-btn" onclick="window.SPPCommandPalette && window.SPPCommandPalette.openCheatsheet()" title="Workbench Keyboard Accelerators Cheatsheet (Ctrl+/)">
-                        <span style="font-size: 0.95rem;">⌨️</span>
-                        <kbd class="adm-search-kbd" style="font-size: 0.65rem;">Ctrl+/</kbd>
-                    </button>
-                    <button type="button" class="adm-header-search-box adm-cheatsheet-btn" onclick="window.admin && window.admin.openJargonBuster()" title="Jargon Buster &amp; Glossary (Ctrl+H) — Explain abbreviations and options" style="display:inline-flex; align-items:center; gap:0.35rem; cursor:pointer;">
-                        <span style="font-size: 0.95rem;">❓</span>
-                        <span class="global-action-text" style="font-size:0.75rem; font-weight:600; color:var(--text-bright);">Jargon Buster</span>
-                        <kbd class="adm-search-kbd" style="font-size: 0.65rem;">Ctrl+H</kbd>
-                    </button>
                 </div>
+
                 <div class="content-header-tools">
                     <div class="header-actions" id="header-actions">
                         <!-- Contextual buttons injected here -->
                     </div>
-                    <div class="global-actions">
-                        <button type="button" id="header-ui-mode-pill" class="btn btn-sm primary-btn header-mode-btn"
-                            onclick="admin.setUIMode(admin.getUIMode() === 'normal' ? 'expert' : 'normal')"
-                            title="Switch between Normal (Site) and Expert (Server) mode">
-                            <span>🌐</span> Normal Mode
-                        </button>
-                        <a href="../sppdev/#dashboard" onclick="event.preventDefault(); typeof window.switchPortalWithSso === 'function' ? window.switchPortalWithSso('sppdev') : (window.location.href='../sppdev/#dashboard');" class="btn ghost-btn btn-sm" title="Switch to Developer Intelligence Workbench (Seamless SSO)" style="display:inline-flex; align-items:center; gap:0.4rem; text-decoration:none; margin-right:0.5rem;">
-                            <span style="font-size:1rem;">💻</span> <span class="global-action-text">Dev Studio</span>
-                        </a>
-                        <a href="#terminal" class="btn secondary-btn btn-sm" data-mode="expert" title="Interactive Cloud Web Terminal" style="text-decoration: none;">
-                            <span>⬛</span> <span class="global-action-text">Terminal</span>
-                        </a>
-                        <a href="#domains" class="btn secondary-btn btn-sm" title="Virtual Hosts & Microservice Proxy" style="text-decoration: none;">
-                            <span>🌐</span> <span class="global-action-text">Domains</span>
-                        </a>
-                        <a href="#files" class="btn secondary-btn btn-sm" title="Storage Treemap, Quotas & Web Tools" style="text-decoration: none;">
-                            <span>📊</span> <span class="global-action-text">Storage</span>
-                        </a>
-                        <button id="logout-btn" class="btn ghost-btn btn-sm logout-btn-top">
-                            <span style="font-size: 1.1rem; margin-right: 0.4rem;">🚪</span> <span class="global-action-text">Logout</span>
-                        </button>
+
+                    <div class="global-actions spp-topbar-menus">
+                        <!-- 1. Tools Dropdown -->
+                        <div class="spp-dropdown-container" id="topbar-tools-dropdown">
+                            <button type="button" class="btn ghost-btn btn-sm spp-topbar-btn" onclick="window.admin && window.admin.toggleTopbarMenu('tools')" title="Developer Tools & System Workstations">
+                                <span>🛠️</span> <span class="global-action-text">Tools</span> <span class="spp-caret">▾</span>
+                            </button>
+                            <div class="spp-dropdown-menu right" id="menu-tools" style="display:none; min-width: 230px;">
+                                <a href="../sppdev/#dashboard" onclick="event.preventDefault(); typeof window.switchPortalWithSso === 'function' ? window.switchPortalWithSso('sppdev') : (window.location.href='../sppdev/#dashboard');" class="spp-dropdown-item">
+                                    <span style="font-size:1.1rem;">💻</span>
+                                    <div>
+                                        <div style="font-weight:600;">Dev Studio</div>
+                                        <div class="spp-subtext" style="font-size:0.68rem; color:var(--text-dim);">Developer Intelligence Workbench</div>
+                                    </div>
+                                </a>
+                                <a href="#terminal" class="spp-dropdown-item" onclick="window.admin.closeTopbarMenus()">
+                                    <span style="font-size:1.1rem;">⬛</span>
+                                    <div>
+                                        <div style="font-weight:600;">Web Terminal</div>
+                                        <div class="spp-subtext" style="font-size:0.68rem; color:var(--text-dim);">Interactive Secure CLI Shell</div>
+                                    </div>
+                                </a>
+                                <a href="#domains" class="spp-dropdown-item" onclick="window.admin.closeTopbarMenus()">
+                                    <span style="font-size:1.1rem;">🌐</span>
+                                    <div>
+                                        <div style="font-weight:600;">Virtual Hosts & Domains</div>
+                                        <div class="spp-subtext" style="font-size:0.68rem; color:var(--text-dim);">VHosts, Engines & Routing</div>
+                                    </div>
+                                </a>
+                                <a href="#files" class="spp-dropdown-item" onclick="window.admin.closeTopbarMenus()">
+                                    <span style="font-size:1.1rem;">📁</span>
+                                    <div>
+                                        <div style="font-weight:600;">File Manager & Storage</div>
+                                        <div class="spp-subtext" style="font-size:0.68rem; color:var(--text-dim);">Filesystem, Manifests & Treemap</div>
+                                    </div>
+                                </a>
+                                <a href="#database" class="spp-dropdown-item" onclick="window.admin.closeTopbarMenus()">
+                                    <span style="font-size:1.1rem;">🗄️</span>
+                                    <div>
+                                        <div style="font-weight:600;">Database Studio</div>
+                                        <div class="spp-subtext" style="font-size:0.68rem; color:var(--text-dim);">SQL Editor & Multi-Database</div>
+                                    </div>
+                                </a>
+                                <div class="spp-dropdown-divider"></div>
+                                <a href="#system" class="spp-dropdown-item" onclick="window.admin.closeTopbarMenus()">
+                                    <span style="font-size:1.1rem;">🩺</span>
+                                    <div>
+                                        <div style="font-weight:600;">Observability & Logs</div>
+                                        <div class="spp-subtext" style="font-size:0.68rem; color:var(--text-dim);">Live Traces & System Telemetry</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 2. Help Dropdown -->
+                        <div class="spp-dropdown-container" id="topbar-help-dropdown">
+                            <button type="button" class="btn ghost-btn btn-sm spp-topbar-btn" onclick="window.admin && window.admin.toggleTopbarMenu('help')" title="Help, Glossary & Keyboard Shortcuts">
+                                <span>❓</span> <span class="global-action-text">Help</span> <span class="spp-caret">▾</span>
+                            </button>
+                            <div class="spp-dropdown-menu right" id="menu-help" style="display:none; min-width: 220px;">
+                                <button type="button" class="spp-dropdown-item" onclick="window.admin && window.admin.openJargonBuster(); window.admin.closeTopbarMenus();">
+                                    <span style="font-size:1.1rem;">📖</span>
+                                    <div>
+                                        <div style="font-weight:600;">Jargon Buster (Ctrl+H)</div>
+                                        <div class="spp-subtext" style="font-size:0.68rem; color:var(--text-dim);">Glossary & term explainer</div>
+                                    </div>
+                                </button>
+                                <button type="button" class="spp-dropdown-item" onclick="window.SPPCommandPalette && window.SPPCommandPalette.openCheatsheet(); window.admin.closeTopbarMenus();">
+                                    <span style="font-size:1.1rem;">⌨️</span>
+                                    <div>
+                                        <div style="font-weight:600;">Keyboard Hotkeys (Ctrl+/)</div>
+                                        <div class="spp-subtext" style="font-size:0.68rem; color:var(--text-dim);">Interactive shortcuts reference</div>
+                                    </div>
+                                </button>
+                                <div class="spp-dropdown-divider"></div>
+                                <a href="../docs/SPPADMIN_ADMIN_GUIDE.md" target="_blank" class="spp-dropdown-item" onclick="window.admin.closeTopbarMenus()">
+                                    <span style="font-size:1.1rem;">📚</span>
+                                    <div>
+                                        <div style="font-weight:600;">Administrator Guide</div>
+                                        <div class="spp-subtext" style="font-size:0.68rem; color:var(--text-dim);">Documentation & specs</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 3. Settings Dropdown -->
+                        <div class="spp-dropdown-container" id="topbar-settings-dropdown">
+                            <button type="button" class="btn ghost-btn btn-sm spp-topbar-btn" onclick="window.admin && window.admin.toggleTopbarMenu('settings')" title="Theme & Workbench Settings">
+                                <span>⚙️</span> <span class="spp-caret">▾</span>
+                            </button>
+                            <div class="spp-dropdown-menu right" id="menu-settings" style="display:none; min-width: 240px; padding:0.5rem;">
+                                <div style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--text-dim); padding:0.25rem 0.5rem; letter-spacing:0.05em;">Theme & Appearance</div>
+                                <div style="display:flex; gap:0.35rem; padding:0.25rem 0.5rem 0.5rem 0.5rem;">
+                                    <button type="button" class="btn ghost-btn btn-xs theme-opt-btn" onclick="window.admin.setTheme('day')" title="Light Mode" style="flex:1; justify-content:center;">☀️ Light</button>
+                                    <button type="button" class="btn ghost-btn btn-xs theme-opt-btn" onclick="window.admin.setTheme('night')" title="Dark Mode" style="flex:1; justify-content:center;">🌙 Dark</button>
+                                    <button type="button" class="btn ghost-btn btn-xs theme-opt-btn" onclick="window.admin.setTheme('saffron')" title="Saffron Mode" style="flex:1; justify-content:center;">🌅 Saffron</button>
+                                </div>
+                                <div class="spp-dropdown-divider"></div>
+                                <div style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--text-dim); padding:0.25rem 0.5rem; letter-spacing:0.05em;">Operational Mode</div>
+                                <div style="display:flex; gap:0.35rem; padding:0.25rem 0.5rem 0.5rem 0.5rem;">
+                                    <button type="button" class="btn ghost-btn btn-xs" id="topbar-mode-normal" onclick="window.admin.setUIMode('normal')" style="flex:1; justify-content:center;">🌐 Normal</button>
+                                    <button type="button" class="btn ghost-btn btn-xs" id="topbar-mode-expert" onclick="window.admin.setUIMode('expert')" style="flex:1; justify-content:center;">⚡ Expert</button>
+                                </div>
+                                <div class="spp-dropdown-divider"></div>
+                                <div style="padding:0.25rem 0.5rem;">
+                                    <div style="font-size:0.68rem; color:var(--text-dim); margin-bottom:0.25rem;">Serving Instance:</div>
+                                    <button type="button" class="btn secondary-btn btn-xs" onclick="window.admin && window.admin.copyServingDir()" style="width:100%; font-family:monospace; font-size:0.68rem; overflow:hidden; text-overflow:ellipsis; justify-content:center;" title="Click to copy full path: <?php echo htmlspecialchars($servingDir); ?>">
+                                        📋 <?php echo htmlspecialchars(basename($servingDir)); ?>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. User Profile Dropdown -->
+                        <div class="spp-dropdown-container" id="topbar-user-dropdown">
+                            <button type="button" class="btn ghost-btn btn-sm spp-topbar-user-btn" onclick="window.admin && window.admin.toggleTopbarMenu('user')" title="User Profile">
+                                <span class="user-avatar-sm" id="topbar-user-avatar">A</span>
+                                <span class="global-action-text" id="topbar-username">Admin</span>
+                                <span class="spp-caret">▾</span>
+                            </button>
+                            <div class="spp-dropdown-menu right" id="menu-user" style="display:none; min-width: 200px;">
+                                <div style="padding:0.5rem 0.85rem; border-bottom:1px solid var(--glass-border);">
+                                    <div style="font-weight:600; font-size:0.82rem; color:var(--text-bright);" id="topbar-user-name-display">Administrator</div>
+                                    <div style="font-size:0.7rem; color:var(--text-dim);" id="topbar-user-role-display">Super Administrator</div>
+                                </div>
+                                <a href="#identity" class="spp-dropdown-item" onclick="window.admin.closeTopbarMenus()">
+                                    <span>👤</span> IAM & Access Keys
+                                </a>
+                                <div class="spp-dropdown-divider"></div>
+                                <button type="button" class="spp-dropdown-item" id="topbar-logout-btn" onclick="window.admin && window.admin.handleLogout()" style="color:var(--danger,#ef4444);">
+                                    <span>🚪</span> Logout
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>

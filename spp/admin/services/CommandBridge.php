@@ -3089,6 +3089,26 @@ class CommandBridge
             // -------------------------------------------------------------
             // FILE MANAGER & STORAGE QUOTA (SPP Storage Manager)
             // -------------------------------------------------------------
+            case 'storage_get_favorites':
+                return StorageAdminService::getFavorites($params['domain'] ?? null);
+
+            case 'storage_save_favorites':
+                return StorageAdminService::saveFavorites($params['favorites'] ?? [], $params['domain'] ?? null);
+
+            case 'storage_add_favorite':
+                return StorageAdminService::addFavorite(
+                    $params['label'] ?? '',
+                    $params['path'] ?? '',
+                    $params['icon'] ?? '⭐',
+                    $params['domain'] ?? null
+                );
+
+            case 'storage_remove_favorite':
+                return StorageAdminService::removeFavorite(
+                    $params['id'] ?? ($params['path'] ?? ''),
+                    $params['domain'] ?? null
+                );
+
             case 'storage_list_directory':
             case 'storage_list_files':
                 return StorageAdminService::listFiles($params['path'] ?? '');

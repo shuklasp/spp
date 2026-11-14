@@ -266,6 +266,197 @@ class StorageAdminService
     }
 
     /**
+     * Get list of file manager favorites (default system favorites + custom saved favorites).
+     */
+    public static function getFavorites(?string $domain = null): array
+    {
+        $baseDir = self::getWorkspaceRoot();
+        $sysRoot = self::getSystemRoot();
+        $isLinux = DIRECTORY_SEPARATOR === '/';
+
+        // Standard system & workspace favorites
+        $favorites = [
+            [
+                'id' => 'fav_workspace',
+                'label' => 'SPP Workspace',
+                'path' => $baseDir,
+                'icon' => '📁',
+                'type' => 'system',
+                'description' => 'Current application workspace root',
+                'exists' => true,
+                'is_pinned' => true
+            ],
+            [
+                'id' => 'fav_system_root',
+                'label' => $isLinux ? 'System Root (/)' : 'System Drive (' . $sysRoot . ')',
+                'path' => $sysRoot,
+                'icon' => '🖥️',
+                'type' => 'system',
+                'description' => 'Operating system root filesystem',
+                'exists' => true,
+                'is_pinned' => true
+            ]
+        ];
+
+        // Useful workspace directories if they exist
+        $commonDirs = [
+            ['id' => 'fav_apps', 'label' => 'Applications', 'path' => $baseDir . '/apps', 'icon' => '📦', 'description' => 'SPP Applications directory'],
+            ['id' => 'fav_modules', 'label' => 'Framework Modules', 'path' => $baseDir . '/spp/modules', 'icon' => '🧩', 'description' => 'Core & optional modules'],
+            ['id' => 'fav_etc', 'label' => 'Configuration (etc)', 'path' => $baseDir . '/etc', 'icon' => '⚙️', 'description' => 'Configuration and settings'],
+            ['id' => 'fav_var', 'label' => 'Data & Storage (var)', 'path' => $baseDir . '/var', 'icon' => '💾', 'description' => 'Local database, cache and runtime data'],
+        ];
+        foreach ($commonDirs as $cd) {
+            if (is_dir($cd['path'])) {
+                $cd['type'] = 'workspace';
+                $cd['exists'] = true;
+                $cd['is_pinned'] = false;
+                $favorites[] = $cd;
+            }
+        }
+
+        // Common server directories on Linux
+        if ($isLinux) {
+            $serverDirs = [
+                ['id' => 'fav_var_www', 'label' => 'Web Roots (/var/www)', 'path' => '/var/www', 'icon' => '🌐', 'description' => 'Virtual hosts & web roots'],
+                ['id' => 'fav_home', 'label' => 'User Homes (/home)', 'path' => '/home', 'icon' => '👤', 'description' => 'User accounts and files'],
+                ['id' => 'fav_etc_sys', 'label' => 'System Config (/etc)', 'path' => '/etc', 'icon' => '⚙️', 'description' => 'System configuration'],
+            ];
+            foreach ($serverDirs as $sd) {
+                if (is_dir($sd['path'])) {
+                    $sd['type'] = 'server';
+                    $sd['exists'] = true;
+                    $sd['is_pinned'] = false;
+                    $favorites[] = $sd;
+                }
+            }
+        }
+
+        // Active domain root if requested/available
+        if ($domain && $domain !== 'default') {
+            $siteRoots = self::getConfiguredSiteRoots();
+            foreach ($siteRoots as $sr) {
+                if (($sr['domain'] ?? '') === $domain && !empty($sr['path'])) {
+                    $favorites[] = [
+                        'id' => 'fav_domain_' . md5($domain),
+                        'label' => 'Domain: ' . $domain,
+                        'path' => $sr['path'],
+                        'icon' => '🎯',
+                        'type' => 'domain',
+                        'description' => 'Document root for ' . $domain,
+                        'exists' => is_dir($sr['path']),
+                        'is_pinned' => true
+                    ];
+                    break;
+                }
+            }
+        }
+
+        // Load custom user favorites from JSON file
+        $storageDir = defined('SPP_BASE_DIR') ? (SPP_BASE_DIR . '/var/data') : (dirname(__DIR__, 2) . '/var/data');
+        $storageFile = $storageDir . '/storage_favorites.json';
+        if (file_exists($storageFile)) {
+            $json = @json_decode(file_get_contents($storageFile), true);
+            if (is_array($json)) {
+                foreach ($json as $item) {
+                    if (is_array($item) && !empty($item['path'])) {
+                        $resolved = self::resolveSafePath($item['path']);
+                        if ($resolved) {
+                            $item['path'] = str_replace('\\', '/', $resolved);
+                            $item['exists'] = is_dir($resolved);
+                            $favorites[] = $item;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $favorites;
+    }
+
+    /**
+     * Save custom user favorites to persistent storage.
+     */
+    public static function saveFavorites(array $customFavorites, ?string $domain = null): array
+    {
+        $storageDir = defined('SPP_BASE_DIR') ? (SPP_BASE_DIR . '/var/data') : (dirname(__DIR__, 2) . '/var/data');
+        if (!is_dir($storageDir)) {
+            @mkdir($storageDir, 0777, true);
+        }
+        $storageFile = $storageDir . '/storage_favorites.json';
+
+        $cleanItems = [];
+        foreach ($customFavorites as $item) {
+            if (is_array($item) && !empty($item['path']) && ($item['type'] ?? '') === 'custom') {
+                $resolved = self::resolveSafePath($item['path']);
+                if ($resolved && is_dir($resolved)) {
+                    $cleanItems[] = [
+                        'id' => $item['id'] ?? ('fav_' . uniqid()),
+                        'label' => trim($item['label'] ?? basename($resolved)) ?: basename($resolved),
+                        'path' => str_replace('\\', '/', $resolved),
+                        'icon' => $item['icon'] ?? '⭐',
+                        'type' => 'custom',
+                        'is_pinned' => !empty($item['is_pinned']),
+                        'created_at' => $item['created_at'] ?? time()
+                    ];
+                }
+            }
+        }
+
+        file_put_contents($storageFile, json_encode($cleanItems, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        return self::getFavorites($domain);
+    }
+
+    /**
+     * Add a single custom favorite.
+     */
+    public static function addFavorite(string $label, string $path, string $icon = '⭐', ?string $domain = null): array
+    {
+        $resolved = self::resolveSafePath($path);
+        if (!$resolved || !is_dir($resolved)) {
+            throw new \InvalidArgumentException("Directory path does not exist or is inaccessible: " . $path);
+        }
+
+        $allFavs = self::getFavorites($domain);
+        $customs = array_values(array_filter($allFavs, fn($f) => ($f['type'] ?? '') === 'custom'));
+
+        // Check if path is already favorited
+        $normPath = str_replace('\\', '/', $resolved);
+        foreach ($customs as $c) {
+            if ($c['path'] === $normPath) {
+                return $allFavs; // Already favorited
+            }
+        }
+
+        $customs[] = [
+            'id' => 'fav_' . uniqid(),
+            'label' => trim($label) ?: basename($normPath),
+            'path' => $normPath,
+            'icon' => $icon ?: '⭐',
+            'type' => 'custom',
+            'is_pinned' => true,
+            'created_at' => time()
+        ];
+
+        return self::saveFavorites($customs, $domain);
+    }
+
+    /**
+     * Remove a custom favorite by id or path.
+     */
+    public static function removeFavorite(string $idOrPath, ?string $domain = null): array
+    {
+        $allFavs = self::getFavorites($domain);
+        $customs = array_values(array_filter($allFavs, fn($f) => ($f['type'] ?? '') === 'custom'));
+        $normTarget = str_replace('\\', '/', $idOrPath);
+
+        $filtered = array_values(array_filter($customs, function($c) use ($idOrPath, $normTarget) {
+            return ($c['id'] ?? '') !== $idOrPath && ($c['path'] ?? '') !== $normTarget;
+        }));
+
+        return self::saveFavorites($filtered, $domain);
+    }
+
+    /**
      * Resolves and validates an absolute filesystem path.
      * Supports full system root navigation (e.g. '/' on Linux or 'C:/' on Windows)
      * as well as relative paths within the SPP workspace.

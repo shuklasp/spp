@@ -418,6 +418,13 @@ class SPPAdmin {
                 });
             }
 
+            // Global topbar dropdown menus click-outside dismiss
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.spp-dropdown-container')) {
+                    this.closeTopbarMenus();
+                }
+            });
+
             document.addEventListener('click', (e) => {
                 const isCloseBtn = e.target && (e.target.closest('#modal-close') || e.target.closest('.modal-close') || e.target.closest('[data-dismiss="modal"]'));
                 if (isCloseBtn) {
@@ -590,14 +597,31 @@ class SPPAdmin {
     }
 
     updateUserDisplay(profile) {
+        const username = profile.username || 'System';
+        const role = profile.role || 'Developer';
+        const initial = username.charAt(0).toUpperCase();
+
         const nameDisplay = document.getElementById('user-display-name');
-        if (nameDisplay) nameDisplay.textContent = profile.username || 'System';
+        if (nameDisplay) nameDisplay.textContent = username;
         
         const avatarDisplay = document.getElementById('user-avatar');
-        if (avatarDisplay) avatarDisplay.textContent = (profile.username || 'S').charAt(0).toUpperCase();
+        if (avatarDisplay) avatarDisplay.textContent = initial;
 
         const roleDisplay = document.getElementById('user-display-role');
-        if (roleDisplay) roleDisplay.textContent = profile.role || 'Developer';
+        if (roleDisplay) roleDisplay.textContent = role;
+
+        // Synchronize Topbar User Menu
+        const topbarName = document.getElementById('topbar-username');
+        if (topbarName) topbarName.textContent = username;
+
+        const topbarAvatar = document.getElementById('topbar-user-avatar');
+        if (topbarAvatar) topbarAvatar.textContent = initial;
+
+        const topbarNameDisplay = document.getElementById('topbar-user-name-display');
+        if (topbarNameDisplay) topbarNameDisplay.textContent = username;
+
+        const topbarRoleDisplay = document.getElementById('topbar-user-role-display');
+        if (topbarRoleDisplay) topbarRoleDisplay.textContent = role;
     }
 
     async handleLogin(e) {
@@ -758,6 +782,28 @@ class SPPAdmin {
         }
     }
 
+    toggleTopbarMenu(menuName) {
+        const menus = ['tools', 'help', 'settings', 'user'];
+        const targetMenu = document.getElementById(`menu-${menuName}`);
+        const isVisible = targetMenu && targetMenu.style.display !== 'none';
+
+        menus.forEach(m => {
+            const el = document.getElementById(`menu-${m}`);
+            if (el) el.style.display = 'none';
+        });
+
+        if (targetMenu && !isVisible) {
+            targetMenu.style.display = 'flex';
+        }
+    }
+
+    closeTopbarMenus() {
+        ['tools', 'help', 'settings', 'user'].forEach(m => {
+            const el = document.getElementById(`menu-${m}`);
+            if (el) el.style.display = 'none';
+        });
+    }
+
 
     getUIMode() {
         return this.uiMode || localStorage.getItem('spp_admin_ui_mode') || 'normal';
@@ -790,7 +836,19 @@ class SPPAdmin {
         if (btnNormal) btnNormal.classList.toggle('active-mode', mode === 'normal');
         if (btnExpert) btnExpert.classList.toggle('active-mode', mode === 'expert');
 
-        // Update top header mode button
+        // Update topbar settings dropdown mode buttons
+        const topbarNormal = document.getElementById('topbar-mode-normal');
+        const topbarExpert = document.getElementById('topbar-mode-expert');
+        if (topbarNormal) {
+            topbarNormal.classList.toggle('primary-btn', mode === 'normal');
+            topbarNormal.classList.toggle('ghost-btn', mode !== 'normal');
+        }
+        if (topbarExpert) {
+            topbarExpert.classList.toggle('primary-btn', mode === 'expert');
+            topbarExpert.classList.toggle('ghost-btn', mode !== 'expert');
+        }
+
+        // Update top header mode button (if legacy element present)
         const headerPill = document.getElementById('header-ui-mode-pill');
         if (headerPill) {
             headerPill.innerHTML = mode === 'normal'

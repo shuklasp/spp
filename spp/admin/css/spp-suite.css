@@ -2448,3 +2448,333 @@ tr.suite-file-row.drag-over {
     background: var(--glass-border, rgba(0, 0, 0, 0.08));
     margin: 0.25rem 0;
 }
+
+
+/* ==========================================================================
+   GLOBAL TOPBAR & TOPBAR DROPDOWN MENUS
+   ========================================================================== */
+.spp-global-topbar {
+    padding: 0.6rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--glass-border);
+    background: var(--panel-bg);
+    backdrop-filter: blur(12px);
+    min-height: 52px;
+    flex-shrink: 0;
+    gap: 0.75rem;
+    flex-wrap: nowrap;
+    position: relative;
+    z-index: 50;
+}
+
+.adm-topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.adm-topbar-brand-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: -0.01em;
+}
+
+.adm-brand-accent {
+    color: var(--primary, #ea580c);
+}
+
+.adm-topbar-breadcrumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: 0.25rem;
+}
+
+.adm-crumb-sep {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    opacity: 0.6;
+}
+
+.adm-crumb-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.spp-topbar-menus {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.spp-topbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.32rem 0.65rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 6px;
+    color: var(--text-bright);
+    background: transparent;
+    transition: all 0.15s ease;
+}
+
+.spp-topbar-btn:hover {
+    background: var(--bg-subtle, rgba(255, 255, 255, 0.08));
+    color: var(--primary, #ea580c);
+}
+
+.spp-topbar-user-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+}
+
+.user-avatar-sm {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary, #ea580c);
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spp-caret {
+    font-size: 0.65rem;
+    opacity: 0.6;
+    margin-left: 1px;
+}
+
+.theme-opt-btn.active,
+.theme-opt-btn:hover {
+    background: var(--primary, #ea580c);
+    color: #ffffff;
+}
+
+/* ==========================================================================
+   FILE MANAGER FAVORITES & DIRECTORY SHORTCUTS SECTION
+   ========================================================================== */
+.spp-fm-favorites-section {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 0.35rem;
+}
+
+.spp-fm-favorites-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.35rem 0.65rem;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: 4px;
+    transition: background 0.12s, color 0.12s;
+}
+
+.spp-fm-favorites-header:hover {
+    color: var(--primary, #ea580c);
+    background: rgba(234, 88, 12, 0.05);
+}
+
+.spp-fm-favorites-arrow {
+    font-size: 0.65rem;
+    transition: transform 0.15s ease;
+    display: inline-block;
+    width: 10px;
+}
+
+.spp-fm-favorites-count {
+    font-size: 0.65rem;
+    background: rgba(0, 0, 0, 0.06);
+    padding: 1px 5px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+[data-theme="saffron"] .spp-fm-favorites-count {
+    background: rgba(124, 45, 18, 0.1);
+    color: #7c2d12;
+}
+
+.spp-fm-favorites-list {
+    padding: 0.2rem 0.45rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.spp-fm-favorite-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.32rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    color: var(--text-bright);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.12s ease;
+    user-select: none;
+}
+
+.spp-fm-favorite-item:hover {
+    background: rgba(234, 88, 12, 0.1);
+    color: var(--primary, #ea580c);
+}
+
+.spp-fm-favorite-item.active-fav {
+    background: linear-gradient(135deg, rgba(234, 88, 12, 0.18), rgba(194, 65, 12, 0.12));
+    font-weight: 600;
+    color: var(--primary, #ea580c);
+    border-left: 2px solid var(--primary, #ea580c);
+}
+
+.spp-fm-fav-left {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.spp-fm-fav-icon {
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.spp-fm-fav-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.spp-fm-fav-del {
+    font-size: 0.68rem;
+    opacity: 0;
+    transition: opacity 0.12s;
+    padding: 1px 4px;
+    border-radius: 4px;
+    color: var(--text-dim);
+}
+
+.spp-fm-favorite-item:hover .spp-fm-fav-del {
+    opacity: 0.7;
+}
+
+.spp-fm-fav-del:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+/* ==========================================================================
+   THEME-SPECIFIC ADJUSTMENTS FOR TOPBAR & FAVORITES
+   ========================================================================== */
+[data-theme="saffron"] .spp-global-topbar {
+    background: rgba(255, 251, 245, 0.95);
+    border-bottom: 1px solid rgba(124, 45, 18, 0.15);
+    box-shadow: 0 1px 3px rgba(124, 45, 18, 0.05);
+}
+
+[data-theme="saffron"] .adm-topbar-brand-title {
+    color: #431407;
+}
+
+[data-theme="saffron"] .adm-brand-accent {
+    color: #ea580c;
+}
+
+[data-theme="saffron"] .adm-crumb-sep {
+    color: #fdba74;
+}
+
+[data-theme="saffron"] .adm-crumb-title {
+    color: #7c2d12;
+}
+
+[data-theme="saffron"] .spp-topbar-btn {
+    color: #7c2d12;
+}
+
+[data-theme="saffron"] .spp-topbar-btn:hover {
+    background: rgba(249, 115, 22, 0.12);
+    color: #ea580c;
+}
+
+[data-theme="saffron"] .spp-dropdown-menu {
+    background: #ffffff;
+    border: 1px solid rgba(124, 45, 18, 0.18);
+    box-shadow: 0 10px 25px -5px rgba(124, 45, 18, 0.15);
+}
+
+[data-theme="saffron"] .spp-dropdown-item {
+    color: #431407;
+}
+
+[data-theme="saffron"] .spp-dropdown-item:hover {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+[data-theme="saffron"] .spp-dropdown-divider {
+    background: rgba(124, 45, 18, 0.12);
+}
+
+[data-theme="saffron"] .spp-fm-favorites-section {
+    border-bottom: 1px solid rgba(124, 45, 18, 0.12);
+}
+
+[data-theme="saffron"] .spp-fm-favorites-header {
+    color: #7c2d12;
+}
+
+[data-theme="saffron"] .spp-fm-favorite-item {
+    color: #431407;
+}
+
+[data-theme="saffron"] .spp-fm-favorite-item:hover {
+    background: rgba(249, 115, 22, 0.12);
+    color: #7c2d12;
+}
+
+[data-theme="saffron"] .spp-fm-favorite-item.active-fav {
+    background: #fff7ed;
+    color: #ea580c;
+    border-left: 2px solid #ea580c;
+}
+
+[data-theme="day"] .spp-global-topbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+[data-theme="night"] .spp-global-topbar {
+    background: rgba(15, 23, 42, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
