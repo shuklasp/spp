@@ -31,7 +31,9 @@ export default class FilesView extends BaseClass {
         this.admin = admin;
         this.history = [];
         this.historyIndex = -1;
-        this.lastHistoryPush = 0;
+        this.editorHistory = [];
+        this.editorHistoryIndex = -1;
+        this.lastEditorHistoryPush = 0;
         this.editorOptions = {
             indentUnit: '    ',
             indentSize: 4,
@@ -377,11 +379,17 @@ export default class FilesView extends BaseClass {
     pushHistory(path) {
         if (this.isNavigatingHistory) return;
         const norm = this.normalizePath(path);
+        if (!norm) return;
         if (this.history.length > 0 && this.history[this.historyIndex] === norm) return;
 
         this.history = this.history.slice(0, this.historyIndex + 1);
         this.history.push(norm);
         this.historyIndex = this.history.length - 1;
+    }
+
+    async navigateTo(path) {
+        if (path === undefined || path === null) return Promise.resolve();
+        return await this.loadDirectory(path, true);
     }
 
     canGoBack() {
@@ -511,9 +519,6 @@ export default class FilesView extends BaseClass {
 
     async loadDirectory(path = '', pushHistory = true) {
         const normPath = this.normalizePath(path);
-        if (pushHistory) {
-            this.pushHistory(normPath);
-        }
         this.closeContextMenu();
         if (this.state.selectedItems) {
             this.state.selectedItems.clear();
@@ -561,6 +566,12 @@ export default class FilesView extends BaseClass {
 
         // Priority 1: Fetch and render folder files IMMEDIATELY!
         await this.fetchDirectory(normPath);
+
+        // Push resolved canonical path to navigation history on success
+        if (pushHistory && !this.state.errorMessage) {
+            this.pushHistory(this.state.currentPath || normPath);
+        }
+
         this.setState({ loading: false });
         this.update();
         this.syncTreeFocus();
@@ -2787,15 +2798,41 @@ export default class FilesView extends BaseClass {
 
     navigateUp() {
         const cur = this.normalizePath(this.state.currentPath || '');
-        const sysRoot = this.state.systemRoot || '/';
+        const sysRoot = this.normalizePath(this.state.systemRoot || '/');
+        const wsRoot = this.normalizePath(this.state.workspaceRoot || '');
+
         if (!cur || cur === '/' || cur === sysRoot) return;
 
-        const lastSlash = cur.lastIndexOf('/');
-        if (lastSlash <= 0) {
-            // Parent is system root ('/')
+        const isAbs = cur.startsWith('/') || /^[a-zA-Z]:/.test(cur);
+
+        if (!isAbs) {
+            // Relative path inside workspace (e.g. "dist" or "apps/showcase")
+            const lastSlash = cur.lastIndexOf('/');
+            if (lastSlash <= 0) {
+                // Single segment (e.g. "dist" or "apps"): parent is workspace root!
+                this.loadDirectory(wsRoot || sysRoot);
+            } else {
+                const parent = cur.substring(0, lastSlash);
+                this.loadDirectory(parent);
+            }
+            return;
+        }
+
+        // Absolute path: check if already at Windows drive root e.g. "C:/" or "C:"
+        if (/^[a-zA-Z]:\/?$/.test(cur)) {
+            return;
+        }
+
+        const cleanCur = cur.replace(/\/+$/, '');
+        const lastSlash = cleanCur.lastIndexOf('/');
+
+        if (lastSlash < 0) {
+            this.loadDirectory(sysRoot);
+        } else if (lastSlash === 0) {
+            // e.g. "/var" -> parent is "/" (sysRoot)
             this.loadDirectory(sysRoot);
         } else {
-            let parent = cur.substring(0, lastSlash);
+            let parent = cleanCur.substring(0, lastSlash);
             if (/^[a-zA-Z]:$/.test(parent)) parent += '/';
             this.loadDirectory(parent || sysRoot);
         }
@@ -6013,11 +6050,11 @@ export default class FilesView extends BaseClass {
         const val = textarea.value;
 
         if (textarea.selectionStart === match.start && textarea.selectionEnd === match.end) {
-            this.pushHistory(true);
+            this.pushEditorHistory(true);
             textarea.value = val.substring(0, match.start) + replaceText + val.substring(match.end);
             textarea.selectionStart = match.start;
             textarea.selectionEnd = match.start + replaceText.length;
-            this.pushHistory(true);
+            this.pushEditorHistory(true);
             if (unsavedBadge) unsavedBadge.style.display = 'inline-block';
             if (this.triggerHighlightSync) this.triggerHighlightSync();
             this.performFind(1, true);
@@ -6052,9 +6089,9 @@ export default class FilesView extends BaseClass {
             return;
         }
 
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
         textarea.value = val.replace(regex, replaceText);
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
         if (unsavedBadge) unsavedBadge.style.display = 'inline-block';
         if (this.triggerHighlightSync) this.triggerHighlightSync();
         this.admin.notify(`Replaced ${count} occurrences.`, "success");
@@ -6328,10 +6365,10 @@ export default class FilesView extends BaseClass {
         const end = textarea.selectionStart;
         const val = textarea.value;
 
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
         textarea.value = val.substring(0, start) + hint.text + val.substring(end);
         textarea.selectionStart = textarea.selectionEnd = start + hint.text.length;
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
 
         this.hideCodeHints();
         if (this.triggerHighlightSync) this.triggerHighlightSync();
@@ -6351,7 +6388,7 @@ export default class FilesView extends BaseClass {
         posEl.textContent = `Ln ${line}, Col ${col}`;
     }
 
-    pushHistory(force = false) {
+    pushEditorHistory(force = false) {
         if (typeof document === 'undefined') return;
         const textarea = document.getElementById('file-editor-textarea');
         if (!textarea) return;
@@ -6361,56 +6398,56 @@ export default class FilesView extends BaseClass {
         const selEnd = textarea.selectionEnd;
         const now = Date.now();
 
-        if (this.history.length === 0) {
-            this.history.push({ value: val, selStart, selEnd });
-            this.historyIndex = 0;
-            this.lastHistoryPush = now;
+        if (this.editorHistory.length === 0) {
+            this.editorHistory.push({ value: val, selStart, selEnd });
+            this.editorHistoryIndex = 0;
+            this.lastEditorHistoryPush = now;
             this.updateUndoRedoButtons();
             return;
         }
 
-        const currentSnapshot = this.history[this.historyIndex];
+        const currentSnapshot = this.editorHistory[this.editorHistoryIndex];
         if (currentSnapshot && currentSnapshot.value === val) {
             currentSnapshot.selStart = selStart;
             currentSnapshot.selEnd = selEnd;
             return;
         }
 
-        if (!force && (now - this.lastHistoryPush < 600) && this.historyIndex >= 0) {
-            this.history[this.historyIndex].value = val;
-            this.history[this.historyIndex].selStart = selStart;
-            this.history[this.historyIndex].selEnd = selEnd;
+        if (!force && (now - this.lastEditorHistoryPush < 600) && this.editorHistoryIndex >= 0) {
+            this.editorHistory[this.editorHistoryIndex].value = val;
+            this.editorHistory[this.editorHistoryIndex].selStart = selStart;
+            this.editorHistory[this.editorHistoryIndex].selEnd = selEnd;
             this.updateUndoRedoButtons();
             return;
         }
 
-        if (this.historyIndex < this.history.length - 1) {
-            this.history = this.history.slice(0, this.historyIndex + 1);
+        if (this.editorHistoryIndex < this.editorHistory.length - 1) {
+            this.editorHistory = this.editorHistory.slice(0, this.editorHistoryIndex + 1);
         }
 
-        if (this.history.length >= 200) {
-            this.history.shift();
-            this.historyIndex--;
+        if (this.editorHistory.length >= 200) {
+            this.editorHistory.shift();
+            this.editorHistoryIndex--;
         }
 
-        this.history.push({ value: val, selStart, selEnd });
-        this.historyIndex = this.history.length - 1;
-        this.lastHistoryPush = now;
+        this.editorHistory.push({ value: val, selStart, selEnd });
+        this.editorHistoryIndex = this.editorHistory.length - 1;
+        this.lastEditorHistoryPush = now;
         this.updateUndoRedoButtons();
     }
 
     undo() {
-        if (this.historyIndex <= 0) return;
+        if (this.editorHistoryIndex <= 0) return;
         const textarea = document.getElementById('file-editor-textarea');
         if (!textarea) return;
 
-        if (this.history[this.historyIndex] && textarea.value !== this.history[this.historyIndex].value) {
-            this.pushHistory(true);
+        if (this.editorHistory[this.editorHistoryIndex] && textarea.value !== this.editorHistory[this.editorHistoryIndex].value) {
+            this.pushEditorHistory(true);
         }
 
-        if (this.historyIndex > 0) {
-            this.historyIndex--;
-            const state = this.history[this.historyIndex];
+        if (this.editorHistoryIndex > 0) {
+            this.editorHistoryIndex--;
+            const state = this.editorHistory[this.editorHistoryIndex];
             textarea.value = state.value;
             textarea.selectionStart = state.selStart;
             textarea.selectionEnd = state.selEnd;
@@ -6425,12 +6462,12 @@ export default class FilesView extends BaseClass {
     }
 
     redo() {
-        if (this.historyIndex >= this.history.length - 1) return;
+        if (this.editorHistoryIndex >= this.editorHistory.length - 1) return;
         const textarea = document.getElementById('file-editor-textarea');
         if (!textarea) return;
 
-        this.historyIndex++;
-        const state = this.history[this.historyIndex];
+        this.editorHistoryIndex++;
+        const state = this.editorHistory[this.editorHistoryIndex];
         textarea.value = state.value;
         textarea.selectionStart = state.selStart;
         textarea.selectionEnd = state.selEnd;
@@ -6448,8 +6485,8 @@ export default class FilesView extends BaseClass {
         const undoBtn = document.getElementById('spp-editor-undo-btn');
         const redoBtn = document.getElementById('spp-editor-redo-btn');
 
-        const canUndo = this.historyIndex > 0;
-        const canRedo = this.historyIndex >= 0 && this.historyIndex < this.history.length - 1;
+        const canUndo = this.editorHistoryIndex > 0;
+        const canRedo = this.editorHistoryIndex >= 0 && this.editorHistoryIndex < this.editorHistory.length - 1;
 
         if (undoBtn) {
             undoBtn.disabled = !canUndo;
@@ -6503,7 +6540,7 @@ export default class FilesView extends BaseClass {
         const textarea = document.getElementById('file-editor-textarea');
         if (!textarea) return;
 
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
 
         const val = textarea.value;
         const start = textarea.selectionStart;
@@ -6574,7 +6611,7 @@ export default class FilesView extends BaseClass {
             }
         }
 
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
         if (this.triggerHighlightSync) this.triggerHighlightSync();
         this.updateCursorPos();
         const unsaved = document.getElementById('editor-unsaved-badge');
@@ -6586,7 +6623,7 @@ export default class FilesView extends BaseClass {
         const textarea = document.getElementById('file-editor-textarea');
         if (!textarea) return;
 
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
 
         const val = textarea.value;
         const start = textarea.selectionStart;
@@ -6607,7 +6644,7 @@ export default class FilesView extends BaseClass {
             textarea.selectionEnd = textarea.selectionStart + sel.length;
         }
 
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
         if (this.triggerHighlightSync) this.triggerHighlightSync();
         this.updateCursorPos();
         const unsaved = document.getElementById('editor-unsaved-badge');
@@ -6619,7 +6656,7 @@ export default class FilesView extends BaseClass {
         const textarea = document.getElementById('file-editor-textarea');
         if (!textarea) return;
 
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
 
         const val = textarea.value;
         const start = textarea.selectionStart;
@@ -6652,7 +6689,7 @@ export default class FilesView extends BaseClass {
             textarea.selectionEnd = end + shift;
         }
 
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
         if (this.triggerHighlightSync) this.triggerHighlightSync();
         this.updateCursorPos();
         const unsaved = document.getElementById('editor-unsaved-badge');
@@ -6664,7 +6701,7 @@ export default class FilesView extends BaseClass {
         const textarea = document.getElementById('file-editor-textarea');
         if (!textarea) return;
 
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
 
         const val = textarea.value;
         const start = textarea.selectionStart;
@@ -6683,7 +6720,7 @@ export default class FilesView extends BaseClass {
         textarea.value = val.substring(0, delStart) + val.substring(delEnd);
         textarea.selectionStart = textarea.selectionEnd = Math.min(delStart, textarea.value.length);
 
-        this.pushHistory(true);
+        this.pushEditorHistory(true);
         if (this.triggerHighlightSync) this.triggerHighlightSync();
         this.updateCursorPos();
         const unsaved = document.getElementById('editor-unsaved-badge');
@@ -6704,11 +6741,11 @@ export default class FilesView extends BaseClass {
             .replace(/\n*$/, '\n');
 
         if (val !== cleaned) {
-            this.pushHistory(true);
+            this.pushEditorHistory(true);
             const start = textarea.selectionStart;
             textarea.value = cleaned;
             textarea.selectionStart = textarea.selectionEnd = Math.min(start, cleaned.length);
-            this.pushHistory(true);
+            this.pushEditorHistory(true);
             if (this.triggerHighlightSync) this.triggerHighlightSync();
             this.updateCursorPos();
             const unsaved = document.getElementById('editor-unsaved-badge');
@@ -6839,14 +6876,14 @@ export default class FilesView extends BaseClass {
         textarea.value = this.state.fileContent || '';
         textarea.style.tabSize = this.editorOptions.indentSize;
 
-        if (this.history.length === 0) {
-            this.history.push({
+        if (this.editorHistory.length === 0) {
+            this.editorHistory.push({
                 value: textarea.value,
                 selStart: 0,
                 selEnd: 0
             });
-            this.historyIndex = 0;
-            this.lastHistoryPush = Date.now();
+            this.editorHistoryIndex = 0;
+            this.lastEditorHistoryPush = Date.now();
         }
         this.updateUndoRedoButtons();
 
@@ -6944,7 +6981,7 @@ export default class FilesView extends BaseClass {
         let rafId = null;
         textarea.addEventListener('input', () => {
             if (unsavedBadge) unsavedBadge.style.display = 'inline-block';
-            this.pushHistory(false);
+            this.pushEditorHistory(false);
             updateCursorPos();
             if (rafId) cancelAnimationFrame(rafId);
             rafId = requestAnimationFrame(() => {
@@ -7187,7 +7224,7 @@ export default class FilesView extends BaseClass {
                 const unit = this.editorOptions.indentUnit;
                 const unitLen = unit.length;
 
-                this.pushHistory(true);
+                this.pushEditorHistory(true);
 
                 if (start !== end && val.substring(start, end).includes('\n')) {
                     // Multi-line block indent/outdent
@@ -7247,7 +7284,7 @@ export default class FilesView extends BaseClass {
                         textarea.selectionStart = textarea.selectionEnd = start + unitLen;
                     }
                 }
-                this.pushHistory(true);
+                this.pushEditorHistory(true);
                 syncHighlight();
                 updateCursorPos();
                 if (unsavedBadge) unsavedBadge.style.display = 'inline-block';
@@ -7272,7 +7309,7 @@ export default class FilesView extends BaseClass {
                 const prevChar = val[start - 1];
                 const nextChar = val[start];
 
-                this.pushHistory(true);
+                this.pushEditorHistory(true);
 
                 if ((prevChar === '{' && nextChar === '}') ||
                     (prevChar === '[' && nextChar === ']') ||
@@ -7287,7 +7324,7 @@ export default class FilesView extends BaseClass {
                     textarea.value = val.substring(0, start) + '\n' + indent + val.substring(start);
                     textarea.selectionStart = textarea.selectionEnd = start + 1 + indent.length;
                 }
-                this.pushHistory(true);
+                this.pushEditorHistory(true);
                 syncHighlight();
                 updateCursorPos();
                 if (unsavedBadge) unsavedBadge.style.display = 'inline-block';
@@ -7304,12 +7341,12 @@ export default class FilesView extends BaseClass {
 
                 if (start !== end) {
                     e.preventDefault();
-                    this.pushHistory(true);
+                    this.pushEditorHistory(true);
                     const sel = val.substring(start, end);
                     textarea.value = val.substring(0, start) + openChar + sel + closeChar + val.substring(end);
                     textarea.selectionStart = start + 1;
                     textarea.selectionEnd = end + 1;
-                    this.pushHistory(true);
+                    this.pushEditorHistory(true);
                     syncHighlight();
                     updateCursorPos();
                     if (unsavedBadge) unsavedBadge.style.display = 'inline-block';
@@ -7322,10 +7359,10 @@ export default class FilesView extends BaseClass {
                         return;
                     }
                     e.preventDefault();
-                    this.pushHistory(true);
+                    this.pushEditorHistory(true);
                     textarea.value = val.substring(0, start) + openChar + closeChar + val.substring(start);
                     textarea.selectionStart = start + 1;
-                    this.pushHistory(true);
+                    this.pushEditorHistory(true);
                     syncHighlight();
                     updateCursorPos();
                     if (unsavedBadge) unsavedBadge.style.display = 'inline-block';
@@ -7360,10 +7397,10 @@ export default class FilesView extends BaseClass {
                         (prev === "'" && next === "'") ||
                         (prev === '`' && next === '`')) {
                         e.preventDefault();
-                        this.pushHistory(true);
+                        this.pushEditorHistory(true);
                         textarea.value = val.substring(0, start - 1) + val.substring(start + 1);
                         textarea.selectionStart = textarea.selectionEnd = start - 1;
-                        this.pushHistory(true);
+                        this.pushEditorHistory(true);
                         syncHighlight();
                         updateCursorPos();
                         if (unsavedBadge) unsavedBadge.style.display = 'inline-block';

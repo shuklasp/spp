@@ -634,17 +634,8 @@ class StorageAdminService
             $normFull = preg_replace('#(?<!:)/+#', '/', str_replace('\\', '/', $full));
             $isDir = is_dir($full);
 
-            // Compute path representation:
-            // If the caller requested an absolute path or we're outside baseDir, use full clean path
-            if ($wasAbsolute || !$isInsideBase || ($targetDir === $baseDir && $relativePath === '/')) {
-                $rel = $normFull;
-            } else {
-                $rel = ltrim(substr($full, strlen($baseDir)), DIRECTORY_SEPARATOR);
-                $rel = preg_replace('#(?<!:)/+#', '/', str_replace('\\', '/', $rel));
-                if (empty($rel)) {
-                    $rel = $normFull;
-                }
-            }
+            // Compute path representation: always use canonical normalized full path
+            $rel = $normFull;
 
             $ext = $isDir ? 'dir' : strtolower(pathinfo($entry, PATHINFO_EXTENSION));
 
@@ -733,9 +724,6 @@ class StorageAdminService
         });
 
         $cleanCurrentPath = preg_replace('#(?<!:)/+#', '/', $normalizedTarget);
-        if (!$wasAbsolute && $isInsideBase && $normalizedTarget !== $normalizedBase) {
-            $cleanCurrentPath = preg_replace('#(?<!:)/+#', '/', str_replace('\\', '/', trim($relativePath, '/\\')));
-        }
 
         $dirMeta = $propsData['directory'] ?? [];
 
