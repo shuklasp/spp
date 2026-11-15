@@ -104,7 +104,26 @@ apps:
     shared_group: academic
     etc_path: etc/apps/school1
     src_path: src/school1
-base_app: SPPDocs
+  saas_app:
+    type: user
+    base_url: /saas
+    table_prefix: saas_
+    options_yaml: "template: saas\ncreated_at: 1794657308"
+  CakewalkSeedApp:
+    base_url: /seedapp
+    table_prefix: cakewalkseedapp_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/CakewalkSeedApp
+    src_path: src/CakewalkSeedApp
+  DemoSchool:
+    base_url: /demoschool
+    table_prefix: demoschool_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/DemoSchool
+    src_path: src/DemoSchool
+base_app: school1
 prototyping:
   auto_evolution: manual
   view_generation: php_html

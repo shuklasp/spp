@@ -43,6 +43,47 @@ if (!function_exists('live_verify_mfa')) {
         }
     }
 }
+if (!function_exists('live_VerifyMFA')) {
+    function live_VerifyMFA($la, $p)
+    {
+        if (function_exists('live_Auth_VerifyMFA')) {
+            live_Auth_VerifyMFA($la, $p);
+        } else {
+            $la->set('status', 'error');
+            $la->set('message', 'MFA verification service unavailable');
+        }
+    }
+}
+if (!function_exists('live_SendMagicLink')) {
+    function live_SendMagicLink($la, $p)
+    {
+        live_Auth_SendMagicLink($la, $p);
+    }
+}
+if (!function_exists('live_send_magic_link')) {
+    function live_send_magic_link($la, $p)
+    {
+        live_Auth_SendMagicLink($la, $p);
+    }
+}
+if (!function_exists('live_ConsumeMagicLink')) {
+    function live_ConsumeMagicLink($la, $p)
+    {
+        live_Auth_ConsumeMagicLink($la, $p);
+    }
+}
+if (!function_exists('live_consume_magic_link')) {
+    function live_consume_magic_link($la, $p)
+    {
+        live_Auth_ConsumeMagicLink($la, $p);
+    }
+}
+if (!function_exists('live_save_rbac_role')) {
+    function live_save_rbac_role($la, $p)
+    {
+        live_IAM_SaveModernRole($la, $p);
+    }
+}
 if (!function_exists('live_logout')) {
     function live_logout($la, $p)
     {

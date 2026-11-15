@@ -118,8 +118,12 @@ class ServiceDispatcher
             }
         }
 
-        if (!$funcName && function_exists('live_' . $action)) {
-            $funcName = 'live_' . $action;
+        if (!$funcName) {
+            if (function_exists('live_' . $action)) {
+                $funcName = 'live_' . $action;
+            } elseif (function_exists($action)) {
+                $funcName = $action;
+            }
         }
 
         if (!$serviceFile && !$funcName) {

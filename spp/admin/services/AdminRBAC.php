@@ -38,16 +38,19 @@ function getAdminScopeMap(): array {
         'domains'     => 'admin.domains',
         'dns'         => 'admin.dns',
         'files'       => 'admin.files',
-        'terminal'    => 'admin.commands',
+        'terminal'    => 'admin.terminal',
         'database'    => 'admin.database',
         'mail'        => 'admin.mail',
         'shield'      => 'admin.shield',
         'metrics'     => 'admin.metrics',
         'server'      => 'admin.server',
+        'fleet'       => 'admin.fleet',
         'accounts'    => 'admin.accounts',
-        'apptoolkit'  => 'admin.apps',
+        'apptoolkit'  => 'admin.marketplace',
+        'marketplace' => 'admin.marketplace',
         'runtime'     => 'admin.system',
         'reseller'    => 'admin.reseller',
+        'registry'    => 'admin.registry',
     ];
 }
 
@@ -570,6 +573,7 @@ function getActionScopeMap(): array {
         // Cloudflare Edge DNS & Edge SSL Bridge
         'domains_cf_get_settings'    => 'admin.domains',
         'domains_cf_save_settings'   => 'admin.domains',
+        'domains_cf_disconnect'      => 'admin.domains',
         'domains_cf_verify_token'    => 'admin.domains',
         'domains_cf_list_zones'      => 'admin.domains',
         'domains_cf_list_records'    => 'admin.domains',
@@ -624,6 +628,11 @@ function getActionScopeMap(): array {
         'domains_registrar_info'           => 'admin.dns.registrar',
         'dns_registrar_nameservers_update' => 'admin.dns.registrar',
         'domains_registrar_nameservers_update' => 'admin.dns.registrar',
+        'dns_cluster_replicate'            => 'admin.dns.sync',
+        'dns_cluster_status'               => 'admin.dns.zone_read',
+        'dns_zone_template_apply'          => 'admin.dns.zone_write',
+        'dns_split_horizon_get'            => 'admin.dns.zone_read',
+        'dns_split_horizon_save'           => 'admin.dns.zone_write',
         'doctor_diagnostics'         => 'admin.server',
         'doctor_repair'              => 'admin.server',
         'host_inspect'               => 'admin.server',
@@ -726,6 +735,23 @@ function getActionScopeMap(): array {
         'cpanel_import_execute'=> 'admin.apps',
         'cpanel_import_list_archives' => 'admin.apps',
 
+        // SPP Application and Module Marketplace
+        'marketplace_catalog'          => 'admin.marketplace.browse',
+        'marketplace_search'           => 'admin.marketplace.browse',
+        'marketplace_package_info'     => 'admin.marketplace.browse',
+        'marketplace_package_preview'  => 'admin.marketplace.browse',
+        'marketplace_package_verify'   => 'admin.marketplace.install',
+        'marketplace_package_install'  => 'admin.marketplace.install',
+        'marketplace_package_uninstall'=> 'admin.marketplace.install',
+        'marketplace_package_update'   => 'admin.marketplace.install',
+        'marketplace_package_rollback' => 'admin.marketplace.install',
+        'marketplace_installed_list'   => 'admin.marketplace.browse',
+        'marketplace_updates_check'    => 'admin.marketplace.browse',
+        'marketplace_repo_list'        => 'admin.marketplace.publish',
+        'marketplace_repo_add'         => 'admin.marketplace.publish',
+        'marketplace_repo_remove'      => 'admin.marketplace.publish',
+        'marketplace_publish_package'  => 'admin.marketplace.publish',
+
         // SPP Multi-Language Service Mesh & Supervisor
         'apps_mesh_status'        => 'admin.apps',
         'apps_mesh_start'         => 'admin.apps',
@@ -748,21 +774,39 @@ function getActionScopeMap(): array {
         'runtime_opcache_status' => 'admin.system',
         'runtime_opcache_reset'  => 'admin.system',
         'runtime_opcache_warmup' => 'admin.system',
+        'runtime_opcache_invalidate' => 'admin.system',
+        'opcache_invalidate_script'  => 'admin.system',
         'runtime_extensions_matrix' => 'admin.system',
         'runtime_sizing_advisor' => 'admin.system',
 
         // SPPReseller Multi-Tenancy & Reseller Management
-        'reseller_list'            => 'admin.reseller',
-        'reseller_create'          => 'admin.reseller',
-        'reseller_update'          => 'admin.reseller',
-        'reseller_transition'      => 'admin.reseller',
-        'reseller_delete'          => 'admin.reseller',
-        'reseller_features_get'    => 'admin.reseller',
-        'reseller_features_save'   => 'admin.reseller',
-        'reseller_features_delete' => 'admin.reseller',
-        'reseller_brand_get'       => 'admin.reseller',
-        'reseller_brand_save'      => 'admin.reseller',
-        'reseller_limits_check'    => 'admin.reseller',
+        'reseller_list'            => 'admin.reseller.read',
+        'reseller_create'          => 'admin.reseller.write',
+        'reseller_update'          => 'admin.reseller.write',
+        'reseller_transition'      => 'admin.reseller.write',
+        'reseller_delete'          => 'admin.reseller.write',
+        'reseller_features_get'    => 'admin.reseller.read',
+        'reseller_features_save'   => 'admin.reseller.write',
+        'reseller_features_delete' => 'admin.reseller.write',
+        'reseller_brand_get'       => 'admin.reseller.read',
+        'reseller_brand_save'      => 'admin.reseller.write',
+        'reseller_limits_check'    => 'admin.reseller.read',
+        'reseller_plans_list'      => 'admin.reseller.read',
+        'reseller_plan_save'       => 'admin.reseller.write',
+        'reseller_plan_delete'     => 'admin.reseller.write',
+        'reseller_billing_status'  => 'admin.reseller.billing',
+        'reseller_billing_transition' => 'admin.reseller.billing',
+
+        // Tenant Management & Provisioning
+        'tenant_list'              => 'admin.tenant.read',
+        'tenant_get'               => 'admin.tenant.read',
+        'tenant_provision'         => 'admin.tenant.provision',
+        'tenant_update'            => 'admin.tenant.write',
+        'tenant_delete'            => 'admin.tenant.write',
+        'tenant_suspend'           => 'admin.tenant.write',
+        'tenant_reactivate'        => 'admin.tenant.write',
+        'tenant_resources'         => 'admin.tenant.read',
+        'tenant_health_check'      => 'admin.tenant.read',
 
         // File Manager v2 (FTP, Trash, Image, Git)
         'storage_ftp_list'         => 'admin.files',
@@ -978,20 +1022,60 @@ function getActionScopeMap(): array {
         'watchdog_settings_save'      => 'admin.server',
         'watchdog_audit_run'          => 'admin.server',
         'watchdog_alert_test'         => 'admin.server',
-        'fleet_list'                  => 'admin.server',
-        'fleet_add'                   => 'admin.server',
-        'fleet_remove'                => 'admin.server',
-        'fleet_ping'                  => 'admin.server',
-        'fleet_broadcast'             => 'admin.server',
-        'fleet_sync_dns'              => 'admin.server',
-        'fleet_status'                => 'admin.server',
-        'fleet_summary'               => 'admin.server',
-        'cpanel_import'               => 'admin.server',
-        'clear_cache'                 => 'admin.server',
-        'tail_logs'                   => 'admin.server',
-        'run_migrations'              => 'admin.server',
-        'run_auto_tests'              => 'admin.server',
+        // Multi-Server Fleet & Node Agent
+        'fleet_list'                  => 'admin.fleet.read',
+        'fleet_add'                   => 'admin.fleet.write',
+        'fleet_remove'                => 'admin.fleet.write',
+        'fleet_ping'                  => 'admin.fleet.read',
+        'fleet_broadcast'             => 'admin.fleet.operate',
+        'fleet_sync_dns'              => 'admin.fleet.operate',
+        'fleet_status'                => 'admin.fleet.read',
+        'fleet_summary'               => 'admin.fleet.read',
+        'fleet_token_generate'        => 'admin.fleet.enroll',
+        'fleet_enroll'                => 'admin.fleet.enroll',
+        'fleet_agent_heartbeat'       => 'admin.fleet.read',
+        'fleet_agent_execute'         => 'admin.fleet.operate',
+        'fleet_group_list'            => 'admin.fleet.read',
+        'fleet_group_save'            => 'admin.fleet.write',
+        'fleet_group_delete'          => 'admin.fleet.write',
+        'fleet_node_details'          => 'admin.fleet.read',
+        'fleet_node_update'           => 'admin.fleet.write',
+        'fleet_node_reboot'           => 'admin.fleet.operate',
+        'fleet_node_maintenance'      => 'admin.fleet.operate',
+
+        // Web Terminal Multi-Tab Sessions & Modes
+        'terminal_session_create'     => 'admin.terminal.console',
+        'terminal_session_list'       => 'admin.terminal.console',
+        'terminal_session_get'        => 'admin.terminal.console',
+        'terminal_session_close'      => 'admin.terminal.console',
+        'terminal_session_execute'    => 'admin.terminal.console',
+        'terminal_stream_execute'     => 'admin.terminal.console',
+        'terminal_command_autocomplete' => 'admin.terminal.console',
+        'terminal_audit_log'          => 'admin.terminal.console',
+        'terminal_dangerous_confirm'  => 'admin.terminal.console',
+        'terminal_advanced_execute'   => 'admin.terminal.advanced',
+        'terminal_export_log'         => 'admin.terminal.console',
+        'terminal_interrupt'          => 'admin.terminal.console',
+        'terminal_session_interrupt'  => 'admin.terminal.console',
+        'run_command'                 => 'admin.terminal.console',
+        'run_command_stream'          => 'admin.terminal.console',
+        'execute_command'             => 'admin.terminal.console',
+
+        // Unified Resource Registry
+        'registry_resources_list'     => 'admin.registry.read',
+        'registry_resource_get'       => 'admin.registry.read',
+        'registry_resource_register'  => 'admin.registry.write',
+        'registry_resource_update'    => 'admin.registry.write',
+        'registry_resource_delete'    => 'admin.registry.write',
+        'registry_resource_audit'     => 'admin.registry.read',
+
+        // Unified Operation Engine
         'operation_plan'              => 'admin.server',
+        'operation_execute'           => 'admin.server',
+        'operation_start_async'       => 'admin.server',
+        'operation_status'            => 'admin.server',
+        'operation_list'              => 'admin.server',
+        'operation_cancel'            => 'admin.server',
 
         // Shield & Firewall
         'shield_ports_get'            => 'admin.shield',
@@ -1306,6 +1390,10 @@ function getActionScopeMap(): array {
         'watchdog_test_alert'         => 'admin.server',
         'watchdog_configure'          => 'admin.server',
         'watchdog_audit_run'          => 'admin.server',
+
+        // Observability & Logs
+        'tail_logs'                   => 'admin.system',
+        'logger_tail'                 => 'admin.system',
     ];
 }
 
@@ -1452,9 +1540,23 @@ function hasAdminScope(string $scope): bool {
             return true;
         }
     }
-    // Backward compatibility: 'admin.domains' grants 'admin.dns.*'
-    if (isset($parts[0], $parts[1]) && $parts[0] === 'admin' && $parts[1] === 'dns') {
-        if (in_array('admin.domains', $userScopes, true) || in_array('admin.domains.*', $userScopes, true)) {
+    // Backward compatibility mappings
+    if (isset($parts[0], $parts[1]) && $parts[0] === 'admin') {
+        if ($parts[1] === 'dns' && (in_array('admin.domains', $userScopes, true) || in_array('admin.domains.*', $userScopes, true))) {
+            return true;
+        }
+        if ($parts[1] === 'fleet' && (in_array('admin.server', $userScopes, true) || in_array('admin.server.*', $userScopes, true))) {
+            return true;
+        }
+        if ($parts[1] === 'marketplace' && (in_array('admin.apps', $userScopes, true) || in_array('admin.apps.*', $userScopes, true))) {
+            return true;
+        }
+        if ($parts[1] === 'terminal' && ($parts[2] ?? '') !== 'advanced') {
+            if (in_array('admin.commands', $userScopes, true) || in_array('admin.commands.*', $userScopes, true)) {
+                return true;
+            }
+        }
+        if ($parts[1] === 'registry' && in_array('admin.server', $userScopes, true)) {
             return true;
         }
     }

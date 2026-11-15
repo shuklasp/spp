@@ -22,7 +22,8 @@ class DefaultBridge implements PolyglotBridgeInterface
         } else {
             $ext = '';
         }
-        $frameworkLibDir = SPP_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'polyglot';
+        $baseDir = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 2);
+        $frameworkLibDir = $baseDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'polyglot';
         $dispatchScript = $frameworkLibDir . DIRECTORY_SEPARATOR . 'dispatch.' . $ext;
         if (!file_exists($dispatchScript)) {
             throw new \RuntimeException("Dispatcher script for {$lang} not found.");

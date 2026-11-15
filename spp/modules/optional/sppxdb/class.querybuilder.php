@@ -351,8 +351,9 @@ class QueryBuilder
 
     public function first($fields = '*')
     {
-        $this->limit(1);
-        $results = $this->get($fields);
+        $clone = clone $this;
+        $clone->limit(1);
+        $results = $clone->get($fields);
         return $results[0] ?? null;
     }
 

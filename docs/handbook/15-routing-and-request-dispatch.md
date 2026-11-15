@@ -469,35 +469,42 @@ Initial navigation and later LiveComponent interactions can use different runtim
 
 ---
 
-## 15.21 Domain Operational Modes: Single Domain vs. Multi-Domain
+## 15.21 Domain Operational Modes: Single Domain vs. Multi-Domain & Architectural Parity
 
-The SPP framework can be deployed either as a standard single-domain application platform or as a high-density, multi-tenant virtual host engine.
+The SPP framework is engineered under a foundational principle: **one shared framework core serving single-domain or multi-domain deployments with 100% architectural parity**.
+
+The framework core is never duplicated. Single-domain mode uses the exact same `DomainContext`, `PathResolver`, `ApplicationRegistryService`, and `ConfigurationResolver` pipelines; the only difference is that the installation resolves automatically to a default domain identity (`default`).
 
 ```mermaid
 flowchart TD
-    Req["Incoming HTTP Request"] --> ModeCheck{"Domain Mode?"}
-    ModeCheck -- "Single Domain (single)" --> ZeroConfig["Zero-Config Passthrough<br/>(No host checks, no 404/403)"]
-    ZeroConfig --> RootApp["Serve Default App at /<br/>(Secondary apps at /appName)"]
-
-    ModeCheck -- "Multi-Domain (multi)" --> VHost["DomainRouter (etc/domains.yml)"]
+    Req["Incoming HTTP / CLI Request"] --> ModeCheck{"Domain Mode?"}
+    ModeCheck -- "Single Domain (mode: single)" --> SingleExec["Single-Domain Context (default)<br/>Zero-Config Passthrough"]
+    SingleExec --> SharedKernel["Shared SPP Kernel & DomainContext"]
+    
+    ModeCheck -- "Multi-Domain (mode: multi)" --> VHost["DomainRouter (etc/domains.yml)"]
     VHost --> Match{"Host Registered?"}
-    Match -- Yes --> TenantApp["Serve Tenant App at /<br/>(Enforce App Whitelist)"]
+    Match -- Yes --> TenantCtx["Resolve Tenant DomainContext<br/>(domains/tenant/)"]
     Match -- No --> VHostPolicy{"Policy Mode?"}
     VHostPolicy -- strict --> Err404["HTTP 404 Domain Not Found"]
     VHostPolicy -- inherit --> Parent["Inherit Parent Default App"]
     VHostPolicy -- redirect --> Redir302["HTTP 302 to Canonical Host"]
     VHostPolicy -- dynamic_tenant --> TenantHook["Dynamic Tenant Resolution"]
+    
+    TenantCtx --> SharedKernel
+    SharedKernel --> PathRes["PathResolver (Canonical 0755 Paths)"]
+    SharedKernel --> ActMat["Domain Activation Matrix (apps_activation_matrix)"]
+    SharedKernel --> CfgCas["4-Tier Configuration Cascade"]
 ```
 
 ### 1. Single Domain Mode (`mode: single`)
 * **Zero Configuration ("Just a copy paste will do")**: Domain routing is completely optional, not required, and not enforced. Simply copying and pasting an SPP installation onto any web server, shared hosting account (e.g. cPanel `public_html`), standard Apache/Nginx DocumentRoot, or server IP address serves immediately.
 * **No Host Header Rejection**: No HTTP 404 "Domain not configured" errors and no HTTP 403 "Application disabled on domain" errors. Any incoming host or IP address is accepted transparently.
-* **Transparent Default App Serving**: Serves the configured default application directly at root (`/`), while all secondary registered apps remain accessible via their base URLs (e.g. `/sppadmin`, `/api`).
+* **Architectural Parity**: Executes through canonical `DomainContext` with ID `default`. Application discovery, configuration cascade, and path resolution work identically.
 * **Automatic Graceful Fallback**: If `etc/domains.yml` is absent or contains no registered domains, SPP automatically defaults to Single Domain Mode without requiring any configuration files.
 
 ### 2. Multi-Domain Mode (`mode: multi`)
-* **Virtual Host Multi-Tenancy**: Incoming `Host` headers are actively matched against registered patterns in `etc/domains.yml`.
-* **Domain Scoping & Isolation**: Enforces tenant-specific applications (`domains/<domain>/src/<app>`), per-domain permissions, canonical host aliases (e.g. `www.` to root domain), and SSL enforcement.
+* **Virtual Host Multi-Tenancy**: Incoming `Host` headers are actively matched against registered patterns, aliases, and wildcards in `etc/domains.yml`.
+* **Domain Scoping & Isolation**: Enforces tenant-specific applications (`domains/<domain>/apps/<app>`), per-domain permissions, canonical host aliases (e.g. `www.` to root domain), and SSL enforcement.
 * **Policy Modes**: Unmapped hosts or subdomains enforce strict isolation policies (`strict`, `inherit`, `redirect`, `dynamic_tenant`, `permissive`).
 
 ### Switching Between Modes
@@ -521,34 +528,38 @@ Both **SPPAdmin** (`/sppadmin/#domains`) and **SPPDev** (`/sppdev/#domains`) inc
 * **Real-Time Mode Indicator**: Displays a color-coded status badge (`🟢 Single Domain Mode (Active - Routing Not Required)` vs `🌐 Multi-Domain Mode (Active - Virtual Hosts Enforced)`).
 * **1-Click Mode Toggling**: Instantly flip between Single Domain Mode and Multi-Domain Mode with a single button click. The change is atomically persisted to `etc/domains.yml` via `DomainAdminService::setDomainMode()`.
 * **Integrated Virtual Host Policy Selector**: In Multi-Domain mode, configure the unmapped subdomain/host policy directly from the dropdown (`Strict 404`, `Inherit Parent`, `302 Redirect`, `Dynamic Tenant`, or `Permissive`).
-* **App Domain Scoping Controls**: In the App Studio Console (`#apps`), developers can configure application scope (`🌍 Global` vs `🔒 Domain-Only`), restricting specific apps to authorized domains with immediate visual validation badges.
 
 ---
 
-## 15.22 Multi-Tenant Domain-Driven Routing (`DomainRouter`)
+## 15.22 Multi-Tenant Domain-Driven Routing (`DomainRouter` & `DomainRegistry`)
 
 In production environments, a single SPP framework instance frequently powers multiple domains, brands, or institutional portals (e.g. `portal.school1.edu`, `alumni.school1.edu`, `admissions.school1.edu`).
 
-SPP's **DomainRouter** (`\SPP\Core\Router\DomainRouter`) evaluates incoming `Host` headers before route matching occurs. It resolves the active domain configuration from `etc/domains.yml`:
+SPP's **DomainRouter** (`\SPP\Core\Router\DomainRouter`) and **DomainRegistry** (`\SPP\Core\Domain\DomainRegistry`) evaluate incoming `Host` headers before route matching occurs. They resolve the active domain configuration from `etc/domains.yml`:
 
 ```yaml
+version: "2.0"
+mode: "multi"
+default_domain: "default"
+
 domains:
   portal.school1.edu:
-    canonical_host: "portal.school1.edu"
+    enabled: true
+    title: "Student Enterprise Portal"
     default_app: "student_portal"
-    apps:
-      - "student_portal"
-      - "library"
+    aliases:
+      - "www.portal.school1.edu"
     vhost_policy: "strict"
-    ssl:
-      enabled: true
-      force_https: true
+    database:
+      driver: "sqlite"
+      database: "domains/portal.school1.edu/sppdata/portal.sqlite"
+    security:
+      enforce_https: true
 
   alumni.school1.edu:
-    canonical_host: "alumni.school1.edu"
+    enabled: true
+    title: "Alumni Network Portal"
     default_app: "alumni_network"
-    apps:
-      - "alumni_network"
 ```
 
 ### Domain Routing Mechanics:
@@ -557,18 +568,165 @@ domains:
    - **Tier 1 (Exact Match)**: Direct lookup in `domains.yml` patterns (`example.com`, `docs.localhost`).
    - **Tier 2 (Wildcard Match)**: Pattern matching using `fnmatch` (e.g. `*.example.com`, `*.docs.localhost`).
    - **Tier 3 (Declared Aliases)**: Evaluation against declared primary or wildcard aliases (with optional 301 canonical redirects).
-   - **Tier 4 (Candidate App Subdomain Auto-Detection)**: If an incoming virtual host starts with `<app>.<domain>` (e.g. `app.example.com`) and `<app>` corresponds to an installed SPP application, DomainRouter dynamically synthesizes a virtual host mapping to serve that application at root (`/`), respecting parent domain access restrictions.
+   - **Tier 4 (Candidate App Subdomain Auto-Detection)**: If an incoming virtual host starts with `<app>.<domain>` and `<app>` corresponds to an installed SPP application, DomainRouter dynamically synthesizes a virtual host mapping to serve that application at root (`/`).
    - **Tier 5 (Mode-Aware Fallback)**:
-     - In **Single Domain Mode** (`mode: single`): Unmapped hosts bypass virtual host checks and serve the default application (`base_app`) immediately with zero 404 blocking ("just a copy paste will do").
+     - In **Single Domain Mode** (`mode: single`): Unmapped hosts bypass virtual host checks and serve the default application (`base_app`) immediately with zero 404 blocking.
      - In **Multi-Domain Mode** (`mode: multi`): Unmapped subdomains trigger the configured policy (`strict` 404, `inherit` parent default app, `redirect` 302, or `dynamic_tenant` hook).
 3. **Canonical Redirection**: If an incoming request hits an alias (e.g. `www.school1.edu`), DomainRouter automatically issues a 301 Permanent Redirect to `school1.edu` with full query string preservation.
 4. **Application Context Resolution**: Determines the `default_app` for the domain, allowing the application to be served directly from root (`/`) without requiring prefix URLs like `/student_portal`.
-5. **App Access Whitelisting**: Verifies that the requested application is explicitly allowed on the active domain.
-6. **Central Web Server / cPanel Configuration**: For centralized front-controller architectures like SPP, subdomains and virtual hosts (e.g. `app.example.com`) must point their web server `DocumentRoot` to the framework root directory (`public_html`) containing `index.php` and `.htaccess`, ensuring all traffic flows through SPP's `Scheduler`.
 
 ---
 
-## 15.23 Domain Scoping & Application Access Control (`domain:app:scope`)
+## 15.23 Centralized PathResolver & Directory Traversal Prevention (`PathResolver`)
+
+A critical architectural requirement in multi-domain systems is that **no service, controller, or administrative routine may independently calculate raw filesystem paths**.
+
+SPP enforces the **Centralized PathResolver** (`\SPP\Core\Domain\PathResolver`). All path calculations flow through this service:
+
+```php
+use SPP\Core\Domain\PathResolver;
+
+$paths = PathResolver::getInstance();
+
+// Platform-level canonical paths
+$sppRoot     = $paths->getSppRoot();
+$globalApps  = $paths->getGlobalAppsPath();      // apps/ (or legacy src/)
+$globalData  = $paths->getGlobalDataPath();      // sppdata/
+
+// Domain-level canonical paths
+$domainRoot  = $paths->getDomainPath($domainId);       // domains/{domain}/
+$domainApps  = $paths->getDomainAppsPath($domainId);   // domains/{domain}/apps/
+$domainData  = $paths->getDomainDataPath($domainId);   // domains/{domain}/sppdata/
+$domainEtc   = $paths->getDomainEtcPath($domainId);    // domains/{domain}/etc/
+
+// Application-specific paths
+$appPath     = $paths->getDomainAppPath('school1', $domainId);
+$appConfig   = $paths->getDomainAppConfigPath('school1', $domainId);
+```
+
+### Traversal Defense & Security Invariants:
+1. **Zero Raw Concatenation**: User-supplied domain names or application IDs are never concatenated directly into filesystem operations.
+2. **Canonical Realpath Boundary Verification**: `PathResolver::resolveSafePath($baseDir, $relativePath)` canonicalizes targets and verifies that the resulting realpath strictly starts with `$baseDir`. Any `../` traversal or null-byte sequence triggers an immediate `\InvalidArgumentException`.
+3. **Secure Directory Creation**: Directories are scaffolded with mode `0755` permissions, ensuring private domain data (`sppdata/`) is not web-accessible.
+4. **Custom Domain Path Support**: Domains can be mapped to custom filesystem paths outside `domains/` via `path:` in `etc/domains.yml`.
+
+---
+
+## 15.24 Global Applications vs. Domain Applications & The Domain Activation Matrix
+
+SPP strictly decouples application installation from application activation:
+
+- **Global Applications (`apps/<app>` or `src/<app>`)**:
+  - Installed once at the platform level.
+  - Can be made available to individual domains.
+  - **Inviolable Invariant**: Installing an application globally **never implies automatic activation on all domains**.
+- **Domain Applications (`domains/<domain>/apps/<app>`)**:
+  - Physically installed inside an individual domain's directory.
+  - Strictly accessible only on that specific domain. Cannot be called by other domains.
+
+### The Domain Activation Matrix
+The framework maintains an interactive **Activation Matrix** (`ApplicationRegistryService::getActivationMatrix()`). Platform administrators toggle which global applications are enabled on which domains:
+
+```mermaid
+flowchart LR
+    subgraph GlobalApps["Global Apps (apps/)"]
+        App1["School ERP"]
+        App2["Library Portal"]
+        App3["Billing Engine"]
+    end
+
+    subgraph Matrix["Domain Activation Matrix"]
+        T1["Domain A: campus.edu<br/>✔ School ERP<br/>✔ Library Portal<br/>✖ Billing Engine"]
+        T2["Domain B: alumni.org<br/>✖ School ERP<br/>✖ Library Portal<br/>✔ Billing Engine"]
+    end
+
+    GlobalApps --> Matrix
+```
+
+Checking activation programmatically:
+```php
+use SPP\Core\App\ApplicationRegistryService;
+
+$registry = ApplicationRegistryService::getInstance();
+
+if ($registry->isAppActiveOnDomain('billing', $domainId)) {
+    // Application is explicitly active on this tenant domain
+} else {
+    throw new \SPP\Core\Security\AccessDeniedException("App not enabled on this domain.");
+}
+```
+
+In **SPPAdmin** (`/sppadmin/#apps`), the Activation Matrix appears as a dedicated tab with interactive toggle pill switches (`✔ Enabled` / `✖ Disabled`), updating `etc/domains.yml` in real time.
+
+---
+
+## 15.25 4-Tier Configuration Cascade & Diffing (`ConfigurationResolver`)
+
+Different tenant domains frequently require different settings (e.g. themes, branding, feature flags, API keys) for the same application code.
+
+SPP solves this via the **4-Tier Configuration Cascade** (`\SPP\Core\Config\ConfigurationResolver`):
+
+```text
+Tier 1: Base Application Defaults
+        apps/<app>/config/defaults.yml (or src/<app>/etc/settings.yml)
+           ↓ (overridden by)
+Tier 2: Platform-Wide Global Configuration
+        etc/apps/<app>.yml
+           ↓ (overridden by)
+Tier 3: Domain-Specific Tenant Configuration Overrides
+        domains/<domain>/etc/apps/<app>.yml
+           ↓ (overridden by)
+Tier 4: Runtime Environment Overrides
+```
+
+### API Usage
+```php
+use SPP\Core\Config\ConfigurationResolver;
+
+$config = ConfigurationResolver::getInstance();
+
+// 1. Resolve complete merged configuration for an application on a domain
+$settings = $config->resolve('school1', $domainId);
+
+// 2. Query specific keys using dot-notation with default fallback
+$theme = $config->get('school1', 'app.theme', 'light', $domainId);
+$allowSms = $config->get('school1', 'features.sms_alerts', false, $domainId);
+
+// 3. Diff domain overrides against base defaults
+$diff = $config->diffConfig('school1', $domainId);
+// Returns: ['has_overrides' => bool, 'overrides' => [...], 'base' => [...]]
+
+// 4. Reset domain configuration back to base defaults
+$config->resetDomainConfigToDefault('school1', $domainId);
+```
+
+---
+
+## 15.26 Single-to-Multi-Domain Migration Tooling (`domain:migrate`)
+
+To migrate an existing single-domain installation to the canonical multi-domain filesystem layout, SPP provides the native CLI migration command:
+
+```bash
+# 1. Preflight dry run (inspect proposed changes without writing)
+php spp.php domain:migrate --dry-run
+
+# 2. Live migration with automatic directory scaffolding
+php spp.php domain:migrate
+
+# 3. Migrate and register custom domains simultaneously
+php spp.php domain:migrate --domains="portal.example.com,store.example.org"
+```
+
+The migration command:
+1. Verifies and creates canonical directories (`apps/`, `domains/`, `sppdata/`).
+2. Creates `etc/domains.yml` with default domain bindings.
+3. Automatically maps any existing applications found in `src/` to global applications.
+4. Scaffolds default tenant directories (`domains/default/apps/`, `domains/default/etc/apps/`, `domains/default/sppdata/`).
+5. Generates the initial Domain Activation Matrix preserving uninterrupted application availability.
+
+---
+
+## 15.27 Domain Scoping & Application Access Control (`domain:app:scope`)
 
 Security policies often dictate that high-privilege applications (such as administrative tools, financial accounting, or developer portals) must never be accessible across public tenant domains.
 
@@ -589,27 +747,27 @@ When an unauthorized domain attempts to invoke a domain-restricted application, 
 
 ---
 
-## 15.24 Domain-Specific Isolated Applications (`domains/<domain>/src/<AppName>`)
+## 15.28 Domain-Specific Isolated Applications (`domains/<domain>/apps/<AppName>`)
 
 Beyond logical routing rules, enterprise tenants often require **physical code isolation**. SPP supports physical domain-isolated applications stored under:
 
 ```text
 domains/
   portal.school1.edu/
-    src/
+    apps/
       custom_plugin/
         Controllers/
         Models/
 ```
 
 ### Key Architectural Invariants:
-- **Physical Boundary**: Code in `domains/<domain>/src/<app>` is physically segregated from other domains.
+- **Physical Boundary**: Code in `domains/<domain>/apps/<app>` is physically segregated from other domains.
 - **Strict Accessibility**: Requests hitting other domains cannot load or invoke this code under any circumstances.
 - **Scaffolding Tooling**: Scaffolded via `php spp.php domain:app:install <domain> <appName> [--make-default]`.
 
 ---
 
-## 15.25 Virtual Host Policy Modes (Strict, Addon, Parked, Subdomains)
+## 15.29 Virtual Host Policy Modes (Strict, Addon, Parked, Subdomains)
 
 SPP supports four declarative virtual host policy modes defined in `etc/domains.yml`:
 
@@ -631,7 +789,7 @@ php spp.php domain:addon sub.school1.edu --app=lms --root=/var/www/sub
 
 ---
 
-## 15.26 Server Provisioning, Host Autodiscovery, and Reverse Proxy Guidance
+## 15.30 Server Provisioning, Host Autodiscovery, and Reverse Proxy Guidance
 
 SPP is completely generic and does **not** assume hardcoded domains or fixed installation paths. The universal server configuration gateway discovers network interfaces, server IP addresses, hostnames, and web server software automatically:
 
@@ -728,26 +886,36 @@ When the guest daemon replies, `SubpathVirtualizer` automatically virtualizes th
 
 ---
 
-## 15.28 Kernel Hacker: multiple selectors
+## 15.32 Kernel Hacker: multiple selectors
 
 The most useful expert mental model is that SPP request handling contains **multiple selectors**.
 
-1. **Domain Selection**: `DomainRouter` identifies the active tenant domain, virtual host policy, and domain-isolated application directory.
+1. **Domain Selection & Context Binding**: `DomainRouter` & `DomainContextResolver` identify the active tenant domain, bind immutable `DomainContext` to `Scheduler::$domainContext`, and enforce path isolation via `PathResolver`.
 2. **Multi-Language App & Subpath Gateway**: `ForeignAppRegistry` checks if the request matches a non-SPP guest application route directory (`/ai`, `/chat`, `/blog`) or dedicated subdomain, delegating to `SubpathGateway` and `SubpathVirtualizer`.
 3. **Application Selection**: For native SPP applications, `Scheduler` selects the application context based on domain default or base URL prefix.
-4. **Access Guarding**: Domain Scoping checks whether the application is permitted on the active host (blocking with 403 on violations).
-5. **Middleware Pipeline**: Global and route middleware verify authentication, rate limits, and security headers.
-6. **Route Selection**: PCRE `(*MARK:mX)` chunked router selects the endpoint destination.
-7. **Handler Resolution & Response**: The destination executes and streams presentation markup or data.
+4. **Activation Matrix & Access Guarding**: Domain Activation Matrix and Domain Scoping check whether the application is explicitly enabled on the active host (blocking with 403 on violations).
+5. **Configuration Cascade**: `ConfigurationResolver` resolves application settings merging base defaults, platform overrides, and tenant domain overrides.
+6. **Middleware Pipeline**: Global and route middleware verify authentication, rate limits, and security headers.
+7. **Route Selection**: PCRE `(*MARK:mX)` chunked router selects the endpoint destination.
+8. **Handler Resolution & Response**: The destination executes and streams presentation markup or data.
 
 ### Source map
 
+- `spp/core/Domain/DomainContext.php`
+- `spp/core/Domain/DomainContextResolver.php`
+- `spp/core/Domain/DomainRegistry.php`
+- `spp/core/Domain/PathResolver.php`
+- `spp/core/Config/ConfigurationResolver.php`
+- `spp/core/App/ApplicationRegistryService.php`
+- `spp/core/App/ApplicationLifecycleService.php`
+- `spp/commands/DomainMigrateCommand.php`
 - `spp/core/apps/ForeignAppRegistry.php`
 - `spp/core/apps/SubpathVirtualizer.php`
 - `spp/core/apps/SubpathGateway.php`
 - `spp/core/apps/AppSupervisor.php`
 - `spp/core/routing/providers/ForeignAppRouteServiceProvider.php`
 - `etc/apps.yml`
+- `etc/domains.yml`
 - `spp/core/router/class.domainrouter.php`
 - `spp/core/class.appuninstaller.php`
 - `spp/bin/spp-domain-installer.php`

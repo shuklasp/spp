@@ -45,6 +45,11 @@ require_once __DIR__ . '/HostProvisionService.php';
 require_once __DIR__ . '/SystemDoctorService.php';
 require_once __DIR__ . '/SecretsService.php';
 require_once __DIR__ . '/OperationEngine.php';
+require_once __DIR__ . '/ResourceRegistry.php';
+require_once __DIR__ . '/TenantContextService.php';
+require_once __DIR__ . '/TenantManager.php';
+require_once __DIR__ . '/MarketplaceAdminService.php';
+require_once __DIR__ . '/TerminalSessionManager.php';
 if (file_exists(dirname(__DIR__, 2) . '/agent/src/Client.php')) {
     require_once dirname(__DIR__, 2) . '/agent/src/Client.php';
 }
@@ -166,8 +171,9 @@ class CommandBridge
      * Executes an interactive or batch shell command in the workspace directory.
      * Supports polyglot CLI tools, SPP commands, git, composer, and system utilities.
      * Optionally delivers output chunks in real time via $onChunk callback.
+     * Supports cancellation and interrupt signals (SIGINT / Ctrl+C) via $executionId.
      */
-    public static function runShellCommand(string $command, string $appContext = 'default', ?callable $onChunk = null): array
+    public static function runShellCommand(string $command, string $appContext = 'default', ?callable $onChunk = null, ?string $executionId = null): array
     {
         $command = trim($command);
         if ($command === '') {
@@ -262,6 +268,16 @@ class CommandBridge
             return ['success' => false, 'error' => $err];
         }
 
+        // Register PID for remote cancellation / interrupt signal delivery
+        $status = proc_get_status($proc);
+        $pid = (int)($status['pid'] ?? 0);
+        if ($executionId === null || trim($executionId) === '') {
+            $executionId = 'exec_' . bin2hex(random_bytes(6));
+        }
+        if ($pid > 0) {
+            self::registerActiveProcess($executionId, $pid, $command);
+        }
+
         // Close stdin immediately so process does not block waiting for input
         fclose($pipes[0]);
 
@@ -272,7 +288,24 @@ class CommandBridge
 
         $timeout = 90;
         $startTime = time();
+        $wasInterrupted = false;
         while (true) {
+            // Check for explicit interrupt signal (Ctrl+C / SIGINT)
+            if ($executionId !== null && self::isProcessInterrupted($executionId)) {
+                $wasInterrupted = true;
+                if ($pid > 0) {
+                    self::killProcessTree($pid);
+                } else {
+                    @proc_terminate($proc, 9);
+                }
+                $intMsg = "\n^C\n[Process interrupted by user (SIGINT)]\n";
+                $stderr .= $intMsg;
+                if ($onChunk !== null) {
+                    $onChunk($intMsg, 'stderr');
+                }
+                break;
+            }
+
             if ($fhOut) {
                 clearstatcache(false, $tmpOut);
                 $chunk = fread($fhOut, 8192);
@@ -341,6 +374,10 @@ class CommandBridge
         }
 
         $exitCode = proc_close($proc);
+        if ($executionId !== null) {
+            self::unregisterActiveProcess($executionId);
+        }
+
         @unlink($tmpOut);
         @unlink($tmpErr);
 
@@ -350,21 +387,153 @@ class CommandBridge
             $combined = empty($combined) ? $trimmedErr : ($combined . "\n" . $trimmedErr);
         }
 
+        if ($wasInterrupted) {
+            return [
+                'success'      => false,
+                'execution_id' => $executionId,
+                'output'       => $combined,
+                'stdout'       => trim($stdout),
+                'stderr'       => trim($stderr),
+                'exit_code'    => 130, // Standard 128 + SIGINT
+                'interrupted'  => true,
+                'cwd'          => $cwd,
+                'command'      => $command
+            ];
+        }
+
         return [
-            'success' => $exitCode === 0,
-            'output' => $combined,
-            'stdout' => trim($stdout),
-            'stderr' => trim($stderr),
-            'exit_code' => $exitCode,
-            'cwd' => $cwd,
-            'command' => $command
+            'success'      => $exitCode === 0,
+            'execution_id' => $executionId,
+            'output'       => $combined,
+            'stdout'       => trim($stdout),
+            'stderr'       => trim($stderr),
+            'exit_code'    => $exitCode,
+            'cwd'          => $cwd,
+            'command'      => $command
         ];
+    }
+
+    // =========================================================================
+    // Process Interruption & Signal Handlers (SIGINT / Ctrl+C)
+    // =========================================================================
+
+    public static function registerActiveProcess(string $executionId, int $pid, string $command): void
+    {
+        $base = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 2);
+        $dir = $base . '/var/terminal/pids';
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        $file = $dir . '/' . preg_replace('/[^a-zA-Z0-9_\-]/', '_', $executionId) . '.json';
+        @file_put_contents($file, json_encode([
+            'execution_id' => $executionId,
+            'pid'          => $pid,
+            'command'      => $command,
+            'started_at'   => time(),
+            'interrupted'  => false
+        ]));
+    }
+
+    public static function unregisterActiveProcess(string $executionId): void
+    {
+        $base = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 2);
+        $file = $base . '/var/terminal/pids/' . preg_replace('/[^a-zA-Z0-9_\-]/', '_', $executionId) . '.json';
+        if (file_exists($file)) {
+            @unlink($file);
+        }
+    }
+
+    public static function isProcessInterrupted(string $executionId): bool
+    {
+        $base = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 2);
+        $file = $base . '/var/terminal/pids/' . preg_replace('/[^a-zA-Z0-9_\-]/', '_', $executionId) . '.json';
+        if (!file_exists($file)) {
+            return false;
+        }
+        $data = json_decode((string)@file_get_contents($file), true);
+        return !empty($data['interrupted']);
+    }
+
+    public static function interruptProcess(string $executionId): array
+    {
+        $executionId = trim($executionId);
+        if ($executionId === '') {
+            return ['success' => false, 'error' => 'Execution ID is required to deliver interrupt signal.'];
+        }
+
+        $base = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 2);
+        $dir = $base . '/var/terminal/pids';
+        $file = $dir . '/' . preg_replace('/[^a-zA-Z0-9_\-]/', '_', $executionId) . '.json';
+
+        $pid = 0;
+        if (file_exists($file)) {
+            $data = json_decode((string)@file_get_contents($file), true) ?: [];
+            $data['interrupted'] = true;
+            @file_put_contents($file, json_encode($data));
+            $pid = (int)($data['pid'] ?? 0);
+        } else {
+            if (is_dir($dir)) {
+                $files = glob($dir . '/*.json') ?: [];
+                foreach ($files as $pf) {
+                    $d = json_decode((string)@file_get_contents($pf), true);
+                    if (is_array($d)) {
+                        $pExec = (string)($d['execution_id'] ?? '');
+                        if (
+                            $executionId === 'all' ||
+                            $executionId === 'active' ||
+                            str_starts_with($pExec, $executionId) ||
+                            str_starts_with(basename($pf, '.json'), $executionId) ||
+                            count($files) === 1
+                        ) {
+                            $d['interrupted'] = true;
+                            @file_put_contents($pf, json_encode($d));
+                            $foundPid = (int)($d['pid'] ?? 0);
+                            if ($foundPid > 0) {
+                                self::killProcessTree($foundPid);
+                                $pid = $foundPid;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($pid > 0) {
+            self::killProcessTree($pid);
+        }
+
+        return [
+            'success'      => true,
+            'execution_id' => $executionId,
+            'pid'          => $pid,
+            'signal'       => 'SIGINT',
+            'message'      => "Interrupt signal (SIGINT/SIGTERM) delivered to process {$pid}."
+        ];
+    }
+
+    public static function killProcessTree(int $pid): void
+    {
+        if ($pid <= 0) return;
+        if (PHP_OS_FAMILY === 'Windows') {
+            @exec("taskkill /F /T /PID {$pid} 2>&1");
+        } else {
+            $sigInt  = defined('SIGINT') ? constant('SIGINT') : 2;
+            $sigTerm = defined('SIGTERM') ? constant('SIGTERM') : 15;
+            $sigKill = defined('SIGKILL') ? constant('SIGKILL') : 9;
+
+            if (function_exists('posix_kill')) {
+                @posix_kill($pid, $sigInt);
+                usleep(50000);
+                @posix_kill($pid, $sigTerm);
+            }
+            @exec("kill -INT {$pid} 2>/dev/null || kill -9 {$pid} 2>/dev/null");
+        }
     }
 
     /**
      * Executes a shell command and streams its output via Server-Sent Events (SSE).
      */
-    public static function streamShellCommand(string $command, string $appContext = 'default'): void
+    public static function streamShellCommand(string $command, string $appContext = 'default', ?string $executionId = null): void
     {
         while (ob_get_level() > 0) {
             ob_end_clean();
@@ -381,13 +550,17 @@ class CommandBridge
             header('X-Accel-Buffering: no');
         }
 
-        echo "event: start\ndata: " . json_encode(['command' => $command, 'app' => $appContext], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n\n";
+        if ($executionId === null || trim($executionId) === '') {
+            $executionId = 'stream_' . bin2hex(random_bytes(6));
+        }
+
+        echo "event: start\ndata: " . json_encode(['command' => $command, 'app' => $appContext, 'execution_id' => $executionId], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n\n";
         @flush();
 
         $result = self::runShellCommand($command, $appContext, function (string $chunk, string $type) {
             echo "event: chunk\ndata: " . json_encode(['chunk' => $chunk, 'type' => $type], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n\n";
             @flush();
-        });
+        }, $executionId);
 
         echo "event: done\ndata: " . json_encode($result, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n\n";
         @flush();
@@ -831,14 +1004,16 @@ class CommandBridge
                 if (empty($cmd)) {
                     return ['success' => false, 'error' => 'No command provided.'];
                 }
-                return self::runShellCommand($cmd, $appContext);
+                $executionId = $params['execution_id'] ?? null;
+                return self::runShellCommand($cmd, $appContext, null, $executionId);
 
             case 'run_command_stream':
                 $cmd = trim($params['command'] ?? '');
                 if (empty($cmd)) {
                     return ['success' => false, 'error' => 'No command provided.'];
                 }
-                self::streamShellCommand($cmd, $appContext);
+                $executionId = $params['execution_id'] ?? null;
+                self::streamShellCommand($cmd, $appContext, $executionId);
                 exit;
 
             case 'get_dashboard_metrics':
@@ -1453,7 +1628,7 @@ class CommandBridge
 
             case 'tail_logs':
                 $lines = (int)($params['lines'] ?? 50);
-                return self::executeCommand('logger:tail', ['--lines=' . $lines]);
+                return self::executeCommand('logger:tail', ['lines' => (string)$lines, '--lines=' . $lines]);
 
             case 'get_global_settings':
                 $settings = \SPP\App::getGlobalSettings();
@@ -2400,6 +2575,9 @@ class CommandBridge
             case 'domains_cf_save_settings':
                 return DomainAdminService::saveCloudflareSettings($params['settings'] ?? $params);
 
+            case 'domains_cf_disconnect':
+                return DomainAdminService::disconnectCloudflare();
+
             case 'domains_cf_verify_token':
                 return DomainAdminService::verifyCloudflareToken($params['token'] ?? null);
 
@@ -2425,7 +2603,12 @@ class CommandBridge
                 return DomainAdminService::syncFromCloudflare($params['domain'] ?? $params['host'] ?? '');
 
             case 'domains_cf_auto_provision':
-                return DomainAdminService::autoProvisionCloudflare($params['hostname'] ?? ($params['domain'] ?? ''), $params['target_ip'] ?? null, isset($params['proxied']) ? (bool)$params['proxied'] : true);
+                return DomainAdminService::autoProvisionCloudflare(
+                    $params['hostname'] ?? ($params['host'] ?? ($params['domain'] ?? '')),
+                    $params['target_ip'] ?? ($params['ip'] ?? null),
+                    isset($params['proxied']) ? (bool)$params['proxied'] : true,
+                    $params['zone'] ?? ($params['domain'] ?? null)
+                );
 
             // -------------------------------------------------------------
             // UNIFIED MULTI-PROVIDER DNS & REGISTRAR MANAGEMENT
@@ -2505,6 +2688,28 @@ class CommandBridge
                 return DomainAdminService::updateRegistrarNameservers(
                     $params['domain'] ?? $params['host'] ?? '',
                     (array)($params['nameservers'] ?? [])
+                );
+
+            case 'dns_cluster_replicate':
+                return DomainAdminService::clusterReplicate($params['zone'] ?? $params['domain'] ?? null);
+
+            case 'dns_cluster_status':
+                return DomainAdminService::clusterStatus($params['zone'] ?? $params['domain'] ?? null);
+
+            case 'dns_zone_template_apply':
+                return DomainAdminService::applyZoneTemplate(
+                    $params['domain'] ?? '',
+                    $params['template'] ?? '',
+                    $params
+                );
+
+            case 'dns_split_horizon_get':
+                return DomainAdminService::getSplitHorizon($params['domain'] ?? '');
+
+            case 'dns_split_horizon_save':
+                return DomainAdminService::saveSplitHorizon(
+                    $params['domain'] ?? '',
+                    (array)($params['records'] ?? [])
                 );
 
             // -------------------------------------------------------------
@@ -3107,7 +3312,11 @@ class CommandBridge
             case 'mail_virtual_list':
             case 'mail_virtual_mailboxes':
             case 'mail_server_mailboxes':
-                return MailAdminService::listVirtualMailboxes($params['domain'] ?? null, $params['search'] ?? null);
+                $domFilter = $params['domain'] ?? null;
+                if ($domFilter === 'default' || $domFilter === 'all') {
+                    $domFilter = null;
+                }
+                return MailAdminService::listVirtualMailboxes($domFilter, $params['search'] ?? null);
 
             case 'server_mailbox_get':
             case 'mail_server_account_get':
@@ -3158,7 +3367,11 @@ class CommandBridge
             case 'mail_server_forwarders_list':
             case 'mail_forwarders_list':
             case 'mail_forwarder_list':
-                return MailAdminService::listVirtualForwarders($params['domain'] ?? null);
+                $domFilter = $params['domain'] ?? null;
+                if ($domFilter === 'default' || $domFilter === 'all') {
+                    $domFilter = null;
+                }
+                return MailAdminService::listVirtualForwarders($domFilter);
 
             case 'server_forwarder_save':
             case 'server_forwarder_create':
@@ -4769,9 +4982,16 @@ class CommandBridge
 
             case 'server_docker_action':
             case 'server_docker_control':
+                $dockerAction = $params['control_action'] ?? ($params['action_name'] ?? ($params['docker_action'] ?? ''));
+                if (empty($dockerAction) && !empty($params['action']) && !in_array($params['action'], ['server_docker_action', 'server_docker_control'], true)) {
+                    $dockerAction = $params['action'];
+                }
+                if (empty($dockerAction)) {
+                    $dockerAction = 'restart';
+                }
                 return (new \SPP\Core\Server\Drivers\DockerEngineDriver())->controlContainer(
                     $params['id'] ?? ($params['container_id'] ?? ''),
-                    $params['control_action'] ?? ($params['action_name'] ?? ($params['docker_action'] ?? 'restart'))
+                    $dockerAction
                 );
 
             case 'server_docker_logs':
@@ -4978,6 +5198,128 @@ class CommandBridge
             case 'apps_staging_list':
                 return \SPP\Admin\Services\AppsAdminService::listStaging();
 
+            // SPP Application and Module Marketplace
+            case 'marketplace_catalog':
+            case 'marketplace_search':
+                return \SPP\Admin\Services\MarketplaceAdminService::getCatalog($params);
+
+            case 'marketplace_package_info':
+            case 'marketplace_package_preview':
+                return \SPP\Admin\Services\MarketplaceAdminService::getPackageInfo($params['package_id'] ?? ($params['id'] ?? ''))
+                    ? ['success' => true, 'package' => \SPP\Admin\Services\MarketplaceAdminService::getPackageInfo($params['package_id'] ?? ($params['id'] ?? ''))]
+                    : ['success' => false, 'error' => 'Package not found'];
+
+            case 'marketplace_package_validate':
+                return \SPP\Admin\Services\MarketplaceAdminService::validateManifest($params['manifest'] ?? $params);
+
+            case 'marketplace_package_verify':
+                return \SPP\Admin\Services\MarketplaceAdminService::verifyPackage($params['package_id'] ?? ($params['path'] ?? ''));
+
+            case 'marketplace_package_install':
+                return \SPP\Admin\Services\MarketplaceAdminService::installPackage(
+                    $params['package_id'] ?? ($params['id'] ?? ''),
+                    $params
+                );
+
+            case 'marketplace_package_uninstall':
+                return \SPP\Admin\Services\MarketplaceAdminService::uninstallPackage(
+                    $params['package_id'] ?? ($params['id'] ?? ''),
+                    $params
+                );
+
+            case 'marketplace_package_update':
+                return \SPP\Admin\Services\MarketplaceAdminService::updatePackage(
+                    $params['package_id'] ?? ($params['id'] ?? ''),
+                    $params
+                );
+
+            case 'marketplace_package_rollback':
+                return \SPP\Admin\Services\MarketplaceAdminService::rollbackPackage(
+                    $params['package_id'] ?? ($params['id'] ?? '')
+                );
+
+            case 'marketplace_installed_list':
+                return \SPP\Admin\Services\MarketplaceAdminService::listInstalled();
+
+            case 'marketplace_updates_check':
+                return \SPP\Admin\Services\MarketplaceAdminService::checkUpdates();
+
+            case 'marketplace_repo_list':
+                return \SPP\Admin\Services\MarketplaceAdminService::listRepositories();
+
+            case 'marketplace_repo_add':
+                return \SPP\Admin\Services\MarketplaceAdminService::addRepository($params);
+
+            case 'marketplace_repo_remove':
+                return \SPP\Admin\Services\MarketplaceAdminService::removeRepository(
+                    $params['id'] ?? ($params['name'] ?? '')
+                );
+
+            // Web Terminal Multi-Tab Sessions & Controlled Execution
+            case 'terminal_session_create':
+                return \SPP\Admin\Services\TerminalSessionManager::createSession(
+                    $params['user'] ?? '',
+                    $params['mode'] ?? 'console',
+                    $params['server'] ?? null,
+                    $params['cwd'] ?? null
+                );
+
+            case 'terminal_session_list':
+                return \SPP\Admin\Services\TerminalSessionManager::listSessions($params['user'] ?? null);
+
+            case 'terminal_session_get':
+                $sess = \SPP\Admin\Services\TerminalSessionManager::getSession($params['session_id'] ?? '');
+                return $sess ? ['success' => true, 'session' => $sess] : ['success' => false, 'error' => 'Session not found'];
+
+            case 'terminal_session_close':
+                return \SPP\Admin\Services\TerminalSessionManager::closeSession($params['session_id'] ?? '');
+
+            case 'terminal_interrupt':
+            case 'terminal_session_interrupt':
+                $execId = $params['execution_id'] ?? ($params['session_id'] ?? 'active');
+                if (!empty($params['session_id'])) {
+                    \SPP\Admin\Services\TerminalSessionManager::interruptSession($params['session_id'], $execId);
+                }
+                return \SPP\Admin\Services\CommandBridge::interruptProcess($execId);
+
+            case 'terminal_session_execute':
+            case 'terminal_stream_execute':
+                return \SPP\Admin\Services\TerminalSessionManager::executeCommand(
+                    $params['session_id'] ?? '',
+                    $params['command'] ?? '',
+                    $params
+                );
+
+            case 'terminal_command_autocomplete':
+                return \SPP\Admin\Services\TerminalSessionManager::autocomplete(
+                    $params['prefix'] ?? '',
+                    $params['mode'] ?? 'console',
+                    $params['cwd'] ?? null
+                );
+
+            case 'terminal_audit_log':
+                return \SPP\Admin\Services\TerminalSessionManager::getAuditLog((int)($params['limit'] ?? 100));
+
+            case 'terminal_dangerous_confirm':
+                return \SPP\Admin\Services\TerminalSessionManager::executeCommand(
+                    $params['session_id'] ?? '',
+                    $params['command'] ?? '',
+                    array_merge($params, ['confirmed' => true])
+                );
+
+            case 'terminal_advanced_execute':
+                return \SPP\Admin\Services\TerminalSessionManager::executeCommand(
+                    $params['session_id'] ?? '',
+                    $params['command'] ?? '',
+                    $params
+                );
+
+            case 'terminal_export_log':
+                return \SPP\Admin\Services\TerminalSessionManager::exportSessionLog(
+                    $params['session_id'] ?? '',
+                    $params['format'] ?? 'text'
+                );
+
             // 1-Click cPanel & WHM Migration Engine
             case 'cpanel_import_inspect':
                 return \SPP\Admin\Services\CpanelImporterService::inspect(
@@ -5043,6 +5385,13 @@ class CommandBridge
             case 'runtime_opcache_warmup':
                 return \SPP\Admin\Services\RuntimeAdminService::warmupOpcache($params['paths'] ?? []);
 
+            case 'runtime_opcache_invalidate':
+            case 'opcache_invalidate_script':
+                return \SPP\Admin\Services\RuntimeAdminService::invalidateScript(
+                    $params['path'] ?? '',
+                    !isset($params['force']) || !empty($params['force'])
+                );
+
             case 'runtime_extensions_matrix':
                 return \SPP\Admin\Services\RuntimeAdminService::getExtensionsMatrix();
 
@@ -5106,16 +5455,60 @@ class CommandBridge
                 return \SPP\Admin\Services\ResellerAdminService::deleteFeatureList($params['name'] ?? '');
 
             case 'reseller_brand_get':
-                return \SPP\Admin\Services\ResellerAdminService::getBrandConfig($params['username'] ?? '');
+                return method_exists(\SPP\Admin\Services\ResellerAdminService::class, 'getBrand')
+                    ? \SPP\Admin\Services\ResellerAdminService::getBrand($params['username'] ?? '')
+                    : \SPPMod\SPPReseller\WhiteLabelEngine::getBrandConfig($params['username'] ?? '');
 
             case 'reseller_brand_save':
-                return \SPP\Admin\Services\ResellerAdminService::saveBrandConfig(
-                    $params['username'] ?? '',
-                    $params['brand'] ?? $params
-                );
+                return method_exists(\SPP\Admin\Services\ResellerAdminService::class, 'saveBrand')
+                    ? \SPP\Admin\Services\ResellerAdminService::saveBrand($params['username'] ?? '', $params['brand'] ?? $params)
+                    : \SPPMod\SPPReseller\WhiteLabelEngine::saveBrandConfig($params['username'] ?? '', $params['brand'] ?? $params);
 
             case 'reseller_limits_check':
                 return \SPP\Admin\Services\ResellerAdminService::checkLimits($params['username'] ?? '');
+
+            case 'reseller_plans_list':
+                return \SPP\Admin\Services\ResellerAdminService::listHostingPlans($params['reseller'] ?? null);
+
+            case 'reseller_plan_save':
+                return \SPP\Admin\Services\ResellerAdminService::saveHostingPlan($params['id'] ?? '', $params);
+
+            case 'reseller_plan_delete':
+                return \SPP\Admin\Services\ResellerAdminService::deleteHostingPlan($params['id'] ?? '');
+
+            case 'tenant_list':
+            case 'reseller_tenants_list':
+                return \SPP\Admin\Services\ResellerAdminService::listTenants($params['reseller'] ?? ($params['reseller_id'] ?? null));
+
+            case 'tenant_get':
+            case 'reseller_tenant_get':
+                return \SPP\Admin\Services\ResellerAdminService::getTenant($params['tenant_id'] ?? ($params['id'] ?? ''));
+
+            case 'tenant_provision':
+            case 'reseller_tenant_provision':
+                return \SPP\Admin\Services\ResellerAdminService::provisionTenant($params);
+
+            case 'tenant_transition':
+            case 'reseller_tenant_transition':
+                return \SPP\Admin\Services\ResellerAdminService::transitionTenant(
+                    $params['tenant_id'] ?? ($params['id'] ?? ($params['username'] ?? '')),
+                    $params['transition'] ?? ''
+                );
+
+            case 'tenant_update':
+                return \SPP\Admin\Services\ResellerAdminService::updateTenant($params['tenant_id'] ?? ($params['id'] ?? ''), $params);
+
+            case 'tenant_delete':
+                return \SPP\Admin\Services\ResellerAdminService::deleteTenant($params['tenant_id'] ?? ($params['id'] ?? ''));
+
+            case 'tenant_suspend':
+                return \SPP\Admin\Services\ResellerAdminService::suspendTenant($params['tenant_id'] ?? ($params['id'] ?? ''), $params['reason'] ?? '');
+
+            case 'tenant_reactivate':
+                return \SPP\Admin\Services\ResellerAdminService::reactivateTenant($params['tenant_id'] ?? ($params['id'] ?? ''));
+
+            case 'tenant_resources':
+                return \SPP\Admin\Services\ResellerAdminService::getTenantResources($params['tenant_id'] ?? ($params['id'] ?? ''));
 
             // Phase 2 Superpowers: Sovereign AI SRE & Auto-Healer
             case 'ai_sre_diagnose':
@@ -5331,6 +5724,108 @@ class CommandBridge
             case 'fleet_status':
             case 'fleet_summary':
                 return \SPP\Admin\Services\FleetAdminService::getFleetSummary();
+
+            case 'fleet_token_generate':
+                return \SPP\Admin\Services\FleetAdminService::generateEnrollmentToken($params);
+
+            case 'fleet_enroll':
+                return \SPP\Admin\Services\FleetAdminService::enrollNode($params);
+
+            case 'fleet_agent_heartbeat':
+                $nodeId = $params['node_id'] ?? ($_SERVER['HTTP_X_SPP_NODE_ID'] ?? '');
+                if (!empty($nodeId)) {
+                    $node = \SPPMod\SPPDeploy\Fleet\FleetClusterManager::getNode($nodeId);
+                    if ($node) {
+                        $node['last_ping'] = date('Y-m-d H:i:s');
+                        $node['status'] = 'online';
+                        if (!empty($params['metrics'])) {
+                            $node['metrics'] = $params['metrics'];
+                        }
+                        \SPPMod\SPPDeploy\Fleet\FleetClusterManager::registerNode($node);
+                    }
+                }
+                return ['success' => true, 'acknowledged_at' => date('c')];
+
+            case 'fleet_group_list':
+                return \SPP\Admin\Services\FleetAdminService::getGroups();
+
+            case 'fleet_group_save':
+                return \SPP\Admin\Services\FleetAdminService::saveGroup($params['id'] ?? '', $params);
+
+            case 'fleet_group_delete':
+                return \SPP\Admin\Services\FleetAdminService::deleteGroup($params['id'] ?? '');
+
+            // -------------------------------------------------------------
+            // UNIFIED RESOURCE REGISTRY & OPERATION ENGINE ASYNC
+            // -------------------------------------------------------------
+            case 'registry_resources_list':
+                return [
+                    'success'   => true,
+                    'resources' => \SPP\Admin\Services\ResourceRegistry::list(
+                        $params['type'] ?? null,
+                        $params['tenant'] ?? null,
+                        $params['reseller'] ?? null,
+                        $params['node'] ?? null,
+                        $params['status'] ?? null
+                    )
+                ];
+
+            case 'registry_resource_get':
+                $rec = \SPP\Admin\Services\ResourceRegistry::get($params['type'] ?? '', $params['id'] ?? '');
+                return ['success' => $rec !== null, 'resource' => $rec];
+
+            case 'registry_resource_register':
+                return \SPP\Admin\Services\ResourceRegistry::register(
+                    $params['type'] ?? '',
+                    $params['id'] ?? '',
+                    (array)($params['metadata'] ?? []),
+                    $params['owner_tenant'] ?? null,
+                    $params['reseller'] ?? null,
+                    $params['hosting_node'] ?? null,
+                    $params['parent_id'] ?? null,
+                    $params['status'] ?? 'active'
+                );
+
+            case 'registry_resource_update':
+                return \SPP\Admin\Services\ResourceRegistry::update(
+                    $params['type'] ?? '',
+                    $params['id'] ?? '',
+                    (array)($params['updates'] ?? $params)
+                );
+
+            case 'registry_resource_delete':
+                $delOk = \SPP\Admin\Services\ResourceRegistry::delete($params['type'] ?? '', $params['id'] ?? '');
+                return ['success' => $delOk, 'message' => $delOk ? 'Resource deleted.' : 'Resource not found.'];
+
+            case 'registry_resource_audit':
+                return [
+                    'success' => true,
+                    'audit'   => \SPP\Admin\Services\ResourceRegistry::getAuditHistory(
+                        $params['type'] ?? '',
+                        $params['id'] ?? '',
+                        (int)($params['limit'] ?? 50)
+                    )
+                ];
+
+            case 'operation_start_async':
+                $opEngine = new \SPP\Admin\Services\OperationEngine();
+                return $opEngine->startAsync($params['operation'] ?? '', (array)($params['parameters'] ?? []), $params);
+
+            case 'operation_status':
+                $opRec = \SPP\Admin\Services\OperationEngine::getOperation($params['operation_id'] ?? $params['id'] ?? '');
+                return ['success' => $opRec !== null, 'operation' => $opRec];
+
+            case 'operation_list':
+                return [
+                    'success'    => true,
+                    'operations' => \SPP\Admin\Services\OperationEngine::listOperations(
+                        (int)($params['limit'] ?? 50),
+                        $params['status'] ?? null
+                    )
+                ];
+
+            case 'operation_cancel':
+                return \SPP\Admin\Services\OperationEngine::cancelOperation($params['operation_id'] ?? $params['id'] ?? '');
 
             // -------------------------------------------------------------
             // PHASE 3: NATIVE IN-PANEL APM & FLAME GRAPH PROFILER

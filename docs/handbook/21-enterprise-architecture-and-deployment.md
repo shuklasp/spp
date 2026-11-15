@@ -500,6 +500,83 @@ Deploying SPP on a sovereign Linux server (such as **AlmaLinux 9**, Rocky Linux,
 
 ---
 
+## 21.24 Canonical Multi-Domain Enterprise Filesystem Topology
+
+A primary architectural mandate of SPP 2.0+ is that **one shared framework core serves multiple independent domains** without duplicating framework files.
+
+```text
+SPP_ROOT/
+│
+├── spp/                                # Shared framework kernel
+│   ├── core/                           # Kernel classes, PathResolver, DomainContext
+│   ├── admin/                          # SPPAdmin Workbench & Studio
+│   └── modules/                        # First-party & optional modules
+│
+├── apps/                               # Canonical platform-level applications repository
+│   ├── application-a/                  # Global application code
+│   └── application-b/
+│
+├── etc/                                # Platform-level configuration
+│   ├── domains.yml                     # Platform Domain Registry
+│   ├── settings.yml                    # Global system settings
+│   └── apps/                           # Platform-wide application configurations
+│
+├── sppdata/                            # Platform runtime data
+│   ├── cache/                          # Global compiled templates & metadata caches
+│   ├── logs/                           # Platform logs & audit.jsonl
+│   └── temp/                           # Ephemeral scratch files
+│
+└── domains/                            # Virtual host tenant containers
+    │
+    ├── example.com/                    # Tenant Domain Root
+    │   ├── apps/                       # Domain-specific applications (isolated to this host)
+    │   ├── etc/apps/                   # Domain-specific configuration overrides
+    │   ├── sppdata/                    # Tenant runtime data (cache, logs, uploads, sessions)
+    │   └── public/                     # Optional tenant-specific document root
+    │
+    └── example.org/                    # Peer tenant root (isolated from example.com)
+        ├── apps/
+        ├── etc/
+        ├── sppdata/
+        └── public/
+```
+
+### Key Deployment Invariants:
+1. **Configurable Domain Directories**: By default, tenants reside in `domains/<domain>/`. SPP also supports custom absolute filesystem locations (e.g. `/srv/websites/example.com`) mapped via `path:` in `etc/domains.yml`.
+2. **PathResolver Enforcement**: No service or controller may construct ad-hoc filesystem paths. All paths are resolved through `\SPP\Core\Domain\PathResolver`, which canonicalizes paths and rejects traversal attempts (`../`).
+3. **Public/Private Directory Separation**: Private tenant data (`sppdata/`, `etc/`) is stored outside the public document root and protected by web server rewrite rules.
+
+---
+
+## 21.25 Multi-Scope Backups & Disaster Recovery (`BackupAdminService`)
+
+Enterprise operations require granular backup capabilities that do not force full-system downtime or bundle unrelated tenant data together.
+
+SPP's **BackupAdminService** (`\SPP\Admin\Services\BackupAdminService`) introduces **5 distinct backup scopes**:
+
+| Backup Scope | Contents Included | Primary Use Case |
+|---|---|---|
+| `domain` | Entire tenant container: `domains/<domain>/` (apps, configs, sppdata) | Moving an entire tenant to another node or pre-upgrade snapshot. |
+| `domain_app` | Single domain-isolated application: `domains/<domain>/apps/<app>/` | Scoped code updates or rollbacks for a specific tenant plugin. |
+| `global_apps` | All platform applications: `apps/` and `src/` | Platform-wide application code backups. |
+| `database` | System and tenant SQLite/XDB databases | Scheduled database-only snapshots. |
+| `platform` | Full framework snapshot (`spp/`, `apps/`, `etc/`, `domains/`) | Complete server migration or disaster recovery. |
+
+Creating scoped snapshots via CommandBridge:
+```php
+$backupService = new \SPP\Admin\Services\BackupAdminService();
+
+// Create isolated snapshot for tenant domain
+$result = $backupService->createBackup([
+    'scope'  => 'domain',
+    'domain' => 'portal.example.com',
+    'note'   => 'Pre-v2.1 upgrade snapshot'
+]);
+// Writes to: var/backups/portal.example.com/backup_domain_portal.example.com_YYYYMMDD_HHMMSS.zip
+```
+
+---
+
 ## Kernel Hacker note
 
 The most useful SPP architectural distinction is between **composition boundaries** and **failure boundaries**.
@@ -518,7 +595,12 @@ Good architecture chooses the smallest boundary that provides the property actua
 
 ### Source map
 
+- `spp/core/Domain/PathResolver.php`
+- `spp/core/Domain/DomainRegistry.php`
+- `spp/core/Domain/DomainContext.php`
+- `spp/admin/services/BackupAdminService.php`
 - `etc/apps.yml`
+- `etc/domains.yml`
 - `spp/core/apps/ForeignAppRegistry.php`
 - `spp/core/apps/SubpathVirtualizer.php`
 - `spp/core/apps/SubpathGateway.php`

@@ -44,6 +44,9 @@ class Scheduler extends \SPP\SPPObject
 
         if (self::$AppContext === '' || self::$AppContext === $context) {
             self::$AppContext = $context;
+            if (class_exists('\\SPP\\Core\\Context\\ContextManager', false)) {
+                \SPP\Core\Context\ContextManager::syncCurrentApp($context);
+            }
             return;
         }
 
@@ -56,6 +59,9 @@ class Scheduler extends \SPP\SPPObject
         $newProc->setStatus(\SPP\App::APP_EXEC);
 
         self::$AppContext = $context;
+        if (class_exists('\\SPP\\Core\\Context\\ContextManager', false)) {
+            \SPP\Core\Context\ContextManager::syncCurrentApp($context);
+        }
 
         // Trace Logging
         if (defined('SPP_DEBUG') && SPP_DEBUG) {
@@ -79,11 +85,45 @@ class Scheduler extends \SPP\SPPObject
     }
 
     /**
+     * Get raw application context without invoking ContextManager.
+     */
+    public static function rawContext(): string
+    {
+        return self::$AppContext;
+    }
+
+    /**
      * Get current active context name.
      */
     public static function getContext(): string
     {
+        if (class_exists('\\SPP\\Core\\Context\\ContextManager')) {
+            $current = \SPP\Core\Context\ContextManager::current();
+            if ($current !== null) {
+                return $current->getAppName();
+            }
+        }
         return self::$AppContext;
+    }
+
+    /**
+     * Get the active DomainContext.
+     */
+    public static function getDomainContext(): ?\SPP\Core\Domain\DomainContext
+    {
+        if (class_exists('\\SPP\\Core\\Domain\\DomainContextResolver')) {
+            return \SPP\Core\Domain\DomainContextResolver::current();
+        }
+        return null;
+    }
+
+    /**
+     * Get the active Domain ID (e.g. 'example.com' or 'default').
+     */
+    public static function getDomainId(): string
+    {
+        $dc = self::getDomainContext();
+        return $dc ? $dc->getDomainId() : 'default';
     }
 
     /**
@@ -91,6 +131,9 @@ class Scheduler extends \SPP\SPPObject
      */
     public static function hasContext(): bool
     {
+        if (class_exists('\\SPP\\Core\\Context\\ContextManager') && \SPP\Core\Context\ContextManager::has()) {
+            return true;
+        }
         return self::$AppContext !== '';
     }
 
@@ -181,6 +224,10 @@ class Scheduler extends \SPP\SPPObject
 
         // 0. Domain / Virtual Host Resolution (Single vs Multi Domain Mode)
         $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+        if (class_exists('\\SPP\\Core\\Domain\\DomainContextResolver')) {
+            $domCtx = \SPP\Core\Domain\DomainContextResolver::resolve($host);
+            \SPP\Core\Domain\DomainContextResolver::setRoot($domCtx);
+        }
         $defaultApp = null;
         if ($host !== '' && class_exists('\SPP\Core\Router\DomainRouter')) {
             $domainConfig = \SPP\Core\Router\DomainRouter::resolveDomain($host);
@@ -456,6 +503,29 @@ class Scheduler extends \SPP\SPPObject
         $matchedApp = $routeParams['context'];
 
         self::$AppContext = $matchedApp;
+
+        if (class_exists('\\SPP\\Core\\Domain\\DomainContextResolver')) {
+            $curDom = \SPP\Core\Domain\DomainContextResolver::current();
+            if ($curDom !== null) {
+                $curDom->setApplication($matchedApp);
+            }
+        }
+    }
+
+    /**
+     * Executes a callback within a specific domain context scope.
+     * Safely switches and restores domain context.
+     *
+     * @param string|\SPP\Core\Domain\DomainContext $domain
+     * @param callable $callback
+     * @return mixed
+     */
+    public static function withDomain(string|\SPP\Core\Domain\DomainContext $domain, callable $callback): mixed
+    {
+        if (class_exists('\\SPP\\Core\\Domain\\DomainContextResolver')) {
+            return \SPP\Core\Domain\DomainContextResolver::withDomain($domain, $callback);
+        }
+        return $callback();
     }
 
     /**
@@ -478,10 +548,21 @@ class Scheduler extends \SPP\SPPObject
             new \SPP\App($context, false, 3);
         }
 
+        $ctx = class_exists('\\SPP\\Core\\Context\\ContextManager')
+            ? \SPP\Core\Context\ContextManager::getOrCreate($context)
+            : null;
+
+        if ($ctx) {
+            \SPP\Core\Context\ContextManager::push($ctx);
+        }
+
         self::setContext($context);
         try {
             return $callback();
         } finally {
+            if ($ctx) {
+                \SPP\Core\Context\ContextManager::pop();
+            }
             if ($oldContext !== '') {
                 self::setContext($oldContext);
             } else {

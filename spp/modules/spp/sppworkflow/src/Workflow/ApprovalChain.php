@@ -5,7 +5,7 @@ namespace SPP\Core\Workflow;
 
 use SPP\Core\Interfaces\ReviewableEntityInterface;
 use SPPMod\SPPWorkflow\SPPWorkflowManager;
-use SPP\Exceptions\SPPException;
+use SPP\SPPException;
 
 /**
  * Class ApprovalChain

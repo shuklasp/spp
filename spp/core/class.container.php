@@ -15,7 +15,26 @@ class Container implements ContainerInterface
 {
     private array $bindings = [];
     private array $instances = [];
+    private array $contextual = [];
+    private array $resolving = [];
+    private ?string $currentResolvingClass = null;
     private static array $reflectorCache = [];
+
+    /**
+     * Define a contextual binding for a specific class.
+     */
+    public function when(string $concrete): ContextualBindingBuilder
+    {
+        return new ContextualBindingBuilder($this, $concrete);
+    }
+
+    /**
+     * Register a contextual binding.
+     */
+    public function addContextualBinding(string $concrete, string $needs, mixed $give): void
+    {
+        $this->contextual[$concrete][$needs] = $give;
+    }
 
     /**
      * Bind a service to the container.
@@ -187,35 +206,58 @@ class Container implements ContainerInterface
             return $concrete;
         }
 
-        if (isset(self::$reflectorCache[$concrete])) {
-            $reflector = self::$reflectorCache[$concrete]['reflector'];
-            $parameters = self::$reflectorCache[$concrete]['parameters'];
-            if ($parameters === null) {
-                return new $concrete();
+        if (is_string($concrete)) {
+            if (isset($this->resolving[$concrete])) {
+                $cycle = implode(' -> ', array_keys($this->resolving)) . ' -> ' . $concrete;
+                if (class_exists('\\SPP\\Core\\Exceptions\\SPPCircularDependencyException')) {
+                    throw new \SPP\Core\Exceptions\SPPCircularDependencyException("Circular dependency detected in Container: [{$cycle}]");
+                }
+                throw new SPPException("Circular dependency detected in Container: [{$cycle}]");
             }
-        } else {
-            $reflector = new \ReflectionClass($concrete);
-
-            if (!$reflector->isInstantiable()) {
-                throw new SPPException("Class {$concrete} is not instantiable.");
-            }
-
-            $constructor = $reflector->getConstructor();
-            $parameters = $constructor ? $constructor->getParameters() : null;
-
-            self::$reflectorCache[$concrete] = [
-                'reflector' => $reflector,
-                'parameters' => $parameters
-            ];
-
-            if ($parameters === null) {
-                return new $concrete();
-            }
+            $this->resolving[$concrete] = true;
         }
 
-        $dependencies = $this->resolveDependencies($parameters);
+        $priorResolvingClass = $this->currentResolvingClass;
+        if (is_string($concrete)) {
+            $this->currentResolvingClass = $concrete;
+        }
 
-        return $reflector->newInstanceArgs($dependencies);
+        try {
+            if (isset(self::$reflectorCache[$concrete])) {
+                $reflector = self::$reflectorCache[$concrete]['reflector'];
+                $parameters = self::$reflectorCache[$concrete]['parameters'];
+                if ($parameters === null) {
+                    return new $concrete();
+                }
+            } else {
+                $reflector = new \ReflectionClass($concrete);
+
+                if (!$reflector->isInstantiable()) {
+                    throw new SPPException("Class {$concrete} is not instantiable.");
+                }
+
+                $constructor = $reflector->getConstructor();
+                $parameters = $constructor ? $constructor->getParameters() : null;
+
+                self::$reflectorCache[$concrete] = [
+                    'reflector' => $reflector,
+                    'parameters' => $parameters
+                ];
+
+                if ($parameters === null) {
+                    return new $concrete();
+                }
+            }
+
+            $dependencies = $this->resolveDependencies($parameters);
+
+            return $reflector->newInstanceArgs($dependencies);
+        } finally {
+            $this->currentResolvingClass = $priorResolvingClass;
+            if (is_string($concrete)) {
+                unset($this->resolving[$concrete]);
+            }
+        }
     }
 
     /**
@@ -248,6 +290,20 @@ class Container implements ContainerInterface
     private function resolveTypedDependency(\ReflectionType $type, \ReflectionParameter $parameter): mixed
     {
         if ($type instanceof \ReflectionNamedType) {
+            $typeName = $type->getName();
+
+            // Check contextual bindings first
+            if ($this->currentResolvingClass !== null && isset($this->contextual[$this->currentResolvingClass][$typeName])) {
+                $give = $this->contextual[$this->currentResolvingClass][$typeName];
+                if (is_callable($give)) {
+                    return $give($this);
+                }
+                if (is_string($give)) {
+                    return $this->get($give);
+                }
+                return $give;
+            }
+
             if ($type->isBuiltin()) {
                 if ($parameter->isDefaultValueAvailable()) {
                     return $parameter->getDefaultValue();
@@ -258,7 +314,7 @@ class Container implements ContainerInterface
                 throw new SPPException("Cannot resolve primitive dependency: {$parameter->name}");
             }
 
-            return $this->get($type->getName());
+            return $this->get($typeName);
         }
 
         if ($type instanceof \ReflectionUnionType) {

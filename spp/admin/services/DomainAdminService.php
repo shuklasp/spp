@@ -2944,6 +2944,14 @@ class DomainAdminService
     }
 
     /**
+     * Disconnects Cloudflare Sovereign Edge Bridge and clears token.
+     */
+    public static function disconnectCloudflare(): array
+    {
+        return CloudflareBridge::disconnect();
+    }
+
+    /**
      * Verifies API token connectivity with Cloudflare.
      */
     public static function verifyCloudflareToken(?string $token = null): array
@@ -3008,11 +3016,11 @@ class DomainAdminService
     }
 
     /**
-     * Auto-provisions a subdomain (e.g. app.example.com) directly on Cloudflare Edge.
+     * Auto-provisions a subdomain (e.g. app.example.com or relative "mail") directly on Cloudflare Edge.
      */
-    public static function autoProvisionCloudflare(string $hostname, ?string $targetIp = null, bool $proxied = true): array
+    public static function autoProvisionCloudflare(string $hostname, ?string $targetIp = null, bool $proxied = true, ?string $zoneDomain = null): array
     {
-        return CloudflareBridge::autoProvisionSubdomain($hostname, $targetIp, $proxied);
+        return CloudflareBridge::autoProvisionSubdomain($hostname, $targetIp, $proxied, $zoneDomain);
     }
 
     /**
@@ -3370,5 +3378,139 @@ EOF;
                 'google' => 'https://dns.google/cache'
             ]
         ];
+    }
+
+    public static function clusterReplicate(?string $zone = null): array
+    {
+        if (!class_exists(\SPPMod\SPPDeploy\Fleet\FleetClusterManager::class)) {
+            $fcmPath = dirname(__DIR__, 2) . '/modules/optional/sppdeploy/src/Fleet/FleetClusterManager.php';
+            if (file_exists($fcmPath)) {
+                require_once $fcmPath;
+            }
+        }
+        if (class_exists(\SPPMod\SPPDeploy\Fleet\FleetClusterManager::class)) {
+            return \SPPMod\SPPDeploy\Fleet\FleetClusterManager::syncDnsAcrossCluster($zone);
+        }
+        return ['success' => false, 'error' => 'FleetClusterManager is not available.'];
+    }
+
+    public static function clusterStatus(?string $zone = null): array
+    {
+        if (!class_exists(\SPPMod\SPPDeploy\Fleet\FleetClusterManager::class)) {
+            $fcmPath = dirname(__DIR__, 2) . '/modules/optional/sppdeploy/src/Fleet/FleetClusterManager.php';
+            if (file_exists($fcmPath)) {
+                require_once $fcmPath;
+            }
+        }
+        if (!class_exists(\SPPMod\SPPDeploy\Fleet\FleetClusterManager::class)) {
+            return ['success' => false, 'error' => 'FleetClusterManager is not available.'];
+        }
+        $nodes = \SPPMod\SPPDeploy\Fleet\FleetClusterManager::listNodes();
+        $dnsNodes = [];
+        foreach ($nodes as $node) {
+            $tags = $node['tags'] ?? [];
+            $role = $node['role'] ?? '';
+            if ($role === 'dns' || in_array('dns', $tags, true) || in_array('nameserver', $tags, true)) {
+                $dnsNodes[] = [
+                    'id' => $node['id'] ?? '',
+                    'name' => $node['name'] ?? '',
+                    'ip' => $node['ip'] ?? '',
+                    'status' => $node['status'] ?? 'unknown',
+                    'last_sync' => $node['last_dns_sync'] ?? ($node['updated_at'] ?? 'Never'),
+                    'sync_status' => ($node['status'] ?? '') === 'online' ? 'synced' : 'pending'
+                ];
+            }
+        }
+        return [
+            'success' => true,
+            'zone' => $zone,
+            'total_dns_nodes' => count($dnsNodes),
+            'nodes' => $dnsNodes
+        ];
+    }
+
+    public static function applyZoneTemplate(string $domain, string $templateType, array $customParams = []): array
+    {
+        $domain = trim($domain);
+        if ($domain === '') {
+            return ['success' => false, 'error' => 'Domain is required.'];
+        }
+        $ip = $customParams['ip'] ?? '127.0.0.1';
+        $mailHost = $customParams['mail_host'] ?? ('mail.' . $domain);
+        
+        $records = [];
+        switch ($templateType) {
+            case 'web_standard':
+                $records = [
+                    ['type' => 'A', 'name' => '@', 'content' => $ip, 'ttl' => 300],
+                    ['type' => 'CNAME', 'name' => 'www', 'content' => $domain . '.', 'ttl' => 300],
+                    ['type' => 'MX', 'name' => '@', 'content' => $mailHost, 'priority' => 10, 'ttl' => 3600],
+                    ['type' => 'TXT', 'name' => '@', 'content' => 'v=spf1 a mx ip4:' . $ip . ' ~all', 'ttl' => 3600]
+                ];
+                break;
+            case 'mail_only':
+                $records = [
+                    ['type' => 'MX', 'name' => '@', 'content' => $mailHost, 'priority' => 10, 'ttl' => 3600],
+                    ['type' => 'TXT', 'name' => '@', 'content' => 'v=spf1 mx ~all', 'ttl' => 3600],
+                    ['type' => 'TXT', 'name' => '_dmarc', 'content' => 'v=DMARC1; p=quarantine; sp=quarantine; pct=100', 'ttl' => 3600],
+                    ['type' => 'CNAME', 'name' => 'autodiscover', 'content' => $mailHost . '.', 'ttl' => 3600],
+                    ['type' => 'CNAME', 'name' => 'autoconfig', 'content' => $mailHost . '.', 'ttl' => 3600]
+                ];
+                break;
+            case 'redundant_mx':
+                $secMail = $customParams['secondary_mail_host'] ?? ('mail2.' . $domain);
+                $records = [
+                    ['type' => 'MX', 'name' => '@', 'content' => $mailHost, 'priority' => 10, 'ttl' => 3600],
+                    ['type' => 'MX', 'name' => '@', 'content' => $secMail, 'priority' => 20, 'ttl' => 3600],
+                    ['type' => 'TXT', 'name' => '@', 'content' => 'v=spf1 mx ~all', 'ttl' => 3600]
+                ];
+                break;
+            case 'cdn_proxied':
+                $cnameTarget = $customParams['cdn_target'] ?? 'cdn.cloudflare.net.';
+                $records = [
+                    ['type' => 'CNAME', 'name' => 'www', 'content' => $cnameTarget, 'ttl' => 300, 'proxied' => true],
+                    ['type' => 'A', 'name' => '@', 'content' => $ip, 'ttl' => 300, 'proxied' => true]
+                ];
+                break;
+            default:
+                return ['success' => false, 'error' => "Unknown zone template type: {$templateType}"];
+        }
+
+        $zone = DnsZoneManager::getZone($domain);
+        $added = 0;
+        foreach ($records as $r) {
+            DnsZoneManager::addRecord($domain, $r);
+            $added++;
+        }
+
+        return [
+            'success' => true,
+            'template' => $templateType,
+            'records_added' => $added,
+            'domain' => $domain
+        ];
+    }
+
+    public static function getSplitHorizon(string $domain): array
+    {
+        $base = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 4);
+        $file = $base . '/var/dns/split_horizon/' . $domain . '.json';
+        if (!file_exists($file)) {
+            return ['success' => true, 'domain' => $domain, 'internal_records' => []];
+        }
+        $data = json_decode((string)file_get_contents($file), true) ?: [];
+        return ['success' => true, 'domain' => $domain, 'internal_records' => $data];
+    }
+
+    public static function saveSplitHorizon(string $domain, array $records): array
+    {
+        $base = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 4);
+        $dir = $base . '/var/dns/split_horizon';
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        $file = $dir . '/' . $domain . '.json';
+        file_put_contents($file, json_encode($records, JSON_PRETTY_PRINT));
+        return ['success' => true, 'domain' => $domain, 'count' => count($records)];
     }
 }

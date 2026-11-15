@@ -68,3 +68,7 @@ class SPP_Logic_Exception extends \SPP\SPPException
         parent::__construct($message, $code);
     }
 }
+
+if (!class_exists('\SPP\Exceptions\SPPException', false)) {
+    class_alias(\SPP\SPPException::class, '\SPP\Exceptions\SPPException');
+}

@@ -461,6 +461,49 @@ php spp.php mesh:call <app> <ep> [json]  # Dispatch inter-app RPC requests direc
 
 ---
 
+## 19.19 Multi-Domain Administration & The Domain Activation Matrix
+
+In enterprise multi-tenant deployments, managing dozens or hundreds of tenant domains cannot be done through manual file editing. SPPAdmin and SPP CLI provide synchronized, visual and terminal interfaces for multi-domain orchestration:
+
+### 1. Persistent Domain Context & Header Scope Chip
+- **Sidebar Domain Selector (`#domain-selector-container`)**: Administrators can select the active tenant domain from an interactive dropdown.
+- **Top Navigation Scope Chip (`#header-domain-scope-chip`)**: Clearly displays the current operational boundary (`Platform Scope` vs `Domain: <domain_name>`).
+- **Context Injection**: All background AJAX and REST requests via `CommandBridge.php` automatically pass `domain: <selectedDomain>`, ensuring operations strictly bind to the active tenant.
+
+### 2. Domain Activation Matrix (`/sppadmin/#apps?tab=matrix`)
+The Applications workstation includes the **Domain Activation Matrix** tab:
+* **Interactive Grid**: Maps every installed global application (`apps/` or `src/`) against every registered tenant domain.
+* **1-Click Pill Toggles**: Toggle an application's activation state on any domain with one click (`✔ Enabled` / `✖ Disabled`). Calls `apps_set_activation` without restarting services.
+* **Domain Configuration Overrides (`⚙ Config`)**:
+  * Inspect application defaults side-by-side with domain-specific YAML overrides.
+  * Live Diff Viewer: Highlights which settings differ from base defaults.
+  * 1-Click Reset: Restore domain settings to base defaults via `apps_config_reset`.
+
+### 3. Automated Single-to-Multi-Domain Migration Tool (`domain:migrate`)
+To migrate legacy or single-domain environments to the canonical multi-domain filesystem layout:
+```bash
+# 1. Preflight dry run (inspect proposed changes with zero filesystem writes)
+php spp.php domain:migrate --dry-run
+
+# 2. Live migration with canonical directory scaffolding
+php spp.php domain:migrate
+
+# 3. Migrate and register custom domains simultaneously
+php spp.php domain:migrate --domains="portal.example.com,store.example.org"
+```
+
+### 4. Multi-Domain CLI Commands Summary
+| Command | Usage | Purpose |
+|---|---|---|
+| `domain:migrate` | `php spp.php domain:migrate [--dry-run] [--force]` | Scaffolds `apps/`, `domains/`, `etc/domains.yml` and generates the Activation Matrix. |
+| `domain:mode` | `php spp.php domain:mode [single\|multi\|policy]` | Toggles between Single Domain (copy-paste ready) and Multi-Domain (virtual host enforced). |
+| `domain:list` | `php spp.php domain:list [--json]` | Tabulates all registered domains, statuses, root paths, and default applications. |
+| `domain:app:install` | `php spp.php domain:app:install <domain> <app>` | Scaffolds an application strictly isolated to a domain's private `apps/` directory. |
+| `domain:app:scope` | `php spp.php domain:app:scope <app> [--domain-only]` | Restricts an application to approved domain whitelists. |
+| `domain:test` | `php spp.php domain:test <hostname>` | Simulates how the framework resolves a given hostname. |
+
+---
+
 ## Kernel Hacker note
 
 The SPP CLI is effectively another set of framework entry points. Some commands construct application/runtime state directly, some modify configuration or source files, and others launch long-running services.
@@ -470,11 +513,19 @@ That means a production-safe CLI design should be reviewed with the same source-
 ### Source map
 
 - `docs/spp-cli-manual.md`
-- `spp/commands/`
+- `docs/commands/domain-migrate.md`
+- `spp/commands/DomainMigrateCommand.php`
+- `spp/commands/DomainListCommand.php`
+- `spp/commands/DomainModeCommand.php`
+- `spp/commands/DomainAppScopeCommand.php`
 - `spp/commands/AppSupervisor*.php`
 - `spp/commands/Mesh*.php`
 - `spp/core/apps/AppSupervisor.php`
 - `spp/core/apps/Mesh.php`
+- `spp/core/Domain/DomainRegistry.php`
+- `spp/core/Domain/PathResolver.php`
+- `spp/core/App/ApplicationRegistryService.php`
+- `spp/admin/services/CommandBridge.php`
 - `spp/dev/js/views/apps.js`
 - `spp/admin/js/views/apps.js`
 - `spp/commands/stubs/`

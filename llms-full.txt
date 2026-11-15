@@ -214,16 +214,40 @@ When generating code, scaffolding features, or refactoring in SPP, you MUST obey
 - **Compulsory Integrity Guard**: Critical kernel modules (`Module::isCompulsory()`) cannot be deactivated or uninstalled via CLI or web administration.
 - **Zero-Boot Event Discovery (`events.yml`)**: Event listeners are indexed into framework cache without booting PHP classes, eliminating performance overhead until events fire.
 
-### Rule 16: Multi-Tenant Domain Isolation & Single vs. Multi Domain Modes
+### Rule 16: Canonical Multi-Domain Architecture, PathResolver & Tenant Boundary Isolation
+- **Unified Single Framework Core**: A single SPP framework installation serves single-domain and multi-domain deployments with 100% architectural parity. The framework core is never duplicated.
 - **Architectural Operating Modes**:
-  - **Single Domain Mode (`mode: single`)**: Domain routing is completely disabled and not enforced. Simply copying and pasting an SPP installation onto any web host, shared hosting account (cPanel `public_html`), standard DocumentRoot, or server IP address serves immediately ("just a copy paste will do"). No HTTP 404/403 host checks, no domain configuration files required. If `etc/domains.yml` is missing, SPP automatically boots into Single Domain Mode.
+  - **Single Domain Mode (`mode: single`)**: Domain routing resolves deterministically to `default`. Uses the exact same `DomainContext`, `PathResolver`, and `ConfigurationResolver` pipeline without divergence.
   - **Multi-Domain Mode (`mode: multi`)**: Virtual host routing actively matches incoming `Host` headers against `etc/domains.yml`, enforcing domain applications, per-domain permissions, canonical redirects, and virtual host policies.
-  - **Mode Toggling**: Toggle instantly via `php spp.php domain:mode [single|multi|policy]`.
-- **Physical Domain Trees (`domains/<domain>/src/<AppName>`)**: Applications installed inside a domain container are physically and logically segregated from global applications.
-- **Strict Host Isolation by Default**: An application installed in a domain directory is strictly accessible only on that domain. Any attempt to reach it from an unmapped host or unauthorized secondary domain is blocked with HTTP 403 Forbidden.
-- **Domain-Only Scoping for Global Apps**: Any standard application in `src/` can be marked as `domain_only: true` with a whitelist of permitted domains (`allowed_domains`), instantly shielding it from public access on unapproved hostnames.
-- **Dynamic Discovery & Invalidation**: Discovered dynamically by `App::getGlobalSettings()`, mapped in `etc/domains.yml`, and flushed on changes via `DomainRouter::clearConfigCaches()` and `App::resetGlobalSettings()`.
-- **Server Provisioning & Universal Installer (`install.php` & `spp-domain-installer.php`)**: Standalone, portable server onboarding tool supporting both CLI and Web GUI. Audits 18 critical server prerequisites (PHP version, PDO drivers, extensions, memory, permissions), outputs copy-pasteable Apache and Nginx vhost templates, safely protects `.htaccess` from 500 errors on FastCGI/PHP-FPM, and provisions domain registrations dynamically without hardcoded host assumptions.
+  - **Mode Toggling & Migration**: Toggle via `php spp.php domain:mode [single|multi|policy]` or migrate via `php spp.php domain:migrate [--dry-run] [--force]`.
+- **Centralized PathResolver (`\SPP\Core\Domain\PathResolver`)**:
+  - Canonical authority for all filesystem path calculations.
+  - Strict directory traversal rejection (`../`, `..\`, null bytes `\0`).
+  - Automated safe directory creation (mode 0755).
+  - Supports custom domain paths (`path:` in `etc/domains.yml`) and canonical locations (`apps/`, `domains/<domain>/apps/`, `etc/`, `domains/<domain>/etc/`, `domains/<domain>/sppdata/`).
+- **Immutable DomainContext (`\SPP\Core\Domain\DomainContext`) & Scoping**:
+  - Bound to `SPP\Scheduler::getContext()`. Holds the active domain identity, filesystem roots, active app/module, and storage context.
+  - Stack-based scoping via `DomainContextResolver::withDomain($domainId, callable $callback)` restores previous context upon return (even on uncaught exceptions).
+- **Domain Activation Matrix (`\SPP\Core\App\ApplicationRegistryService`)**:
+  - Global applications (`apps/` or `src/`) and domain applications (`domains/<domain>/apps/`) are discovered and cataloged.
+  - **Core Invariant**: Installing an application globally NEVER implies automatic activation across all domains.
+  - Each domain explicitly enables or disables applications via `apps_activation_matrix` / `enableAppForDomain()`.
+  - Application checks use `ApplicationRegistryService::getInstance()->isAppActiveOnDomain($appId, $domainId)`.
+- **Deterministic 4-Tier Configuration Cascade (`\SPP\Core\Config\ConfigurationResolver`)**:
+  - Tier 1: Application Base Defaults (`apps/<app>/config/defaults.yml` or `src/<app>/etc/settings.yml`).
+  - Tier 2: Platform Global Overrides (`etc/apps/<app>.yml`).
+  - Tier 3: Domain Tenant Overrides (`domains/<domain>/etc/apps/<app>.yml`).
+  - Tier 4: Runtime Environment Overrides.
+  - Features dot-notation queries (`$config->get($app, 'key.path', $default, $domain)`), configuration diffing (`diffConfig()`), and reset to defaults (`resetDomainConfigToDefault()`).
+- **Multi-Scope Database Context Resolution (`\SPP\Core\Database\DatabaseContextResolver`)**:
+  - Maintains isolated connection pools keyed by `contextType:domainId:appId` for platform, global app, domain, and domain app scopes.
+  - Prevents cross-tenant query pollution and data leakage.
+- **Fail-Closed Domain Authorization (`\SPP\Core\Security\AuthorizationService`)**:
+  - Role hierarchy: `platform_super_admin` > `platform_admin` > `domain_admin` > `app_admin` > `domain_user` > `auditor`.
+  - Domain administrators are strictly locked to their domain boundary; unauthorized cross-domain access immediately throws `\SPP\Core\Security\AccessDeniedException`.
+- **Audit Logging with Secret Redaction (`\SPP\Core\Audit\AuditLogService`)**:
+  - Append-only JSONL audit trails at `sppdata/logs/audit.jsonl` recording domain administrative actions.
+  - Automatically redacts passwords, tokens, API keys, and sensitive credentials with `[REDACTED]`.
 
 ### Rule 17: Universal Polyglot 2.0 & Cross-Language DSL Engine
 - **Universal Multi-Language Support**: Execute ANY programming language (Python, Node.js, Go, Rust, Zig, Ruby, Elixir, Lua, Java, C#, Swift, Kotlin, Shell, etc.) and custom developer-scripted Domain-Specific Languages (DSLs) without kernel modifications.
@@ -275,11 +299,16 @@ school1/
 │   │   └── optional/                   # Optional modules (parikshak, sppai, sppdeploy)
 │   ├── commands/                       # CLI commands extending Command
 │   └── admin/                          # SPPAdmin Workbench & Studio
-├── domains/                            # Domain-Specific Applications & Tenants
+├── apps/                               # Canonical Platform Applications (Global)
+│   └── <AppName>/                      # Global Application (shared code, independent domain activation)
+├── domains/                            # Tenant Domain Container
 │   ├── _vhosts/                        # Apache and Nginx virtual host templates
-│   └── <domain-name>/                  # Domain Tenant Root
-│       └── src/<AppName>/              # Domain-isolated Application
-├── src/                                # Applications Directory
+│   └── <domain-name>/                  # Tenant Domain Root
+│       ├── apps/<AppName>/             # Domain-Isolated Applications
+│       ├── etc/apps/<AppName>.yml      # Domain-Specific App Configuration Overrides
+│       ├── sppdata/                    # Tenant-Isolated Runtime Data (cache, logs, uploads)
+│       └── public/                     # Optional Tenant DocumentRoot
+├── src/                                # Applications Directory (Legacy/Compatible)
 │   └── <AppName>/                      # Domain Application (e.g. School, Hospital, LMS)
 │       ├── Controllers/                # Web Controllers extending ViewController
 │       ├── Models/                     # Database Models extending SPPEntity
@@ -294,7 +323,8 @@ school1/
 │       │   └── views/                  # Blade and Twig templates
 │       │       └── partials/           # Standalone external HTML/Blade fragments
 │       └── tests/                      # Application Parikshak test suites
-├── etc/                                # System & Multitenant App Configurations
+├── etc/                                # Platform Configurations
+│   ├── domains.yml                     # Platform Domain Registry (aliases, paths, activations)
 │   ├── polyglot/                       # Declarative YAML language driver manifests
 │   └── apps/<AppName>/workflows/       # Workflow state machine definitions
 ├── docs/                               # System Documentation
@@ -1034,12 +1064,99 @@ class AnalyticsController extends ViewController
 </div>
 ```
 
+### N. Multi-Domain Execution Context, Safe Paths, Configuration Cascade & Tenant Database Resolution
+
+#### 1. Resolving Safe Filesystem Paths & Traversal Defense
+```php
+<?php
+use SPP\Core\Domain\PathResolver;
+use SPP\Core\File;
+
+$paths = PathResolver::getInstance();
+
+// Safe canonical domain paths:
+$domainRoot     = $paths->getDomainPath('portal.example.com');
+$domainAppsDir  = $paths->getDomainAppsPath('portal.example.com');
+$domainDataDir  = $paths->getDomainDataPath('portal.example.com');
+$domainAppDir   = $paths->getDomainAppPath('school1', 'portal.example.com');
+$domainAppCfg   = $paths->getDomainAppConfigPath('school1', 'portal.example.com');
+
+// Resolving safe paths within tenant storage (automatically blocks ../ traversal):
+$uploadsDir = $domainDataDir . '/uploads';
+$paths->ensureDirectoryExists($uploadsDir);
+
+// Throws \InvalidArgumentException if $userInput escapes $uploadsDir:
+$safeUploadPath = $paths->resolveSafePath($uploadsDir, $userInput);
+```
+
+#### 2. Resolving Multi-Tier Configuration & Dot-Notation Queries
+```php
+<?php
+use SPP\Core\Config\ConfigurationResolver;
+
+$config = ConfigurationResolver::getInstance();
+
+// Cascades: apps/school1/config/defaults.yml -> etc/apps/school1.yml -> domains/{domain}/etc/apps/school1.yml
+$schoolConfig = $config->resolve('school1', 'portal.example.com');
+
+// Dot-notation query with default fallback:
+$theme = $config->get('school1', 'app.theme', 'light', 'portal.example.com');
+$smsAlerts = $config->get('school1', 'features.sms_alerts', false, 'portal.example.com');
+
+// Live diffing tenant overrides against base configuration:
+$diff = $config->diffConfig('school1', 'portal.example.com');
+// Returns: ['has_overrides' => bool, 'overrides' => array, ...]
+```
+
+#### 3. Stack-Based Domain Execution Context Scoping (`withDomain`)
+```php
+<?php
+use SPP\Core\Domain\DomainContextResolver;
+use SPP\Scheduler;
+
+// Active HTTP or CLI execution context:
+$activeDomain = Scheduler::getDomainContext()->getDomainId();
+
+// Temporarily scope execution to a tenant domain (e.g. background queue / tenant migration):
+$count = DomainContextResolver::withDomain('portal.example.com', function() {
+    $scopedDomain = Scheduler::getDomainContext()->getDomainId(); // "portal.example.com"
+    
+    // Database and model operations automatically bind to portal.example.com
+    $activeStudents = Student::where('status', 'enrolled')->findAll();
+    return count($activeStudents);
+});
+// Previous domain execution context is guaranteed to be restored
+```
+
+#### 4. Isolated Multi-Tenant Database Context Resolution
+```php
+<?php
+use SPP\Core\Database\DatabaseContextResolver;
+
+$dbResolver = DatabaseContextResolver::getInstance();
+
+// Resolves dedicated connection pool for tenant:
+$tenantPdo = $dbResolver->resolve(
+    contextType: 'domain',
+    domainId: 'portal.example.com',
+    appId: 'school1'
+);
+
+$stmt = $tenantPdo->query("SELECT COUNT(*) FROM students");
+$studentCount = $stmt->fetchColumn();
+```
+
 ---
 
 ## 4. ESSENTIAL CLI COMMANDS CHEATSHEET
 
 | Command | Usage | Description |
 |---|---|---|
+| `domain:migrate` | `php spp.php domain:migrate [--dry-run] [--force] [--json] [--canonical-apps]` | Automated single-domain to multi-domain migration tool scaffolding canonical directories (`apps/`, `domains/`, `etc/domains.yml`), registering default domains, and generating the initial Activation Matrix. |
+| `domain:mode` | `php spp.php domain:mode [single\|multi\|policy] [--subdomain-policy=...] [--json]` | Inspect or toggle domain architecture mode (Single Domain zero-config vs Multi-Domain virtual host multi-tenancy) and virtual host policy modes. |
+| `domain:list` | `php spp.php domain:list [--json]` | Tabulate registered domains, root paths, statuses, and default applications. |
+| `domain:app:install` | `php spp.php domain:app:install <domain> <appName> [--make-default]` | Install and scaffold an application strictly isolated to a domain in `domains/<domain>/apps/<app>`. |
+| `domain:app:scope` | `php spp.php domain:app:scope <appName> [--domain-only] [--allow=...] [--global]` | Inspect and configure domain-only accessibility whitelist or reopen globally for any application. |
 | `make:polyglot-language` | `php spp.php make:polyglot-language <name> [--ext=ext] [--category=...]` | Scaffold a declarative YAML language driver (`etc/polyglot/<name>.yml`) or custom in-process DSL grammar evaluator class (`src/<app>/Languages/<Name>Language.php`). |
 | `polyglot:status` | `php spp.php polyglot:status` | Inspect and audit host runtime environments, discovering installed compilers, interpreters, paths, and versions across all registered languages. |
 | `polyglot:status` | `php spp.php polyglot:status [--json]` | Inspect and tabulate runtime binary paths, versions, and activation states (ENABLED/DISABLED) across 47+ languages. |

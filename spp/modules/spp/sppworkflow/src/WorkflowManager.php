@@ -322,7 +322,7 @@ class SPPWorkflowManager
         if (!$allowed) {
             $oldStr = is_array($oldStatus) ? json_encode($oldStatus) : (string)$oldStatus;
             $newStr = is_array($newStatus) ? json_encode($newStatus) : (string)$newStatus;
-            throw new \SPP\Exceptions\SPPException("Workflow Transition Error: Invalid transition from status '{$oldStr}' to '{$newStr}' for {$entityType} ({$bundle}).");
+            throw new \SPP\SPPException("Workflow Transition Error: Invalid transition from status '{$oldStr}' to '{$newStr}' for {$entityType} ({$bundle}).");
         }
 
         // Execute Dynamic Guard Callbacks if present
@@ -335,7 +335,7 @@ class SPPWorkflowManager
                 if (is_callable($guard)) {
                     if (!call_user_func($guard, $entity, $oldStatus, $newStatus, $user, $context)) {
                         $newStr = is_array($newStatus) ? json_encode($newStatus) : (string)$newStatus;
-                        throw new \SPP\Exceptions\SPPException("Workflow Guard Error: Transition guard check failed for status '{$newStr}'.");
+                        throw new \SPP\SPPException("Workflow Guard Error: Transition guard check failed for status '{$newStr}'.");
                     }
                 }
             }
@@ -410,7 +410,7 @@ class SPPWorkflowManager
 
         // If still not authorized, deny.
         if ($authorized !== true) {
-            throw new \SPP\Exceptions\SPPException("Workflow Authorization Error: Insufficient permissions.");
+            throw new \SPP\SPPException("Workflow Authorization Error: Insufficient permissions.");
         }
 
         return true;
@@ -440,7 +440,7 @@ class SPPWorkflowManager
 
         try {
             return self::validateTransition($entity, $oldStatus, $newStatus, $user, $context);
-        } catch (\SPP\Exceptions\SPPException $e) {
+        } catch (\SPP\SPPException $e) {
             return false;
         }
     }

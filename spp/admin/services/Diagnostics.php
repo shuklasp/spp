@@ -63,9 +63,11 @@ if (!function_exists('live_list_queue')) {
     function live_list_queue($la, $params)
     {
         $jobs = [];
-        if (class_exists('\\SPP\\Core\\Queue')) {
-            // Mocking for now as SPP Queue API might vary
-            $jobs = method_exists('\\SPP\\Core\\Queue', 'listJobs') ? \SPP\Core\Queue::listJobs() : [];
+        $cronService = __DIR__ . '/CronQueueAdminService.php';
+        if (file_exists($cronService)) {
+            require_once $cronService;
+            $cronList = \SPP\Admin\Services\CronQueueAdminService::listCronJobs();
+            $jobs = array_values($cronList);
         }
         $la->setData(['jobs' => $jobs]);
     }

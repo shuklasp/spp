@@ -116,7 +116,8 @@ export default class DatabaseView extends BaseClass {
         this.setState({ loading: true, connectionError: null });
         try {
             const ctx = context || this.admin.selectedApp || 'default';
-            const res = await this.admin.api('db_list_databases', { context: ctx });
+            const domain = this.admin.selectedDomain || 'default';
+            const res = await this.admin.api('db_list_databases', { context: ctx, domain: domain });
             const data = (res.success && res.data) ? res.data : res;
             const databases = data.databases || [];
 
@@ -1711,7 +1712,15 @@ export default class DatabaseView extends BaseClass {
         const currentDbObj = allDbs.find(d => d.id === this.state.selectedDatabase) || null;
 
         let selectorOptionsHtml = '';
-        if (contextDbs.length > 0) {
+        const domainContextDbs = filteredDbs.filter(d => d.domain || (d.id && d.id.startsWith('context:')));
+        if (domainContextDbs.length > 0) {
+            selectorOptionsHtml += `<optgroup label="🌐 Multi-Domain Isolated Databases">`;
+            domainContextDbs.forEach(d => {
+                selectorOptionsHtml += `<option value="${this.escapeHtml(d.id)}" ${d.id === this.state.selectedDatabase ? 'selected' : ''}>${this.escapeHtml(d.name)}</option>`;
+            });
+            selectorOptionsHtml += `</optgroup>`;
+        }
+        if (contextDbs.length > 0 && !domainContextDbs.length) {
             selectorOptionsHtml += `<optgroup label="⭐ Active Context Databases (${this.escapeHtml(currentApp)})">`;
             contextDbs.forEach(d => {
                 selectorOptionsHtml += `<option value="${this.escapeHtml(d.id)}" ${d.id === this.state.selectedDatabase ? 'selected' : ''}>${this.escapeHtml(d.name)} [${this.escapeHtml((d.driver || d.engine || 'sqlite').toUpperCase())}]</option>`;

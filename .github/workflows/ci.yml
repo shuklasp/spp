@@ -39,9 +39,7 @@ jobs:
       run: composer install --prefer-dist --no-progress
 
     - name: Run Tests
-      # If there is a real testing suite like PHPUnit, it should be run here.
-      # For now we will run a dummy command or custom test runner if one exists
-      run: php spp/run_tests.php || echo "Switching to PHPUnit soon"
+      run: php spp/run_tests.php default
 
     - name: Run PHPStan
       run: composer analyze

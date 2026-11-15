@@ -236,32 +236,32 @@ class ViewPage extends \SPP\SPPObject
         return $elem;
     }
 
-    // --- State Getters and Setters ---
-    public static function setPageId($id) { self::$pageid = $id; }
-    public static function getPageId() { return self::$pageid; }
-    public static function addValidator($validator) { self::$validators[] = $validator; }
-    public static function getValidators() { return self::$validators; }
-    public static function setPageTitle($title) { self::$pagetitle = $title; }
-    public static function getPageTitle() { return self::$pagetitle; }
-    public static function setPageDescription($desc) { self::$pagedescription = $desc; }
-    public static function getPageDescription() { return self::$pagedescription; }
-    public static function setPageKeywords($keywords) { self::$pagekeywords = $keywords; }
-    public static function getPageKeywords() { return self::$pagekeywords; }
-    public static function setPageAuthor($author) { self::$pageauthor = $author; }
-    public static function getPageAuthor() { return self::$pageauthor; }
-    public static function setPageContent($content) { self::$pagecontent = $content; }
-    public static function getPageContent() { return self::$pagecontent; }
-    public static function setPageHeader($header) { self::$pageheader = $header; }
-    public static function getPageHeader() { return self::$pageheader; }
-    public static function setPageFooter($footer) { self::$pagefooter = $footer; }
-    public static function getPageFooter() { return self::$pagefooter; }
-    public static function setPageHead($head) { self::$pagehead = $head; }
-    public static function getPageHead() { return self::$pagehead; }
-    public static function setPageBody($body) { self::$pagebody = $body; }
-    public static function getPageBody() { return self::$pagebody; }
-    public static function setPageMeta($meta) { self::$pagemeta = $meta; }
-    public static function getPageMeta() { return self::$pagemeta; }
-    public static function getXML() { return self::$xml; }
-    public static function setXML($xml) { self::$xml = $xml; }
+    // --- State Getters and Setters (Delegated to request-scoped ViewContext) ---
+    public static function setPageId($id) { ViewContext::getCurrent()->pageId = $id; }
+    public static function getPageId() { return ViewContext::getCurrent()->pageId; }
+    public static function addValidator($validator) { ViewContext::getCurrent()->validators[] = $validator; }
+    public static function getValidators() { return ViewContext::getCurrent()->validators; }
+    public static function setPageTitle($title) { ViewContext::getCurrent()->pageTitle = $title; }
+    public static function getPageTitle() { return ViewContext::getCurrent()->pageTitle; }
+    public static function setPageDescription($desc) { ViewContext::getCurrent()->pageDescription = $desc; }
+    public static function getPageDescription() { return ViewContext::getCurrent()->pageDescription; }
+    public static function setPageKeywords($keywords) { ViewContext::getCurrent()->pageKeywords = $keywords; }
+    public static function getPageKeywords() { return ViewContext::getCurrent()->pageKeywords; }
+    public static function setPageAuthor($author) { ViewContext::getCurrent()->pageAuthor = $author; }
+    public static function getPageAuthor() { return ViewContext::getCurrent()->pageAuthor; }
+    public static function setPageContent($content) { ViewContext::getCurrent()->pageContent = $content; }
+    public static function getPageContent() { return ViewContext::getCurrent()->pageContent; }
+    public static function setPageHeader($header) { ViewContext::getCurrent()->pageHeader = $header; }
+    public static function getPageHeader() { return ViewContext::getCurrent()->pageHeader; }
+    public static function setPageFooter($footer) { ViewContext::getCurrent()->pageFooter = $footer; }
+    public static function getPageFooter() { return ViewContext::getCurrent()->pageFooter; }
+    public static function setPageHead($head) { ViewContext::getCurrent()->pageHead = $head; }
+    public static function getPageHead() { return ViewContext::getCurrent()->pageHead; }
+    public static function setPageBody($body) { ViewContext::getCurrent()->pageBody = $body; }
+    public static function getPageBody() { return ViewContext::getCurrent()->pageBody; }
+    public static function setPageMeta($meta) { ViewContext::getCurrent()->pageMeta = $meta; }
+    public static function getPageMeta() { return ViewContext::getCurrent()->pageMeta; }
+    public static function getXML() { return ViewContext::getCurrent()->xml; }
+    public static function setXML($xml) { ViewContext::getCurrent()->xml = $xml; }
     public static function addClass(string $elementId, string $className): void {}
 }

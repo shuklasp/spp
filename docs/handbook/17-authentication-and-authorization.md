@@ -381,16 +381,108 @@ In distributed and community-driven platforms (such as SatyaLab Store & SPPDocs)
 
 ---
 
+## 17.21 Multi-Domain Authorization & Fail-Closed Boundary Isolation (`AuthorizationService`)
+
+In multi-tenant enterprise deployments, the primary security threat is **horizontal privilege escalation (BOLA)**: an authenticated tenant administrator of `domain-a.com` attempting to read, alter, or delete configurations, databases, or users belonging to `domain-b.com`.
+
+SPP neutralizes this threat through the **Authorization Service** (`\SPP\Core\Security\AuthorizationService`). It enforces a strict, fail-closed role hierarchy with domain boundary isolation:
+
+```mermaid
+flowchart TD
+    User["Authenticated User"] --> RoleCheck{"User Role & Scope"}
+    
+    subgraph PlatformRoles["Platform Scope (*)"]
+        PSA["platform_super_admin<br/>(Full Platform & All Domains)"]
+        PA["platform_admin<br/>(Platform Infrastructure & Domains)"]
+    end
+
+    subgraph DomainRoles["Domain Scope (domainId)"]
+        DA["domain_admin<br/>(Full Domain Apps & Config)"]
+        AA["app_admin<br/>(Assigned Domain Apps)"]
+        DU["domain_user<br/>(Domain Standard Access)"]
+        AUD["auditor<br/>(Read-Only Audit Trail)"]
+    end
+
+    RoleCheck --> PlatformRoles
+    RoleCheck --> DomainRoles
+
+    DomainRoles --> BoundCheck{"Accessing Own Domain?"}
+    BoundCheck -- Yes --> Allow["Permit Action"]
+    BoundCheck -- No --> Deny["Fail Closed: Throw AccessDeniedException"]
+```
+
+### Domain Boundary Gating API
+```php
+use SPP\Core\Security\AuthorizationService;
+use SPP\Core\Security\AccessDeniedException;
+
+$auth = AuthorizationService::getInstance();
+
+// 1. Check if user can access a target domain context
+if (!$auth->canAccessDomain($currentUser, $targetDomainId)) {
+    // Fails closed for unauthorized users
+}
+
+// 2. Strict enforcement gate (throws AccessDeniedException on violation)
+try {
+    $auth->enforceDomainAccess($currentUser, $targetDomainId);
+    // Proceed with domain operation...
+} catch (AccessDeniedException $e) {
+    // Log violation and return 403 Forbidden
+    $auditLog->log('security.boundary_violation', [
+        'user' => $currentUser['id'],
+        'target_domain' => $e->getDomainId(),
+        'required_permission' => $e->getPermission()
+    ]);
+}
+```
+
+---
+
+## 17.22 Centralized Audit Logging & Automated Secret Redaction (`AuditLogService`)
+
+Regulatory compliance (SOC2, HIPAA, GDPR) requires complete auditability of all administrative and domain-scoped operations.
+
+SPP's **AuditLogService** (`\SPP\Core\Audit\AuditLogService`) logs events to append-only JSONL files (`sppdata/logs/audit.jsonl`):
+
+```php
+use SPP\Core\Audit\AuditLogService;
+
+$audit = AuditLogService::getInstance();
+
+// Record domain administrative action
+$audit->log(
+    action: 'domain.app.activate',
+    domainId: 'portal.example.com',
+    userId: 'admin_usr_42',
+    payload: [
+        'app' => 'school1',
+        'api_key' => 'secret_live_key_9999', // Automatically masked
+        'user_password' => 'superSecretPassword' // Automatically masked
+    ]
+);
+```
+
+### Automated Secret Redaction
+Before serializing any log payload, `AuditLogService` executes recursive sanitization. Any key containing `password`, `token`, `secret`, `api_key`, `auth`, or `credit_card` has its value replaced with `[REDACTED]`. Plaintext secrets never touch disk in the audit trail.
+
+---
+
 ## Kernel Hacker note
 
 The current SPPAuth implementation is best understood as a **facade + guard + rights/role data model**.
 
 The guard is where important runtime checks occur. The facade offers application-facing compatibility methods while delegating to the selected guard.
 
-That means a security bug can arise even if `SPPAuth::check()` is correct but a developer bypasses it by directly inspecting a session variable or user object.
+In multi-tenant configurations, `AuthorizationService` adds a fail-closed outer perimeter: even if a user has administrative rights within their tenant, any cross-domain request without platform wildcard authority (`*`) is immediately rejected before touching domain models or services.
 
 ### Source map
 
+- `spp/core/Security/AuthorizationService.php`
+- `spp/core/Security/AccessDeniedException.php`
+- `spp/core/Audit/AuditLogService.php`
+- `spp/admin/services/AdminRBAC.php`
+- `spp/admin/api.php`
 - `spp/modules/spp/sppauth/module.yml`
 - `spp/modules/spp/sppauth/class.sppauth.php`
 - `spp/modules/spp/sppauth/class.webguard.php`

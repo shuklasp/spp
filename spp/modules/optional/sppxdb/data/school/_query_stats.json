@@ -1,5 +1,5 @@
 {
-    "SELECT * FROM students LIMIT ?": 144,
+    "SELECT * FROM students LIMIT ?": 154,
     "CREATE TABLE school.students (id int, name varchar, grade varchar, score int)": 13,
     "CREATE TABLE school.teachers (id int, name varchar, subject varchar)": 12,
     "SHOW TABLES": 26,
@@ -17,6 +17,6 @@
     "SELECT COUNT(*) FROM finance.invoices": 12,
     "SELECT COUNT(*) FROM students WHERE deleted_at IS NULL": 138,
     "SELECT * FROM \"students\"": 4,
-    "SELECT * FROM students": 140,
-    "SELECT COUNT(*) FROM students": 2
+    "SELECT * FROM students": 150,
+    "SELECT COUNT(*) FROM students": 12
 }

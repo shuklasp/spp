@@ -62,7 +62,7 @@ When two documents cover the same feature, the teaching chapter is the entry poi
 - [65 — The SPP Mental Model](65-spp-mental-model.md)
 - [04 — Framework Concept → SPP Feature Map](04-framework-to-spp-concept-map.md)
 - [01 — Introduction to SPP](01-getting-started.md)
-- [02 — Scheduler and application contexts](02-kernel-scheduler.md)
+- [02 — Scheduler, Application Contexts & DomainContext](02-kernel-scheduler.md)
 - [03 — Registry and IoC container](03-registry-and-container.md)
 - [04 — Events, EventHandler, and SPPEvent](04-events-and-event-handlers.md)
 - [05 — Module discovery, manifests, and compiled registry](05-modules-and-manifests.md)
@@ -82,15 +82,17 @@ When two documents cover the same feature, the teaching chapter is the entry poi
 
 ### Reference and architecture
 
-- [15 — Routing, Request Dispatch, Single & Multi-Domain Architecture](15-routing-and-request-dispatch.md)
-- [16 — Database, SPPDB, and Sovereign File Services](16-database-and-storage.md)
-- [17 — Authentication and authorization](17-authentication-and-authorization.md)
+- [15 — Routing, Request Dispatch, PathResolver & Multi-Domain Architecture](15-routing-and-request-dispatch.md)
+- [16 — Database, SPPDB, Multi-Tenant Database Context & Sovereign File Services](16-database-and-storage.md)
+- [17 — Authentication, Multi-Domain Boundary Authorization & Security](17-authentication-and-authorization.md)
 - [18 — Cache, logging, workflow, and operations](18-cache-logging-workflow.md)
-- [19 — CLI and developer tooling](19-cli-and-developer-tooling.md)
+- [19 — CLI, Developer Tooling & Multi-Domain Operations Console](19-cli-and-developer-tooling.md)
 - [20 — Testing, debugging, and source-driven diagnosis](20-testing-and-debugging.md)
 - [27 — Declarative Manifest OS and Directory Properties](27-manifest-os-and-file-properties.md)
-- [21 — Enterprise Architecture, Universal OS & Infrastructure Engine, Deployment Topologies](21-enterprise-architecture-and-deployment.md)
+- [21 — Enterprise Architecture, Canonical Multi-Domain Filesystem & Deployment Topologies](21-enterprise-architecture-and-deployment.md)
 - [72 — Sovereign App Store, Publisher Governance, and Bare-Metal Linux Operations](72-sovereign-store-user-governance-and-baremetal-telemetry.md)
+- [73 — Sovereign e-Vaarta Mail Server, Direct MX Delivery, and RFC 6376 Authentication](73-sovereign-communication-evaarta-mail-and-direct-mx-delivery.md)
+- [74 — Sovereign Edge Infrastructure, Anycast DNS, and the Cloudflare Bridge](74-sovereign-edge-infrastructure-and-cloudflare-bridge.md)
 - [23 — Coming to SPP from other frameworks](23-coming-from-other-frameworks.md)
 
 ### Hands-on core tutorial — mandatory sequence

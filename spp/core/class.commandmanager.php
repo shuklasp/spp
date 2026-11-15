@@ -279,6 +279,34 @@ class CommandManager
     }
 
     /**
+     * Checks if a command exists in the discovered command registry.
+     */
+    public static function has(string $name): bool
+    {
+        $commands = self::discover();
+        return isset($commands[$name]);
+    }
+
+    /**
+     * Returns an associative array of all available discovered commands.
+     *
+     * @return array<string, Command>
+     */
+    public static function getAvailableCommands(): array
+    {
+        return self::discover();
+    }
+
+    /**
+     * Retrieves a discovered command instance by name.
+     */
+    public static function getCommand(string $name): ?Command
+    {
+        $commands = self::discover();
+        return $commands[$name] ?? null;
+    }
+
+    /**
      * Executes a command by name with given arguments.
      *
      * @param string $name

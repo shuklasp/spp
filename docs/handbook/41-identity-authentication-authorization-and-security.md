@@ -421,6 +421,33 @@ This layered model is important for multi-tenant and enterprise applications.
 
 ---
 
+# Part VIII.B — Multi-Domain Boundary Isolation & Tenant Authorization
+
+In multi-tenant environments, the most severe security vulnerability is **horizontal privilege escalation (Broken Object Level Authorization / BOLA)**: an authenticated administrator of Tenant A accessing or modifying Tenant B's domain configuration, data, or application settings.
+
+SPP enforces fail-closed boundary isolation via `\SPP\Core\Security\AuthorizationService`:
+
+1. **Role Hierarchy**:
+   - `platform_super_admin`: Sovereign platform and multi-domain control.
+   - `platform_admin`: Infrastructure and cross-domain administration.
+   - `domain_admin`: Full administrative control strictly bounded to their assigned domain.
+   - `app_admin`: Application-level control within their assigned domain.
+   - `domain_user`: Standard operational access on their domain.
+   - `auditor`: Read-only access to audit logs and compliance reports.
+2. **Fail-Closed Boundary Assertion**:
+   ```php
+   use SPP\Core\Security\AuthorizationService;
+   use SPP\Core\Security\AccessDeniedException;
+
+   // Enforces that $user can only access $targetDomainId if they hold platform authority (*)
+   // or if their granted domain explicitly matches. Cross-domain requests immediately throw AccessDeniedException.
+   AuthorizationService::getInstance()->enforceDomainAccess($user, $targetDomainId);
+   ```
+3. **Audit Log Sanitization (`AuditLogService`)**:
+   Administrative actions are appended to `sppdata/logs/audit.jsonl` with automated recursive secret redaction (`password`, `token`, `secret`, `api_key` are replaced with `[REDACTED]`).
+
+---
+
 # Part IX — Testing with Parikshak
 
 Every security feature needs negative tests.
@@ -437,6 +464,8 @@ invalid CSRF token
 rate-limit exceeded
 malformed input
 unauthorized record access
+cross-tenant domain boundary violation (throws AccessDeniedException)
+directory traversal escape (throws InvalidArgumentException)
 ```
 
 A security test that only proves the happy path is incomplete.

@@ -1,7 +1,14 @@
-.TH "logger:tail" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "logger:tail" 1 "November 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
 logger:tail \- Tail the SPP application log file
 .SH SYNOPSIS
 .B php spp.php logger:tail
+[\-\-lines=\fINUM\fR]
 .SH DESCRIPTION
-Tail the SPP application log file
+Tail the SPP application log file. Provides a static snapshot of the trailing lines from the primary application log.
+.SH OPTIONS
+.TP
+.BR \-\-lines =\fINUM\fR
+Number of trailing lines to display (default: 20, minimum: 1, maximum: 500). Can also be supplied as the first positional argument.
+.SH UNDER THE HOOD
+Inspects \fISPP_LOG_DIR/spp.log\fR and prints the requested slice to standard output.

@@ -1,11 +1,8 @@
-# SPP Virtual Host Domain Mapping Configuration
-# Template configuration for multi-domain routing
-
-mode: single
-default_app: default
+mode: multi
+default_app: school1
 virtual_host_mode: strict
 unmapped_subdomain_policy: block
-domain_only_apps: {}
+domain_only_apps: {  }
 domains:
   example.com:
     type: primary
@@ -15,3 +12,13 @@ domains:
       - default
     canonical_host: example.com
     routing_mode: spp_path
+  localhost:
+    type: primary
+    account: default
+    default_app: school1
+    canonical_host: localhost
+  parikshak-deploy.local:
+    type: primary
+    account: default
+    default_app: school1
+    canonical_host: parikshak-deploy.local

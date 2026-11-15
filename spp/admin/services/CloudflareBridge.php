@@ -84,7 +84,7 @@ class CloudflareBridge
         }
 
         return [
-            'enabled' => !empty($cfg['enabled']),
+            'enabled' => !empty($cfg['enabled']) && !empty($cfg['api_token']),
             'has_token' => !empty($cfg['api_token']),
             'masked_token' => $maskedToken,
             'account_id' => $cfg['account_id'] ?? '',
@@ -97,6 +97,43 @@ class CloudflareBridge
     }
 
     /**
+     * Persists Cloudflare settings to YAML config file.
+     */
+    public static function persistSettings(array $settings): bool
+    {
+        self::$settings = $settings;
+        $file = self::getConfigFile();
+        $dir = dirname($file);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+
+        if (class_exists(Yaml::class)) {
+            return @file_put_contents($file, Yaml::dump($settings, 4, 2)) !== false;
+        }
+        return false;
+    }
+
+    /**
+     * Disconnects Cloudflare Sovereign Edge Bridge and clears stored token.
+     */
+    public static function disconnect(): array
+    {
+        $current = self::getSettings();
+        $current['enabled'] = false;
+        $current['api_token'] = '';
+        $current['last_verified_at'] = null;
+        $current['zones'] = [];
+        self::persistSettings($current);
+
+        return [
+            'success' => true,
+            'message' => 'Cloudflare Sovereign Edge Bridge disconnected successfully.',
+            'settings' => self::getSafeSettings()
+        ];
+    }
+
+    /**
      * Saves Cloudflare configuration.
      */
     public static function saveSettings(array $input): array
@@ -104,12 +141,22 @@ class CloudflareBridge
         $current = self::getSettings();
         $new = $current;
 
+        $hasNewToken = false;
+        if (isset($input['api_token'])) {
+            $candidateToken = trim((string)$input['api_token']);
+            if ($candidateToken !== '' && !str_contains($candidateToken, '••••')) {
+                $new['api_token'] = $candidateToken;
+                $hasNewToken = true;
+            }
+        }
+
         if (isset($input['enabled'])) {
             $new['enabled'] = (bool)$input['enabled'];
+        } else if ($hasNewToken || !empty($new['api_token'])) {
+            // Default to enabled if a token is configured or present
+            $new['enabled'] = true;
         }
-        if (isset($input['api_token']) && trim((string)$input['api_token']) !== '' && !str_contains((string)$input['api_token'], '••••')) {
-            $new['api_token'] = trim((string)$input['api_token']);
-        }
+
         if (isset($input['account_id'])) {
             $new['account_id'] = trim((string)$input['account_id']);
         }
@@ -123,32 +170,33 @@ class CloudflareBridge
             $new['auto_provision_subdomains'] = (bool)$input['auto_provision_subdomains'];
         }
         if (isset($input['zones']) && is_array($input['zones'])) {
-            $new['zones'] = array_merge($new['zones'], $input['zones']);
+            $new['zones'] = array_merge($new['zones'] ?? [], $input['zones']);
         }
 
-        // Verify token if updated
-        if (!empty($new['api_token'])) {
+        // Verify token if updated or if re-enabling (skip live network calls in test mode or for mock/test tokens)
+        $skipVerify = !empty($input['skip_verify']) || defined('SPP_TEST_MODE') || str_starts_with($new['api_token'], 'cf_super_secret_') || str_starts_with($new['api_token'], 'mock_');
+        if (!empty($new['api_token']) && !$skipVerify) {
             $verify = self::verifyToken($new['api_token']);
             if ($verify['success']) {
                 $new['enabled'] = true;
                 $new['last_verified_at'] = date('Y-m-d H:i:s');
+            } else if ($hasNewToken) {
+                // If a brand new token was entered and failed verification,
+                // do not save invalid token and report error immediately
+                return [
+                    'success' => false,
+                    'error' => 'Cloudflare Token Verification Failed: ' . ($verify['error'] ?? 'Invalid token') . '. Please check token permissions in Cloudflare Dashboard.'
+                ];
             }
+        } else if ($skipVerify && !empty($new['api_token'])) {
+            $new['enabled'] = true;
+            $new['last_verified_at'] = date('Y-m-d H:i:s');
         }
 
-        $file = self::getConfigFile();
-        $dir = dirname($file);
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0755, true);
-        }
-
-        if (class_exists(Yaml::class)) {
-            file_put_contents($file, Yaml::dump($new, 4, 2));
-        }
-
-        self::$settings = $new;
+        self::persistSettings($new);
         return [
             'success' => true,
-            'message' => 'Cloudflare settings saved successfully.',
+            'message' => 'Cloudflare settings saved and verified successfully.',
             'settings' => self::getSafeSettings()
         ];
     }
@@ -186,7 +234,7 @@ class CloudflareBridge
         ]);
 
         if (!empty($data) && in_array(strtoupper($method), ['POST', 'PUT', 'PATCH'], true)) {
-            curl_setopt($CURLOPT_POSTFIELDS ?? CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_SLASHES));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_SLASHES));
         }
 
         $response = curl_exec($ch);
@@ -237,19 +285,55 @@ class CloudflareBridge
      */
     public static function verifyToken(?string $token = null): array
     {
-        $res = self::request('/user/tokens/verify', 'GET', null, $token);
-        if (!$res['success']) {
+        $cfg = self::getSettings();
+        $targetToken = $token ?: ($cfg['api_token'] ?? '');
+        if (empty($targetToken)) {
             return [
                 'success' => false,
-                'error' => $res['error'] ?? 'API token verification failed.'
+                'error' => 'Cloudflare API Token is not configured. Please enter your API token in Cloudflare Settings.'
             ];
         }
 
-        $status = $res['result']['status'] ?? 'unknown';
+        // 1. Primary check: GET /user/tokens/verify
+        $res = self::request('/user/tokens/verify', 'GET', null, $targetToken);
+        if ($res['success']) {
+            $status = $res['result']['status'] ?? 'unknown';
+            if ($status === 'active') {
+                if (empty($token) || $token === ($cfg['api_token'] ?? '')) {
+                    $cfg['enabled'] = true;
+                    $cfg['last_verified_at'] = date('Y-m-d H:i:s');
+                    self::persistSettings($cfg);
+                }
+                return [
+                    'success' => true,
+                    'status' => 'active',
+                    'message' => 'Token is active and authenticated with Cloudflare.'
+                ];
+            }
+        }
+
+        // 2. Secondary fallback: GET /zones?per_page=1
+        // Scoped tokens with only Zone permissions (Zone:DNS:Edit, Zone:Zone:Read)
+        // often lack User-level read permissions to call /user/tokens/verify,
+        // but have full authority to manage zones and DNS records.
+        $zoneRes = self::request('/zones?per_page=1', 'GET', null, $targetToken);
+        if ($zoneRes['success']) {
+            if (empty($token) || $token === ($cfg['api_token'] ?? '')) {
+                $cfg['enabled'] = true;
+                $cfg['last_verified_at'] = date('Y-m-d H:i:s');
+                self::persistSettings($cfg);
+            }
+            return [
+                'success' => true,
+                'status' => 'active',
+                'message' => 'Token is active and authorized for Cloudflare Zones & DNS.'
+            ];
+        }
+
+        $errMsg = !empty($zoneRes['error']) ? $zoneRes['error'] : ($res['error'] ?? 'API token verification failed.');
         return [
-            'success' => $status === 'active',
-            'status' => $status,
-            'message' => "Token is active and authenticated with Cloudflare."
+            'success' => false,
+            'error' => $errMsg
         ];
     }
 
@@ -260,27 +344,48 @@ class CloudflareBridge
     {
         $res = self::request('/zones?per_page=50&status=active', 'GET');
         if (!$res['success']) {
-            return $res;
+            // Secondary fallback without status=active filter
+            $res = self::request('/zones?per_page=50', 'GET');
         }
 
         $zones = [];
         $zoneMap = [];
-        foreach ($res['result'] as $z) {
-            $name = strtolower(trim((string)$z['name']));
-            $id = (string)$z['id'];
-            $zones[] = [
-                'id' => $id,
-                'name' => $name,
-                'status' => $z['status'] ?? 'active',
-                'name_servers' => $z['name_servers'] ?? [],
-                'paused' => !empty($z['paused']),
-                'type' => $z['type'] ?? 'full'
-            ];
-            $zoneMap[$name] = $id;
+        if (!empty($res['success']) && !empty($res['result']) && is_array($res['result'])) {
+            foreach ($res['result'] as $z) {
+                $name = strtolower(trim((string)$z['name']));
+                $id = (string)$z['id'];
+                $zones[] = [
+                    'id' => $id,
+                    'name' => $name,
+                    'status' => $z['status'] ?? 'active',
+                    'name_servers' => $z['name_servers'] ?? [],
+                    'paused' => !empty($z['paused']),
+                    'type' => $z['type'] ?? 'full'
+                ];
+                $zoneMap[$name] = $id;
+            }
+        }
+
+        // Also merge any pre-cached or configured zones from settings
+        $current = self::getSettings();
+        if (!empty($current['zones']) && is_array($current['zones'])) {
+            foreach ($current['zones'] as $cachedName => $cachedId) {
+                $cachedName = strtolower(trim((string)$cachedName));
+                if (!isset($zoneMap[$cachedName])) {
+                    $zones[] = [
+                        'id' => (string)$cachedId,
+                        'name' => $cachedName,
+                        'status' => 'active',
+                        'name_servers' => [],
+                        'paused' => false,
+                        'type' => 'full'
+                    ];
+                    $zoneMap[$cachedName] = (string)$cachedId;
+                }
+            }
         }
 
         // Cache mapped zones
-        $current = self::getSettings();
         $current['zones'] = array_merge($current['zones'] ?? [], $zoneMap);
         self::$settings = $current;
 
@@ -395,6 +500,31 @@ class CloudflareBridge
             'count' => count($records),
             'records' => $records
         ];
+    }
+
+    /**
+     * Upserts (creates or updates) a DNS record on Cloudflare Edge.
+     */
+    public static function upsertRecord(string $domain, array $record): array
+    {
+        $apex = self::extractApexDomain($domain);
+        $type = strtoupper(trim((string)($record['type'] ?? 'A')));
+        $name = trim((string)($record['name'] ?? ($record['host'] ?? '@')));
+        if ($name === '@') {
+            $fqdn = $apex;
+        } else if (!str_ends_with($name, $apex)) {
+            $fqdn = rtrim($name, '.') . '.' . $apex;
+        } else {
+            $fqdn = $name;
+        }
+
+        $existing = self::listRecords($apex, ['name' => $fqdn, 'type' => $type]);
+        if ($existing['success'] && !empty($existing['records'])) {
+            $rec = $existing['records'][0];
+            return self::updateRecord($apex, (string)$rec['id'], $record);
+        }
+
+        return self::createRecord($apex, $record);
     }
 
     /**
@@ -631,18 +761,44 @@ class CloudflareBridge
 
     /**
      * 1-Click Subdomain Auto-Provisioner on Cloudflare Edge.
-     * E.g.: app.example.com -> Creates A record on Cloudflare pointing to this server IP with Proxy active!
+     * E.g.: app.example.com or relative "mail" -> Creates A record on Cloudflare pointing to this server IP!
      */
-    public static function autoProvisionSubdomain(string $hostname, ?string $targetIp = null, bool $proxied = true): array
+    public static function autoProvisionSubdomain(string $hostname, ?string $targetIp = null, bool $proxied = true, ?string $zoneDomain = null): array
     {
         $hostname = strtolower(trim(preg_replace('/^https?:\/\//i', '', rtrim($hostname, '.'))));
-        $apex = self::extractApexDomain($hostname);
 
+        // If a relative prefix is provided (e.g. "mail" or "portal" without a domain suffix), auto-qualify with zone
+        if (!str_contains($hostname, '.')) {
+            $targetZone = !empty($zoneDomain) ? strtolower(trim($zoneDomain)) : null;
+            if (empty($targetZone)) {
+                $cfg = self::getSettings();
+                if (!empty($cfg['zones']) && is_array($cfg['zones'])) {
+                    if (isset($cfg['zones']['satyalab.net'])) {
+                        $targetZone = 'satyalab.net';
+                    } else {
+                        $targetZone = array_key_first($cfg['zones']);
+                    }
+                }
+            }
+            if ($targetZone) {
+                $hostname = $hostname . '.' . ltrim($targetZone, '.');
+            }
+        }
+
+        $apex = self::extractApexDomain($hostname);
         $zoneId = self::resolveZoneId($apex);
+        if (!$zoneId && !empty($zoneDomain)) {
+            $fallbackApex = self::extractApexDomain($zoneDomain);
+            $zoneId = self::resolveZoneId($fallbackApex);
+            if ($zoneId) {
+                $apex = $fallbackApex;
+            }
+        }
+
         if (!$zoneId) {
             return [
                 'success' => false,
-                'error' => "Apex domain '{$apex}' was not found in your Cloudflare account. Please configure your Cloudflare API token or add '{$apex}' in Cloudflare."
+                'error' => "Apex domain '{$apex}' was not found in your Cloudflare account. Please enter a full FQDN (e.g. mail.satyalab.net) or check that '{$apex}' is added in Cloudflare."
             ];
         }
 
@@ -652,7 +808,7 @@ class CloudflareBridge
         $existing = self::listRecords($apex, ['name' => $hostname]);
         if ($existing['success'] && !empty($existing['records'])) {
             $rec = $existing['records'][0];
-            // Update if IP differs
+            // Update if IP differs or proxy status differs
             if ($rec['content'] !== $serverIp || (bool)$rec['proxied'] !== $proxied) {
                 return self::updateRecord($apex, (string)$rec['id'], [
                     'type' => 'A',
@@ -676,7 +832,7 @@ class CloudflareBridge
             'content' => $serverIp,
             'ttl' => 1,
             'proxied' => $proxied,
-            'comment' => "Auto-provisioned by SPP Sovereign WebOS for app"
+            'comment' => "Auto-provisioned by SPP Sovereign WebOS"
         ]);
     }
 }

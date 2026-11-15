@@ -4518,33 +4518,55 @@ export default class DomainsView extends BaseClass {
     // =========================================================================
 
     async loadCloudflare() {
-        this.setState({ loadingCf: true });
+        this.setState({ loadingCf: true, cfRecordsError: null });
         this.update();
 
         try {
             const settingsRes = await this.admin.api('domains_cf_get_settings');
-            const cfSettings = (settingsRes.success && settingsRes.settings) ? settingsRes.settings : (settingsRes.data?.settings || {});
+            const cfSettings = (settingsRes && settingsRes.success && (settingsRes.settings || settingsRes.data?.settings)) 
+                ? (settingsRes.settings || settingsRes.data?.settings) 
+                : ((settingsRes && (settingsRes.settings || settingsRes.data?.settings)) || {});
             
             let zones = [];
             let records = [];
-            const defaultCfDom = this.state.activeCfDomain || this.state.zoneDomain || (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com');
+            let recordsError = null;
+
+            const currentHost = (window.location.hostname && !window.location.hostname.includes('localhost') && !/^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname))
+                ? window.location.hostname
+                : null;
+            const defaultCfDom = this.state.activeCfDomain || currentHost || this.state.zoneDomain || (this.state.domains?.[0]?.pattern) || 'satyalab.net';
             let activeCfDomain = defaultCfDom;
 
             if (cfSettings.has_token) {
                 // Fetch available zones
                 const zonesRes = await this.admin.api('domains_cf_list_zones');
-                if (zonesRes.success && Array.isArray(zonesRes.zones)) {
-                    zones = zonesRes.zones;
+                const zonesData = (zonesRes && zonesRes.success && zonesRes.data) ? zonesRes.data : zonesRes;
+                const rawZones = zonesData?.zones || zonesRes?.zones || [];
+                if (Array.isArray(rawZones) && rawZones.length > 0) {
+                    zones = rawZones;
                     if (!this.state.activeCfDomain && zones.length > 0) {
-                        activeCfDomain = zones[0].name;
+                        // Match current domain if available in zones, otherwise pick first
+                        const match = zones.find(z => z.name === currentHost || z.name === defaultCfDom);
+                        activeCfDomain = match ? match.name : zones[0].name;
                     }
+                } else if (cfSettings.zones && typeof cfSettings.zones === 'object') {
+                    // Fallback to configured zones in settings if live zone listing is empty
+                    zones = Object.keys(cfSettings.zones).map(name => ({
+                        id: cfSettings.zones[name],
+                        name: name,
+                        status: 'active'
+                    }));
                 }
 
                 // Fetch live records for current zone
                 if (activeCfDomain) {
                     const recordsRes = await this.admin.api('domains_cf_list_records', { domain: activeCfDomain });
-                    if (recordsRes.success && Array.isArray(recordsRes.records)) {
-                        records = recordsRes.records;
+                    const recordsData = (recordsRes && recordsRes.success && recordsRes.data) ? recordsRes.data : recordsRes;
+                    const rawRecords = recordsData?.records || recordsRes?.records || [];
+                    if (Array.isArray(rawRecords) && (recordsRes.success || recordsData.success)) {
+                        records = rawRecords;
+                    } else if (recordsRes && !recordsRes.success) {
+                        recordsError = recordsRes.error || recordsData?.error || 'Failed to fetch DNS records from Cloudflare.';
                     }
                 }
             }
@@ -4553,6 +4575,7 @@ export default class DomainsView extends BaseClass {
                 cfSettings: cfSettings,
                 cfZones: zones,
                 cfRecords: records,
+                cfRecordsError: recordsError,
                 activeCfDomain: activeCfDomain,
                 loadingCf: false
             });
@@ -4574,10 +4597,22 @@ export default class DomainsView extends BaseClass {
         }
 
         const cf = this.state.cfSettings || {};
-        const isConnected = !!(cf.enabled && cf.has_token);
+        const isConnected = !!(cf.has_token && cf.enabled !== false);
         const zones = this.state.cfZones || [];
         const records = this.state.cfRecords || [];
+        const recordsError = this.state.cfRecordsError;
         const activeDomain = this.state.activeCfDomain || this.state.zoneDomain || (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'example.com');
+
+        let statusBadge = '';
+        if (cf.has_token) {
+            if (cf.enabled !== false) {
+                statusBadge = '<span class="suite-pill suite-pill-success" style="font-size:0.75rem;">● Edge Synchronized</span>';
+            } else {
+                statusBadge = '<span class="suite-pill suite-pill-warning" style="font-size:0.75rem;">⏸️ Edge Bridge Paused</span>';
+            }
+        } else {
+            statusBadge = '<span class="suite-pill suite-pill-warning" style="font-size:0.75rem;">○ Token Required</span>';
+        }
 
         const zoneSelectOptions = (zones.length > 0 ? zones.map(z => z.name) : [activeDomain]).map(d => `
             <option value="${this.escapeHtml(d)}" ${d === activeDomain ? 'selected' : ''}>${this.escapeHtml(d)}</option>
@@ -4617,8 +4652,14 @@ export default class DomainsView extends BaseClass {
             `;
         }).join('') : `
             <tr>
-                <td colspan="6" style="text-align:center; padding:2rem; color:var(--text-dim); font-size:0.85rem;">
-                    ${isConnected ? 'No DNS records found for this Cloudflare zone. Add one using the provisioner below.' : 'Please configure your Cloudflare API Token to inspect and manage edge DNS records.'}
+                <td colspan="6" style="text-align:center; padding:2rem; font-size:0.85rem; color:${recordsError ? 'var(--danger)' : 'var(--text-dim)'};">
+                    ${recordsError 
+                        ? `⚠️ Error fetching DNS records for <strong>${this.escapeHtml(activeDomain)}</strong>: ${this.escapeHtml(recordsError)}`
+                        : (cf.has_token 
+                            ? (zones.length === 0 
+                                ? 'No active zones found in your Cloudflare account. Please check that your domain is added in Cloudflare.' 
+                                : `No DNS records loaded for zone <strong>${this.escapeHtml(activeDomain)}</strong>. Click "Refresh Live Records" or add one below.`)
+                            : 'Please configure your Cloudflare API Token to inspect and manage edge DNS records.')}
                 </td>
             </tr>
         `;
@@ -4635,9 +4676,7 @@ export default class DomainsView extends BaseClass {
                         <div>
                             <div style="display:flex; align-items:center; gap:0.5rem;">
                                 <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Cloudflare Sovereign Edge Bridge</h3>
-                                <span class="suite-pill ${isConnected ? 'suite-pill-success' : 'suite-pill-warning'}" style="font-size:0.75rem;">
-                                    ${isConnected ? '● Edge Synchronized' : '○ Token Required'}
-                                </span>
+                                ${statusBadge}
                             </div>
                             <p style="margin:0.25rem 0 0; font-size:0.8rem; color:var(--text-dim);">
                                 Real-time global Anycast DNS propagation (~300ms), Edge SSL/TLS termination, and DDoS mitigation.
@@ -4645,11 +4684,14 @@ export default class DomainsView extends BaseClass {
                         </div>
                     </div>
 
-                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
                         <button class="btn secondary-btn btn-sm" onclick="window.domainsViewInstance.openCloudflareSettingsModal()">
                             ⚙️ Cloudflare API Settings
                         </button>
                         ${isConnected ? `
+                            <button class="btn secondary-btn btn-sm" style="color:#10b981; border-color:rgba(16,185,129,0.4);" onclick="window.domainsViewInstance.alignCloudflareMailDns()" title="Publish/Update SPF & DKIM DNS records directly on Cloudflare Edge">
+                                ✉️ Auto-Align Mail DNS (SPF &amp; DKIM)
+                            </button>
                             <button class="btn secondary-btn btn-sm" onclick="window.domainsViewInstance.syncCloudflareRecords()">
                                 🔄 Sync to SPP Zone
                             </button>
@@ -4675,8 +4717,8 @@ export default class DomainsView extends BaseClass {
 
                     <div style="display:grid; grid-template-columns:2fr 1.5fr 1fr auto; gap:0.75rem; align-items:end;">
                         <div class="input-group" style="margin:0;">
-                            <label style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-dim);">Subdomain FQDN</label>
-                            <input type="text" id="cf-quick-subdomain" class="suite-input" placeholder="e.g. portal.example.com" style="padding:0.6rem 0.8rem; font-size:0.85rem; border-radius:var(--radius-sm);">
+                            <label style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-dim);">Subdomain (e.g. mail or portal.${this.escapeHtml(activeDomain)})</label>
+                            <input type="text" id="cf-quick-subdomain" class="suite-input" placeholder="e.g. mail or portal.${this.escapeHtml(activeDomain)}" style="padding:0.6rem 0.8rem; font-size:0.85rem; border-radius:var(--radius-sm);">
                         </div>
                         <div class="input-group" style="margin:0;">
                             <label style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-dim);">Server Target IP</label>
@@ -4746,22 +4788,46 @@ export default class DomainsView extends BaseClass {
                     Cloudflare is completely optional. Connecting it enables free DDoS protection, worldwide speed acceleration (CDN), and automated edge SSL encryption without manual server port configuration.
                 </p>
 
+                ${cf.has_token ? `
+                    <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.35); border-radius:var(--radius-sm); padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between;">
+                        <div style="display:flex; align-items:center; gap:0.75rem;">
+                            <div style="font-size:1.5rem;">🔑</div>
+                            <div>
+                                <div style="font-weight:700; font-size:0.9rem; color:#10b981; display:flex; align-items:center; gap:0.5rem;">
+                                    <span>Active Token Configured:</span>
+                                    <code style="background:rgba(0,0,0,0.3); padding:2px 8px; border-radius:4px; font-size:0.85rem; color:#38bdf8;">${this.escapeHtml(cf.masked_token)}</code>
+                                </div>
+                                <div style="font-size:0.75rem; color:var(--text-dim); margin-top:2px;">
+                                    Your Cloudflare token is securely stored and authenticated. Leave the field below blank to keep it.
+                                </div>
+                            </div>
+                        </div>
+                        <span class="suite-pill suite-pill-success" style="font-size:0.75rem;">● Stored</span>
+                    </div>
+                ` : ''}
+
                 <div class="input-group">
                     <label>
-                        Cloudflare API Token <span style="color:var(--danger)">*</span>
+                        ${cf.has_token ? 'New API Token (Leave blank to keep existing)' : 'Cloudflare API Token <span style="color:var(--danger)">*</span>'}
                         <span class="spp-help-tip" data-tooltip-title="Cloudflare API Token" data-tooltip="A secure authorization token created in your Cloudflare account to let SPP manage DNS records automatically." data-tooltip-example="e.g. abc123XYZ..." data-tooltip-rec="Click the blue link below to generate one in Cloudflare.">?</span>
                     </label>
-                    <input type="password" id="cf-api-token" placeholder="${cf.has_token ? 'Enter new token to overwrite (' + cf.masked_token + ')' : 'Paste Cloudflare API Bearer Token...'}" style="font-family:monospace; padding:0.6rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright);">
+                    <input type="password" id="cf-api-token" placeholder="${cf.has_token ? '•••••••••••••••• (Leave blank to keep ' + cf.masked_token + ')' : 'Paste Cloudflare API Bearer Token...'}" style="font-family:monospace; padding:0.6rem; border-radius:var(--radius-sm); background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-bright);">
                     <small style="color:var(--text-dim)">
-                        Create a scoped token in <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" style="color:#38bdf8; text-decoration:underline;">Cloudflare Dashboard &gt; API Tokens</a> with permissions: <strong>Zone : DNS : Edit</strong> and <strong>Zone : Zone : Read</strong>.
+                        ${cf.has_token 
+                            ? `💡 To keep your currently saved token (<strong>${this.escapeHtml(cf.masked_token)}</strong>), leave this input empty.`
+                            : `Create a scoped token in <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" style="color:#38bdf8; text-decoration:underline;">Cloudflare Dashboard &gt; API Tokens</a> with permissions: <strong>Zone : DNS : Edit</strong> and <strong>Zone : Zone : Read</strong>.`}
                     </small>
                 </div>
 
                 <div style="display:flex; flex-direction:column; gap:0.6rem; padding:0.85rem; background:rgba(0,0,0,0.2); border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.85rem; font-weight:600; color:var(--text-bright);">
+                        <input type="checkbox" id="cf-enabled" ${cf.enabled !== false ? 'checked' : ''}>
+                        <span>Enable Cloudflare Sovereign Edge Bridge &amp; DNS Sync</span>
+                    </label>
                     <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.85rem; font-weight:600;">
                         <input type="checkbox" id="cf-auto-subdomains" ${cf.auto_provision_subdomains !== false ? 'checked' : ''}>
                         <span>
-                            Automatically publish new websites & subdomains to Cloudflare
+                            Automatically publish new websites &amp; subdomains to Cloudflare
                             <span class="spp-help-tip" data-tooltip-title="Auto-Publish Subdomains" data-tooltip="Whenever you add a website or subdomain in SPP, its DNS record is automatically created on Cloudflare in milliseconds.">?</span>
                         </span>
                     </label>
@@ -4791,10 +4857,17 @@ export default class DomainsView extends BaseClass {
                     </div>
                 </div>
 
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <button class="btn secondary-btn btn-sm" type="button" onclick="window.domainsViewInstance.testCloudflareToken()">
-                        ⚡ Test Token Connectivity
-                    </button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.25rem;">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <button class="btn secondary-btn btn-sm" type="button" onclick="window.domainsViewInstance.testCloudflareToken()">
+                            ⚡ Test Token Connectivity
+                        </button>
+                        ${cf.has_token ? `
+                            <button class="btn ghost-btn btn-sm" style="color:var(--danger);" type="button" onclick="window.domainsViewInstance.disconnectCloudflare()">
+                                Disconnect
+                            </button>
+                        ` : ''}
+                    </div>
                     <span id="cf-test-feedback" style="font-size:0.8rem;"></span>
                 </div>
             </div>
@@ -4807,6 +4880,7 @@ export default class DomainsView extends BaseClass {
         saveBtn.textContent = 'Save Cloudflare Settings';
         saveBtn.onclick = async () => {
             const token = document.getElementById('cf-api-token').value.trim();
+            const enabled = document.getElementById('cf-enabled') ? document.getElementById('cf-enabled').checked : true;
             const accountId = document.getElementById('cf-account-id').value.trim();
             const autoSubdomains = document.getElementById('cf-auto-subdomains').checked;
             const defaultProxied = document.getElementById('cf-default-proxied').checked;
@@ -4816,6 +4890,7 @@ export default class DomainsView extends BaseClass {
 
             try {
                 const payload = {
+                    enabled: enabled,
                     auto_provision_subdomains: autoSubdomains,
                     default_proxied: defaultProxied,
                     account_id: accountId
@@ -4855,12 +4930,53 @@ export default class DomainsView extends BaseClass {
             if (res.success) {
                 if (feedback) feedback.innerHTML = '<span style="color:#10b981; font-weight:600;">✓ Connected! Token is active.</span>';
                 this.admin.notify('Cloudflare token verified successfully!', 'success');
+                const settingsRes = await this.admin.api('domains_cf_get_settings');
+                const settingsData = (settingsRes && settingsRes.success && settingsRes.data) ? settingsRes.data : settingsRes;
+                const newSettings = settingsData?.settings || settingsRes?.settings;
+                if (newSettings) {
+                    this.setState({ cfSettings: newSettings });
+                }
             } else {
                 if (feedback) feedback.innerHTML = `<span style="color:#ef4444; font-weight:600;">✗ ${this.escapeHtml(res.error || 'Invalid token')}</span>`;
                 this.admin.notify(res.error || 'Token verification failed.', 'error');
             }
         } catch (e) {
             if (feedback) feedback.innerHTML = `<span style="color:#ef4444;">Error: ${this.escapeHtml(e.message)}</span>`;
+        }
+    }
+
+    async disconnectCloudflare() {
+        if (!confirm('Are you sure you want to disconnect Cloudflare? Edge DNS sync and proxying will be disabled.')) {
+            return;
+        }
+        try {
+            const res = await this.admin.api('domains_cf_disconnect');
+            if (res.success) {
+                this.admin.notify('Cloudflare disconnected successfully.', 'info');
+                const modal = document.getElementById('modal-container');
+                if (modal) modal.classList.remove('active');
+                await this.loadCloudflare();
+            } else {
+                this.admin.notify(res.error || 'Failed to disconnect Cloudflare.', 'error');
+            }
+        } catch (e) {
+            this.admin.notify('Error disconnecting: ' + e.message, 'error');
+        }
+    }
+
+    async alignCloudflareMailDns() {
+        const domain = this.state.activeCfDomain || window.location.hostname;
+        this.admin.notify(`Publishing SPF & DKIM records for ${domain} to Cloudflare Edge...`, 'info');
+        try {
+            const res = await this.admin.api('mail_deliverability_align', { domain: domain });
+            if (res.success) {
+                this.admin.notify(`SPF & DKIM records aligned and published to Cloudflare Edge for ${domain}!`, 'success');
+                await this.loadCloudflare();
+            } else {
+                this.admin.notify(res.error || 'Failed to align DNS records.', 'error');
+            }
+        } catch (e) {
+            this.admin.notify('Error: ' + e.message, 'error');
         }
     }
 
@@ -4874,13 +4990,19 @@ export default class DomainsView extends BaseClass {
         const ipInput = document.getElementById('cf-quick-ip');
         const proxiedInput = document.getElementById('cf-quick-proxied');
 
-        const hostname = hostInput ? hostInput.value.trim() : '';
+        let hostname = hostInput ? hostInput.value.trim() : '';
         const ip = ipInput ? ipInput.value.trim() : '';
         const proxied = proxiedInput ? proxiedInput.checked : true;
+        const activeZone = this.state.activeCfDomain || this.state.zoneDomain || (this.state.domains?.[0]?.pattern) || (window.location.hostname && !window.location.hostname.includes('localhost') ? window.location.hostname : 'satyalab.net');
 
         if (!hostname) {
-            this.admin.notify('Please enter a subdomain (e.g. portal.example.com).', 'error');
+            this.admin.notify(`Please enter a subdomain (e.g. mail or portal.${activeZone}).`, 'error');
             return;
+        }
+
+        // Auto-qualify relative subdomain names (e.g. "mail" -> "mail.satyalab.net")
+        if (!hostname.includes('.') && activeZone) {
+            hostname = hostname + '.' + activeZone;
         }
 
         this.admin.notify(`Provisioning ${hostname} on Cloudflare Edge...`, 'info');
@@ -4888,6 +5010,8 @@ export default class DomainsView extends BaseClass {
         try {
             const res = await this.admin.api('domains_cf_auto_provision', {
                 hostname: hostname,
+                domain: activeZone,
+                zone: activeZone,
                 target_ip: ip || null,
                 proxied: proxied
             });

@@ -480,7 +480,8 @@ export default class SystemView extends BaseComponent {
                         <tr><td style="background: rgba(255,255,255,0.01); font-weight: 500;">PHP Version</td><td>${system.php_version}</td></tr>
                         <tr><td style="background: rgba(255,255,255,0.01); font-weight: 500;">Operating System</td><td>${system.os}</td></tr>
                         <tr><td style="background: rgba(255,255,255,0.01); font-weight: 500;">Server Software</td><td>${system.server_software}</td></tr>
-                        <tr><td style="background: rgba(255,255,255,0.01); font-weight: 600; color: var(--primary);">📁 Serving Directory (App Root)</td><td><code class="path-label" style="font-size: 0.85rem; font-weight: 700; color: var(--primary);">${system.app_dir || window.SPP_SYSTEM_ENV?.serving_dir || "N/A"}</code> <span style="font-size: 0.75rem; color: var(--text-dim); margin-left: 0.5rem;">(Active SPP installation serving this request)</span></td></tr>`r`n                        <tr><td style="background: rgba(255,255,255,0.01); font-weight: 500;">Framework Core Root</td><td><code class="path-label" style="font-size: 0.8rem;">${system.spp_base}</code></td></tr>
+                        <tr><td style="background: rgba(255,255,255,0.01); font-weight: 600; color: var(--primary);">📁 Serving Directory (App Root)</td><td><code class="path-label" style="font-size: 0.85rem; font-weight: 700; color: var(--primary);">${system.app_dir || window.SPP_SYSTEM_ENV?.serving_dir || "N/A"}</code> <span style="font-size: 0.75rem; color: var(--text-dim); margin-left: 0.5rem;">(Active SPP installation serving this request)</span></td></tr>
+                        <tr><td style="background: rgba(255,255,255,0.01); font-weight: 500;">Framework Core Root</td><td><code class="path-label" style="font-size: 0.8rem;">${system.spp_base}</code></td></tr>
                     </table>
                 </div>
 

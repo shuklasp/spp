@@ -23,12 +23,18 @@ class LoggerTailCommand extends Command
             return;
         }
 
-        echo "Tailing log file: $logFile\n";
-        echo "Note: This is a static snapshot of the last 20 lines. Use 'tail -f' natively for real-time monitoring.\n\n";
+        $linesOption = $this->getOption($args, 'lines') ?? ($args['lines'] ?? $this->getArgument($args, 0));
+        $lineCount = 20;
+        if ($linesOption !== null && is_numeric($linesOption)) {
+            $lineCount = max(1, min(500, (int)$linesOption));
+        }
+
+        echo "Tailing log file: $logFile (last {$lineCount} lines)\n";
+        echo "Note: This is a static snapshot of the last {$lineCount} lines. Use 'tail -f' natively for real-time monitoring.\n\n";
 
         $lines = file($logFile);
         if ($lines !== false) {
-            $last = array_slice($lines, -20);
+            $last = array_slice($lines, -$lineCount);
             foreach ($last as $line) {
                 echo trim($line) . "\n";
             }

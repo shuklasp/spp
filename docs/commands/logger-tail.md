@@ -4,13 +4,15 @@
 
 ### Synopsis
 ```bash
-php spp.php logger:tail [OPTIONS]
+php spp.php logger:tail [--lines=20]
 ```
 
 ### Options
-No static options detected.
+- `--lines=<int>`: Number of trailing log lines to retrieve (1 to 500, default: 20). Can also be supplied as the first positional argument.
 
 ### Under the Hood
 Based on static analysis of the command's source code:
-- Executes native PHP logic without major side-effects or external dependencies.
+- Verifies existence of `SPP_LOG_DIR/spp.log`.
+- Parses `--lines` option or positional argument, safely bounded between 1 and 500 lines.
+- Reads lines into memory and displays the bounded trailing slice.
 

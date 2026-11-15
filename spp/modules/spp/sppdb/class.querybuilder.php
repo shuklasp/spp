@@ -305,21 +305,26 @@ class QueryBuilder
 
     /**
      * Execute and return the first result.
+     * Operates on an isolated clone to ensure the builder remains immutable.
      */
     public function first(): ?array
     {
-        $results = $this->limit(1)->get();
+        $clone = clone $this;
+        $results = $clone->limit(1)->get();
         return $results[0] ?? null;
     }
 
     /**
      * Return the count of matching rows.
+     * Operates on an isolated clone to ensure the builder remains immutable.
      */
     public function count(): int
     {
         $query = clone $this;
         $query->columns = ['COUNT(*) as aggregate'];
-        $query->limit = 1; // Limit 1 is usually not needed for count, but matches previous behavior
+        $query->limit = null;
+        $query->offset = null;
+        $query->orders = [];
 
         $sql = $query->toSql();
         $bindings = $query->getBindings();

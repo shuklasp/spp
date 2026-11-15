@@ -6,7 +6,7 @@ namespace SPP\Core\Workflow;
 use SPP\Core\ResourceController;
 use SPPMod\SPPWorkflow\SPPWorkflowManager;
 use SPP\Core\Interfaces\WorkflowableInterface;
-use SPP\Exceptions\SPPException;
+use SPP\SPPException;
 
 /**
  * Class WizardController

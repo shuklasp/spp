@@ -255,6 +255,22 @@ class Autoloader
             }
 
             // Check if a dedicated concrete exception class file exists first
+            if (strpos($className, 'SPP\\Core\\') === 0) {
+                $coreRelPath = str_replace('\\', DIRECTORY_SEPARATOR, substr($className, strlen('SPP\\Core\\'))) . '.php';
+                if (file_exists(SPP_CORE_DIR . DIRECTORY_SEPARATOR . $coreRelPath)) {
+                    require_once SPP_CORE_DIR . DIRECTORY_SEPARATOR . $coreRelPath;
+                    return true;
+                }
+            }
+
+            if (strpos($className, 'SPP\\Agent\\') === 0) {
+                $agentPath = SPP_BASE_DIR . DIRECTORY_SEPARATOR . 'agent' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, substr($className, strlen('SPP\\Agent\\'))) . '.php';
+                if (file_exists($agentPath)) {
+                    require_once $agentPath;
+                    return true;
+                }
+            }
+
             $pathParts = explode('\\', $className);
             $exceptionClass = end($pathParts);
             $candidatePaths = [
@@ -445,6 +461,11 @@ class Autoloader
                     if (file_exists($file)) return $file;
                 }
             }
+        }
+
+        if (strpos($className, 'SPP\\Agent\\') === 0) {
+            $agentFile = SPP_BASE_DIR . DIRECTORY_SEPARATOR . 'agent' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, substr($className, strlen('SPP\\Agent\\'))) . '.php';
+            if (file_exists($agentFile)) return $agentFile;
         }
 
         if (strpos($className, 'SPP\\Admin\\Services\\') === 0) {

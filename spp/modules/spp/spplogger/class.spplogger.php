@@ -149,7 +149,7 @@ class SPP_Logger extends \SPP\SPPObject
 
             while (file_exists($targetDir . "/" . $currentFile) && filesize($targetDir . "/" . $currentFile) >= $maxSize) {
                 $logNumber++;
-                $currentFile = self::getFormattedFilename($format, $appname, $date, $level, $logNumber);
+                $currentFile = self::getFormattedFilename($format, $appname, $channel, $date, $level, $logNumber);
             }
 
             $filePath = $targetDir . "/" . $currentFile;
@@ -215,9 +215,18 @@ class SPP_Logger extends \SPP\SPPObject
     {
         $uid = '';
         $uname = '';
-        if (\SPPMod\SPPAuth\SPPAuth::authSessionExists()) {
-            $uid = \SPPMod\SPPAuth\SPPAuth::get('UserId');
-            $uname = \SPPMod\SPPAuth\SPPAuth::get('UserName');
+        if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth') && \SPPMod\SPPAuth\SPPAuth::authSessionExists()) {
+            $currentUser = method_exists('\\SPPMod\\SPPAuth\\SPPAuth', 'getCurrentUser') ? \SPPMod\SPPAuth\SPPAuth::getCurrentUser() : null;
+            if ($currentUser) {
+                $uid = (string)($currentUser['id'] ?? '');
+                $uname = (string)($currentUser['username'] ?? '');
+            } else {
+                $u = \SPPMod\SPPAuth\SPPAuth::user();
+                if ($u) {
+                    $uid = (string)($u->id ?? '');
+                    $uname = (string)($u->username ?? ($u->id ?? ''));
+                }
+            }
         }
 
         $traceparent = null;

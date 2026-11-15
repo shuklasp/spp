@@ -28,6 +28,13 @@ The purpose is not to turn the handbook into a list of every PHP file. Instead, 
 | Routing / request dispatch | Core mandatory | Routing lab |
 | Multi-tenant domain routing (`DomainRouter`) | Core mandatory | Domain routing lab |
 | Single & Multi-Domain modes (`domain:mode`) | Core mandatory | Architecture modes & copy-paste lab |
+| Centralized PathResolver (`PathResolver`) | Core mandatory | Path traversal defense & canonical paths |
+| DomainContext & Scoping (`DomainContextResolver`) | Core mandatory | Execution context & `withDomain()` |
+| Domain Activation Matrix (`ApplicationRegistryService`) | Core mandatory | Independent app enablement per domain |
+| 4-Tier Configuration Cascade (`ConfigurationResolver`) | Core mandatory | Defaults -> Global -> Domain -> Runtime |
+| Multi-Scope Database Context (`DatabaseContextResolver`) | Core mandatory | Isolated connection pools & tenant databases |
+| Fail-Closed Domain Authorization (`AuthorizationService`) | Core mandatory | Domain boundary RBAC & AccessDeniedException |
+| Single-to-Multi-Domain Migration (`domain:migrate`) | Core mandatory | Automated migration CLI tooling |
 | Domain application scoping (`domain:app:scope`) | Core mandatory | Domain security lab |
 | Universal OS & Infra engine (`Infra`) | Core mandatory | Infrastructure & runtime lab |
 | Application uninstaller & backups (`AppUninstaller`) | Core mandatory | Lifecycle & operations lab |
@@ -353,7 +360,31 @@ These should be catalogued, but the handbook should distinguish them from univer
 | Bare-Metal Node Telemetry Console (`/admin/server`) | Core enterprise | Sovereign Linux operations lab |
 | Zero-cPanel Sovereign Hosting Architecture (AlmaLinux 9) | Core enterprise | Deployment topology lab |
 
-## 28.23 Final curriculum rule
+## 28.23 Sovereign Omnichannel Communication & e-Vaarta Mail Stack
+
+| Area | Teaching level | Tutorial treatment |
+|---|---|---|
+| Sovereign MTA Peer-to-Peer Direct MX Delivery (`MailGateway`) | Core enterprise | Direct MX egress & routing lab |
+| RFC 6376 DKIM Cryptographic Signer (RSA-2048 / Relaxed Canonicalization) | Core mandatory for mail | Cryptographic signing & verification lab |
+| Automated Deliverability Auditor & SPF/DMARC Synthesis (`auditDeliverability`) | Core mandatory for mail | Deliverability & DNS compliance lab |
+| Inbound SMTP Server & Anti-Relay Defense (`InboundSmtpServer`) | Core enterprise for security | Mail security & anti-relay lab |
+| Loopback Bypass & Sovereign Local Egress Guards | Core mandatory for mail | Egress architecture lab |
+| Virtual Mailbox Manager & Multi-Domain Account Quotas (`VirtualMailboxManager`) | Core mandatory for mail | Virtual mailboxes & hosting lab |
+| Progressive Webmail Client & Service Worker Offline Outbox (`sw.js` v3, `client.js`) | Core mandatory for UI | Offline outbox & PWA mail lab |
+| RFC 2045 MIME Multipart & Attachment Streaming | Core mandatory for mail | MIME encoding & decoding lab |
+
+## 28.24 Sovereign Edge Infrastructure & Cloudflare Bridge
+
+| Area | Teaching level | Tutorial treatment |
+|---|---|---|
+| Cloudflare Sovereign Edge Bridge (`CloudflareBridge`) | Core enterprise | Edge networking & Anycast lab |
+| Multi-Tier Scoped API Token Verification (`verifyToken` Fallback) | Core mandatory for edge | Token verification & security lab |
+| Masked Secret State Presentation & Stored Credential UX (`domains.js`) | Core mandatory for UX | Secret management & modal UX lab |
+| 1-Click Instant Subdomain Auto-Provisioner (`autoProvisionSubdomain`) | Core mandatory for hosting | Subdomain provisioning & proxy lab |
+| 1-Click Mail Deliverability Edge Alignment (`MailAdminService::alignDnsRecords`) | Core mandatory for mail | Edge DNS & SPF/DKIM sync lab |
+| Global CDN Cache Purge & RFC 1035 Zone Synchronization | Specialized branch | CDN caching & zone sync lab |
+
+## 28.25 Final curriculum rule
 
 A subsystem belongs in the **core tutorial** when a normal SPP developer needs it to understand the framework.
 

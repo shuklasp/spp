@@ -410,5 +410,76 @@ class TemplateMacros
         }
         return \SPPMod\SPPView\BlockManager::renderRegion($region, $blocks, $context);
     }
+
+    /**
+     * Render a LiveComponent instance.
+     */
+    public static function live(string $component, array $params = []): string
+    {
+        return \SPPMod\SPPView\LiveComponent::renderComponent($component, $params);
+    }
+
+    /**
+     * Alias for live matching Livewire syntax.
+     */
+    public static function livewire(string $component, array $params = []): string
+    {
+        return self::live($component, $params);
+    }
+
+    /**
+     * Determine if an error exists for a given field in the errors collection or session.
+     */
+    public static function hasError(mixed $errors, string $field): bool
+    {
+        if ($errors !== null) {
+            if (is_array($errors)) {
+                return !empty($errors[$field]);
+            }
+            if (is_object($errors) && method_exists($errors, 'has')) {
+                return $errors->has($field);
+            }
+            return false;
+        }
+        if (session_status() === PHP_SESSION_ACTIVE || !empty($_SESSION)) {
+            return !empty($_SESSION['_spp_errors'][$field]);
+        }
+        return false;
+    }
+
+    /**
+     * Get the first error message for a given field.
+     */
+    public static function getFirstError(mixed $errors, string $field): ?string
+    {
+        if ($errors !== null) {
+            if (is_array($errors)) {
+                $err = $errors[$field] ?? null;
+                return is_array($err) ? ($err[0] ?? null) : $err;
+            }
+            if (is_object($errors) && method_exists($errors, 'first')) {
+                return $errors->first($field);
+            }
+            return null;
+        }
+        if (session_status() === PHP_SESSION_ACTIVE || !empty($_SESSION)) {
+            if (!empty($_SESSION['_spp_errors'][$field])) {
+                $err = $_SESSION['_spp_errors'][$field];
+                return is_array($err) ? ($err[0] ?? null) : $err;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Retrieve flashed old input for a form field.
+     */
+    public static function old(string $field, mixed $default = null): mixed
+    {
+        if (class_exists('\\SPPMod\\SPPView\\ViewController') && method_exists('\\SPPMod\\SPPView\\ViewController', 'getOldInput')) {
+            return \SPPMod\SPPView\ViewController::getOldInput($field, $default);
+        }
+        return $_SESSION['_spp_old'][$field] ?? $_SESSION['_spp_old_input'][$field] ?? $default;
+    }
 }
 

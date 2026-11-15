@@ -1,12 +1,12 @@
 {
-    "SHOW TABLES": 235,
-    "SELECT name, script, method FROM sppajax_services": 62,
-    "INSERT INTO audit_logs (entity_type, entity_id, action, old_values, new_values, user_id, ip_address, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)": 547,
+    "SHOW TABLES": 299,
+    "SELECT name, script, method FROM sppajax_services": 98,
+    "INSERT INTO audit_logs (entity_type, entity_id, action, old_values, new_values, user_id, ip_address, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)": 894,
     "SELECT name FROM sqlite_master WHERE type=? AND name=?": 2,
     "SELECT ?": 2,
-    "SELECT id FROM spp_users WHERE username=?": 12,
-    "select * from spp_users where id=?": 12,
-    "SELECT roleid FROM spp_userroles WHERE userid=?": 9,
+    "SELECT id FROM spp_users WHERE username=?": 40,
+    "select * from spp_users where id=?": 40,
+    "SELECT roleid FROM spp_userroles WHERE userid=?": 37,
     "SELECT ? FROM loginrec WHERE sessid=?": 2,
     "UPDATE loginrec SET lastaccess=? WHERE sessid=?": 2,
     "SELECT * FROM login_attempts": 4,
@@ -30,6 +30,11 @@
     "CREATE DATABASE school": 10,
     "CREATE DATABASE finance": 10,
     "DROP TABLE school.teachers": 10,
-    "SELECT ? FROM spp_loginrec WHERE sessid=?": 4,
-    "DELETE FROM spp_loginrec WHERE sessid=?": 4
+    "SELECT ? FROM spp_loginrec WHERE sessid=?": 108,
+    "DELETE FROM spp_loginrec WHERE sessid=?": 108,
+    "SELECT attempts, last_attempt FROM spp_login_attempts \r\n                WHERE ip_address = ? AND username = ?": 10,
+    "DELETE FROM spp_login_attempts WHERE ip_address = ? AND username = ?": 10,
+    "SELECT count(*) as cnt FROM spp_loginrec WHERE sessid = ?": 10,
+    "INSERT INTO spp_loginrec (sessid, uid, logintime, ipaddr, lastaccess) VALUES (?, ?, ?, ?, ?)": 10,
+    "INSERT INTO spp_sppauth_audit_log (event_type, user_id, target_id, details, ip_address) VALUES (?, ?, ?, ?, ?)": 10
 }

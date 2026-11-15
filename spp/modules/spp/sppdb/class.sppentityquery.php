@@ -235,6 +235,18 @@ class SppEntityQuery
     }
 
     /**
+     * Alias for sort matching SQL / ORM conventions.
+     *
+     * @param string $field The field to sort by.
+     * @param string $direction 'ASC' or 'DESC'.
+     * @return $this
+     */
+    public function orderBy(string $field, string $direction = 'ASC'): self
+    {
+        return $this->sort($field, $direction);
+    }
+
+    /**
      * Set the maximum number of results to return.
      *
      * @param int $limit
@@ -302,6 +314,34 @@ class SppEntityQuery
         foreach ($relations as $rel) {
             $this->withRelations[] = $rel;
         }
+        return $this;
+    }
+
+    /**
+     * Add a relationship existence condition.
+     */
+    public function whereHas(string $relation, ?callable $callback = null): self
+    {
+        $this->conditions[] = [
+            'type' => 'relation_has',
+            'relation' => $relation,
+            'callback' => $callback,
+            'boolean' => 'AND'
+        ];
+        return $this;
+    }
+
+    /**
+     * Add a relationship absence condition.
+     */
+    public function whereDoesntHave(string $relation, ?callable $callback = null): self
+    {
+        $this->conditions[] = [
+            'type' => 'relation_doesnt_have',
+            'relation' => $relation,
+            'callback' => $callback,
+            'boolean' => 'AND'
+        ];
         return $this;
     }
 

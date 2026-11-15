@@ -443,7 +443,7 @@ HTML;
             }
         }
 
-        return $class;
+        return $candidates[0] ?? $class;
     }
 
     /**
@@ -1103,14 +1103,56 @@ HTML;
      */
     public static function signState(array $state): string
     {
-        // Use a persistent application secret rather than a volatile session secret
-        // to prevent "tampering" errors when the user's session expires (e.g. after 24 mins).
-        $secret = defined('SPP_SECRET_KEY') ? SPP_SECRET_KEY : (class_exists('\SPP\Config') ? \SPP\Config::get('app.secret', 'spp-default-insecure-key') : 'spp-default-insecure-key');
-        
-        // Sort the state keys to ensure deterministic JSON encoding
-        ksort($state);
-        $payload = json_encode($state);
+        $env = getenv('APP_ENV') ?: (defined('SPP_ENV') ? SPP_ENV : 'production');
+        $isLocalDev = in_array(strtolower((string)$env), ['local', 'dev', 'development', 'testing', 'test'], true);
+
+        $secret = defined('SPP_SECRET_KEY') && SPP_SECRET_KEY !== ''
+            ? SPP_SECRET_KEY
+            : (class_exists('\SPP\Config') ? \SPP\Config::get('app.secret', '') : '');
+
+        if (empty($secret)) {
+            $secret = getenv('APP_KEY') ?: (getenv('APP_SECRET') ?: '');
+        }
+
+        // Fail-closed security: In production, missing or default placeholder secrets are strictly forbidden
+        $insecurePlaceholders = ['spp-default-insecure-key', 'secret', 'changeme', 'password', '123456'];
+        if (empty($secret) || in_array(strtolower((string)$secret), $insecurePlaceholders, true)) {
+            if (!$isLocalDev) {
+                if (class_exists('\SPP\Core\Exceptions\SPPSecurityException')) {
+                    throw new \SPP\Core\Exceptions\SPPSecurityException(
+                        "LiveComponent Security Violation: A strong application secret (SPP_SECRET_KEY or app.secret) is required in {$env} environment. Default placeholder keys are strictly forbidden."
+                    );
+                }
+                throw new \Exception("LiveComponent Security Violation: Missing or insecure application secret in production.");
+            }
+            // In local/testing mode, provide a deterministic workspace secret rather than a weak universal default
+            $secret = 'spp-local-dev-fallback-' . md5(__DIR__);
+        }
+
+        // Bind signature to application context to prevent cross-app state replay
+        $appContext = class_exists('\SPP\Scheduler') && \SPP\Scheduler::hasContext() ? \SPP\Scheduler::getContext() : 'default';
+
+        // Bind signature to session status when active
+        $sessionSalt = (session_status() === PHP_SESSION_ACTIVE && session_id()) ? session_id() : 'stateless';
+
+        // Recursive key sorting for deterministic canonical JSON representation
+        self::ksortRecursive($state);
+        $payload = 'v2|' . $appContext . '|' . $sessionSalt . '|' . json_encode($state, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
         return hash_hmac('sha256', $payload, $secret);
+    }
+
+    /**
+     * Recursively sort array keys to guarantee deterministic serialization.
+     */
+    private static function ksortRecursive(array &$arr): void
+    {
+        ksort($arr);
+        foreach ($arr as &$value) {
+            if (is_array($value)) {
+                self::ksortRecursive($value);
+            }
+        }
     }
 
     // =========================================================================
@@ -1148,6 +1190,9 @@ HTML;
         // Verify tampering on pristine state
         $expectedChecksum = self::signState($state);
         if (!hash_equals($expectedChecksum, $checksum)) {
+            if (class_exists('\SPP\Core\Exceptions\SPPSecurityException')) {
+                throw new \SPP\Core\Exceptions\SPPSecurityException("LiveComponent state tampering or invalid signature detected.");
+            }
             throw new \Exception("LiveComponent state tampering detected.");
         }
 

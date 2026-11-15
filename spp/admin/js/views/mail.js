@@ -244,7 +244,7 @@ export default class MailServerView extends BaseClass {
     // =========================================================================
 
     async fetchServerMailboxes() {
-        const res = await this.callApi('server_mailboxes_list', {}, { lock: false });
+        const res = await this.callApi('server_mailboxes_list', { domain: 'all' }, { lock: false });
         if (res && res.success) {
             const updateState = { serverMailboxes: res.mailboxes || [] };
             if (res.domains && Array.isArray(res.domains) && res.domains.length > 0) {
@@ -269,7 +269,7 @@ export default class MailServerView extends BaseClass {
     }
 
     async fetchServerForwarders() {
-        const res = await this.callApi('server_forwarders_list', {}, { lock: false });
+        const res = await this.callApi('server_forwarders_list', { domain: 'all' }, { lock: false });
         if (res && res.success) {
             this.setState({ serverForwarders: res.forwarders || [] });
             if (this.state.activeTab === 'accounts') this.update();

@@ -705,6 +705,87 @@ On minimalist container images (like Alpine Linux without `php83-fileinfo`), sta
 
 ---
 
+## 16.23 Multi-Tenant Database Context Resolution (`DatabaseContextResolver`)
+
+In multi-tenant, multi-domain environments, different tenant domains and applications must never share a database connection indiscriminately. Tenant A's queries must never leak into or pollute Tenant B's tables.
+
+SPP solves this via the **Database Context Resolver** (`\SPP\Core\Database\DatabaseContextResolver`). It manages dedicated, isolated PDO connection pools across 5 distinct tenancy scopes:
+
+```mermaid
+flowchart TD
+    Req["Database Request"] --> DCR["DatabaseContextResolver::resolve()"]
+    DCR --> ScopeSwitch{"Tenancy Scope?"}
+    
+    ScopeSwitch -- "platform" --> PlatDB["Platform DB (var/db/default.sqlite)"]
+    ScopeSwitch -- "domain" --> DomDB["Domain DB (domains/{domain}/sppdata/{domain}.sqlite)"]
+    ScopeSwitch -- "domain_app" --> DomAppDB["Domain App DB (domains/{domain}/sppdata/{app}.sqlite)"]
+    ScopeSwitch -- "global_app" --> GlobAppDB["Global App DB (sppdata/{app}/{app}.sqlite)"]
+    ScopeSwitch -- "shared" --> SharedDB["Shared Multi-Tenant Database"]
+
+    subgraph Pool["Isolated Connection Pool (Key: type:domain:app)"]
+        PlatDB
+        DomDB
+        DomAppDB
+        GlobAppDB
+        SharedDB
+    end
+```
+
+### 1. Connection Resolution API
+```php
+use SPP\Core\Database\DatabaseContextResolver;
+
+$dbResolver = DatabaseContextResolver::getInstance();
+
+// 1. Resolve isolated connection for a specific domain tenant
+$tenantPdo = $dbResolver->resolve(
+    contextType: 'domain',
+    domainId: 'portal.example.com',
+    appId: 'school1'
+);
+
+// 2. Resolve platform-level shared database
+$platformPdo = $dbResolver->resolve(
+    contextType: 'platform'
+);
+
+// 3. Resolve dedicated database for a domain-isolated application
+$pluginPdo = $dbResolver->resolve(
+    contextType: 'domain_app',
+    domainId: 'portal.example.com',
+    appId: 'custom_plugin'
+);
+```
+
+### 2. Database Studio Integration
+In SPPAdmin's **Database Studio** (`/sppadmin/#database`), tenant connections are discovered and exposed under the `🌐 Multi-Domain Isolated Databases` optgroup using connection strings formatted as `context:<type>[:<domain>[:<app>]]`. Administrators can inspect schema tables, run queries, and optimize indexes on tenant databases while preserving strict isolation.
+
+---
+
+## 16.24 Multi-Domain Storage Boundaries & Traversal Defense
+
+Just as database connections are isolated, filesystem storage for tenant domains is logically and physically partitioned:
+
+- **Platform Storage (`sppdata/`)**: Global application caches, system audit logs (`sppdata/logs/audit.jsonl`), and shared temporary scratch files.
+- **Tenant Storage (`domains/<domain>/sppdata/`)**: Isolated tenant cache, tenant error logs, file uploads, and session data.
+
+```php
+use SPP\Core\Domain\PathResolver;
+use SPP\Core\File;
+
+$paths = PathResolver::getInstance();
+
+// Resolving domain upload path with traversal defense
+$tenantUploads = $paths->getDomainDataPath($domainId) . '/uploads';
+$paths->ensureDirectoryExists($tenantUploads);
+
+// Throws InvalidArgumentException if $userInput attempts ../ breakout
+$targetFilePath = $paths->resolveSafePath($tenantUploads, $userInput);
+File::putAtomic($targetFilePath, $data);
+```
+
+---
+
 ## Kernel Hacker note
 
 The most important internal design feature in the current code is the **double delegation boundary**:
@@ -712,10 +793,13 @@ The most important internal design feature in the current code is the **double d
 1. `SPPDB` can delegate to a backend adapter such as `XDBAdapter`.
 2. `SPP_XDB` can then delegate to an engine such as `XMLEngine` or `SQLiteEngine`.
 
-In the file and storage layer, SPP achieves architectural sovereignty through **staged atomic swap isolation**: `File::putAtomic()` isolates temporary filesystem handles from concurrent readers, preventing NTSTATUS lock collisions on Windows/WSL and guaranteeing zero partial reads across multi-threaded workers.
+In multi-tenant configurations, `DatabaseContextResolver` guarantees that connections are cached strictly by composite key (`type:domain:app`), ensuring zero cross-tenant contamination while maintaining high connection reuse. In the file and storage layer, `PathResolver` guarantees strict boundary containment against directory traversal attacks.
 
 ### Source map
 
+- `spp/core/Database/DatabaseContextResolver.php`
+- `spp/core/Domain/PathResolver.php`
+- `spp/admin/services/DatabaseAdminService.php`
 - `spp/core/class.file.php`
 - `spp/core/class.storage.php`
 - `spp/core/class.localdisk.php`

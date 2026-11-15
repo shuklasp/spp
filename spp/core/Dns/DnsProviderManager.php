@@ -127,8 +127,9 @@ class DnsProviderManager
         $clean = DnsRecordValidator::toPunycode($domain);
         $mappings = self::loadMappings();
 
+        $res = null;
         if (!empty($mappings['domains'][$clean])) {
-            return array_merge([
+            $res = array_merge([
                 'domain' => $clean,
                 'provider' => 'bind9',
                 'account_id' => null,
@@ -141,35 +142,51 @@ class DnsProviderManager
         }
 
         // Check if apex domain has a mapping (e.g. sub.example.com maps to example.com's provider)
-        $parts = explode('.', $clean);
-        if (count($parts) > 2) {
-            $apex = implode('.', array_slice($parts, -2));
-            if (!empty($mappings['domains'][$apex])) {
-                $parent = $mappings['domains'][$apex];
-                return [
-                    'domain' => $clean,
-                    'provider' => $parent['provider'] ?? 'bind9',
-                    'account_id' => $parent['account_id'] ?? null,
-                    'zone_id' => $parent['zone_id'] ?? $apex,
-                    'registrar' => $parent['registrar'] ?? 'whois',
-                    'sync_mode' => $parent['sync_mode'] ?? 'spp_managed',
-                    'dnssec_enabled' => !empty($parent['dnssec_enabled']),
-                    'nameservers' => $parent['nameservers'] ?? []
-                ];
+        if (!$res) {
+            $parts = explode('.', $clean);
+            if (count($parts) > 2) {
+                $apex = implode('.', array_slice($parts, -2));
+                if (!empty($mappings['domains'][$apex])) {
+                    $parent = $mappings['domains'][$apex];
+                    $res = [
+                        'domain' => $clean,
+                        'provider' => $parent['provider'] ?? 'bind9',
+                        'account_id' => $parent['account_id'] ?? null,
+                        'zone_id' => $parent['zone_id'] ?? $apex,
+                        'registrar' => $parent['registrar'] ?? 'whois',
+                        'sync_mode' => $parent['sync_mode'] ?? 'spp_managed',
+                        'dnssec_enabled' => !empty($parent['dnssec_enabled']),
+                        'nameservers' => $parent['nameservers'] ?? []
+                    ];
+                }
             }
         }
 
         // Fallback default: Sovereign Native BIND9
-        return [
-            'domain' => $clean,
-            'provider' => 'bind9',
-            'account_id' => null,
-            'zone_id' => $clean,
-            'registrar' => 'whois',
-            'sync_mode' => 'spp_managed',
-            'dnssec_enabled' => false,
-            'nameservers' => []
-        ];
+        if (!$res) {
+            $res = [
+                'domain' => $clean,
+                'provider' => 'bind9',
+                'account_id' => null,
+                'zone_id' => $clean,
+                'registrar' => 'whois',
+                'sync_mode' => 'spp_managed',
+                'dnssec_enabled' => false,
+                'nameservers' => []
+            ];
+        }
+
+        // If provider is Cloudflare and zone_id is not yet a 32-char hex ID, auto-resolve via CloudflareBridge
+        if ($res['provider'] === 'cloudflare' && !preg_match('/^[a-f0-9]{32}$/i', (string)($res['zone_id'] ?? ''))) {
+            if (class_exists(\SPP\Admin\Services\CloudflareBridge::class)) {
+                $resolved = \SPP\Admin\Services\CloudflareBridge::resolveZoneId($clean);
+                if ($resolved) {
+                    $res['zone_id'] = $resolved;
+                }
+            }
+        }
+
+        return $res;
     }
 
     /**

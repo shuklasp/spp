@@ -263,9 +263,12 @@ In production, SPP does not assume all routes belong to a single global hostname
    When hitting `portal.school1.edu/admin`, SPP's pipeline halts immediately with an **HTTP 403 Forbidden** error partial.
 
 3. **Domain-Isolated Applications**:
-   Install an app into `domains/portal.school1.edu/src/custom_app` to ensure its code and data are physically unreachable on any other domain.
+   Install an app into `domains/portal.school1.edu/apps/custom_app` to ensure its code and data are physically unreachable on any other domain.
 
-4. **Single Domain vs. Multi-Domain Mode Toggling**:
+4. **Domain Activation Matrix**:
+   Global applications in `apps/` or `src/` are not automatically active on all domains. Enable or disable applications per domain via SPPAdmin (`#apps?tab=matrix`) or inspect activation via `ApplicationRegistryService::isAppActiveOnDomain()`.
+
+5. **Single Domain vs. Multi-Domain Mode Toggling & Migration**:
    ```bash
    # Switch to Single Domain Mode: any host/IP serves default app with zero config
    php spp.php domain:mode single
@@ -274,6 +277,9 @@ In production, SPP does not assume all routes belong to a single global hostname
 
    # Switch to Multi-Domain Mode: activates virtual host enforcement
    php spp.php domain:mode multi strict
+
+   # Migrate single-domain installation to multi-domain canonical layout
+   php spp.php domain:migrate [--dry-run]
    ```
 
 ---
@@ -282,16 +288,19 @@ In production, SPP does not assume all routes belong to a single global hostname
 
 Trace:
 
-1. request enters runtime and `DomainRouter` identifies the active tenant host;
-2. `Scheduler` selects the application context (or default domain application);
-3. Domain Scoping checks permissions against host whitelists;
-4. route definitions are loaded from attributes or `etc/routes.yml`;
-5. PCRE chunked matcher selects a route;
-6. middleware context is constructed;
-7. handler/controller is resolved;
-8. arguments/parameters are resolved;
-9. controller calls application services;
-10. response is returned.
+1. request enters runtime, `DomainRouter` & `DomainContextResolver` identify active tenant host and bind `DomainContext`;
+2. `PathResolver` canonicalizes filesystem paths and prevents traversal attacks;
+3. `Scheduler` selects the application context (or default domain application);
+4. `ApplicationRegistryService` verifies application activation in the Domain Activation Matrix;
+5. `ConfigurationResolver` resolves 4-tier configuration cascade (defaults -> global -> domain -> runtime);
+6. Domain Scoping checks permissions against host whitelists;
+7. route definitions are loaded from attributes or `etc/routes.yml`;
+8. PCRE chunked matcher selects a route;
+9. middleware context is constructed;
+10. handler/controller is resolved;
+11. arguments/parameters are resolved;
+12. controller calls application services;
+13. response is returned.
 
 Also identify where API routing diverges from normal page handling.
 

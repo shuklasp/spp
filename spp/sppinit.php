@@ -56,7 +56,7 @@ if (!defined('SPP_VER')) {
 
   if (!defined('APP_BASE_URI')) {
     $appBaseUri = '';
-    if (isset($_SERVER['SCRIPT_NAME'])) {
+    if (PHP_SAPI !== 'cli' && isset($_SERVER['SCRIPT_NAME'])) {
       $appBaseUri = dirname($_SERVER['SCRIPT_NAME']);
       if (str_contains($appBaseUri, '/spp/admin')) {
         $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/spp/admin'));

@@ -76,7 +76,7 @@ class AsyncWorker
         });
 
         $http->on("request", function ($request, $response) use ($appName) {
-            Scheduler::withContext($appName, function() use ($appName, $request, $response) {
+            Scheduler::withContext($appName, function() use ($appName, $response) {
                 try {
                     // Forward Swoole request to SPP application core
                     $response->header("Content-Type", "text/html; charset=utf-8");

@@ -110,35 +110,98 @@ The implementation:
 
 This is a concrete example of SPP's event system influencing scheduler behavior.
 
-## 2.8 Application discovery and App instances
+## 2.8 DomainContext and Multi-Domain Execution Context
+
+Beyond selecting which application runs, enterprise SPP deployments frequently host multiple tenants or independent websites on a single framework installation.
+
+In SPP 2.0+, the Scheduler integrates directly with the **DomainContext** subsystem (`\SPP\Core\Domain\DomainContext` and `\SPP\Core\Domain\DomainContextResolver`).
+
+```mermaid
+flowchart TD
+    Req["Incoming HTTP or CLI Request"] --> Det["Scheduler::detectAndEnforceContext()"]
+    Det --> Res["DomainContextResolver::resolveContext()"]
+    Res --> Rec["Match Host against etc/domains.yml"]
+    Rec --> DC["Immutable DomainContext"]
+    DC --> SchedContext["Scheduler::$domainContext"]
+    SchedContext --> AppContext["Scheduler::$AppContext"]
+    
+    subgraph ContextState["Immutable DomainContext Capabilities"]
+        DC --> DId["Domain ID (e.g. portal.example.com)"]
+        DC --> DPaths["Filesystem Roots (domains/portal.example.com/)"]
+        DC --> DStore["Storage & Isolated Database Context"]
+        DC --> DActiveApp["Active Application & Module Context"]
+    end
+```
+
+### Retrieving Active Domain Context
+Applications, services, controllers, and background workers can access the active domain context at any time:
+
+```php
+use SPP\Scheduler;
+
+// 1. Get the full immutable DomainContext object
+$domainContext = Scheduler::getDomainContext();
+
+$domainId   = $domainContext->getDomainId();       // e.g. "portal.example.com"
+$domainRoot = $domainContext->getDomainPath();     // e.g. "/var/www/spp/domains/portal.example.com"
+$activeApp  = $domainContext->getActiveApp();      // e.g. "school1"
+$isMulti    = $domainContext->isMultiDomain();     // true if mode: multi
+
+// 2. Convenience shortcut for active domain identifier
+$currentDomain = Scheduler::getDomainId();
+```
+
+### Stack-Based Domain Scoping (`withDomain`)
+Just as `Scheduler::withContext()` allows running a routine within another application, `Scheduler::withDomain()` allows executing work scoped to another tenant domain without permanently altering global execution state.
+
+```php
+use SPP\Scheduler;
+
+// Temporarily switch to another domain tenant, execute callback, and restore previous domain
+$result = Scheduler::withDomain('portal.example.com', function() {
+    $scopedDomain = Scheduler::getDomainId(); // "portal.example.com"
+    
+    // Database queries, config lookups, and filesystem paths
+    // automatically bind to portal.example.com
+    return Student::where('status', 'enrolled')->findAll();
+});
+// Previous domain context is guaranteed to be restored (even if an exception was thrown)
+```
+
+## 2.9 Application discovery and App instances
 
 `SPP\\App::getApp()` resolves the requested application name from the explicit parameter or the active Scheduler context. `App` maintains its own static instance map.
 
-`App::getGlobalSettings()` loads the system configuration cache when available. Otherwise it parses `global-settings.yml` and performs dynamic application discovery by scanning `src/*/etc/app.yml`.
+`App::getGlobalSettings()` loads the system configuration cache when available. Otherwise it parses `global-settings.yml` and performs dynamic application discovery by scanning `apps/*/etc/app.yml` (canonical repository) and `src/*/etc/app.yml` (compatible repository).
 
 The discovery logic can populate application-specific `etc_path`, `src_path`, `var_path`, and `modules_path` values, normalizing relative paths under the discovered application's source tree.
 
-## 2.9 Enterprise implications
+## 2.10 Enterprise implications
 
 The implemented scheduler model enables a single SPP runtime to host multiple `App` objects while maintaining a single active context. That is materially different from a conventional single-application request bootstrap.
 
 What the source **does not** by itself prove is a general-purpose process isolation mechanism comparable to operating-system processes. The term `process` in this subsystem refers to an SPP `App` runtime object and its execution status.
 
-## 2.10 Comparison with common frameworks
+## 2.11 Comparison with common frameworks
 
 | Concern | Typical PHP MVC | SPP implementation |
 |---|---|---|
 | Application holder | One application object | Multiple registered `App` objects |
 | Active application | Implicit/request-scoped | Explicit Scheduler context |
-| Context switch API | Usually absent | `setContext()` / `withContext()` |
+| Domain context | Often external or ad-hoc | First-class `Scheduler::getDomainContext()` |
+| Context switch API | Usually absent | `setContext()` / `withContext()` / `withDomain()` |
 | Application status | Often external | `APP_EXEC`, `WAITING`, `STOPPED`, `ERROR` |
 | URI-based application selection | Router-specific | Scheduler event-assisted context detection |
 
 ## Kernel Hacker note
 
-The Scheduler is intentionally small. It does not contain the module loader, the view compiler, or the event listener implementation. Instead, it provides the **context boundary** through which those systems locate the active application.
+The Scheduler is intentionally small. It does not contain the module loader, the view compiler, or the event listener implementation. Instead, it provides the **context boundary** through which those systems locate the active application and domain tenant.
 
 ### Source map
 
 - `spp/core/class.scheduler.php`
 - `spp/core/class.app.php`
+- `spp/core/Domain/DomainContext.php`
+- `spp/core/Domain/DomainContextResolver.php`
+- `spp/core/Domain/DomainRegistry.php`
+- `spp/core/Domain/PathResolver.php`
