@@ -14,6 +14,7 @@ if (!class_exists(Infra::class)) {
     require_once dirname(__DIR__, 2) . '/core/class.infra.php';
 }
 require_once __DIR__ . '/DnsZoneManager.php';
+require_once __DIR__ . '/HostProvisionService.php';
 require_once __DIR__ . '/CloudflareBridge.php';
 require_once dirname(__DIR__, 2) . '/core/Dns/DnsProviderInterface.php';
 require_once dirname(__DIR__, 2) . '/core/Dns/DnsRecord.php';
@@ -1862,6 +1863,9 @@ class DomainAdminService
             DomainRouter::saveConfig();
 
             if ($method === 'apache') {
+                if (class_exists(HostProvisionService::class)) {
+                    HostProvisionService::ensureSslWildcardAlias($primaryDomain);
+                }
                 @exec('sudo systemctl reload apache2 2>/dev/null || sudo systemctl reload httpd 2>/dev/null');
             } elseif ($method === 'nginx') {
                 @exec('sudo systemctl reload nginx 2>/dev/null');

@@ -1,5 +1,5 @@
 {
-    "timestamp": 1792927952,
+    "timestamp": 1795099686,
     "spp_version": "0.7",
     "base_dir": "C:\\projects\\apache\\school1\\spp",
     "database": {
@@ -10,274 +10,831 @@
         "dbpasswd": false
     },
     "modules": {
-        "sppdb": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppdb",
-        "sppapi": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppapi",
-        "dbconfig": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/dbconfig",
-        "sppauth": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppauth",
-        "spplogger": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/spplogger",
-        "sppview": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppview",
-        "drishyam": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/drishyam",
-        "sppcache": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppcache",
-        "sppworkflow": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppworkflow",
-        "parikshak": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/parikshak",
-        "sppai": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppai",
-        "lekhni": "C:\\projects\\apache\\school1\\spp\/modules\/contrib\/lekhni",
-        "sppxdb": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppxdb",
-        "sppdeploy": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppdeploy",
-        "sppdoc": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppdoc",
-        "spprouter": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/spprouter",
-        "sppshield": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppshield",
-        "sppmetrics": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppmetrics",
-        "sppserver": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppserver",
-        "sppapps": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppapps",
-        "sppruntime": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppruntime",
-        "sppreseller": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppreseller"
+        "sppdb": "C:\\projects\\apache\\school1/spp/modules/spp/sppdb",
+        "sppapi": "C:\\projects\\apache\\school1/spp/modules/spp/sppapi",
+        "dbconfig": "C:\\projects\\apache\\school1/spp/modules/spp/dbconfig",
+        "sppauth": "C:\\projects\\apache\\school1/spp/modules/spp/sppauth",
+        "spplogger": "C:\\projects\\apache\\school1/spp/modules/spp/spplogger",
+        "sppview": "C:\\projects\\apache\\school1/spp/modules/spp/sppview",
+        "drishyam": "C:\\projects\\apache\\school1/spp/modules/spp/drishyam",
+        "sppcache": "C:\\projects\\apache\\school1/spp/modules/spp/sppcache",
+        "sppworkflow": "C:\\projects\\apache\\school1/spp/modules/spp/sppworkflow",
+        "parikshak": "C:\\projects\\apache\\school1/spp/modules/optional/parikshak",
+        "sppai": "C:\\projects\\apache\\school1/spp/modules/optional/sppai",
+        "lekhni": "C:\\projects\\apache\\school1/spp/modules/contrib/lekhni",
+        "sppxdb": "C:\\projects\\apache\\school1/spp/modules/optional/sppxdb",
+        "sppdeploy": "C:\\projects\\apache\\school1/spp/modules/optional/sppdeploy",
+        "sppdoc": "C:\\projects\\apache\\school1/spp/modules/optional/sppdoc",
+        "spprouter": "C:\\projects\\apache\\school1/spp/modules/spp/spprouter",
+        "sppshield": "C:\\projects\\apache\\school1/spp/modules/optional/sppshield",
+        "sppmetrics": "C:\\projects\\apache\\school1/spp/modules/optional/sppmetrics",
+        "sppserver": "C:\\projects\\apache\\school1/spp/modules/optional/sppserver",
+        "sppapps": "C:\\projects\\apache\\school1/spp/modules/optional/sppapps",
+        "sppruntime": "C:\\projects\\apache\\school1/spp/modules/optional/sppruntime",
+        "sppreseller": "C:\\projects\\apache\\school1/spp/modules/optional/sppreseller"
     },
     "runtimes": {
-        "python": {
-            "name": "Python",
-            "path": "C:\\Python312\\python.exe",
-            "version": "Python 3.12.10"
-        },
-        "perl": {
-            "name": "Perl",
-            "path": "C:\\xampp\\perl\\bin\\perl.exe",
-            "version": "5.32.1"
-        },
-        "java": {
-            "name": "Java",
-            "path": "C:\\Program Files\\Common Files\\Oracle\\Java\\javapath\\java.exe",
-            "version": "27"
-        },
-        "node": {
-            "name": "Node.js",
-            "path": "C:\\Program Files\\nodejs\\node.exe",
-            "version": "v21.4.0"
-        },
-        "dotnet": {
-            "name": ".NET",
-            "path": "C:\\Program Files\\dotnet\\dotnet.exe",
-            "version": "8.0.400"
-        },
-        "go": {
-            "name": "Go",
-            "path": "C:\\Program Files\\Go\\bin\\go.exe",
-            "version": "1.27.0"
-        },
-        "compiler": {
-            "name": "C++ Compiler",
-            "path": "",
-            "version": ""
-        },
         "ada": {
+            "id": "ada",
             "name": "Ada (GNAT)",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "adb",
+                "ads"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "awk": {
+            "id": "awk",
             "name": "AWK",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "script",
+            "extensions": [
+                "awk"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "bun": {
+            "id": "bun",
             "name": "Bun Runtime",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "interpreted",
+            "extensions": [
+                "bun.js",
+                "bun.ts"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "clojure": {
+            "id": "clojure",
             "name": "Clojure",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "functional",
+            "extensions": [
+                "clj",
+                "cljc",
+                "edn"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "cpp": {
+            "id": "cpp",
             "name": "C++ (Native)",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "cpp",
+                "cc",
+                "cxx"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "crystal": {
+            "id": "crystal",
             "name": "Crystal",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "cr"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "dart": {
+            "id": "dart",
             "name": "Dart",
             "path": "C:\\flutter\\bin\\dart",
-            "version": "Dart SDK version: 3.11.5 (stable) (Wed Apr 15 00:36:32 2026 -0700) on \"windows_x64\""
+            "version": "Dart SDK version: 3.11.5 (stable) (Wed Apr 15 00:36:32 2026 -0700) on \"windows_x64\"",
+            "category": "interpreted",
+            "extensions": [
+                "dart"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "deno": {
+            "id": "deno",
             "name": "Deno Runtime",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "interpreted",
+            "extensions": [
+                "deno.ts",
+                "deno.js"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "dlang": {
+            "id": "dlang",
             "name": "D (Dlang)",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "d"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
+        },
+        "dotnet": {
+            "id": "dotnet",
+            "name": ".NET (C#)",
+            "path": "C:\\Program Files\\dotnet\\dotnet.exe",
+            "version": "8.0.400",
+            "category": "compiled",
+            "extensions": [
+                "cs",
+                "csproj",
+                "dll"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": true,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "elixir": {
+            "id": "elixir",
             "name": "Elixir",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "interpreted",
+            "extensions": [
+                "ex",
+                "exs"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "erlang": {
+            "id": "erlang",
             "name": "Erlang",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "functional",
+            "extensions": [
+                "erl",
+                "escript"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "formula": {
+            "id": "formula",
             "name": "SPP Formula & Rule DSL",
-            "path": "",
-            "version": "Not found in PATH"
+            "path": "in-process",
+            "version": "In-Process Sandboxed Engine",
+            "category": "dsl",
+            "extensions": [
+                "calc",
+                "rule"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "fortran": {
+            "id": "fortran",
             "name": "Fortran",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "scientific",
+            "extensions": [
+                "f90",
+                "f95",
+                "f03",
+                "f",
+                "for"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "fsharp": {
+            "id": "fsharp",
             "name": "F# (.NET Functional)",
             "path": "C:\\Program Files\\dotnet\\dotnet.exe",
-            "version": "8.0.400"
+            "version": "8.0.400",
+            "category": "functional",
+            "extensions": [
+                "fs",
+                "fsi",
+                "fsx"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
+        },
+        "go": {
+            "id": "go",
+            "name": "Go",
+            "path": "C:\\Program Files\\Go\\bin\\go.exe",
+            "version": "1.27.0",
+            "category": "compiled",
+            "extensions": [
+                "go"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": true,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "groovy": {
+            "id": "groovy",
             "name": "Groovy",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "interpreted",
+            "extensions": [
+                "groovy",
+                "gvy"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "haskell": {
+            "id": "haskell",
             "name": "Haskell (GHC)",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "functional",
+            "extensions": [
+                "hs",
+                "lhs"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
+        },
+        "java": {
+            "id": "java",
+            "name": "Java",
+            "path": "C:\\Program Files\\Common Files\\Oracle\\Java\\javapath\\java.exe",
+            "version": "java version \"27\" 2026-09-15",
+            "category": "compiled",
+            "extensions": [
+                "java",
+                "jar"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": true,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "julia": {
+            "id": "julia",
             "name": "Julia",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "interpreted",
+            "extensions": [
+                "jl"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "kotlin": {
+            "id": "kotlin",
             "name": "Kotlin",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "kt",
+                "kts"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "lisp": {
+            "id": "lisp",
             "name": "Common Lisp (SBCL)",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "functional",
+            "extensions": [
+                "lisp",
+                "lsp",
+                "cl"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "lua": {
+            "id": "lua",
             "name": "Lua",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "interpreted",
+            "extensions": [
+                "lua"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "nim": {
+            "id": "nim",
             "name": "Nim",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "nim"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
+        },
+        "node": {
+            "id": "node",
+            "name": "Node.js",
+            "path": "C:\\Program Files\\nodejs\\node.exe",
+            "version": "v21.4.0",
+            "category": "interpreted",
+            "extensions": [
+                "js",
+                "mjs"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": true,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "ocaml": {
+            "id": "ocaml",
             "name": "OCaml",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "functional",
+            "extensions": [
+                "ml",
+                "mli"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "octave": {
-            "name": "GNU Octave \/ MATLAB",
+            "id": "octave",
+            "name": "GNU Octave / MATLAB",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "scientific",
+            "extensions": [
+                "m"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "odin": {
+            "id": "odin",
             "name": "Odin",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "odin"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "pascal": {
+            "id": "pascal",
             "name": "Free Pascal",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "pas",
+                "pp"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
+        },
+        "perl": {
+            "id": "perl",
+            "name": "Perl",
+            "path": "C:\\xampp\\perl\\bin\\perl.exe",
+            "version": "",
+            "category": "interpreted",
+            "extensions": [
+                "pl",
+                "pm"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": true,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "php": {
-            "name": "PHP (Worker \/ Script)",
+            "id": "php",
+            "name": "PHP (Worker / Script)",
             "path": "C:\\xampp\\php\\php.exe",
-            "version": "PHP 8.2.12 (cli) (built: Oct 24 2023 21:15:15) (ZTS Visual C++ 2019 x64)"
+            "version": "PHP 8.2.12 (cli) (built: Oct 24 2023 21:15:15) (ZTS Visual C++ 2019 x64)",
+            "category": "interpreted",
+            "extensions": [
+                "php"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
+        },
+        "python": {
+            "id": "python",
+            "name": "Python",
+            "path": "C:\\Python312\\python.exe",
+            "version": "3.12.10",
+            "category": "interpreted",
+            "extensions": [
+                "py"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": true,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "r": {
+            "id": "r",
             "name": "R (Rscript)",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "interpreted",
+            "extensions": [
+                "r",
+                "R"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "racket": {
+            "id": "racket",
             "name": "Racket",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "functional",
+            "extensions": [
+                "rkt"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "ruby": {
+            "id": "ruby",
             "name": "Ruby",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "interpreted",
+            "extensions": [
+                "rb"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "rust": {
+            "id": "rust",
             "name": "Rust",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "rs"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "scala": {
+            "id": "scala",
             "name": "Scala",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "functional",
+            "extensions": [
+                "scala"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "scheme": {
+            "id": "scheme",
             "name": "Scheme (Guile)",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "functional",
+            "extensions": [
+                "scm",
+                "ss"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "shell": {
-            "name": "Shell (Bash \/ PowerShell)",
+            "id": "shell",
+            "name": "Shell (Bash / PowerShell)",
             "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-            "version": "At line:1 char:3"
+            "version": "At line:1 char:3",
+            "category": "interpreted",
+            "extensions": [
+                "sh",
+                "bash",
+                "ps1"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "solidity": {
+            "id": "solidity",
             "name": "Solidity",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "sol"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "sql": {
+            "id": "sql",
             "name": "SQL Script",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "script",
+            "extensions": [
+                "sql"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "swift": {
+            "id": "swift",
             "name": "Swift",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "swift"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "tcl": {
+            "id": "tcl",
             "name": "Tcl",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "interpreted",
+            "extensions": [
+                "tcl"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "typescript": {
+            "id": "typescript",
             "name": "TypeScript",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "interpreted",
+            "extensions": [
+                "ts",
+                "tsx"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "vlang": {
+            "id": "vlang",
             "name": "V (Vlang)",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "v"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "wasm": {
+            "id": "wasm",
             "name": "WebAssembly (WASI)",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "wasm",
+            "extensions": [
+                "wasm",
+                "wat"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "zig": {
+            "id": "zig",
             "name": "Zig",
             "path": "",
-            "version": "Not found in PATH"
+            "version": "Not found in PATH",
+            "category": "compiled",
+            "extensions": [
+                "zig"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         },
         "minilang": {
+            "id": "minilang",
             "name": "Minilang",
-            "path": "",
-            "version": "Not found in PATH"
+            "path": "in-process",
+            "version": "In-Process Sandboxed Engine",
+            "category": "dsl",
+            "extensions": [
+                "mini"
+            ],
+            "enabled": true,
+            "worker": {
+                "daemon_supported": false,
+                "protocol": "spp-socket-2.0",
+                "auth_required": true
+            }
         }
     },
     "bridge_settings": {

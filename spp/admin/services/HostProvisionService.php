@@ -410,70 +410,155 @@ EOF;
                 $vhostFile = '/etc/httpd/conf.d/000-default.conf';
             }
 
-            // Fast-path: Check if vhost is already configured properly with SPP DocumentRoot, Aliases & Wildcard Subdomain
+            // Check if primary port 80 vhost is already configured properly with SPP DocumentRoot, Aliases & Wildcard Subdomain
             $existing = file_exists($vhostFile) ? @file_get_contents($vhostFile) : '';
-            if (str_contains($existing, "Alias /sppadmin {$baseDir}/spp/admin") && str_contains($existing, "DocumentRoot {$baseDir}") && str_contains($existing, "*.{$domain}")) {
-                return [
-                    'success' => true,
-                    'message' => "Primary Apache VirtualHost at {$vhostFile} already active with DocumentRoot and SPP aliases."
-                ];
+            $needsVhostWrite = !(str_contains($existing, "Alias /sppadmin {$baseDir}/spp/admin") && str_contains($existing, "DocumentRoot {$baseDir}") && str_contains($existing, "*.{$domain}"));
+
+            if ($needsVhostWrite) {
+                $tmpFile = sys_get_temp_dir() . '/spp_000_default.conf';
+                file_put_contents($tmpFile, $vhostContent);
+
+                @exec("{$sudo}cp {$tmpFile} {$vhostFile} 2>/dev/null");
+                @exec("{$sudo}chmod 644 {$vhostFile} 2>/dev/null");
+                @unlink($tmpFile);
+
+                if (Infra::hasBinary('a2ensite')) {
+                    @exec("{$sudo}a2ensite 000-default.conf 2>/dev/null");
+                }
             }
 
-            $tmpFile = sys_get_temp_dir() . '/spp_000_default.conf';
-            file_put_contents($tmpFile, $vhostContent);
+            // Always ensure SSL VirtualHosts (e.g. domain-le-ssl.conf or 000-default-le-ssl.conf) include the wildcard ServerAlias
+            $sslRes = self::ensureSslWildcardAlias($domain);
 
-            @exec("{$sudo}cp {$tmpFile} {$vhostFile} 2>/dev/null");
-            @exec("{$sudo}chmod 644 {$vhostFile} 2>/dev/null");
-            @unlink($tmpFile);
-
-            if (Infra::hasBinary('a2ensite')) {
-                @exec("{$sudo}a2ensite 000-default.conf 2>/dev/null");
+            if ($needsVhostWrite || !empty($sslRes['patched'])) {
+                // Reload Apache gracefully
+                $apacheService = Infra::hasBinary('httpd') ? 'httpd' : 'apache2';
+                if (PHP_SAPI === 'cli') {
+                    @exec("{$sudo}systemctl reload {$apacheService} 2>/dev/null");
+                } else {
+                    @exec("{$sudo}apache2ctl graceful 2>/dev/null || {$sudo}systemctl reload {$apacheService} 2>/dev/null");
+                }
             }
 
-            // Also ensure SSL VirtualHosts (e.g. 000-default-le-ssl.conf or domain-le-ssl.conf) include the wildcard ServerAlias
-            $sslCandidates = [
+            return [
+                'success' => true,
+                'message' => $needsVhostWrite
+                    ? "Configured primary Apache VirtualHost at {$vhostFile} with DocumentRoot and SPP aliases."
+                    : "Primary Apache VirtualHost at {$vhostFile} already active; SSL wildcard aliases verified.",
+                'ssl_patched' => $sslRes['patched'] ?? []
+            ];
+        }
+
+        return ['success' => true, 'message' => 'Web server configuration verified.'];
+    }
+
+    /**
+     * Ensures all Apache/HTTPD SSL VirtualHosts matching the domain include wildcard ServerAlias (*.domain).
+     * Scans sites-available, sites-enabled, and conf.d to prevent SNI fallback to unrelated VirtualHosts.
+     *
+     * @param string $domain The primary domain (e.g. satyalab.net)
+     * @param array|null $customCandidates Optional explicit file paths (useful for testing or dedicated vhosts)
+     * @return array Summary of inspected and patched SSL configuration files
+     */
+    public static function ensureSslWildcardAlias(string $domain, ?array $customCandidates = null): array
+    {
+        $domain = strtolower(trim($domain));
+        if ($domain === '' || $domain === 'localhost') {
+            return ['success' => true, 'patched' => [], 'inspected' => 0];
+        }
+
+        $isLinux = Infra::isLinux();
+        $isWindows = Infra::isWindows();
+        $isRoot = function_exists('posix_getuid') ? (posix_getuid() === 0) : false;
+        $sudo = $isRoot ? '' : 'sudo ';
+
+        if ($customCandidates !== null) {
+            $candidates = $customCandidates;
+        } else {
+            if ($isWindows) {
+                return ['success' => true, 'patched' => [], 'inspected' => 0];
+            }
+
+            $searchDirs = [
+                '/etc/apache2/sites-available',
+                '/etc/apache2/sites-enabled',
+                '/etc/httpd/conf.d'
+            ];
+            $candidates = [
                 '/etc/apache2/sites-available/000-default-le-ssl.conf',
                 "/etc/apache2/sites-available/{$domain}-le-ssl.conf",
                 "/etc/apache2/sites-available/{$domain}.conf",
                 "/etc/httpd/conf.d/{$domain}-le-ssl.conf"
             ];
-            foreach ($sslCandidates as $sslConf) {
-                if (file_exists($sslConf)) {
-                    $sslContent = @file_get_contents($sslConf);
-                    if ($sslContent && !str_contains($sslContent, "*.{$domain}")) {
-                        if (preg_match('/ServerName\s+' . preg_quote($domain, '/') . '/i', $sslContent)) {
-                            $patched = preg_replace(
-                                '/(ServerName\s+' . preg_quote($domain, '/') . ')/i',
-                                "$1\n    ServerAlias *.{$domain}",
-                                $sslContent,
-                                1
-                            );
-                            if ($patched && $patched !== $sslContent) {
-                                $tmpSsl = sys_get_temp_dir() . '/spp_ssl_' . basename($sslConf);
-                                file_put_contents($tmpSsl, $patched);
-                                @exec("{$sudo}cp {$tmpSsl} {$sslConf} 2>/dev/null");
-                                @unlink($tmpSsl);
-                            }
-                        }
+            foreach ($searchDirs as $dir) {
+                if (is_dir($dir)) {
+                    $files = glob("{$dir}/*.conf");
+                    if ($files) {
+                        $candidates = array_merge($candidates, $files);
                     }
                 }
             }
-
-            // Reload Apache gracefully
-            $apacheService = Infra::hasBinary('httpd') ? 'httpd' : 'apache2';
-            if (PHP_SAPI === 'cli') {
-                @exec("{$sudo}systemctl reload {$apacheService} 2>/dev/null");
-            } else {
-                @exec("{$sudo}apache2ctl graceful 2>/dev/null || {$sudo}systemctl reload {$apacheService} 2>/dev/null");
-            }
-
-            return [
-                'success' => true,
-                'message' => "Configured primary Apache VirtualHost at {$vhostFile} with DocumentRoot and SPP aliases."
-            ];
         }
 
-        return ['success' => true, 'message' => 'Web server configuration verified.'];
+        $canonicalFiles = [];
+        foreach ($candidates as $f) {
+            if (file_exists($f)) {
+                $rp = realpath($f) ?: $f;
+                $canonicalFiles[$rp] = true;
+            }
+        }
+
+        $patchedFiles = [];
+        foreach (array_keys($canonicalFiles) as $sslConf) {
+            $content = @file_get_contents($sslConf);
+            if (!$content) continue;
+
+            // Must match ServerName domain
+            if (!preg_match('/ServerName\s+' . preg_quote($domain, '/') . '(?:\s|$)/i', $content)) {
+                continue;
+            }
+
+            // If already contains *.domain in a ServerAlias, nothing to do
+            if (preg_match('/ServerAlias\s+.*?\*\.' . preg_quote($domain, '/') . '(?:\s|$)/i', $content)) {
+                continue;
+            }
+
+            // Patch: if an existing ServerAlias exists in this vhost, append *.domain
+            if (preg_match('/(ServerAlias\s+[^\r\n]+)/i', $content)) {
+                $patched = preg_replace(
+                    '/(ServerAlias\s+[^\r\n]+)/i',
+                    "$1 *.{$domain}",
+                    $content,
+                    1
+                );
+            } else {
+                // Otherwise insert ServerAlias right after ServerName
+                $patched = preg_replace(
+                    '/(ServerName\s+' . preg_quote($domain, '/') . '[^\r\n]*)/i',
+                    "$1\n    ServerAlias www.{$domain} *.{$domain}",
+                    $content,
+                    1
+                );
+            }
+
+            if ($patched && $patched !== $content) {
+                if ($isWindows) {
+                    file_put_contents($sslConf, $patched);
+                } else {
+                    $tmpSsl = sys_get_temp_dir() . '/spp_ssl_' . basename($sslConf);
+                    file_put_contents($tmpSsl, $patched);
+                    @exec("{$sudo}cp {$tmpSsl} {$sslConf} 2>/dev/null");
+                    @unlink($tmpSsl);
+                }
+                $patchedFiles[] = $sslConf;
+            }
+        }
+
+        return [
+            'success' => true,
+            'patched' => $patchedFiles,
+            'inspected' => count($canonicalFiles)
+        ];
     }
 
     /**
