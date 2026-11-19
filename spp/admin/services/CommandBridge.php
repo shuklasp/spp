@@ -83,13 +83,7 @@ class CommandBridge
 
         // If command is marked CLI-only and running under Web SAPI (Apache/FPM):
         if ($cmdObj->isCLIOnly() && PHP_SAPI !== 'cli') {
-            // Interactive REPL shells are strictly disallowed from web execution
-            if (in_array($commandName, ['shell', 'tinker'], true)) {
-                return ['success' => false, 'error' => "Security Exception: Command '{$commandName}' requires an interactive terminal and cannot be run from the Web UI."];
-            }
-
-            // Bridge execution via real CLI subprocess where PHP_SAPI === 'cli'
-            return self::executeViaCliProcess($commandName, $args);
+            return ['success' => false, 'error' => "Security Exception: Command '{$commandName}' is restricted to CLI execution only and cannot be executed via the Web UI."];
         }
 
         $result = CommandManager::execute($commandName, $args);
@@ -116,43 +110,41 @@ class CommandBridge
             $sppPath = dirname(__DIR__, 2) . '/spp';
         }
 
-        $cmdParts = [escapeshellarg($phpBinary), escapeshellarg($sppPath), escapeshellarg($commandName)];
+        $cmdArray = [$phpBinary, $sppPath, $commandName];
         foreach ($args as $k => $v) {
             if (is_numeric($k)) {
-                $cmdParts[] = escapeshellarg((string) $v);
+                $cmdArray[] = (string) $v;
             } else {
-                if (str_starts_with($k, '-')) {
-                    $cmdParts[] = escapeshellarg("{$k}={$v}");
+                if (str_starts_with((string)$k, '-')) {
+                    $cmdArray[] = "{$k}={$v}";
                 } else {
-                    $cmdParts[] = escapeshellarg("--{$k}={$v}");
+                    $cmdArray[] = "--{$k}={$v}";
                 }
             }
         }
 
-        $cmdLine = implode(' ', $cmdParts);
-        $tmpOut = tempnam(sys_get_temp_dir(), 'spp_cli_out_');
-        $tmpErr = tempnam(sys_get_temp_dir(), 'spp_cli_err_');
-
-        $descriptors = [
-            0 => ['pipe', 'r'],
-            1 => ['file', $tmpOut, 'w'],
-            2 => ['file', $tmpErr, 'w']
-        ];
-
-        $proc = @proc_open($cmdLine, $descriptors, $pipes, dirname(__DIR__, 2));
-        if (!is_resource($proc)) {
-            @unlink($tmpOut);
-            @unlink($tmpErr);
-            return ['success' => false, 'error' => "Failed to spawn CLI subprocess for '{$commandName}'."];
+        if (class_exists('\\SPP\\Core\\Polyglot\\ProcessRunner')) {
+            $res = \SPP\Core\Polyglot\ProcessRunner::run($cmdArray, dirname(__DIR__, 2));
+            $output = $res->stdout;
+            $stderr = $res->stderr;
+            $exitCode = $res->exitCode;
+        } else {
+            $descriptors = [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w']
+            ];
+            $proc = @proc_open($cmdArray, $descriptors, $pipes, dirname(__DIR__, 2));
+            if (!is_resource($proc)) {
+                return ['success' => false, 'error' => "Failed to spawn CLI subprocess for '{$commandName}'."];
+            }
+            fclose($pipes[0]);
+            $output = (string)stream_get_contents($pipes[1]);
+            fclose($pipes[1]);
+            $stderr = (string)stream_get_contents($pipes[2]);
+            fclose($pipes[2]);
+            $exitCode = proc_close($proc);
         }
-
-        fclose($pipes[0]);
-        $exitCode = proc_close($proc);
-
-        $output = file_exists($tmpOut) ? (string)file_get_contents($tmpOut) : '';
-        $stderr = file_exists($tmpErr) ? (string)file_get_contents($tmpErr) : '';
-        @unlink($tmpOut);
-        @unlink($tmpErr);
 
         if ($exitCode !== 0 && empty($output)) {
             return ['success' => false, 'error' => !empty($stderr) ? trim($stderr) : "Command exited with code {$exitCode}."];

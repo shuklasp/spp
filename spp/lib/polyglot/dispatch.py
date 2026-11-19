@@ -1,4 +1,4 @@
-import sys, json, importlib, os, socket, re, time
+import sys, json, importlib, os, socket, re, time, secrets
 
 def load_module(module_name):
     bridge_dir = os.path.dirname(os.path.abspath(__file__))
@@ -117,7 +117,7 @@ def main():
                 # 1. Authenticate Request
                 if auth_token:
                     client_token = req.get("auth_token", "")
-                    if client_token != auth_token:
+                    if not secrets.compare_digest(str(client_token), str(auth_token)):
                         conn.sendall(json.dumps({
                             "success": False,
                             "error": "Unauthorized: invalid or missing auth_token",

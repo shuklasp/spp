@@ -88,7 +88,7 @@ class PolyglotJob extends Job
     }
 
     /**
-     * Executes the queued job.
+     * Executes the queued job with atomic locking and execution tracking.
      */
     public function handle(): void
     {
@@ -97,68 +97,96 @@ class PolyglotJob extends Job
             return;
         }
 
-        $state = self::getState($jobId);
-        if (!$state || $state['status'] === self::STATUS_CANCELLED) {
+        $storageDir = self::getStorageDir();
+        $lockFile = $storageDir . DIRECTORY_SEPARATOR . basename($jobId) . '.lock';
+        $lockFp = @fopen($lockFile, 'c+');
+        if ($lockFp === false) {
             return;
         }
 
-        $state['status'] = self::STATUS_RUNNING;
-        $state['started_at'] = microtime(true);
-        $state['attempts'] = ($state['attempts'] ?? 0) + 1;
-        self::saveState($jobId, $state);
-
-        // Trace Propagation
-        if (class_exists('\\SPPMod\\SPPReport\\W3CTraceContext')) {
-            \SPPMod\SPPReport\W3CTraceContext::startTrace("PolyglotJob:{$state['lang']}:{$state['func']}");
+        // Prevent duplicate execution: ensure only one worker/runner claims this job
+        if (!@flock($lockFp, LOCK_EX | LOCK_NB)) {
+            @fclose($lockFp);
+            return; // Already being executed by another queue worker or CLI runner
         }
 
-        $lang = $state['lang'];
-        $module = $state['module'];
-        $func = $state['func'];
-        $args = $state['args'] ?? [];
-        $daemon = $state['daemon'] ?? false;
-
         try {
-            $callRes = PolyglotBridge::call($lang, $module, $func, $args, $daemon);
+            $state = self::getState($jobId);
+            if (!$state || $state['status'] === self::STATUS_CANCELLED || $state['status'] === self::STATUS_COMPLETED) {
+                return;
+            }
 
-            if (isset($callRes['success']) && $callRes['success']) {
-                $state['status'] = self::STATUS_COMPLETED;
-                $state['result'] = $callRes['data'] ?? null;
-                $state['completed_at'] = microtime(true);
-            } else {
-                $errorMsg = $callRes['error'] ?? 'Polyglot execution failed without error message.';
+            // Record execution metadata and active PID
+            $currentPid = getmypid() ?: 0;
+            $state['status'] = self::STATUS_RUNNING;
+            $state['pid'] = $currentPid;
+            $state['process_id'] = $currentPid;
+            $state['started_at'] = microtime(true);
+            $state['attempts'] = ($state['attempts'] ?? 0) + 1;
+            self::saveState($jobId, $state);
+
+            // Trace Propagation
+            if (class_exists('\\SPPMod\\SPPReport\\W3CTraceContext')) {
+                \SPPMod\SPPReport\W3CTraceContext::startTrace("PolyglotJob:{$state['lang']}:{$state['func']}");
+            }
+
+            $lang = $state['lang'];
+            $module = $state['module'];
+            $func = $state['func'];
+            $args = $state['args'] ?? [];
+            $daemon = $state['daemon'] ?? false;
+
+            try {
+                $callRes = PolyglotBridge::call($lang, $module, $func, $args, $daemon);
+
+                // Re-check cancellation in case it was cancelled while PolyglotBridge was running
+                $freshState = self::getState($jobId);
+                if ($freshState && $freshState['status'] === self::STATUS_CANCELLED) {
+                    return;
+                }
+
+                if (isset($callRes['success']) && $callRes['success']) {
+                    $state['status'] = self::STATUS_COMPLETED;
+                    $state['result'] = $callRes['data'] ?? null;
+                    $state['completed_at'] = microtime(true);
+                } else {
+                    $errorMsg = $callRes['error'] ?? 'Polyglot execution failed without error message.';
+                    if ($state['attempts'] < $state['retries']) {
+                        // Retry
+                        $state['status'] = self::STATUS_QUEUED;
+                        $state['error'] = "Attempt {$state['attempts']} failed: {$errorMsg}";
+                        self::saveState($jobId, $state);
+                        if (class_exists(Queue::class)) {
+                            Queue::push(new self($state), 2); // 2s delay
+                        }
+                        return;
+                    } else {
+                        $state['status'] = self::STATUS_FAILED;
+                        $state['error'] = $errorMsg;
+                        $state['completed_at'] = microtime(true);
+                    }
+                }
+            } catch (\Throwable $e) {
                 if ($state['attempts'] < $state['retries']) {
-                    // Retry
                     $state['status'] = self::STATUS_QUEUED;
-                    $state['error'] = "Attempt {$state['attempts']} failed: {$errorMsg}";
+                    $state['error'] = "Attempt {$state['attempts']} exception: " . $e->getMessage();
                     self::saveState($jobId, $state);
                     if (class_exists(Queue::class)) {
-                        Queue::push(new self($state), 2); // 2s delay
+                        Queue::push(new self($state), 2);
                     }
                     return;
                 } else {
                     $state['status'] = self::STATUS_FAILED;
-                    $state['error'] = $errorMsg;
+                    $state['error'] = $e->getMessage();
                     $state['completed_at'] = microtime(true);
                 }
             }
-        } catch (\Throwable $e) {
-            if ($state['attempts'] < $state['retries']) {
-                $state['status'] = self::STATUS_QUEUED;
-                $state['error'] = "Attempt {$state['attempts']} exception: " . $e->getMessage();
-                self::saveState($jobId, $state);
-                if (class_exists(Queue::class)) {
-                    Queue::push(new self($state), 2);
-                }
-                return;
-            } else {
-                $state['status'] = self::STATUS_FAILED;
-                $state['error'] = $e->getMessage();
-                $state['completed_at'] = microtime(true);
-            }
-        }
 
-        self::saveState($jobId, $state);
+            self::saveState($jobId, $state);
+        } finally {
+            @flock($lockFp, LOCK_UN);
+            @fclose($lockFp);
+        }
     }
 
     /**
@@ -195,22 +223,52 @@ class PolyglotJob extends Job
     }
 
     /**
-     * Cancels a queued job.
+     * Cancels a queued or running job, terminating child processes and recording cancellation telemetry.
      */
     public static function cancel(string $jobId): bool
     {
-        $state = self::getState($jobId);
-        if (!$state) {
-            return false;
+        $storageDir = self::getStorageDir();
+        $lockFile = $storageDir . DIRECTORY_SEPARATOR . basename($jobId) . '.lock';
+        $lockFp = @fopen($lockFile, 'c+');
+
+        if ($lockFp !== false) {
+            @flock($lockFp, LOCK_EX);
         }
 
-        if (in_array($state['status'], [self::STATUS_COMPLETED, self::STATUS_FAILED, self::STATUS_CANCELLED], true)) {
-            return false;
-        }
+        try {
+            $state = self::getState($jobId);
+            if (!$state) {
+                return false;
+            }
 
-        $state['status'] = self::STATUS_CANCELLED;
-        $state['completed_at'] = microtime(true);
-        self::saveState($jobId, $state);
-        return true;
+            if (in_array($state['status'], [self::STATUS_COMPLETED, self::STATUS_FAILED, self::STATUS_CANCELLED], true)) {
+                return false;
+            }
+
+            $currentPid = getmypid() ?: 0;
+            $targetPid = (int)($state['pid'] ?? ($state['process_id'] ?? 0));
+            $pidTerminated = false;
+
+            // If job is actively running, terminate its recorded PID process tree
+            if ($state['status'] === self::STATUS_RUNNING && $targetPid > 0 && $targetPid !== $currentPid) {
+                if (Platform::isPidAlive($targetPid)) {
+                    $pidTerminated = Platform::terminatePid($targetPid);
+                }
+            }
+
+            $state['status'] = self::STATUS_CANCELLED;
+            $state['cancelled_at'] = microtime(true);
+            $state['completed_at'] = microtime(true);
+            $state['cancellation_reason'] = 'user_cancelled';
+            $state['pid_terminated'] = $pidTerminated ? $targetPid : null;
+
+            self::saveState($jobId, $state);
+            return true;
+        } finally {
+            if ($lockFp !== false) {
+                @flock($lockFp, LOCK_UN);
+                @fclose($lockFp);
+            }
+        }
     }
 }

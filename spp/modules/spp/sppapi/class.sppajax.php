@@ -46,8 +46,15 @@ class SPPAjax extends \SPP\SPPObject
             self::respond('error', ['message' => 'SPA mode is disabled.'], 503);
         }
 
+        // Enforce Request Guards for mutating requests
+        $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        if (in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true)) {
+            \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::enforceRequestGuards();
+        }
+
         // SSE Streaming Handler: ?__spa_stream=service_name
         if (isset($_GET['__spa_stream'])) {
+            \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::enforceRequestGuards();
             \SPPMod\SPPAPI\Dispatchers\StreamDispatcher::dispatch(trim($_GET['__spa_stream']));
             return;
         }
@@ -66,6 +73,7 @@ class SPPAjax extends \SPP\SPPObject
 
         // SPPLive SSE Stream: ?__svc=live_sse
         if (isset($_GET['__svc']) && $_GET['__svc'] === 'live_sse') {
+            \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::enforceRequestGuards();
             $topics = isset($_GET['topics']) ? explode(',', $_GET['topics']) : ['global'];
             if (class_exists('\\SPPMod\\SPPLive\\SSEHandler')) {
                 \SPPMod\SPPLive\SSEHandler::stream($topics);
@@ -75,6 +83,10 @@ class SPPAjax extends \SPP\SPPObject
 
         // SPPLive File Upload: ?__svc=live_upload
         if (isset($_GET['__svc']) && $_GET['__svc'] === 'live_upload') {
+            \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::enforceRequestGuards();
+            if (!\SPPMod\SPPAPI\SPPAPI::checkAuth()) {
+                self::respond('error', ['message' => 'Unauthorized upload request.'], 401);
+            }
             if (class_exists('\\SPPMod\\SPPLive\\UploadHandler')) {
                 $response = \SPPMod\SPPLive\UploadHandler::handle();
                 header('Content-Type: application/json');

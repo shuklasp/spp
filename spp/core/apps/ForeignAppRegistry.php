@@ -76,6 +76,98 @@ class ForeignAppRegistry
     }
 
     /**
+     * Checks if a filesystem path belongs to a forbidden system directory.
+     */
+    public static function isForbiddenSystemPath(string $path): bool
+    {
+        $real = realpath($path);
+        $norm = strtolower(str_replace('\\', '/', $real ?: $path));
+        $norm = rtrim($norm, '/');
+
+        // Check root drives
+        if ($norm === '' || $norm === '/' || preg_match('/^[a-z]:$/', $norm)) {
+            return true;
+        }
+
+        // Block system root directories
+        $forbiddenPrefixes = [
+            '/etc', '/var', '/bin', '/sbin', '/usr', '/boot', '/dev', '/proc', '/sys', '/root',
+            'c:/windows', 'c:/program files', 'c:/program files (x86)', 'c:/winnt', 'c:/recovery',
+            'c:/etc', 'c:/var', 'c:/bin'
+        ];
+
+        $normNoDrive = preg_replace('/^[a-z]:/i', '', $norm);
+
+        foreach ($forbiddenPrefixes as $prefix) {
+            if ($norm === $prefix || str_starts_with($norm, $prefix . '/')
+                || $normNoDrive === $prefix || str_starts_with($normNoDrive, $prefix . '/')) {
+                return true;
+            }
+        }
+
+        // Block SPP framework core directory itself from being mounted as a foreign app docroot
+        $coreDir = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 2);
+        $realCore = realpath($coreDir);
+        if ($realCore) {
+            $normCore = strtolower(rtrim(str_replace('\\', '/', $realCore), '/'));
+            if ($norm === $normCore) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Validates that an incoming subpath remains strictly contained within the application docroot.
+     * Prevents directory traversal, null-byte injection, and symlink escapes.
+     *
+     * @param string $docroot
+     * @param string $subpath
+     * @return string|null Resolved contained path, or null if traversal/escape detected
+     */
+    public static function verifySubpathContainment(string $docroot, string $subpath): ?string
+    {
+        if (str_contains($subpath, "\0") || str_contains($subpath, '..')) {
+            return null;
+        }
+
+        $realDocroot = realpath($docroot);
+        if ($realDocroot === false || !is_dir($realDocroot)) {
+            return null;
+        }
+
+        $normDocroot = rtrim(str_replace('\\', '/', $realDocroot), '/');
+        $cleanSubpath = ltrim(str_replace('\\', '/', $subpath), '/');
+        $combined = $normDocroot . '/' . $cleanSubpath;
+
+        // If target file or directory exists, verify its realpath is contained
+        if (file_exists($combined)) {
+            $realTarget = realpath($combined);
+            if ($realTarget === false) {
+                return null;
+            }
+            $normTarget = rtrim(str_replace('\\', '/', $realTarget), '/');
+            if ($normTarget !== $normDocroot && !str_starts_with($normTarget, $normDocroot . '/')) {
+                return null; // Symlink escaped docroot!
+            }
+            return $realTarget;
+        }
+
+        // Non-existent target: verify parent directory containment
+        $parent = dirname($combined);
+        $realParent = realpath($parent);
+        if ($realParent !== false) {
+            $normParent = rtrim(str_replace('\\', '/', $realParent), '/');
+            if ($normParent !== $normDocroot && !str_starts_with($normParent, $normDocroot . '/')) {
+                return null;
+            }
+        }
+
+        return $combined;
+    }
+
+    /**
      * Validates application configuration.
      *
      * @param string $id
@@ -89,12 +181,22 @@ class ForeignAppRegistry
             $errors[] = "Application identifier '{$id}' contains invalid characters (allowed: alphanumeric, _, -).";
         }
 
-        if (isset($raw['working_dir']) && (str_contains((string)$raw['working_dir'], '..') || str_contains((string)$raw['working_dir'], "\0"))) {
-            $errors[] = "Application '{$id}' contains unsafe directory traversal in working_dir.";
+        if (isset($raw['working_dir'])) {
+            $wDir = (string)$raw['working_dir'];
+            if (str_contains($wDir, '..') || str_contains($wDir, "\0")) {
+                $errors[] = "Application '{$id}' contains unsafe directory traversal in working_dir.";
+            } elseif (self::isForbiddenSystemPath($wDir)) {
+                $errors[] = "Application '{$id}' cannot use system directory '{$wDir}' as working_dir.";
+            }
         }
 
-        if (isset($raw['docroot']) && (str_contains((string)$raw['docroot'], '..') || str_contains((string)$raw['docroot'], "\0"))) {
-            $errors[] = "Application '{$id}' contains unsafe directory traversal in docroot.";
+        if (isset($raw['docroot'])) {
+            $dRoot = (string)$raw['docroot'];
+            if (str_contains($dRoot, '..') || str_contains($dRoot, "\0")) {
+                $errors[] = "Application '{$id}' contains unsafe directory traversal in docroot.";
+            } elseif (self::isForbiddenSystemPath($dRoot)) {
+                $errors[] = "Application '{$id}' cannot use system directory '{$dRoot}' as docroot.";
+            }
         }
 
         return $errors;

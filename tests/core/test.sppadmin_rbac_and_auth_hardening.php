@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Tests\Core;
 
-require_once dirname(__DIR__, 2) . '/spp/admin/services/AdminRBACService.php';
-require_once dirname(__DIR__, 2) . '/spp/admin/services/AuthService.php';
+require_once dirname(__DIR__, 2) . '/spp/admin/services/AdminRBAC.php';
+require_once dirname(__DIR__, 2) . '/spp/admin/services/Auth.php';
 
 use SPPMod\Parikshak\SPPTestCase;
 use SPP\Admin\Services\AdminRBAC;

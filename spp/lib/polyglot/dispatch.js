@@ -1,6 +1,15 @@
 const fs = require("fs");
 const path = require("path");
 const net = require("net");
+const crypto = require("crypto");
+
+function safeCompareTokens(a, b) {
+    if (typeof a !== "string" || typeof b !== "string") return false;
+    const bufA = Buffer.from(a, "utf8");
+    const bufB = Buffer.from(b, "utf8");
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
+}
 
 function loadModule(moduleName) {
     if (fs.existsSync(moduleName) || fs.existsSync(moduleName + ".js")) {
@@ -78,7 +87,7 @@ async function main() {
                         reqId = req.request_id || "";
 
                         // 1. Authenticate Request
-                        if (authToken && req.auth_token !== authToken) {
+                        if (authToken && !safeCompareTokens(req.auth_token, authToken)) {
                             socket.write(JSON.stringify({
                                 success: false,
                                 error: "Unauthorized: invalid or missing auth_token",

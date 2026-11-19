@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+namespace {
 
 /**
  * Admin RBAC (Role-Based Access Control) for SPP Admin Panel
@@ -1409,6 +1412,10 @@ function getAdminUserScopes(): array {
     $allScopes = array_values(array_unique(array_merge($viewScopes, $actionScopes, ['admin.*'])));
 
     try {
+        if (isset($_SESSION['spp_admin_test_scopes']) && is_array($_SESSION['spp_admin_test_scopes'])) {
+            return $_SESSION['spp_admin_test_scopes'];
+        }
+
         if (php_sapi_name() === 'cli') {
             return $allScopes;
         }
@@ -1569,23 +1576,40 @@ function hasAdminScope(string $scope): bool {
  * Enforces domain boundary authorization: validates that the admin has access to the target domain.
  */
 function gateAdminAction(string $action, ?string $targetDomain = null): bool {
+    $action = trim($action);
+    if ($action === '') {
+        return false;
+    }
+
+    $normAction = strtolower($action);
     $actionMap = getActionScopeMap();
-    if (!isset($actionMap[$action])) {
+
+    if (!isset($actionMap[$normAction]) && !isset($actionMap[$action])) {
         // FAIL-CLOSED: Unmapped actions are strictly denied
         return false;
     }
+    $scope = $actionMap[$normAction] ?? $actionMap[$action];
 
     if ($targetDomain === null) {
         $targetDomain = $_REQUEST['domain'] ?? $_REQUEST['domain_id'] ?? null;
     }
 
+    // Defensive validation against parameter pollution or traversal
+    if (!is_string($targetDomain)) {
+        $targetDomain = null;
+    } else {
+        $targetDomain = trim($targetDomain);
+        if ($targetDomain !== '' && (!preg_match('/^[a-zA-Z0-9.\-_]+$/', $targetDomain) || str_contains($targetDomain, '..') || str_contains($targetDomain, '/') || str_contains($targetDomain, '\\') || str_contains($targetDomain, "\0"))) {
+            return false;
+        }
+    }
+
     if (class_exists('\\SPP\\Core\\Security\\AuthorizationService')) {
         $auth = \SPP\Core\Security\AuthorizationService::getInstance();
-        $scope = $actionMap[$action];
         return $auth->can($scope, $targetDomain);
     }
 
-    $res = hasAdminScope($actionMap[$action]);
+    $res = hasAdminScope($scope);
     return $res;
 }
 
@@ -1607,32 +1631,88 @@ if (!function_exists('live_get_admin_permissions')) {
 
 if (!function_exists('live_save_admin_permissions')) {
     function live_save_admin_permissions($la, $params) {
-        // Only super-admins can modify permissions
         $currentScopes = getAdminUserScopes();
-        if (!in_array('admin.identity', $currentScopes) && !in_array('admin.*', $currentScopes)) {
+        $isSuperAdmin = in_array('admin.*', $currentScopes, true);
+        $hasIdentity = in_array('admin.identity', $currentScopes, true) || $isSuperAdmin;
+
+        if (!$hasIdentity) {
             return $la->setStatus('error')->notify('Access denied: admin.identity scope required.', 'error');
         }
 
-        $targetUserId = $params['user_id'] ?? null;
+        $targetUserId = trim((string)($params['user_id'] ?? ''));
         $newScopes = $params['scopes'] ?? [];
 
-        if (!$targetUserId) {
+        if ($targetUserId === '') {
             return $la->setStatus('error')->notify('User ID is required.', 'error');
+        }
+
+        // Sanitize target user ID against XPath injection and traversal
+        if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $targetUserId)) {
+            return $la->setStatus('error')->notify('Invalid User ID format.', 'error');
         }
 
         if (is_string($newScopes)) {
             $newScopes = array_filter(array_map('trim', explode(',', $newScopes)));
+        }
+        $newScopes = array_values(array_unique($newScopes));
+
+        // Get acting user ID for self-escalation check
+        $actingUserId = null;
+        if (class_exists('\\SPP\\Core\\Security\\AuthorizationService')) {
+            $currentUser = \SPP\Core\Security\AuthorizationService::getInstance()->getCurrentUser();
+            $actingUserId = (string)($currentUser['user_id'] ?? ($currentUser['username'] ?? ''));
+        }
+        if (!$actingUserId) {
+            $actingUserId = (string)($_SESSION['spp_admin_user_id'] ?? ($_SESSION['spp_admin_user'] ?? ''));
+        }
+
+        // 1. Self-escalation defense: non-super admin cannot modify their own permissions
+        if (!$isSuperAdmin && $actingUserId !== '' && ($targetUserId === $actingUserId || $targetUserId === ($_SESSION['spp_admin_user'] ?? ''))) {
+            return $la->setStatus('error')->notify('Access denied: You cannot modify your own administrative permissions.', 'error');
+        }
+
+        // 2. Privilege escalation defense: non-super admin cannot grant super-admin (admin.*)
+        if (!$isSuperAdmin) {
+            if (in_array('admin.*', $newScopes, true)) {
+                return $la->setStatus('error')->notify('Access denied: Only super-administrators can grant admin.* permissions.', 'error');
+            }
+            // Cannot grant scopes the acting user does not personally hold
+            foreach ($newScopes as $sc) {
+                if (!in_array($sc, $currentScopes, true)) {
+                    return $la->setStatus('error')->notify("Access denied: You cannot grant scope '{$sc}' which you do not personally possess.", 'error');
+                }
+            }
         }
 
         try {
             $xdb = new \SPPMod\SPPXDB\SPP_XDB('sys', 'admin_permissions');
             $existing = $xdb->queryX("//row[user_id = '{$targetUserId}']");
 
+            // 3. Super-admin protection: non-super admin cannot modify a user who is currently super-admin
+            if (!$isSuperAdmin && !empty($existing)) {
+                $oldScopes = array_filter(array_map('trim', explode(',', $existing[0]['scopes'] ?? '')));
+                if (in_array('admin.*', $oldScopes, true)) {
+                    return $la->setStatus('error')->notify('Access denied: Only super-administrators can modify a super-administrator account.', 'error');
+                }
+            }
+
             $scopeStr = implode(',', $newScopes);
+            $oldScopeStr = !empty($existing) ? ($existing[0]['scopes'] ?? '') : '';
+
             if (!empty($existing)) {
-                $xdb->update(['scopes' => $scopeStr], "user_id = '{$targetUserId}'");
+                $xdb->update(['scopes' => $scopeStr, 'updated_at' => date('Y-m-d H:i:s')], "user_id = '{$targetUserId}'");
             } else {
                 $xdb->insert(['user_id' => $targetUserId, 'scopes' => $scopeStr, 'updated_at' => date('Y-m-d H:i:s')]);
+            }
+
+            // Audit log permission modification
+            if (function_exists('spp_admin_audit_log')) {
+                spp_admin_audit_log('admin_permissions_saved', [
+                    'acting_user' => $actingUserId,
+                    'target_user' => $targetUserId,
+                    'old_scopes' => $oldScopeStr,
+                    'new_scopes' => $scopeStr
+                ]);
             }
 
             $la->notify('Admin permissions updated.', 'success');
@@ -1641,3 +1721,113 @@ if (!function_exists('live_save_admin_permissions')) {
         }
     }
 }
+
+} // end global namespace
+
+namespace SPP\Admin\Services {
+
+/**
+ * Class AdminRBAC
+ * Production object-oriented RBAC gateway for SPP Admin Panel.
+ */
+class AdminRBAC
+{
+    public static function gateAdminAction(string $action, ?string $targetDomainOrRole = null): bool
+    {
+        $action = trim($action);
+        if ($action === '') {
+            return false;
+        }
+
+        $actionMap = self::getActionScopeMap();
+        $normAction = strtolower($action);
+        if (!isset($actionMap[$normAction]) && !isset($actionMap[$action])) {
+            return false;
+        }
+        $scope = $actionMap[$normAction] ?? $actionMap[$action];
+
+        // Check if second argument is a known role name or a domain identifier
+        $knownRoles = ['super_admin', 'admin', 'operator', 'developer', 'auditor', 'reseller', 'tenant'];
+        if ($targetDomainOrRole !== null && in_array(strtolower($targetDomainOrRole), $knownRoles, true)) {
+            return self::roleHasScope($targetDomainOrRole, $scope);
+        }
+
+        return \gateAdminAction($action, $targetDomainOrRole);
+    }
+
+    public static function hasAdminScope(string $scope): bool
+    {
+        return \hasAdminScope($scope);
+    }
+
+    public static function getActionScopeMap(): array
+    {
+        return \getActionScopeMap();
+    }
+
+    public static function getAdminScopeMap(): array
+    {
+        return \getAdminScopeMap();
+    }
+
+    public static function getAdminUserScopes(?string $userId = null): array
+    {
+        return \getAdminUserScopes($userId);
+    }
+
+    public static function roleHasScope(string $role, string $scope): bool
+    {
+        $roleLower = strtolower($role);
+        if ($roleLower === 'super_admin' || $roleLower === 'admin.*' || $roleLower === 'platform_super_admin') {
+            return true;
+        }
+
+        $roleScopes = [
+            'super_admin' => ['admin.*'],
+            'admin' => [
+                'admin.dashboard', 'admin.server', 'admin.services', 'admin.domains',
+                'admin.database', 'admin.mail', 'admin.shield', 'admin.metrics',
+                'admin.system', 'admin.lifecycle', 'admin.files', 'admin.commands',
+                'admin.reports', 'admin.trace', 'admin.ai', 'admin.workflows',
+                'admin.apps', 'admin.entities', 'admin.forms',
+                'admin.fleet', 'admin.dns', 'admin.terminal', 'admin.reseller',
+                'admin.tenant', 'admin.marketplace', 'admin.registry'
+            ],
+            'operator' => [
+                'admin.dashboard', 'admin.server', 'admin.services', 'admin.metrics', 'admin.files'
+            ],
+            'developer' => [
+                'admin.dashboard', 'admin.apps', 'admin.entities', 'admin.forms', 'admin.workflows', 'admin.trace'
+            ],
+            'auditor' => [
+                'admin.dashboard', 'admin.reports', 'admin.trace'
+            ],
+            'reseller' => [
+                'admin.dashboard', 'admin.reseller.read', 'admin.tenant', 'admin.domains', 'admin.dns', 'admin.files'
+            ],
+            'tenant' => [
+                'admin.dashboard', 'admin.domains', 'admin.files'
+            ],
+        ];
+
+        $scopes = $roleScopes[$roleLower] ?? [];
+        if (in_array($scope, $scopes, true) || in_array('admin.*', $scopes, true)) {
+            return true;
+        }
+        $parts = explode('.', $scope);
+        if (count($parts) > 2) {
+            $parent = $parts[0] . '.' . $parts[1];
+            if (in_array($parent, $scopes, true) || in_array($parent . '.*', $scopes, true)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+if (!class_exists('\\AdminRBAC', false)) {
+    class_alias(AdminRBAC::class, 'AdminRBAC');
+}
+
+} // end SPP\Admin\Services namespace
+

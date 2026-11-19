@@ -72,7 +72,7 @@ class ProcessRunner
         int $maxInputBytes = self::DEFAULT_MAX_INPUT_BYTES
     ): ProcessResult {
         $startTime = microtime(true);
-        $commandArray = is_array($command) ? $command : [$command];
+        $commandArray = is_array($command) ? array_values($command) : self::tokenizeCommandLine($command);
 
         // 1. Guard against disabled PHP process functions
         if (!self::isSupported()) {
@@ -126,9 +126,8 @@ class ProcessRunner
         // 5. Execute via Symfony Process component
         if (class_exists('\\Symfony\\Component\\Process\\Process')) {
             try {
-                $process = is_array($command)
-                    ? new \Symfony\Component\Process\Process($command, $workingDir, $env, $input, $timeout)
-                    : \Symfony\Component\Process\Process::fromShellCommandline($command, $workingDir, $env, $input, $timeout);
+                // Strictly shell-free execution: always use argument array
+                $process = new \Symfony\Component\Process\Process($commandArray, $workingDir, $env, $input, $timeout);
 
                 $stdout = '';
                 $stderr = '';
@@ -137,15 +136,25 @@ class ProcessRunner
 
                 try {
                     $process->run(function ($type, $buffer) use (&$stdout, &$stderr, $maxOutputBytes, $process, &$terminationReason) {
+                        $currentBytes = strlen($stdout) + strlen($stderr);
+                        $remaining = $maxOutputBytes - $currentBytes;
+
+                        if ($remaining <= 0) {
+                            $terminationReason = self::REASON_OUTPUT_LIMIT;
+                            $process->stop(0.1);
+                            return;
+                        }
+
+                        if (strlen($buffer) > $remaining) {
+                            $buffer = substr($buffer, 0, $remaining);
+                            $terminationReason = self::REASON_OUTPUT_LIMIT;
+                            $process->stop(0.1);
+                        }
+
                         if ($type === \Symfony\Component\Process\Process::ERR) {
                             $stderr .= $buffer;
                         } else {
                             $stdout .= $buffer;
-                        }
-
-                        if ((strlen($stdout) + strlen($stderr)) > $maxOutputBytes) {
-                            $terminationReason = self::REASON_OUTPUT_LIMIT;
-                            $process->stop(0.5);
                         }
                     });
                 } catch (\Symfony\Component\Process\Exception\ProcessTimedOutException $e) {
@@ -191,21 +200,20 @@ class ProcessRunner
             2 => ['pipe', 'w'], // stderr
         ];
 
-        // 6. Spawn process
-        // On Windows with proc_open array, PHP automatically quotes arguments properly
+        // 6. Spawn process with strict argument array and bypass_shell => true
         $options = [
             'bypass_shell' => true,
             'suppress_errors' => true,
         ];
 
-        $process = @proc_open($command, $descriptors, $pipes, $workingDir, $env, $options);
-
-        // Fallback for string command if array execution failed or was string
-        if (!is_resource($process) && is_array($command) && PHP_OS_FAMILY === 'Windows') {
-            // Some Windows PHP builds require string or bypass_shell false if executable not absolute
-            $cmdStr = self::buildCommandString($command);
-            $process = @proc_open($cmdStr, $descriptors, $pipes, $workingDir, $env, ['bypass_shell' => false]);
+        if (PHP_OS_FAMILY === 'Windows' && isset($commandArray[0]) && !str_contains($commandArray[0], '\\') && !str_contains($commandArray[0], '/')) {
+            $resolvedBinary = Platform::findBinary($commandArray[0]);
+            if ($resolvedBinary) {
+                $commandArray[0] = $resolvedBinary;
+            }
         }
+
+        $process = @proc_open($commandArray, $descriptors, $pipes, $workingDir, $env, $options);
 
         if (!is_resource($process)) {
             $durationMs = round((microtime(true) - $startTime) * 1000, 2);
@@ -299,9 +307,20 @@ class ProcessRunner
 
             // Read from stdout
             if (isset($pipes[1]) && in_array($pipes[1], $read, true)) {
-                $chunk = @fread($pipes[1], 16384);
+                $curBytes = strlen($stdout) + strlen($stderr);
+                $allowed = $maxOutputBytes - $curBytes;
+                if ($allowed <= 0) {
+                    $terminationReason = self::REASON_OUTPUT_LIMIT;
+                    break;
+                }
+                $readLen = min(16384, $allowed);
+                $chunk = @fread($pipes[1], $readLen);
                 if ($chunk !== false && strlen($chunk) > 0) {
                     $stdout .= $chunk;
+                    if ((strlen($stdout) + strlen($stderr)) >= $maxOutputBytes) {
+                        $terminationReason = self::REASON_OUTPUT_LIMIT;
+                        break;
+                    }
                 }
                 if (feof($pipes[1])) {
                     @fclose($pipes[1]);
@@ -311,9 +330,20 @@ class ProcessRunner
 
             // Read from stderr
             if (isset($pipes[2]) && in_array($pipes[2], $read, true)) {
-                $chunk = @fread($pipes[2], 16384);
+                $curBytes = strlen($stdout) + strlen($stderr);
+                $allowed = $maxOutputBytes - $curBytes;
+                if ($allowed <= 0) {
+                    $terminationReason = self::REASON_OUTPUT_LIMIT;
+                    break;
+                }
+                $readLen = min(16384, $allowed);
+                $chunk = @fread($pipes[2], $readLen);
                 if ($chunk !== false && strlen($chunk) > 0) {
                     $stderr .= $chunk;
+                    if ((strlen($stdout) + strlen($stderr)) >= $maxOutputBytes) {
+                        $terminationReason = self::REASON_OUTPUT_LIMIT;
+                        break;
+                    }
                 }
                 if (feof($pipes[2])) {
                     @fclose($pipes[2]);
@@ -475,5 +505,70 @@ class ProcessRunner
         }, $args);
 
         return implode(' ', $escaped);
+    }
+
+    /**
+     * Strictly tokenizes a command-line string into an argument array without invoking any shell.
+     * Handles single and double quotes, backslash escaping, and whitespace splitting.
+     *
+     * @param string $command
+     * @return array<string>
+     */
+    public static function tokenizeCommandLine(string $command): array
+    {
+        $command = trim($command);
+        if ($command === '') {
+            return [];
+        }
+
+        $tokens = [];
+        $length = strlen($command);
+        $cursor = 0;
+        $token = '';
+        $inSingle = false;
+        $inDouble = false;
+
+        while ($cursor < $length) {
+            $char = $command[$cursor];
+
+            if ($char === "'" && !$inDouble) {
+                $inSingle = !$inSingle;
+                $cursor++;
+                continue;
+            }
+
+            if ($char === '"' && !$inSingle) {
+                $inDouble = !$inDouble;
+                $cursor++;
+                continue;
+            }
+
+            if ($char === '\\' && $inDouble && ($cursor + 1 < $length)) {
+                $next = $command[$cursor + 1];
+                if ($next === '"' || $next === '\\') {
+                    $token .= $next;
+                    $cursor += 2;
+                    continue;
+                }
+            }
+
+            if (($char === ' ' || $char === "\t") && !$inSingle && !$inDouble) {
+                if ($token !== '') {
+                    $tokens[] = $token;
+                    $token = '';
+                }
+                $cursor++;
+                continue;
+            }
+
+            $token .= $char;
+            $cursor++;
+        }
+
+        if ($token !== '') {
+            $tokens[] = $token;
+        }
+
+        return $tokens;
     }
 }

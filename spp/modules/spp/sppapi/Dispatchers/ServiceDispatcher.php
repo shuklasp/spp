@@ -18,6 +18,12 @@ class ServiceDispatcher
         if (!SPPAjax::verifyTransportIntegrity()) {
             SPPAjax::respond('error', ['message' => 'Transport Integrity Failure: Payload tampered or signature missing.'], 403);
         }
+
+        if (class_exists('\\SPP\\Scheduler') && \SPP\Scheduler::getContext() === 'sppadmin') {
+            if (function_exists('isAdminAuthenticated') && !isAdminAuthenticated()) {
+                SPPAjax::respond('error', ['message' => 'Authentication required.'], 401);
+            }
+        }
     }
 
     public static function dispatch(string $action, array $params = []): void

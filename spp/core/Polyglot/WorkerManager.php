@@ -257,11 +257,22 @@ class WorkerManager
             'request_id' => 'ping_' . bin2hex(random_bytes(4)),
         ]) . "\n";
 
-        @fwrite($fp, $payload);
+        $totalBytes = strlen($payload);
+        $written = 0;
+        while ($written < $totalBytes) {
+            $n = @fwrite($fp, substr($payload, $written));
+            if ($n === false || $n === 0) {
+                @fclose($fp);
+                return false;
+            }
+            $written += $n;
+        }
+
         $res = @fgets($fp, 4096);
+        $meta = stream_get_meta_data($fp);
         @fclose($fp);
 
-        if (!$res) {
+        if ($meta['timed_out'] || !$res) {
             return false;
         }
 
@@ -321,24 +332,54 @@ class WorkerManager
             'args' => $args,
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
 
-        $written = @fwrite($fp, $requestPayload);
-        if ($written === false) {
-            @fclose($fp);
-            return ['success' => false, 'error' => "Failed to write request payload to worker socket."];
+        // Partial write protection: loop fwrite until all bytes are written
+        $totalBytes = strlen($requestPayload);
+        $bytesWritten = 0;
+        while ($bytesWritten < $totalBytes) {
+            $n = @fwrite($fp, substr($requestPayload, $bytesWritten));
+            if ($n === false || $n === 0) {
+                @fclose($fp);
+                return ['success' => false, 'error' => "Failed to write request payload to worker socket."];
+            }
+            $bytesWritten += $n;
         }
 
+        // Bounded read loop with timeout detection
+        $maxResponseBytes = 10485760; // 10 MB
         $responseRaw = '';
+        $timedOut = false;
+
         while (!feof($fp)) {
             $chunk = @fgets($fp, 16384);
             if ($chunk === false) {
+                $meta = stream_get_meta_data($fp);
+                if ($meta['timed_out']) {
+                    $timedOut = true;
+                }
                 break;
             }
             $responseRaw .= $chunk;
+            if (strlen($responseRaw) > $maxResponseBytes) {
+                @fclose($fp);
+                return [
+                    'success' => false,
+                    'error' => "Worker response exceeded maximum byte limit ({$maxResponseBytes} bytes).",
+                    'error_type' => 'OutputLimitExceededException'
+                ];
+            }
             if (str_ends_with($chunk, "\n")) {
                 break;
             }
         }
         @fclose($fp);
+
+        if ($timedOut) {
+            return [
+                'success' => false,
+                'error' => "Worker socket read timed out after {$timeout} seconds.",
+                'error_type' => 'TimeoutException'
+            ];
+        }
 
         $trimmed = trim($responseRaw);
         if ($trimmed === '') {

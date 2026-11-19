@@ -86,10 +86,10 @@ class CompilationManager
         $buildInfoFile = $cacheDir . DIRECTORY_SEPARATOR . "{$baseName}_{$shortHash}.build.json";
         $lockFile = $cacheDir . DIRECTORY_SEPARATOR . "{$baseName}_{$shortHash}.lock";
 
-        // 1. Fast path: Binary exists, build info matches, and source has not been modified
-        if (file_exists($targetBinary) && file_exists($buildInfoFile)) {
+        // 1. Fast path: Binary exists, size > 0, build info matches, and source has not been modified
+        if (file_exists($targetBinary) && filesize($targetBinary) > 0 && file_exists($buildInfoFile)) {
             $buildInfo = json_decode((string)file_get_contents($buildInfoFile), true);
-            if (is_array($buildInfo) && ($buildInfo['fingerprint'] ?? '') === $fingerprint) {
+            if (is_array($buildInfo) && ($buildInfo['fingerprint'] ?? '') === $fingerprint && ($buildInfo['status'] ?? '') === 'success') {
                 $sourceMtime = filemtime($sourceAbs);
                 $buildTime = $buildInfo['timestamp'] ?? 0;
                 if ($sourceMtime <= $buildTime) {
@@ -140,6 +140,64 @@ class CompilationManager
             $result = $compileCallback($tempOutputBinary);
             $durationMs = round((microtime(true) - $startTime) * 1000, 2);
 
+            // Verify temporary binary existence and non-zero size before publication
+            if (!file_exists($tempOutputBinary) || filesize($tempOutputBinary) === 0) {
+                @unlink($tempOutputBinary);
+                // Remove any stale build metadata
+                if (file_exists($buildInfoFile)) {
+                    @unlink($buildInfoFile);
+                }
+
+                $failedRecord = [
+                    'lang' => $lang,
+                    'source' => $sourceAbs,
+                    'target_binary' => $targetBinary,
+                    'fingerprint' => $fingerprint,
+                    'compiler' => $compilerPath,
+                    'compiler_version' => $compilerVersion,
+                    'compiler_flags' => $compilerFlags,
+                    'timestamp' => time(),
+                    'duration_ms' => $durationMs,
+                    'exit_code' => $result instanceof ProcessResult ? $result->exitCode : 1,
+                    'stdout' => $result instanceof ProcessResult ? $result->stdout : '',
+                    'stderr' => $result instanceof ProcessResult ? $result->stderr : '',
+                    'status' => 'failed',
+                ];
+
+                $err = !empty($failedRecord['stderr']) ? $failedRecord['stderr'] : ($failedRecord['stdout'] ?: "Binary was not generated at '{$tempOutputBinary}'.");
+                return [
+                    'success' => false,
+                    'error' => "Compilation failed for [{$lang}]: " . trim($err),
+                    'duration_ms' => $durationMs,
+                    'build_record' => $failedRecord,
+                ];
+            }
+
+            // 4. Atomic publication: publish binary first
+            if (file_exists($targetBinary)) {
+                @unlink($targetBinary);
+            }
+
+            $published = @rename($tempOutputBinary, $targetBinary);
+            if (!$published) {
+                @copy($tempOutputBinary, $targetBinary);
+                @unlink($tempOutputBinary);
+            }
+
+            if (!Platform::isWindows()) {
+                @chmod($targetBinary, 0755);
+            }
+
+            // 5. Verify published artifact on disk before writing metadata
+            if (!file_exists($targetBinary) || filesize($targetBinary) === 0) {
+                return [
+                    'success' => false,
+                    'error' => "Artifact verification failure: Published binary not found or empty at '{$targetBinary}'.",
+                    'duration_ms' => $durationMs,
+                ];
+            }
+
+            // 6. Write success metadata atomically via temporary file
             $buildRecord = [
                 'lang' => $lang,
                 'source' => $sourceAbs,
@@ -153,38 +211,12 @@ class CompilationManager
                 'exit_code' => $result instanceof ProcessResult ? $result->exitCode : 0,
                 'stdout' => $result instanceof ProcessResult ? $result->stdout : '',
                 'stderr' => $result instanceof ProcessResult ? $result->stderr : '',
-                'status' => (file_exists($tempOutputBinary) && filesize($tempOutputBinary) > 0) ? 'success' : 'failed',
+                'status' => 'success',
             ];
 
-            file_put_contents($buildInfoFile, json_encode($buildRecord, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-
-            if (!file_exists($tempOutputBinary) || filesize($tempOutputBinary) === 0) {
-                @unlink($tempOutputBinary);
-                $err = !empty($buildRecord['stderr']) ? $buildRecord['stderr'] : ($buildRecord['stdout'] ?: "Binary was not generated at '{$tempOutputBinary}'.");
-                return [
-                    'success' => false,
-                    'error' => "Compilation failed for [{$lang}]: " . trim($err),
-                    'duration_ms' => $durationMs,
-                    'build_record' => $buildRecord,
-                ];
-            }
-
-            // 4. Atomic publication
-            // On Windows, rename fails if target exists, so unlink first under lock
-            if (file_exists($targetBinary)) {
-                @unlink($targetBinary);
-            }
-
-            $published = @rename($tempOutputBinary, $targetBinary);
-            if (!$published) {
-                // Fallback copy if rename across volumes fails
-                @copy($tempOutputBinary, $targetBinary);
-                @unlink($tempOutputBinary);
-            }
-
-            if (!Platform::isWindows()) {
-                @chmod($targetBinary, 0755);
-            }
+            $tmpMetaFile = $buildInfoFile . '.tmp.' . bin2hex(random_bytes(4));
+            @file_put_contents($tmpMetaFile, json_encode($buildRecord, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            @rename($tmpMetaFile, $buildInfoFile);
 
             return [
                 'success' => true,

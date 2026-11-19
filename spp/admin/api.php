@@ -473,21 +473,28 @@ function checkDevMode()
 
 function isPublicAdminAction(string $action): bool
 {
-    // Strict allowlist: only authentication initiation and session checks are public
-    return in_array($action, [
+    $clean = strtolower(trim($action));
+    if ($clean === '') {
+        return false;
+    }
+    // Disallow parameter smuggling: if request targets any service, stream, or api flag, it is not public
+    if (isset($_REQUEST['__api']) || isset($_REQUEST['__svc']) || isset($_GET['__spa_stream']) || isset($_GET['__js_comp'])) {
+        return false;
+    }
+    return in_array($clean, [
         'login',
-        'Auth_Login',
-        'Auth_VerifyMFA',
-        'VerifyMFA',
+        'auth_login',
+        'auth_verifymfa',
+        'verifymfa',
         'verify_mfa',
         'logout',
-        'Auth_Logout',
+        'auth_logout',
         'check_auth',
-        'Auth_SendMagicLink',
-        'SendMagicLink',
+        'auth_sendmagiclink',
+        'sendmagiclink',
         'send_magic_link',
-        'Auth_ConsumeMagicLink',
-        'ConsumeMagicLink',
+        'auth_consumemagiclink',
+        'consumemagiclink',
         'consume_magic_link',
     ], true);
 }
@@ -542,20 +549,40 @@ try {
         @session_start();
     }
 
-    $action = (!empty($_GET['action'])) ? $_GET['action'] : ($_POST['action'] ?? ($_REQUEST['action'] ?? ''));
-    if (!$action) {
+    // 1. Identify all request shapes reaching spp/admin/api.php
+    $isApiRequest = isset($_REQUEST['__api']) && (string)$_REQUEST['__api'] === '1';
+    $svcName = isset($_REQUEST['__svc']) ? trim((string)$_REQUEST['__svc']) : null;
+    $streamName = isset($_GET['__spa_stream']) ? trim((string)$_GET['__spa_stream']) : null;
+    $jsCompName = isset($_GET['__js_comp']) ? trim((string)$_GET['__js_comp']) : null;
+
+    $action = trim((string)(!empty($_GET['action']) ? $_GET['action'] : ($_POST['action'] ?? ($_REQUEST['action'] ?? ''))));
+    if ($action === '' && !$isApiRequest && !$svcName && !$streamName && !$jsCompName) {
         $jsonInput = file_get_contents('php://input');
         if (!empty($jsonInput)) {
             $decoded = json_decode($jsonInput, true);
-            if ($decoded && !empty($decoded['action'])) {
-                $action = $decoded['action'];
+            if (is_array($decoded) && !empty($decoded['action'])) {
+                $action = trim((string)$decoded['action']);
                 $_REQUEST = array_merge($_REQUEST, $decoded);
             }
         }
     }
 
-    // Ultra-Fast Path: check_auth requires 0 app boots and produces 0 toast notifications
-    if ($action === 'check_auth') {
+    // Determine effective action identifier for authentication, authorization, and audit
+    $effectiveAction = $action;
+    if ($effectiveAction === '') {
+        if ($svcName !== null) {
+            $effectiveAction = 'svc:' . $svcName;
+        } elseif ($streamName !== null) {
+            $effectiveAction = 'stream:' . $streamName;
+        } elseif ($isApiRequest) {
+            $effectiveAction = 'api:dispatch';
+        } elseif ($jsCompName !== null) {
+            $effectiveAction = 'js_comp:' . $jsCompName;
+        }
+    }
+
+    // 2. Fast Path: check_auth (public session check)
+    if ($action === 'check_auth' && !$isApiRequest && !$svcName && !$streamName) {
         $username = null;
         $userId = '1';
         if (!empty($_SESSION['spp_admin_user'])) {
@@ -584,11 +611,81 @@ try {
         exit;
     }
 
-    // Ultra-Fast Path: Reject unauthenticated requests immediately without booting app
-    if (!isPublicAdminAction($action) && !isAdminAuthenticated()) {
+    // 3. Central Authentication Gate: Fail closed (HTTP 401)
+    $isPublic = isPublicAdminAction($action) && !$isApiRequest && !$svcName && !$streamName && !$jsCompName;
+    if (!$isPublic && !isAdminAuthenticated()) {
         http_response_code(401);
         sendResponse(false, ['authenticated' => false], 'Authentication required.', false);
         exit;
+    }
+
+    // 4. CSRF and Transport Integrity Guard
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    $isMutating = in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true);
+    if ($isMutating && !$isPublic) {
+        $hasCustomHeader = (isset($_SERVER['HTTP_X_SPP_AJAX']) && $_SERVER['HTTP_X_SPP_AJAX'] === '1') ||
+            (isset($_SERVER['X-SPP-Ajax']) && $_SERVER['X-SPP-Ajax'] === '1');
+        $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? $_REQUEST['csrf_token'] ?? null;
+        $sessionCsrf = $_SESSION['spp_csrf_token'] ?? (class_exists('\\SPP\\SPPSession') && \SPP\SPPSession::sessionVarExists('csrf_token') ? \SPP\SPPSession::getSessionVar('csrf_token') : null);
+
+        $csrfValid = $hasCustomHeader || ($csrfToken && $sessionCsrf && hash_equals((string)$sessionCsrf, (string)$csrfToken));
+        if (!$csrfValid) {
+            http_response_code(403);
+            sendResponse(false, [], 'CSRF Protection: Missing or invalid security token/header.', false);
+            exit;
+        }
+
+        if (class_exists('\\SPPMod\\SPPAPI\\SPPAjax') && !\SPPMod\SPPAPI\SPPAjax::verifyTransportIntegrity()) {
+            http_response_code(403);
+            sendResponse(false, [], 'Transport Integrity Failure: Payload tampered or signature invalid.', false);
+            exit;
+        }
+    }
+
+    // 5. Tenant & Domain Scoping
+    $targetDomain = $_REQUEST['domain'] ?? $_REQUEST['domain_id'] ?? null;
+    if (is_array($targetDomain)) {
+        $targetDomain = null;
+    } elseif ($targetDomain !== null) {
+        $targetDomain = trim((string)$targetDomain);
+        if ($targetDomain !== '' && (str_contains($targetDomain, '..') || str_contains($targetDomain, '/') || str_contains($targetDomain, '\\') || str_contains($targetDomain, "\0"))) {
+            http_response_code(400);
+            sendResponse(false, [], 'Invalid domain parameter format.');
+            exit;
+        }
+    }
+
+    if ($targetDomain !== null && $targetDomain !== '' && class_exists('\\SPP\\Core\\Domain\\DomainContextResolver')) {
+        $domCtx = \SPP\Core\Domain\DomainContextResolver::resolve($targetDomain);
+        \SPP\Core\Domain\DomainContextResolver::push($domCtx);
+    }
+
+    // 6. Central Authorization (RBAC) Gate: Fail closed (HTTP 403)
+    require_once __DIR__ . '/services/AdminRBAC.php';
+    if (!$isPublic) {
+        $actionToGate = $action;
+        if ($actionToGate === '' && $svcName !== null) {
+            $actionToGate = $svcName;
+        }
+        if ($actionToGate !== '' && function_exists('gateAdminAction') && !gateAdminAction($actionToGate, $targetDomain)) {
+            if (function_exists('spp_admin_audit_log')) {
+                spp_admin_audit_log('access_denied', ['action' => $actionToGate, 'domain' => $targetDomain]);
+            }
+            http_response_code(403);
+            sendResponse(false, [], "Access Denied: You do not have permission to perform '{$actionToGate}' on requested scope. Contact your administrator.");
+            exit;
+        }
+    }
+
+    // 7. Audit Logging
+    if (function_exists('spp_admin_audit_log') && !empty($effectiveAction)) {
+        spp_admin_audit_log($effectiveAction, $_REQUEST);
+    }
+
+    // 8. Release session lock for non-mutating actions to maximize concurrency
+    $sessionMutatingActions = ['login', 'logout', 'switch_context', 'save_profile', 'admin_login', 'auth_login', 'auth_logout'];
+    if (!in_array(strtolower($action), $sessionMutatingActions, true) && session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
     }
 
     $authContext = 'sppadmin';
@@ -598,18 +695,24 @@ try {
     }
     $_SESSION['spp_admin_selected_app'] = $appContext;
 
-    // 3. API Action Routing
-    if (isset($_REQUEST['__api']) && $_REQUEST['__api'] == '1') {
+    // 9. Dispatch to Handlers
+    // 9a. SPPAPI handler
+    if ($isApiRequest) {
         \SPPMod\SPPAPI\SPPAPI::handle();
         exit;
     }
 
-    if (isset($_REQUEST['__svc'])) {
+    // 9b. SPPAjax / Stream handler
+    if ($svcName !== null || $streamName !== null) {
         \SPPMod\SPPAPI\SPPAjax::handle();
         exit;
     }
 
-    $action = (!empty($_GET['action'])) ? $_GET['action'] : ($_POST['action'] ?? ($_REQUEST['action'] ?? ''));
+    // 9c. JS component handler
+    if ($jsCompName !== null) {
+        \SPPMod\SPPAPI\Dispatchers\ComponentDispatcher::dispatchJS($jsCompName);
+        exit;
+    }
 
     if ($action === 'info') {
         echo json_encode([
@@ -621,56 +724,15 @@ try {
         exit;
     }
 
-    if (!$action) {
-        $jsonInput = file_get_contents('php://input');
-        if (!empty($jsonInput)) {
-            $decoded = json_decode($jsonInput, true);
-            if ($decoded) {
-                $action = $decoded['action'] ?? '';
-                $_REQUEST = array_merge($_REQUEST, $decoded);
-            }
-        }
-    }
-
     require_once __DIR__ . '/services/CommandBridge.php';
     require_once __DIR__ . '/services/General.php';
-    error_log("Dispatching action: " . $action);
-
-    if (!isPublicAdminAction($action)) {
-        if (!isAdminAuthenticated()) {
-            sendResponse(false, [], "Authentication required.");
-        }
-        \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::enforceRequestGuards();
-    }
-
-    // Audit log every admin action
-    if (function_exists('spp_admin_audit_log') && !empty($action)) {
-        spp_admin_audit_log($action, $_REQUEST);
-    }
-
-    // Release PHP session file lock early for non-mutating actions to enable full parallel request concurrency
-    $sessionMutatingActions = ['login', 'logout', 'switch_context', 'save_profile', 'admin_login'];
-    if (!in_array($action, $sessionMutatingActions, true) && session_status() === PHP_SESSION_ACTIVE) {
-        session_write_close();
-    }
-
-    $targetDomain = $_REQUEST['domain'] ?? $_REQUEST['domain_id'] ?? null;
-    if ($targetDomain !== null && class_exists('\\SPP\\Core\\Domain\\DomainContextResolver')) {
-        $domCtx = \SPP\Core\Domain\DomainContextResolver::resolve($targetDomain);
-        \SPP\Core\Domain\DomainContextResolver::push($domCtx);
-    }
-
-    // RBAC: Gate admin actions by scope and target domain
-    if (!isPublicAdminAction($action) && function_exists('gateAdminAction') && !empty($action) && !gateAdminAction($action, $targetDomain)) {
-        sendResponse(false, [], "Access Denied: You do not have permission to perform '{$action}' on requested scope. Contact your administrator.");
-    }
 
     $requestData = array_merge($_GET, $_POST, $_REQUEST);
     if (!empty($_FILES)) {
         $requestData['uploaded_files'] = $_FILES;
     }
 
-    // 1. Unified CommandBridge: Execute via CLI or synchronized action
+    // 9d. Unified CommandBridge
     $bridgeRes = \SPP\Admin\Services\CommandBridge::handleAction($action, $requestData);
     $bridgeSuccess = !empty($bridgeRes['success']) || (!isset($bridgeRes['error']) && is_array($bridgeRes));
     if ($bridgeSuccess || (isset($bridgeRes['error']) && !str_contains((string)$bridgeRes['error'], 'not recognized by CommandBridge'))) {
@@ -685,7 +747,7 @@ try {
         exit;
     }
 
-    // 2. Fallback to specialized service dispatcher
+    // 9e. ServiceDispatcher fallback
     \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute($action, $requestData);
 } catch (\Throwable $e) {
     $errorMsg = "[" . date('Y-m-d H:i:s') . "] API FATAL ERROR: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . "\n" . $e->getTraceAsString() . "\n";

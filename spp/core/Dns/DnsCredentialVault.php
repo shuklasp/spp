@@ -60,7 +60,7 @@ class DnsCredentialVault
         $tag = '';
         $ciphertext = openssl_encrypt($plaintext, self::CIPHER, $key, OPENSSL_RAW_DATA, $iv, $tag, '', 16);
         if ($ciphertext === false) {
-            return $plaintext;
+            throw new \RuntimeException('Crypto Exception: AES-256-GCM encryption of DNS credentials failed. Plaintext will not be stored.');
         }
         return 'ENC:' . base64_encode($iv . $tag . $ciphertext);
     }
@@ -250,17 +250,27 @@ class DnsCredentialVault
                 }
             } else {
                 if (in_array($k, $sensitiveFields, true) && !empty($val)) {
-                    $finalCreds[$k] = self::encrypt($val);
+                    $encryptedVal = self::encrypt($val);
+                    if (!str_starts_with($encryptedVal, 'ENC:')) {
+                        throw new \RuntimeException("Security Exception: Credential field '{$k}' was not properly encrypted.");
+                    }
+                    $finalCreds[$k] = $encryptedVal;
                 } else {
                     $finalCreds[$k] = $val;
                 }
             }
         }
 
-        // Retain unedited existing fields
+        // Retain unedited existing fields and verify encryption
         foreach ($existingCreds as $k => $v) {
             if (!array_key_exists($k, $finalCreds)) {
                 $finalCreds[$k] = $v;
+            }
+        }
+
+        foreach ($sensitiveFields as $sensitiveKey) {
+            if (!empty($finalCreds[$sensitiveKey]) && !str_starts_with((string)$finalCreds[$sensitiveKey], 'ENC:')) {
+                throw new \RuntimeException("Security Exception: Stored credential '{$sensitiveKey}' is not encrypted. Refusing to persist plaintext.");
             }
         }
 

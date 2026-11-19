@@ -747,7 +747,8 @@ class CloudflareBridge
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT => 2,
-                CURLOPT_SSL_VERIFYPEER => false
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2
             ]);
             $ip = trim((string)curl_exec($ch));
             curl_close($ch);

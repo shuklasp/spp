@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+namespace {
+
 /**
  * Auth Service Group for SPP Admin
  * Hardened Production Authentication & API Key Management.
@@ -16,14 +18,11 @@ if (!function_exists('live_Auth_Login')) {
             return $la->setStatus('error')->notify("Username and password are required.");
         }
 
-        // 1. Brute-force protection: check failed login attempts
-        $attemptsKey = 'spp_login_attempts_' . md5($username . ($_SERVER['REMOTE_ADDR'] ?? ''));
-        $attempts = (int)($_SESSION[$attemptsKey] ?? 0);
-        $lastAttemptTime = (int)($_SESSION[$attemptsKey . '_time'] ?? 0);
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
-        if ($attempts >= 5 && (time() - $lastAttemptTime) < 300) {
-            $remaining = 300 - (time() - $lastAttemptTime);
-            return $la->setStatus('error')->notify("Too many failed login attempts. Account temporarily locked. Please try again in {$remaining} seconds.");
+        // 1. Persistent brute-force mitigation across sessions and workers
+        if (\SPP\Admin\Services\Auth::isLockedOut($username, $ip)) {
+            return $la->setStatus('error')->notify("Too many failed login attempts. Account temporarily locked. Please try again later.");
         }
 
         // 2. Database authentication via SPPAuth
@@ -48,29 +47,25 @@ if (!function_exists('live_Auth_Login')) {
             $adminAuth = $settings['admin_auth'] ?? [];
             $globalUser = $adminAuth['username'] ?? ($settings['admin_username'] ?? 'admin');
             $configuredHash = $adminAuth['password_hash'] ?? null;
-            $rawPass = $adminAuth['password'] ?? null;
 
             if (strcasecmp($username, (string)$globalUser) === 0) {
-                // Reject insecure default passwords in production
+                // Reject insecure default passwords in production unconditionally
                 if ($password === 'admin123' || $password === 'admin') {
-                    // Only reject default passwords unless explicit override is configured
                     $allowInsecureDefault = !empty($adminAuth['allow_insecure_defaults']);
                     if (!$allowInsecureDefault && defined('SPP_PROFILE') && SPP_PROFILE !== 'dev') {
                         return $la->setStatus('error')->notify("Default credentials 'admin123' are disabled in production. Please configure a secure password hash in settings.");
                     }
                 }
 
-                if ($configuredHash && password_verify($password, $configuredHash)) {
-                    $success = true;
-                } elseif ($rawPass && hash_equals((string)$rawPass, $password)) {
+                if (\SPP\Admin\Services\Auth::verifyPassword($password, $configuredHash)) {
                     $success = true;
                 }
             }
         }
 
         if ($success) {
-            // Reset failed login attempts
-            unset($_SESSION[$attemptsKey], $_SESSION[$attemptsKey . '_time']);
+            // Reset persistent failed login attempts on success
+            \SPP\Admin\Services\Auth::clearFailedLogins($username, $ip);
 
             \SPP\SPPSession::regenerateId(true);
             $_SESSION['spp_admin_user'] = $username;
@@ -78,7 +73,6 @@ if (!function_exists('live_Auth_Login')) {
             \SPP\SPPSession::setSessionVar('__username__', $username);
             \SPP\SPPSession::setSessionVar('__role_id__', 1);
 
-            $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
             $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
             \SPP\SPPSession::setSessionVar('__sppauth_fingerprint__', hash('sha256', $ip . $ua));
 
@@ -89,12 +83,11 @@ if (!function_exists('live_Auth_Login')) {
 
             $la->setData(['user' => $username])->notify("Login successful.", "success");
         } else {
-            // Record failed attempt
-            $_SESSION[$attemptsKey] = $attempts + 1;
-            $_SESSION[$attemptsKey . '_time'] = time();
+            // Record persistent failed attempt
+            \SPP\Admin\Services\Auth::recordFailedLogin($username, $ip);
 
             if (function_exists('spp_admin_audit_log')) {
-                spp_admin_audit_log('admin_login_failed', ['username' => $username, 'ip' => $_SERVER['REMOTE_ADDR'] ?? '']);
+                spp_admin_audit_log('admin_login_failed', ['username' => $username, 'ip' => $ip]);
             }
 
             $la->setStatus('error')->notify("Invalid username or password.");
@@ -354,3 +347,188 @@ if (!function_exists('live_Auth_RevokeApiKey')) {
         }
     }
 }
+
+} // end global namespace
+
+namespace SPP\Admin\Services {
+
+/**
+ * Class Auth
+ * Production Authentication & API Key Management service.
+ */
+class Auth
+{
+    /**
+     * Verifies user password against a configured bcrypt/argon2id hash.
+     * Rejects default credentials and unhashed plaintext.
+     */
+    public static function verifyPassword(string $password, ?string $hash): bool
+    {
+        if ($password === '' || empty($hash)) {
+            return false;
+        }
+
+        // Unconditionally reject default passwords unless explicit dev override
+        if ($password === 'admin123' || $password === 'admin') {
+            if (defined('SPP_PROFILE') && SPP_PROFILE !== 'dev') {
+                return false;
+            }
+        }
+
+        // Must be a valid crypt/bcrypt/argon2 hash
+        if (str_starts_with($hash, '$2y$') || str_starts_with($hash, '$2a$') || str_starts_with($hash, '$2b$') || str_starts_with($hash, '$argon2')) {
+            return password_verify($password, $hash);
+        }
+
+        // Do not allow plaintext fallback
+        return false;
+    }
+
+    /**
+     * Resolves SQLite rate-limiting connection.
+     */
+    private static function getRateLimitPdo(): ?\PDO
+    {
+        try {
+            $baseDir = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 3);
+            $varDir = $baseDir . '/var/shared';
+            if (!is_dir($varDir)) {
+                @mkdir($varDir, 0777, true);
+            }
+            $pdo = new \PDO('sqlite:' . $varDir . '/rate_limits.sqlite');
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $pdo->exec('CREATE TABLE IF NOT EXISTS login_rate_limits (
+                key TEXT PRIMARY KEY,
+                attempts INTEGER NOT NULL,
+                last_attempt INTEGER NOT NULL,
+                locked_until INTEGER NOT NULL
+            )');
+            return $pdo;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Records a failed login attempt for brute-force mitigation across sessions and workers.
+     */
+    public static function recordFailedLogin(string $username, ?string $ip = null): void
+    {
+        $ip = $ip ?? ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+        $sessionKey = 'spp_login_attempts_' . md5($username . $ip);
+        $attempts = (int)($_SESSION[$sessionKey] ?? 0);
+        $_SESSION[$sessionKey] = $attempts + 1;
+        $_SESSION[$sessionKey . '_time'] = time();
+
+        $pdo = self::getRateLimitPdo();
+        if ($pdo) {
+            try {
+                $now = time();
+                $dbKey = 'rate:' . md5(strtolower(trim($username)) . ':' . $ip);
+                $stmt = $pdo->prepare('SELECT attempts FROM login_rate_limits WHERE key = ?');
+                $stmt->execute([$dbKey]);
+                $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+                $newAttempts = ($row ? (int)$row['attempts'] : 0) + 1;
+                $lockedUntil = ($newAttempts >= 5) ? ($now + 300) : 0;
+
+                $upsert = $pdo->prepare('INSERT INTO login_rate_limits (key, attempts, last_attempt, locked_until)
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT(key) DO UPDATE SET
+                    attempts = ?, last_attempt = ?, locked_until = ?');
+                $upsert->execute([$dbKey, $newAttempts, $now, $lockedUntil, $newAttempts, $now, $lockedUntil]);
+            } catch (\Throwable $e) {}
+        }
+    }
+
+    /**
+     * Checks if a user or IP is currently locked out due to excessive failed attempts.
+     */
+    public static function isLockedOut(string $username, ?string $ip = null): bool
+    {
+        $ip = $ip ?? ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+        $sessionKey = 'spp_login_attempts_' . md5($username . $ip);
+        $attempts = (int)($_SESSION[$sessionKey] ?? 0);
+        $time = (int)($_SESSION[$sessionKey . '_time'] ?? 0);
+        if ($attempts >= 5 && (time() - $time) < 300) {
+            return true;
+        }
+
+        $pdo = self::getRateLimitPdo();
+        if ($pdo) {
+            try {
+                $now = time();
+                $dbKey = 'rate:' . md5(strtolower(trim($username)) . ':' . $ip);
+                $stmt = $pdo->prepare('SELECT attempts, last_attempt, locked_until FROM login_rate_limits WHERE key = ?');
+                $stmt->execute([$dbKey]);
+                $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+                if ($row) {
+                    if ((int)$row['locked_until'] > $now) {
+                        return true;
+                    }
+                    if ((int)$row['attempts'] >= 5 && ($now - (int)$row['last_attempt']) < 300) {
+                        return true;
+                    }
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        return false;
+    }
+
+    /**
+     * Clears failed login attempts after successful authentication.
+     */
+    public static function clearFailedLogins(string $username, ?string $ip = null): void
+    {
+        $ip = $ip ?? ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+        $sessionKey = 'spp_login_attempts_' . md5($username . $ip);
+        unset($_SESSION[$sessionKey], $_SESSION[$sessionKey . '_time']);
+
+        $pdo = self::getRateLimitPdo();
+        if ($pdo) {
+            try {
+                $dbKey = 'rate:' . md5(strtolower(trim($username)) . ':' . $ip);
+                $stmt = $pdo->prepare('DELETE FROM login_rate_limits WHERE key = ?');
+                $stmt->execute([$dbKey]);
+            } catch (\Throwable $e) {}
+        }
+    }
+
+    /**
+     * Generates a cryptographically strong API key pair.
+     */
+    public static function generateApiKey(string $name, string $role = 'admin'): array
+    {
+        $rawToken = 'spp_' . bin2hex(random_bytes(32));
+        $keyHash = hash('sha256', $rawToken);
+        $masked = 'spp_...' . substr($rawToken, -4);
+        return [
+            'name'       => $name,
+            'role'       => $role,
+            'raw_key'    => $rawToken,
+            'key_hash'   => $keyHash,
+            'masked_key' => $masked,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+    }
+
+    public static function hashApiKey(string $rawKey): string
+    {
+        return hash('sha256', $rawKey);
+    }
+
+    public static function maskApiKey(string $rawKey): string
+    {
+        if (strlen($rawKey) <= 8) {
+            return '••••••••';
+        }
+        return 'spp_...' . substr($rawKey, -4);
+    }
+}
+
+if (!class_exists('\\Auth', false)) {
+    class_alias(Auth::class, 'Auth');
+}
+
+} // end SPP\Admin\Services namespace

@@ -54,15 +54,21 @@ class SubpathVirtualizer
         if (!empty($app['spp_integration']['sso_bridge']) || !empty($app['spp_integration']['ambient_sensing'])) {
             $userClaims = self::resolveCurrentUserClaims();
             if ($userClaims !== null) {
+                $signingSecret = trim((string)($appToken ?: ($app['spp_integration']['signing_secret'] ?? ($app['secret'] ?? ''))));
+                if ($signingSecret === '' || $signingSecret === 'spp_default_secret_key') {
+                    throw new \RuntimeException("SSO Bridge Configuration Error: Application '{$app['id']}' does not have a configured signing secret. Refusing to sign identity claims.");
+                }
+
                 $timestamp = (string)time();
-                $token = $appToken ?: 'spp_default_secret_key';
-                $signaturePayload = $userClaims['id'] . ':' . $userClaims['email'] . ':' . $timestamp;
-                $signature = hash_hmac('sha256', $signaturePayload, $token);
+                $nonce = bin2hex(random_bytes(16));
+                $signaturePayload = $userClaims['id'] . ':' . $userClaims['email'] . ':' . $timestamp . ':' . $nonce;
+                $signature = hash_hmac('sha256', $signaturePayload, $signingSecret);
 
                 $headers['X-SPP-User-Id']    = (string)$userClaims['id'];
                 $headers['X-SPP-User-Email'] = (string)$userClaims['email'];
                 $headers['X-SPP-User-Roles'] = implode(',', $userClaims['roles'] ?? []);
                 $headers['X-SPP-Timestamp']  = $timestamp;
+                $headers['X-SPP-Nonce']      = $nonce;
                 $headers['X-SPP-Signature']  = $signature;
             }
         }
@@ -71,7 +77,60 @@ class SubpathVirtualizer
     }
 
     /**
-     * Verifies HMAC SSO claims with expiry window and timing attack protection.
+     * Atomically records and consumes an SSO nonce to prevent replay attacks.
+     *
+     * @param string $nonce
+     * @param int $timestamp
+     * @param int $maxAgeSeconds
+     * @return bool True if nonce was successfully consumed (first use), false if replayed or invalid
+     */
+    public static function consumeNonce(string $nonce, int $timestamp, int $maxAgeSeconds = 300): bool
+    {
+        $cleanNonce = preg_replace('/[^a-zA-Z0-9_\-]/', '', $nonce);
+        if ($cleanNonce === '' || strlen($cleanNonce) < 8) {
+            return false;
+        }
+
+        // Try APCu first if available
+        if (function_exists('apcu_add')) {
+            $cacheKey = 'spp_sso_nonce_' . $cleanNonce;
+            return apcu_add($cacheKey, 1, $maxAgeSeconds);
+        }
+
+        // Persistent atomic SQLite ledger
+        try {
+            $baseDir = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 2);
+            $varDir = $baseDir . '/var/shared';
+            if (!is_dir($varDir)) {
+                @mkdir($varDir, 0777, true);
+            }
+            $dbFile = $varDir . '/sso_nonce_ledger.sqlite';
+            $pdo = new \PDO('sqlite:' . $dbFile);
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $pdo->exec('CREATE TABLE IF NOT EXISTS consumed_nonces (
+                nonce TEXT PRIMARY KEY,
+                expires_at INTEGER NOT NULL
+            )');
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_nonces_exp ON consumed_nonces (expires_at)');
+
+            $now = time();
+            // Clean up expired nonces
+            $delStmt = $pdo->prepare('DELETE FROM consumed_nonces WHERE expires_at < ?');
+            $delStmt->execute([$now]);
+
+            // Attempt atomic insert
+            $expiresAt = $now + $maxAgeSeconds;
+            $insStmt = $pdo->prepare('INSERT INTO consumed_nonces (nonce, expires_at) VALUES (?, ?)');
+            $insStmt->execute([$cleanNonce, $expiresAt]);
+            return true;
+        } catch (\Throwable $e) {
+            // UNIQUE constraint violation indicates replay
+            return false;
+        }
+    }
+
+    /**
+     * Verifies HMAC SSO claims with expiry window, replay defense, and timing attack protection.
      *
      * @param string|int $userId
      * @param string $email
@@ -79,6 +138,7 @@ class SubpathVirtualizer
      * @param string $signature
      * @param string $token
      * @param int $maxAgeSeconds Maximum age of claim in seconds to prevent replay attacks (default: 300)
+     * @param string|null $nonce Unique nonce (jti) for atomic one-time claim verification
      * @return bool
      */
     public static function verifySsoSignature(
@@ -87,18 +147,37 @@ class SubpathVirtualizer
         string|int $timestamp,
         string $signature,
         string $token,
-        int $maxAgeSeconds = 300
+        int $maxAgeSeconds = 300,
+        ?string $nonce = null
     ): bool {
-        $ts = (int)$timestamp;
-        $now = time();
-        if (abs($now - $ts) > $maxAgeSeconds) {
+        $cleanToken = trim($token);
+        if ($cleanToken === '' || $cleanToken === 'spp_default_secret_key') {
             return false;
         }
 
-        $expectedPayload = $userId . ':' . $email . ':' . $timestamp;
-        $expectedSignature = hash_hmac('sha256', $expectedPayload, $token);
+        $ts = (int)$timestamp;
+        $now = time();
 
-        return hash_equals($expectedSignature, $signature);
+        // Enforce strict monotonic timestamp checking (reject timestamps > 15s in future or older than window)
+        if ($ts > ($now + 15) || ($now - $ts) > $maxAgeSeconds || ($now - $ts) < -15) {
+            return false;
+        }
+
+        // If nonce is provided, enforce atomic check-and-set replay protection
+        if ($nonce !== null && $nonce !== '') {
+            if (!self::consumeNonce($nonce, $ts, $maxAgeSeconds)) {
+                return false; // Replay attack detected!
+            }
+            $expectedPayload = $userId . ':' . $email . ':' . $timestamp . ':' . $nonce;
+            $expectedSignature = hash_hmac('sha256', $expectedPayload, $cleanToken);
+            return hash_equals($expectedSignature, $signature);
+        }
+
+        // Backward compatibility for legacy signatures without nonce
+        $expectedLegacy = $userId . ':' . $email . ':' . $timestamp;
+        $expectedSigLegacy = hash_hmac('sha256', $expectedLegacy, $cleanToken);
+
+        return hash_equals($expectedSigLegacy, $signature);
     }
 
     /**

@@ -102,15 +102,24 @@ if (!function_exists('spp_admin_audit_log')) {
             } catch (\Exception $e) {
             }
 
-            // Sanitize params — remove passwords and large blobs
+            // Sanitize params — remove passwords, secrets, tokens, credentials, and large blobs
+            $sensitiveKeys = ['password', 'secret', 'token', 'key', 'api_key', 'pass', 'auth_token', 'csrf_token', 'credentials', 'access_token', 'refresh_token'];
             $safeParams = [];
             foreach ($params as $k => $v) {
-                if (in_array(strtolower($k), ['password', 'secret', 'token', 'key', 'api_key'])) {
+                $kLower = strtolower((string)$k);
+                $isSensitive = in_array($kLower, $sensitiveKeys, true)
+                    || str_contains($kLower, 'pass')
+                    || str_contains($kLower, 'secret')
+                    || str_contains($kLower, 'token');
+
+                if ($isSensitive) {
                     $safeParams[$k] = '***REDACTED***';
                 } elseif (is_string($v) && strlen($v) > 500) {
                     $safeParams[$k] = substr($v, 0, 500) . '...[truncated]';
-                } elseif (is_scalar($v)) {
+                } elseif (is_scalar($v) || is_null($v)) {
                     $safeParams[$k] = $v;
+                } elseif (is_array($v)) {
+                    $safeParams[$k] = json_encode($v);
                 }
             }
 

@@ -457,11 +457,170 @@ class StorageAdminService
     }
 
     /**
+     * Resolves the authoritative set of authorized roots for filesystem access.
+     * Enforces containment within workspace root, SPP_BASE_DIR, active domain document roots,
+     * configured site roots, and system temp directory.
+     *
+     * @param string|null $domain Optional domain scope for tenant isolation
+     * @return string[] Array of canonical normalized root paths
+     */
+    public static function getAuthorizedRoots(?string $domain = null): array
+    {
+        $roots = [];
+
+        // 1. SPP Workspace Root & Base Directory
+        $workspace = self::getWorkspaceRoot();
+        if ($workspace) {
+            $realWs = realpath($workspace);
+            $roots[] = str_replace('\\', '/', $realWs ?: $workspace);
+        }
+
+        if (defined('SPP_BASE_DIR')) {
+            $baseDir = SPP_BASE_DIR;
+            $realBase = realpath($baseDir);
+            $roots[] = str_replace('\\', '/', $realBase ?: $baseDir);
+        }
+
+        if (defined('SPP_APP_DIR')) {
+            $appDir = SPP_APP_DIR;
+            $realApp = realpath($appDir);
+            $roots[] = str_replace('\\', '/', $realApp ?: $appDir);
+        }
+
+        // 2. Active Tenant / Domain Roots via DomainContextResolver
+        $domTarget = $domain;
+        if ($domTarget === null && class_exists('\\SPP\\Core\\Domain\\DomainContextResolver')) {
+            if (\SPP\Core\Domain\DomainContextResolver::has()) {
+                $domTarget = \SPP\Core\Domain\DomainContextResolver::current()->getDomain();
+            }
+        }
+
+        $tenantIsolationActive = ($domTarget !== null && $domTarget !== '' && $domTarget !== 'default');
+
+        if ($tenantIsolationActive && class_exists('\\SPP\\Core\\Domain\\DomainContextResolver')) {
+            try {
+                $ctx = \SPP\Core\Domain\DomainContextResolver::resolve($domTarget);
+                $dPath = $ctx->getDomainPath();
+                if ($dPath) {
+                    $realD = realpath($dPath);
+                    $roots[] = str_replace('\\', '/', $realD ?: $dPath);
+                }
+                $pPath = $ctx->getPublicPath();
+                if ($pPath) {
+                    $realP = realpath($pPath);
+                    $roots[] = str_replace('\\', '/', $realP ?: $pPath);
+                }
+                $dataPath = $ctx->getDataPath();
+                if ($dataPath) {
+                    $realData = realpath($dataPath);
+                    $roots[] = str_replace('\\', '/', $realData ?: $dataPath);
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        // 3. Configured Site Roots (Tenant Document Roots & User Homes)
+        try {
+            $siteRoots = self::getConfiguredSiteRoots();
+            foreach ($siteRoots as $site) {
+                if (!empty($site['home_path'])) {
+                    $siteReal = realpath($site['home_path']);
+                    $roots[] = str_replace('\\', '/', $siteReal ?: $site['home_path']);
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        // 4. System Temp Directory (for temporary file lifecycles and scratch uploads)
+        $sysTmp = sys_get_temp_dir();
+        if ($sysTmp) {
+            $realTmp = realpath($sysTmp);
+            $roots[] = str_replace('\\', '/', $realTmp ?: $sysTmp);
+        }
+
+        // 5. System Root (Allowed ONLY in sovereign host admin mode when tenant isolation is NOT active)
+        if (!$tenantIsolationActive) {
+            $sysRoot = self::getSystemRoot();
+            $realSys = realpath($sysRoot);
+            $roots[] = str_replace('\\', '/', $realSys ?: $sysRoot);
+        }
+
+        // Deduplicate and filter empty
+        $canonical = [];
+        foreach ($roots as $r) {
+            $norm = rtrim(str_replace('\\', '/', $r), '/');
+            if ($norm === '' && DIRECTORY_SEPARATOR === '/') {
+                $norm = '/';
+            }
+            if (!empty($norm) && !in_array($norm, $canonical, true)) {
+                $canonical[] = $norm;
+            }
+        }
+
+        return $canonical;
+    }
+
+    /**
+     * Checks if a target path is strictly contained within the set of authorized roots.
+     */
+    public static function isContainedInAuthorizedRoots(string $targetPath, ?string $domain = null): bool
+    {
+        $targetNorm = str_replace('\\', '/', rtrim($targetPath, '/\\'));
+        if ($targetNorm === '' && DIRECTORY_SEPARATOR === '/') {
+            $targetNorm = '/';
+        }
+
+        $realTarget = realpath($targetNorm);
+        $checkPath = $realTarget !== false ? str_replace('\\', '/', $realTarget) : $targetNorm;
+        if ($checkPath === '' && DIRECTORY_SEPARATOR === '/') {
+            $checkPath = '/';
+        }
+
+        $isWindows = (DIRECTORY_SEPARATOR !== '/' || stripos(PHP_OS, 'WIN') === 0);
+        $authorizedRoots = self::getAuthorizedRoots($domain);
+
+        foreach ($authorizedRoots as $root) {
+            $rootNorm = rtrim(str_replace('\\', '/', $root), '/');
+            if ($rootNorm === '' && DIRECTORY_SEPARATOR === '/') {
+                $rootNorm = '/';
+            }
+
+            if ($rootNorm === '/') {
+                return true; // System root matches everything on Unix
+            }
+
+            if ($isWindows) {
+                // Windows drive root check: e.g. "C:" or "C:/"
+                if (preg_match('/^[a-zA-Z]:\/?$/', $rootNorm)) {
+                    $driveLetter = strtoupper(substr($rootNorm, 0, 1));
+                    if (str_starts_with(strtoupper($checkPath), $driveLetter . ':')) {
+                        return true;
+                    }
+                }
+
+                if (strcasecmp($checkPath, $rootNorm) === 0) {
+                    return true;
+                }
+                if (str_starts_with(strtolower($checkPath), strtolower($rootNorm) . '/')) {
+                    return true;
+                }
+            } else {
+                if ($checkPath === $rootNorm) {
+                    return true;
+                }
+                if (str_starts_with($checkPath, $rootNorm . '/')) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Resolves and validates an absolute filesystem path.
      * Supports full system root navigation (e.g. '/' on Linux or 'C:/' on Windows)
      * as well as relative paths within the SPP workspace.
      */
-    public static function resolveSafePath(string $relativePath): ?string
+    public static function resolveSafePath(string $relativePath, ?string $domain = null): ?string
     {
         $baseDir = realpath(defined('SPP_APP_DIR') ? SPP_APP_DIR : dirname(__DIR__, 3));
         if ($baseDir === false) {
@@ -477,14 +636,15 @@ class StorageAdminService
 
         // Empty path or workspace keyword defaults to SPP workspace root
         if ($clean === '' || $clean === '.' || $clean === 'workspace' || $clean === 'spp') {
-            return $baseDir;
+            return self::isContainedInAuthorizedRoots($baseDir, $domain) ? $baseDir : null;
         }
 
         // System root keyword or '/'
         if ($clean === '/' || $clean === 'ROOT' || $clean === 'SYSTEM_ROOT') {
             $sys = self::getSystemRoot();
             $realSys = realpath($sys);
-            return $realSys !== false ? $realSys : $sys;
+            $target = $realSys !== false ? $realSys : $sys;
+            return self::isContainedInAuthorizedRoots($target, $domain) ? $target : null;
         }
 
         // Windows drive without trailing slash e.g. 'C:' -> 'C:/'
@@ -513,14 +673,15 @@ class StorageAdminService
         if ($isAbsolute) {
             $real = realpath($clean);
             if ($real !== false) {
-                return $real;
+                return self::isContainedInAuthorizedRoots($real, $domain) ? $real : null;
             }
 
             // If file/folder does not exist yet (e.g. createFile, createDirectory), check parent directory
             $parent = dirname($clean);
             $realParent = realpath($parent);
             if ($realParent !== false && is_dir($realParent)) {
-                return $realParent . DIRECTORY_SEPARATOR . basename($clean);
+                $candidate = $realParent . DIRECTORY_SEPARATOR . basename($clean);
+                return self::isContainedInAuthorizedRoots($candidate, $domain) ? $candidate : null;
             }
 
             // Cross-platform normalization fallback (e.g. absolute Windows path sent to Linux or vice versa)
@@ -546,21 +707,24 @@ class StorageAdminService
             $target = empty($cleanRel) ? $baseDir : $baseDir . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $cleanRel);
 
             if (file_exists($target)) {
-                return realpath($target) ?: $target;
+                $res = realpath($target) ?: $target;
+                return self::isContainedInAuthorizedRoots($res, $domain) ? $res : null;
             }
 
             // Auto-append .php if file exists with .php extension
             if (file_exists($target . '.php')) {
-                return realpath($target . '.php') ?: ($target . '.php');
+                $res = realpath($target . '.php') ?: ($target . '.php');
+                return self::isContainedInAuthorizedRoots($res, $domain) ? $res : null;
             }
 
             // If parent directory exists, allow target for new file creation
             $parent = dirname($target);
             if (is_dir($parent)) {
-                return (realpath($parent) ?: $parent) . DIRECTORY_SEPARATOR . basename($target);
+                $res = (realpath($parent) ?: $parent) . DIRECTORY_SEPARATOR . basename($target);
+                return self::isContainedInAuthorizedRoots($res, $domain) ? $res : null;
             }
 
-            return $target;
+            return self::isContainedInAuthorizedRoots($target, $domain) ? $target : null;
         }
 
         return null;
@@ -984,8 +1148,11 @@ class StorageAdminService
             return ['success' => false, 'error' => 'Cannot delete system or workspace root directory.'];
         }
 
-        $protected = ['/bin', '/boot', '/dev', '/etc', '/lib', '/lib64', '/proc', '/root', '/run', '/sbin', '/sys', '/usr'];
-        $cleanTarget = str_replace('\\', '/', rtrim($target, '/\\'));
+        $protected = [
+            '/bin', '/boot', '/dev', '/etc', '/lib', '/lib64', '/proc', '/root', '/run', '/sbin', '/sys', '/usr',
+            'c:/windows', 'c:/program files', 'c:/program files (x86)', 'c:/programdata'
+        ];
+        $cleanTarget = strtolower(str_replace('\\', '/', rtrim($target, '/\\')));
         if (in_array($cleanTarget, $protected, true)) {
             return ['success' => false, 'error' => "Protected System Directory: Cannot delete critical operating system path '{$cleanTarget}'."];
         }
@@ -1589,6 +1756,202 @@ class StorageAdminService
             'filename' => $cleanName,
             'path' => $relPath,
             'size' => @filesize($destination) ?: 0
+        ];
+    }
+
+    /**
+     * Handles chunked file upload with pre-write byte limit enforcement.
+     * Prevents resource exhaustion, enforces max file size before writing chunks,
+     * sanitizes upload tokens against traversal, and reassembles final file atomically.
+     *
+     * @param array $params Contains 'targetDir', 'filename', 'chunkIndex', 'totalChunks', 'chunkSize', 'totalSize', 'uploadId'
+     * @param array $fileData Contains 'tmp_name', 'content', or 'base64'
+     * @return array
+     */
+    public static function handleChunkUpload(array $params, array $fileData): array
+    {
+        $maxUploadSize = defined('SPP_MAX_UPLOAD_SIZE') ? (int)SPP_MAX_UPLOAD_SIZE : 104857600; // 100MB default
+        $maxChunkSize = 10485760; // 10MB per chunk limit
+
+        $rawUploadId = (string)($params['uploadId'] ?? '');
+        if ($rawUploadId === '' || !preg_match('/^[a-zA-Z0-9_\-]+$/', $rawUploadId)) {
+            return ['success' => false, 'error' => 'Missing or invalid uploadId token.'];
+        }
+        $uploadId = $rawUploadId;
+
+        $targetDirRaw = (string)($params['targetDir'] ?? $params['path'] ?? '');
+        $targetDir = self::resolveSafePath($targetDirRaw);
+        if (!$targetDir || !is_dir($targetDir)) {
+            return ['success' => false, 'error' => 'Target directory does not exist or access denied.'];
+        }
+
+        $filename = basename(trim(str_replace(['\\', '/'], DIRECTORY_SEPARATOR, (string)($params['filename'] ?? ''))));
+        if (empty($filename)) {
+            return ['success' => false, 'error' => 'Missing or invalid upload filename.'];
+        }
+
+        $chunkIndex = (int)($params['chunkIndex'] ?? 0);
+        $totalChunks = (int)($params['totalChunks'] ?? 1);
+        $totalSize = (int)($params['totalSize'] ?? 0);
+        $chunkSize = (int)($params['chunkSize'] ?? 0);
+
+        if ($totalSize > $maxUploadSize) {
+            return [
+                'success' => false,
+                'error' => "Total upload size ({$totalSize} bytes) exceeds maximum allowable limit ({$maxUploadSize} bytes)."
+            ];
+        }
+
+        if ($chunkSize > $maxChunkSize) {
+            return [
+                'success' => false,
+                'error' => "Chunk size ({$chunkSize} bytes) exceeds maximum chunk size ({$maxChunkSize} bytes)."
+            ];
+        }
+
+        // Extract chunk content
+        $chunkContent = null;
+        if (!empty($fileData['tmp_name']) && file_exists($fileData['tmp_name'])) {
+            $actualSize = filesize($fileData['tmp_name']);
+            if ($actualSize > $maxChunkSize) {
+                return ['success' => false, 'error' => 'Chunk temp file exceeds maximum chunk size limit.'];
+            }
+            $chunkContent = file_get_contents($fileData['tmp_name']);
+        } elseif (isset($fileData['content'])) {
+            $chunkContent = $fileData['content'];
+        } elseif (!empty($fileData['base64'])) {
+            $raw = $fileData['base64'];
+            if (str_contains($raw, ';base64,')) {
+                $raw = explode(';base64,', $raw)[1];
+            }
+            $chunkContent = base64_decode($raw, true);
+        }
+
+        if ($chunkContent === null || $chunkContent === false) {
+            return ['success' => false, 'error' => 'Failed to retrieve chunk content payload.'];
+        }
+
+        $contentLen = strlen($chunkContent);
+        if ($contentLen > $maxChunkSize) {
+            return ['success' => false, 'error' => 'Chunk payload exceeds maximum allowable chunk size.'];
+        }
+
+        // Setup scratch chunk directory
+        $chunkBase = defined('SPP_BASE_DIR') ? SPP_BASE_DIR . '/var/tmp/spp_chunks' : sys_get_temp_dir() . '/spp_chunks';
+        $uploadDir = $chunkBase . DIRECTORY_SEPARATOR . $uploadId;
+        if (!is_dir($uploadDir)) {
+            if (!@mkdir($uploadDir, 0770, true)) {
+                return ['success' => false, 'error' => 'Failed to initialize temporary chunk directory.'];
+            }
+        }
+
+        $chunkFile = $uploadDir . DIRECTORY_SEPARATOR . sprintf('chunk_%06d.part', $chunkIndex);
+        if (@file_put_contents($chunkFile, $chunkContent) === false) {
+            return ['success' => false, 'error' => "Failed to write chunk #{$chunkIndex} to disk."];
+        }
+
+        // Verify total size of received chunks does not exceed maxUploadSize
+        $chunkFiles = glob($uploadDir . DIRECTORY_SEPARATOR . 'chunk_*.part') ?: [];
+        $accumulatedBytes = 0;
+        foreach ($chunkFiles as $cf) {
+            $accumulatedBytes += filesize($cf);
+        }
+
+        if ($accumulatedBytes > $maxUploadSize) {
+            // Clean up chunks and abort
+            self::deleteDirectoryRecursive($uploadDir);
+            return [
+                'success' => false,
+                'error' => "Accumulated chunk payload ({$accumulatedBytes} bytes) exceeded maximum upload size limit."
+            ];
+        }
+
+        // If not all chunks have arrived, acknowledge receipt
+        if (count($chunkFiles) < $totalChunks) {
+            return [
+                'success' => true,
+                'uploadId' => $uploadId,
+                'chunkIndex' => $chunkIndex,
+                'received_chunks' => count($chunkFiles),
+                'totalChunks' => $totalChunks,
+                'completed' => false,
+                'message' => "Chunk {$chunkIndex} uploaded successfully."
+            ];
+        }
+
+        // All chunks received -> assemble final file atomically
+        sort($chunkFiles);
+        $finalDestination = $targetDir . DIRECTORY_SEPARATOR . $filename;
+        $tempDestination = $finalDestination . '.tmp_' . bin2hex(random_bytes(6));
+
+        $outHandle = @fopen($tempDestination, 'wb');
+        if (!$outHandle) {
+            self::deleteDirectoryRecursive($uploadDir);
+            return ['success' => false, 'error' => 'Failed to open output handle for final file assembly.'];
+        }
+
+        foreach ($chunkFiles as $cf) {
+            $inHandle = fopen($cf, 'rb');
+            if ($inHandle) {
+                stream_copy_to_stream($inHandle, $outHandle);
+                fclose($inHandle);
+            }
+        }
+        fclose($outHandle);
+
+        // Verify assembled size
+        $assembledSize = filesize($tempDestination);
+        if ($assembledSize > $maxUploadSize) {
+            @unlink($tempDestination);
+            self::deleteDirectoryRecursive($uploadDir);
+            return ['success' => false, 'error' => "Assembled file exceeds maximum allowable size limit."];
+        }
+
+        // Atomic publish to destination
+        if (!@rename($tempDestination, $finalDestination)) {
+            @unlink($tempDestination);
+            self::deleteDirectoryRecursive($uploadDir);
+            return ['success' => false, 'error' => 'Failed to finalize assembled file into target directory.'];
+        }
+
+        @chmod($finalDestination, 0664);
+
+        // Clean up scratch chunks
+        self::deleteDirectoryRecursive($uploadDir);
+
+        // Auto-register in __spp_file_props.yml
+        $baseDir = realpath(defined('SPP_APP_DIR') ? SPP_APP_DIR : dirname(__DIR__, 3));
+        $normDest = str_replace('\\', '/', $finalDestination);
+        $normBase = str_replace('\\', '/', $baseDir ?: '');
+        $relPath = ($normBase !== '' && str_starts_with($normDest, $normBase))
+            ? ltrim(substr($normDest, strlen($normBase)), '/')
+            : $normDest;
+
+        if (class_exists('\SPPMod\SPPStorage\FilePropsManager')) {
+            try {
+                $ext = pathinfo($finalDestination, PATHINFO_EXTENSION);
+                \SPPMod\SPPStorage\FilePropsManager::saveFileProps($relPath, [
+                    'description' => "Uploaded file (chunked): {$filename}",
+                    'usage' => "User uploaded asset",
+                    'stability' => 'stable',
+                    'author' => 'SPP Administrator',
+                    'review_date' => date('Y-m-d', strtotime('+1 year')),
+                    'checksum' => hash_file('sha256', $finalDestination) ?: null,
+                    'attributes' => [
+                        'tags' => array_values(array_filter([$ext, 'chunk_upload']))
+                    ]
+                ]);
+            } catch (\Throwable $e) {}
+        }
+
+        return [
+            'success' => true,
+            'completed' => true,
+            'uploadId' => $uploadId,
+            'filename' => $filename,
+            'path' => $relPath,
+            'size' => $assembledSize,
+            'message' => "File '{$filename}' successfully assembled from {$totalChunks} chunks."
         ];
     }
 

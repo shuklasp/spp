@@ -73,7 +73,17 @@ if (grep { $_ eq "--daemon" } @ARGV) {
 
         my $req_id = $req->{request_id} || "";
 
-        if ($auth_token && ($req->{auth_token} || "") ne $auth_token) {
+sub constant_time_eq {
+    my ($a, $b) = @_;
+    return 0 if length($a) != length($b);
+    my $res = 0;
+    for (my $i = 0; $i < length($a); $i++) {
+        $res |= ord(substr($a, $i, 1)) ^ ord(substr($b, $i, 1));
+    }
+    return $res == 0;
+}
+
+if ($auth_token && !constant_time_eq($req->{auth_token} || "", $auth_token)) {
             print $client encode_json({ success => JSON::false, error => "Unauthorized: invalid auth_token", error_code => 401, request_id => $req_id }) . "\n";
             close($client);
             next;
