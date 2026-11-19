@@ -219,6 +219,11 @@
 - `$entity->rollback($user, $comment, $context)`: Native fluent Saga compensating rollback that unwinds entity states along recorded `spp_entity_workflow_history` lineage.
 - `\SPPMod\SPPWorkflow\WorkflowManager::get($name)`: Universal workflow definition lookup with automatic suffix resolution (`article` <-> `article_workflow`) and schema normalization.
 - `\SPP\Polyglot`: Unified developer-friendly facade for polyglot execution (`Polyglot::run()`, `eval()`, `python()`, `node()`, `formula()`, `file()->fallback()->get()`).
+- `\SPP\Core\Polyglot\ProcessRunner`: Robust, injection-immune process runner with argument arrays, pipe deadlock elimination, deadline timeouts, and input/output byte limits.
+- `\SPP\Core\Polyglot\ExecutionPlan`: Bridge execution plans containing executable, arguments vector, environment, and transport specification.
+- `\SPP\Core\Polyglot\WorkerManager`: Persistent worker orchestrator with stable identity hashing, atomic PID/port publishing, 32-byte cryptographic auth tokens over TCP loopback, and health pings.
+- `\SPP\Core\Polyglot\CompilationManager`: Concurrency-safe build engine with SHA-256 fingerprint isolation, file locks (`flock`), and atomic publication.
+- `\SPP\Core\Polyglot\PolyglotJob`: Managed asynchronous jobs with persistent atomic state ledgers, retry policies, and W3C trace context telemetry.
 - `\SPP\Core\Polyglot\LanguageRegistry`: Universal catalog for 47+ languages with dynamic extension resolution, activation state (`isEnabled()`, `enable()`, `disable()`, `toggle()`), custom DSL registration, and OS binary discovery.
 - `\SPP\Admin\Services\PolyglotAdminService`: Dedicated backend service powering SPPAdmin and SPPDev Universal Polyglot Studio (`#polyglot`).
 - `\SPP\Core\Polyglot\DSL\AbstractLanguage`: Pure-PHP in-process DSL tokenizer, Pratt AST parser, and sandboxed expression evaluator.

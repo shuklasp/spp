@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace SPP\Core\Polyglot;
 
@@ -9,25 +10,43 @@ class DefaultBridge implements PolyglotBridgeInterface
         return null;
     }
 
-    public function getCommand(string $module, string $func, array $args, array $runtime, string $sharedDir): string
+    public function getExecutionPlan(string $module, string $func, array $args, array $runtime, string $sharedDir): ExecutionPlan
     {
-        $binary = $runtime['path'];
-        $lang = strtolower($runtime['name']);
-        if (str_contains($lang, 'python')) {
-            $ext = 'py';
-        } elseif (str_contains($lang, 'perl')) {
-            $ext = 'pl';
-        } elseif (str_contains($lang, 'node')) {
-            $ext = 'js';
-        } else {
-            $ext = '';
-        }
+        $binary = !empty($runtime['path']) ? $runtime['path'] : ($runtime['name'] ?? 'unknown');
+        $lang = strtolower($runtime['name'] ?? '');
+        $ext = match (true) {
+            str_contains($lang, 'python') => 'py',
+            str_contains($lang, 'perl')   => 'pl',
+            str_contains($lang, 'node')   => 'js',
+            default                       => ''
+        };
+
         $baseDir = defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 2);
         $frameworkLibDir = $baseDir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'polyglot';
         $dispatchScript = $frameworkLibDir . DIRECTORY_SEPARATOR . 'dispatch.' . $ext;
+
         if (!file_exists($dispatchScript)) {
-            throw new \RuntimeException("Dispatcher script for {$lang} not found.");
+            throw new \RuntimeException("Dispatcher script for {$lang} not found at '{$dispatchScript}'.");
         }
-        return "\"{$binary}\" \"{$dispatchScript}\" \"{$module}\" \"{$func}\"";
+
+        $moduleAbs = realpath($module) ?: $module;
+        $workingDir = is_dir($sharedDir . DIRECTORY_SEPARATOR . 'bridge')
+            ? $sharedDir . DIRECTORY_SEPARATOR . 'bridge'
+            : dirname($moduleAbs);
+
+        return new ExecutionPlan(
+            executable: $binary,
+            arguments: [$dispatchScript, $moduleAbs, $func],
+            workingDirectory: $workingDir,
+            environment: [],
+            inputTransport: 'stdin_json',
+            outputFormat: 'json',
+            timeout: 30.0
+        );
+    }
+
+    public function getCommand(string $module, string $func, array $args, array $runtime, string $sharedDir): string
+    {
+        return $this->getExecutionPlan($module, $func, $args, $runtime, $sharedDir)->toCommandString();
     }
 }

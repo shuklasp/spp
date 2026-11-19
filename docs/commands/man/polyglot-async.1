@@ -1,7 +1,22 @@
-.TH "polyglot:async" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "POLYGLOT:ASYNC" 1 "November 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-polyglot:async \- Internal command to execute polyglot calls asynchronously
+polyglot:async \- Execute managed asynchronous polyglot jobs and background queue tasks
 .SH SYNOPSIS
 .B php spp.php polyglot:async
+\fIjob_id\fR | \fIpayload_base64\fR
 .SH DESCRIPTION
-Internal command to execute polyglot calls asynchronously
+.B polyglot:async
+processes background asynchronous polyglot jobs dispatched via \fBPolyglotBridge::dispatchAsync()\fR
+or SPP's native Queue daemon. It updates persistent job states, propagates W3C distributed
+tracing headers, captures exit codes, and provides retry execution semantics.
+.SH OPTIONS
+.TP
+\fIjob_id\fR
+Unique identifier of the managed job (e.g. \fIpoly_a1b2c3d4e5f6\fR).
+.TP
+\fIpayload_base64\fR
+Backward-compatible base64-encoded JSON execution payload.
+.SH UNDER THE HOOD
+Reads and writes atomic job manifests in \fIvar/jobs/polyglot/\fR.
+Emits OpenTelemetry spans via \fBW3CTraceContext\fR.
+Dispatches concrete language execution via \fBProcessRunner\fR or persistent workers.

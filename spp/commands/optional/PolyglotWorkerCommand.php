@@ -1,14 +1,17 @@
 <?php
+declare(strict_types=1);
+
 namespace SPP\CLI\Commands;
 
 use SPP\CLI\Command;
+use SPP\Core\Polyglot\WorkerManager;
+use SPP\Core\Polyglot\Platform;
 
 class PolyglotWorkerCommand extends Command
 {
     protected string $name = 'polyglot:worker';
     protected string $description = 'Manage Polyglot persistent workers';
 
-    
     public function isCLIOnly(): bool
     {
         return true;
@@ -20,23 +23,15 @@ class PolyglotWorkerCommand extends Command
         $module = $this->getArgument($args, 1) ?? null;
         $lang = $this->getArgument($args, 2) ?? null;
 
-        if (!$action || !in_array($action, ['start', 'stop', 'restart', 'status'])) {
-            echo "Usage: spp polyglot:worker [start|stop|restart|status] <module> [<lang>]\n";
+        if (!$action || !in_array($action, ['start', 'stop', 'restart', 'status', 'cleanup', 'async'], true)) {
+            echo "Usage: php spp.php polyglot:worker [start|stop|restart|status|cleanup] <module> [<lang>]\n";
             return;
         }
 
-        $sharedDir = \SPP\Module::getConfig('shared_dir', 'bridge') ?: 'var/shared';
-        if ((str_starts_with($sharedDir, '/') || str_contains($sharedDir, ':')) && !is_dir($sharedDir)) {
-            $sharedDir = 'var/shared';
-        }
-        if (!str_starts_with($sharedDir, '/') && !str_contains($sharedDir, ':')) {
-            $sharedDir = SPP_BASE_DIR . SPP_DS . '..' . SPP_DS . $sharedDir;
-        }
-        $sharedDir = realpath($sharedDir);
-        
-        $daemonsDir = $sharedDir . SPP_DS . 'bridge' . SPP_DS . 'daemons';
-        if (!is_dir($daemonsDir)) {
-            @mkdir($daemonsDir, 0777, true);
+        if ($action === 'cleanup') {
+            $cleaned = WorkerManager::cleanupStaleWorkers();
+            echo "Cleaned up {$cleaned} stale worker artifact(s).\n";
+            return;
         }
 
         if ($action === 'async') {
@@ -44,182 +39,74 @@ class PolyglotWorkerCommand extends Command
             return;
         }
 
-        if ($module) {
-            $this->manageWorker($action, $module, $lang, $daemonsDir, $sharedDir);
-        } else {
-            if ($action === 'status') {
-                $files = glob($daemonsDir . '/*.port');
-                if (empty($files)) {
-                    echo "No running polyglot workers found.\n";
-                } else {
-                    foreach ($files as $file) {
-                        $port = trim(file_get_contents($file));
-                        $modulePath = trim(@file_get_contents(str_replace('.port', '.module', $file)));
-                        echo "Worker running on port {$port} -> {$modulePath}\n";
+        if ($action === 'status') {
+            $daemonsDir = WorkerManager::getDaemonsDir();
+            $metaFiles = glob($daemonsDir . DIRECTORY_SEPARATOR . '*.meta.json') ?: [];
+            if (empty($metaFiles)) {
+                echo "No running polyglot workers found.\n";
+            } else {
+                echo "Active Polyglot Workers:\n";
+                echo "+--------------------------------------+---------+-------+----------+------------------------------------------------+\n";
+                echo "| Worker ID                            | Lang    | PID   | Port     | Module                                         |\n";
+                echo "+--------------------------------------+---------+-------+----------+------------------------------------------------+\n";
+                foreach ($metaFiles as $metaFile) {
+                    $meta = json_decode((string)file_get_contents($metaFile), true);
+                    if (is_array($meta)) {
+                        $pid = (int)($meta['pid'] ?? 0);
+                        $isAlive = Platform::isPidAlive($pid);
+                        if (!$isAlive) {
+                            WorkerManager::cleanupWorkerFiles($meta['hash'] ?? '');
+                            continue;
+                        }
+                        $id = substr($meta['hash'] ?? basename($metaFile, '.meta.json'), 0, 36);
+                        $l = $meta['lang'] ?? 'unknown';
+                        $p = (string)($meta['port'] ?? 0);
+                        $mod = substr($meta['module'] ?? '', -46);
+                        echo "| " . str_pad($id, 36) . " | " . str_pad($l, 7) . " | " . str_pad((string)$pid, 5) . " | " . str_pad($p, 8) . " | " . str_pad($mod, 46) . " |\n";
                     }
                 }
-            } else {
-                echo "Module path required for action {$action}\n";
+                echo "+--------------------------------------+---------+-------+----------+------------------------------------------------+\n";
             }
-        }
-    }
-
-    private function manageWorker(string $action, string $module, ?string $lang, string $daemonsDir, string $sharedDir): void
-    {
-        $hash = md5(realpath($module) ?: $module);
-        $portFile = $daemonsDir . '/' . $hash . '.port';
-        $pidFile = $daemonsDir . '/' . $hash . '.pid';
-        $moduleFile = $daemonsDir . '/' . $hash . '.module';
-
-        if ($action === 'stop' || $action === 'restart') {
-            if (file_exists($pidFile)) {
-                $pid = trim(file_get_contents($pidFile));
-                if (PHP_OS_FAMILY === 'Windows') {
-                    @exec("taskkill /F /PID {$pid} 2>nul");
-                } else {
-                    @exec("kill -9 {$pid} 2>/dev/null");
-                }
-                @unlink($pidFile);
-                @unlink($portFile);
-                @unlink($moduleFile);
-                echo "Worker for {$module} stopped.\n";
-            } else {
-                echo "Worker for {$module} is not running.\n";
-            }
-            if ($action === 'stop') return;
+            return;
         }
 
-        if ($action === 'start' || $action === 'restart') {
-            if (file_exists($pidFile)) {
-                echo "Worker for {$module} is already running.\n";
-                return;
-            }
+        if (!$module) {
+            echo "Module path required for action {$action}\n";
+            return;
+        }
 
-            if (!$lang) {
-                // Infer language from extension
-                $ext = pathinfo($module, PATHINFO_EXTENSION);
-                $langMap = ['py' => 'python', 'js' => 'node', 'go' => 'go', 'cs' => 'dotnet', 'pl' => 'perl', 'java' => 'java'];
-                $lang = $langMap[$ext] ?? null;
-            }
-
-            if (!$lang) {
-                echo "Could not infer language for {$module}. Please provide lang argument.\n";
-                return;
-            }
-
-            // Command execution mapping
-            $runtimes = \SPP\PolyglotBridge::discoverRuntimes();
-            $binary = $runtimes[$lang]['path'] ?? $lang;
-
-            // Construct the daemon command
-            // We pass '--daemon' flag to the dispatch scripts.
-            $command = "";
-            $frameworkLibDir = SPP_BASE_DIR . SPP_DS . 'lib' . SPP_DS . 'polyglot';
-            if ($lang === 'python') {
-                $dispatchScript = $frameworkLibDir . '/dispatch.py';
-                $command = "\"{$binary}\" \"{$dispatchScript}\" \"{$module}\" --daemon \"{$portFile}\"";
-            } elseif ($lang === 'node') {
-                $dispatchScript = $frameworkLibDir . '/dispatch.js';
-                $command = "\"{$binary}\" \"{$dispatchScript}\" \"{$module}\" --daemon \"{$portFile}\"";
-            } elseif ($lang === 'perl') {
-                $dispatchScript = $frameworkLibDir . '/dispatch.pl';
-                $command = "\"{$binary}\" \"{$dispatchScript}\" \"{$module}\" --daemon \"{$portFile}\"";
-            } elseif ($lang === 'java') {
-                $javaLib = SPP_BASE_DIR . SPP_DS . 'lib' . SPP_DS . 'java';
-                $cpSep = PHP_OS_FAMILY === 'Windows' ? ';' : ':';
-                $command = "\"{$binary}\" -cp \".{$cpSep}{$javaLib}\" \"{$module}\" --daemon \"{$portFile}\"";
-            } elseif ($lang === 'go') {
-                $moduleDir = dirname(realpath($module) ?: $module);
-                $moduleFile = basename($module);
-                
-                $safeModuleDir = escapeshellarg($moduleDir);
-                $safeBinary = escapeshellarg($binary);
-                $safeModuleFile = escapeshellarg($moduleFile);
-                $safePortFile = escapeshellarg($portFile);
-                
-                $cdCmd = PHP_OS_FAMILY === 'Windows' ? "cd /D {$safeModuleDir}" : "cd {$safeModuleDir}";
-                $command = "{$cdCmd} && {$safeBinary} run {$safeModuleFile} --daemon {$safePortFile}";
-            } elseif ($lang === 'dotnet') {
-                $safeModule = escapeshellarg($module);
-                $safePortFile = escapeshellarg($portFile);
-                $safeBinary = escapeshellarg($binary);
-                
-                $proj = (is_dir($module) || str_ends_with($module, '.csproj')) ? "--project {$safeModule}" : $safeModule;
-                $command = "{$safeBinary} run {$proj} -- --daemon {$safePortFile}";
-            } elseif ($lang === 'compiler') {
-                $outputExe = $daemonsDir . '/' . $hash . (PHP_OS_FAMILY === 'Windows' ? '.exe' : '.bin');
-                $safeBinary = escapeshellarg($binary);
-                $safeModule = escapeshellarg($module);
-                $safeOutputExe = escapeshellarg($outputExe);
-                
-                if (PHP_OS_FAMILY === 'Windows') {
-                    $runtimes = \SPP\PolyglotBridge::discoverRuntimes();
-                    $vcvars = $runtimes['compiler']['vcvars'] ?? '';
-                    $prefix = $vcvars ? "call " . escapeshellarg($vcvars) . " && " : "";
-                    $compileCmd = "{$prefix}{$safeBinary} /EHsc {$safeModule} /Fe:{$safeOutputExe} 2>&1";
-                } else {
-                    $compileCmd = "{$safeBinary} {$safeModule} -o {$safeOutputExe} 2>&1";
-                }
-                $cOut = shell_exec($compileCmd);
-                if (!file_exists($outputExe)) {
-                    echo "C++ Compilation failed: {$cOut}\n";
-                    return;
-                }
-                $safePortFile = escapeshellarg($portFile);
-                $command = "{$safeOutputExe} --daemon {$safePortFile}";
-            }
-
-            if (!$command) {
-                echo "Daemon mode not supported for language {$lang} yet.\n";
-                return;
-            }
-
-            // Launch process in background and capture PID
-            $logFile = $daemonsDir . '/' . $hash . '.log';
-            if (PHP_OS_FAMILY === 'Windows') {
-                $vbsFile = $daemonsDir . '/daemon_runner.vbs';
-                if (!file_exists($vbsFile)) {
-                    $vbsCode = "Set objShell = CreateObject(\"WScript.Shell\")\n";
-                    $vbsCode .= "objShell.CurrentDirectory = WScript.Arguments(1)\n";
-                    $vbsCode .= "objShell.Run WScript.Arguments(0), 0, False\n";
-                    file_put_contents($vbsFile, $vbsCode);
-                }
-                $batFile = $daemonsDir . '/' . $hash . '.bat';
-                file_put_contents($batFile, "{$command} > \"{$logFile}\" 2>&1");
-                $projectRoot = realpath(SPP_BASE_DIR . '/..');
-                $cmd = "cscript //nologo \"{$vbsFile}\" \"{$batFile}\" \"{$projectRoot}\"";
-                pclose(popen($cmd, "r"));
+        if ($action === 'start') {
+            echo "Starting worker for {$module}...\n";
+            $res = WorkerManager::startWorker($module, $lang);
+            if ($res['success']) {
+                echo "✔ Worker started (PID: {$res['pid']}, Port: {$res['port']})\n";
             } else {
-                $cmd = "cd " . escapeshellarg(realpath(SPP_BASE_DIR . '/..')) . " && nohup {$command} > \"{$logFile}\" 2>&1 & echo $!";
-                $pid = trim(shell_exec($cmd));
-                file_put_contents($pidFile, $pid);
+                echo "✖ Failed to start worker: " . ($res['error'] ?? 'Unknown error') . "\n";
             }
-
-            file_put_contents($moduleFile, $module);
-            echo "Started worker for {$module}...\n";
-            
-            // Wait for port file to appear (max 30 seconds for compiled languages)
-            $attempts = 0;
-            while (!file_exists($portFile) && $attempts < 300) {
-                usleep(100000); // 100ms
-                $attempts++;
-            }
-            if (file_exists($portFile)) {
-                echo "Worker bound to port " . trim(file_get_contents($portFile)) . "\n";
+        } elseif ($action === 'stop') {
+            $res = WorkerManager::stopWorker($module, $lang);
+            echo $res['message'] . "\n";
+        } elseif ($action === 'restart') {
+            WorkerManager::stopWorker($module, $lang);
+            usleep(200000); // 200ms
+            $res = WorkerManager::startWorker($module, $lang);
+            if ($res['success']) {
+                echo "✔ Worker restarted (PID: {$res['pid']}, Port: {$res['port']})\n";
             } else {
-                echo "Warning: Worker did not bind to a port in time. Check logs at {$logFile}\n";
+                echo "✖ Failed to restart worker: " . ($res['error'] ?? 'Unknown error') . "\n";
             }
         }
     }
 
     private function executeAsync(array $args): void
     {
-        if (empty($this->getArgument($args, 1))) {
+        $payloadArg = $this->getArgument($args, 1);
+        if (empty($payloadArg)) {
             error_log("PolyglotAsync: Missing payload.");
             return;
         }
 
-        $payload = json_decode(base64_decode($this->getArgument($args, 1)), true);
+        $payload = json_decode(base64_decode($payloadArg), true);
         if (!$payload) {
             error_log("PolyglotAsync: Invalid payload.");
             return;

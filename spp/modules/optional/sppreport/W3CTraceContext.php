@@ -39,6 +39,11 @@ class W3CTraceContext
         }
     }
 
+    public static function startTrace(string $name, array $attributes = []): void
+    {
+        self::startSpan($name, $attributes);
+    }
+
     public static function startSpan(string $name, array $attributes = []): void
     {
         if (empty(self::$traceparent)) {

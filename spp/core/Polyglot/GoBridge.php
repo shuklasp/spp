@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace SPP\Core\Polyglot;
 
@@ -9,9 +10,29 @@ class GoBridge implements PolyglotBridgeInterface
         return null;
     }
 
+    public function getExecutionPlan(string $module, string $func, array $args, array $runtime, string $sharedDir): ExecutionPlan
+    {
+        $binary = $runtime['path'] ?? 'go';
+        $moduleAbs = realpath($module) ?: $module;
+        $moduleDir = dirname($moduleAbs);
+        $moduleFile = basename($moduleAbs);
+
+        return new ExecutionPlan(
+            executable: $binary,
+            arguments: ['run', $moduleFile, $func],
+            workingDirectory: $moduleDir,
+            environment: [
+                'GOCACHE' => $sharedDir . DIRECTORY_SEPARATOR . 'bridge' . DIRECTORY_SEPARATOR . '.gocache',
+            ],
+            inputTransport: 'stdin_json',
+            outputFormat: 'json',
+            timeout: 30.0
+        );
+    }
+
     public function getCommand(string $module, string $func, array $args, array $runtime, string $sharedDir): string
     {
-        $binary = $runtime['path'];
+        $binary = $runtime['path'] ?? 'go';
         $moduleAbs = realpath($module) ?: $module;
         $moduleDir = dirname($moduleAbs);
         $moduleFile = basename($moduleAbs);

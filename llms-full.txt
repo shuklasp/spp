@@ -1064,6 +1064,33 @@ class AnalyticsController extends ViewController
 </div>
 ```
 
+#### 5. Hardened Execution Plan, Process Runner & Persistent Workers
+```php
+// 1. Immutable Execution Plan & Process Runner
+$plan = new \SPP\Core\Polyglot\ExecutionPlan(
+    executable: '/usr/bin/python3',
+    arguments: ['dispatch.py', 'calc.py', 'add'],
+    workingDirectory: '/var/www/app',
+    environment: ['PYTHONUNBUFFERED' => '1'],
+    inputTransport: 'stdin_json',
+    outputFormat: 'json',
+    timeout: 15.0
+);
+$result = \SPP\Core\Polyglot\ProcessRunner::executePlan($plan, json_encode([10, 20]));
+if ($result->isSuccess()) {
+    $data = $result->getJson();
+}
+
+// 2. Persistent Worker with Cryptographic Authentication & Health Ping
+$start = \SPP\Core\Polyglot\WorkerManager::startWorker('services/heavy_calc.py', 'python', 'default');
+$res = \SPP\Core\Polyglot\WorkerManager::callWorker('services/heavy_calc.py', 'compute', [5000], 'python');
+\SPP\Core\Polyglot\WorkerManager::stopWorker('services/heavy_calc.py', 'python');
+
+// 3. Managed Asynchronous Polyglot Job with Retry & W3C Trace Context
+$jobId = \SPP\PolyglotBridge::dispatchAsync('python', 'services/report.py', 'generate', [$studentId]);
+$status = \SPP\PolyglotBridge::getAsyncStatus($jobId); // 'queued'|'running'|'completed'|'failed'
+```
+
 ### N. Multi-Domain Execution Context, Safe Paths, Configuration Cascade & Tenant Database Resolution
 
 #### 1. Resolving Safe Filesystem Paths & Traversal Defense

@@ -1,7 +1,39 @@
-.TH "polyglot:worker" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "POLYGLOT:WORKER" 1 "November 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-polyglot:worker \- Manage Polyglot persistent workers
+polyglot:worker \- Manage hardened, authenticated polyglot persistent workers
 .SH SYNOPSIS
 .B php spp.php polyglot:worker
+\fIaction\fR [\fImodule\fR] [\fB\-\-lang\fR=\fIlang\fR] [\fB\-\-context\fR=\fIcontext\fR]
 .SH DESCRIPTION
-Manage Polyglot persistent workers
+.B polyglot:worker
+orchestrates long-running persistent language workers (Python, Node.js, Perl).
+It enforces cryptographically authenticated TCP loopback sockets, non-colliding
+atomic PID/port state publication, health check pings, graceful termination,
+and automatic stale artifact cleanup.
+.SH ACTIONS
+.TP
+.B start
+Spawns the worker daemon, generates auth tokens, and verifies socket readiness.
+.TP
+.B stop
+Sends a graceful shutdown command via the authenticated control channel.
+.TP
+.B status
+Checks whether the worker is alive, queries process metadata, and pings the socket.
+.TP
+.B restart
+Executes a graceful shutdown followed by re-initialization.
+.TP
+.B cleanup
+Scans the daemon registry and purges orphaned PID and port files.
+.SH OPTIONS
+.TP
+\fB\-\-lang\fR=\fILANGUAGE\fR
+Specify the language identifier (python, node, perl).
+.TP
+\fB\-\-context\fR=\fICONTEXT\fR
+Application context partition for isolation. Default: default.
+.SH UNDER THE HOOD
+Creates atomic state files under \fIvar/shared/bridge/daemons/\fR.
+Validates PID process ownership before termination to prevent PID recycling collisions.
+Transports requests with JSON payloads over local loopback sockets with mandatory auth tokens.
